@@ -1,11 +1,12 @@
 # Package metadata.
 TITLE       := Apollo Save Tool
 VERSION     := 1.00
-TITLE_ID    := BREW00080
-CONTENT_ID  := IV0000-BREW00080_00-AUDIOWAVEX000000
+TITLE_ID    := APOL00004
+CONTENT_ID  := IV0000-APOL00004_00-APOLLO0000000PS4
 
 # Libraries linked into the ELF.
-LIBS        := -lc -lkernel -lc++ -lSceAudioOut -lSceUserService -lorbis2d -lSceVideoOut -lSceGnmDriver -lSceSysmodule -lSceFreeType -lScePad -ldbglogger -lpolarssl -lz
+LIBS        := -lc -lkernel -lc++ -lSceAudioOut -lSceUserService -lSceVideoOut -lSceGnmDriver -lSceSysmodule -lSceFreeType \
+               -lScePad -lSDL2 -ldbglogger -lpolarssl -lz
 
 # Additional compile flags.
 EXTRAFLAGS  := -DAPOLLO_ENABLE_LOGGING

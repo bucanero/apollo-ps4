@@ -229,8 +229,8 @@ void owner_callback(int sel)
 
 void log_callback(int sel)
 {
-	dbglogger_init_mode(FILE_LOGGER, "/dev_hdd0/tmp/apollo.log", 0);
-	show_message("Debug Logging Enabled!\n\n/dev_hdd0/tmp/apollo.log");
+	dbglogger_init_mode(FILE_LOGGER, "/data/apollo/tmp/apollo.log", 0);
+	show_message("Debug Logging Enabled!\n\n/data/apollo/tmp/apollo.log");
 }
 
 void redetect_callback(int sel)

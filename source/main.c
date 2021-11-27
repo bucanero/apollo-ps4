@@ -1,5 +1,5 @@
 /* 
-	Apollo PS3 main.c
+	Apollo PS4 main.c
 */
 
 #include <stdio.h>
@@ -1105,7 +1105,7 @@ void doOptionsMenu()
 		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_CIRCLE)
 		{
 //			save_app_settings(&apollo_config);
-			set_ttf_window(0, 0, 848 + apollo_config.marginH, 512 + apollo_config.marginV, WIN_SKIP_LF);
+			set_ttf_window(0, 0, SCREEN_WIDTH + apollo_config.marginH, SCREEN_HEIGHT + apollo_config.marginV, WIN_SKIP_LF);
 			SetMenu(MENU_MAIN_SCREEN);
 			return;
 		}
@@ -1449,8 +1449,6 @@ void registerSpecialChars()
 	RegisterSpecialCharacter(CHAR_TRP_SYNC, 0, 1.2, &menu_textures[trp_sync_img_index]);
 }
 
-int64_t flipArg=0;
-
 /*
 	Program start
 */
@@ -1485,16 +1483,12 @@ s32 main(s32 argc, const char* argv[])
 	LoadTextures_Menu();
 	LoadSounds();
 
-	LOG("x1");
-
 	// Unpack application data on first run
 	if (file_exists(APOLLO_LOCAL_CACHE "appdata.zip") == SUCCESS)
 	{
 		clean_directory(APOLLO_DATA_PATH);
 		unzip_app_data(APOLLO_LOCAL_CACHE "appdata.zip");
 	}
-
-	LOG("22");
 
 	// Splash screen logo (fade-in)
 //	drawSplashLogo(1, &flipArg);
@@ -1504,8 +1498,6 @@ s32 main(s32 argc, const char* argv[])
 
 //	if (file_exists(APOLLO_PATH OWNER_XML_FILE) == SUCCESS)
 //		save_xml_owner(APOLLO_PATH OWNER_XML_FILE, NULL);
-
-	LOG("333");
 
 //-
         char** retm = calloc(1, sizeof(char*) * 2);
@@ -1517,8 +1509,6 @@ s32 main(s32 argc, const char* argv[])
 	// Setup font
 	SetExtraSpace(5);
 	SetCurrentFont(0);
-
-	LOG("555");
 
 	registerSpecialChars();
 
@@ -1538,10 +1528,9 @@ s32 main(s32 argc, const char* argv[])
 		}
 	}
 
-	LOG("666");
-
 	// Splash screen logo (fade-out)
 //	drawSplashLogo(-1, &flipArg);
+	SDL_DestroyTexture(menu_textures[buk_scr_png_index].texture);
 
 //	SND_SetInfiniteVoice(2, (effect_is_stereo) ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT, effect_freq, 0, background_music, background_music_size, 255, 255);
 	
@@ -1552,9 +1541,7 @@ s32 main(s32 argc, const char* argv[])
 
 	SetMenu(MENU_MAIN_SCREEN);
 
-	LOG("77");
-
- 	dbglogger_init_mode(TCP_LOGGER, "192.168.1.249", 19999);
+// 	dbglogger_init_mode(TCP_LOGGER, "192.168.1.249", 19999);
 
 /*
 FC3: BF6723C1 / 23d93d8a4bd443f719dd086b2e9c9c07
@@ -1565,11 +1552,9 @@ MvC3:703B3123 <xor> 8FC4CEDC
 
 	while (!close_app)
 	{
-		//wait for current display buffer
-		orbis2dStartDrawing();
-
-		// clear the current display buffer
-		orbis2dClearBuffer(1);  // (don't use cached dumpBuf)
+		// Clear the canvas
+		SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x20, 0xFF);
+		SDL_RenderClear(renderer);
 
 /*
 		tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
@@ -1612,20 +1597,22 @@ MvC3:703B3123 <xor> 8FC4CEDC
 			SetCurrentFont(0);
 			SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 			SetFontColor(APP_FONT_COLOR | alpha, 0);
-			DrawString(0, 480, (char *)menu_pad_help[menu_id]);
+			DrawString(0, SCREEN_HEIGHT - 64, (char *)menu_pad_help[menu_id]);
 			SetFontAlign(FONT_ALIGN_LEFT);
 		}
 
-		//flush and flip
-		orbis2dFinishDrawing(flipArg);
-
-		//swap buffers
-		orbis2dSwapBuffers();
-		flipArg++;
-//		tiny3d_Flip();
+		// Propagate the updated window to the screen
+		SDL_UpdateWindowSurface(window);
+//SDL_RenderPresent
 	}
 
 	release_all();
+
+    // Cleanup resources
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    // Stop all SDL sub-systems
+    SDL_Quit();
 
 	return 0;
 }

@@ -1,9 +1,13 @@
 #ifndef __ARTEMIS_MENU_H__
 #define __ARTEMIS_MENU_H__
 
-#include <orbis2d.h>
+#include <SDL2/SDL.h>
 
 #include "settings.h"
+
+// SDL window and software renderer
+SDL_Window* window;
+SDL_Renderer* renderer;
 
 //Textures
 enum texture_index
@@ -88,24 +92,32 @@ enum texture_index
 	TOTAL_MENU_TEXTURES
 };
 
+#define RGBA_R(c)		(uint8_t)((c & 0xFF000000) >> 24)
+#define RGBA_G(c)		(uint8_t)((c & 0x00FF0000) >> 16)
+#define RGBA_B(c)		(uint8_t)((c & 0x0000FF00) >> 8)
+#define RGBA_A(c)		(uint8_t) (c & 0x000000FF)
+
 //Fonts
-#define  font_adonais_regular								0
+#define  font_adonais_regular				0
 
 #define APP_FONT_COLOR						0xFFFFFF00
 #define APP_FONT_TAG_COLOR					0xFFFFFF00
 #define APP_FONT_MENU_COLOR					0x00000000
 #define APP_FONT_TITLE_COLOR				0xFFFFFF00
-#define APP_FONT_SIZE_TITLE					24, 24
-#define APP_FONT_SIZE_SUBTITLE				20, 20
-#define APP_FONT_SIZE_SUBTEXT				12, 12
-#define APP_FONT_SIZE_ABOUT					19, 17
-#define APP_FONT_SIZE_SELECTION				14, 16
-#define APP_FONT_SIZE_DESCRIPTION			18, 16
-#define APP_FONT_SIZE_MENU					19, 18
+#define APP_FONT_SIZE_TITLE					36, 36
+#define APP_FONT_SIZE_SUBTITLE				30, 30
+#define APP_FONT_SIZE_SUBTEXT				18, 18
+#define APP_FONT_SIZE_ABOUT					28, 25
+#define APP_FONT_SIZE_SELECTION				21, 24
+#define APP_FONT_SIZE_DESCRIPTION			27, 24
+#define APP_FONT_SIZE_MENU					28, 27
 
-//Screen adjustment (Orbis2d/Assets)
-#define SCREEN_W_ADJ 						1280/1920
-#define SCREEN_H_ADJ 						720/1080
+#define SCREEN_WIDTH						1280
+#define SCREEN_HEIGHT						720
+
+//Screen adjustment (SDL2/Assets)
+#define SCREEN_W_ADJ 						SCREEN_WIDTH/1920
+#define SCREEN_H_ADJ 						SCREEN_HEIGHT/1080
 
 //Asset sizes
 #define	logo_png_w							478 * SCREEN_W_ADJ
@@ -120,8 +132,8 @@ enum texture_index
 
 #define help_png_x							80
 #define help_png_y							150 * SCREEN_H_ADJ
-#define help_png_w							730
-#define help_png_h							400
+#define help_png_w							1730 * SCREEN_W_ADJ
+#define help_png_h							800 * SCREEN_H_ADJ
 
 
 //Asset positions
@@ -167,10 +179,11 @@ enum texture_index
 
 typedef struct t_png_texture
 {
-	const void *buffer;
+	void *buffer;
+	int width;
+	int height;
 	u32 size;
-	Orbis2dTexture *texture;
-	u32 texture_off;
+	SDL_Texture *texture;
 } png_texture;
 
 u32 * texture_mem;      // Pointers to texture memory
@@ -206,10 +219,11 @@ extern void DrawBackgroundTexture(int x, u8 alpha);
 extern void DrawTextureRotated(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba, float angle);
 extern void Draw_MainMenu();
 extern void Draw_MainMenu_Ani();
+void LoadMenuTexture(const char* path, int idx);
 
 void drawJars(uint8_t alpha);
 void drawColumns(uint8_t alpha);
-void drawSplashLogo(int m, int64_t *flip);
+void drawSplashLogo(int m);
 
 int load_app_settings(app_config_t* config);
 int save_app_settings(app_config_t* config);

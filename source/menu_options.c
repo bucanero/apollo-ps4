@@ -1,13 +1,10 @@
 #include <unistd.h>
 #include <string.h>
-//#include <pngdec/pngdec.h>
 #include <stdio.h>
 
 #include "saves.h"
 #include "menu.h"
 #include "menu_options.h"
-
-//#include <tiny3d.h>
 #include "libfont.h"
 
 void _draw_OptionsMenu(u8 alpha)
@@ -27,18 +24,18 @@ void _draw_OptionsMenu(u8 alpha)
 
         SetFontColor(APP_FONT_COLOR | alpha, 0);
         DrawString(MENU_ICON_OFF + MENU_TITLE_OFF + 50, y_off, option_name);
-        
+
 		switch (menu_options[ind].type)
 		{
 			case APP_OPTION_BOOL:
 				c = (*menu_options[ind].value == 1) ? opt_on_png_index : opt_off_png_index;
-				w = (int)(menu_textures[c].texture->width / 1.8);
-				h = (int)(menu_textures[c].texture->height / 1.8);
+				w = (int)(menu_textures[c].width / 1.8);
+				h = (int)(menu_textures[c].height / 1.8);
 				DrawTexture(&menu_textures[c], OPTION_ITEM_OFF - 29, y_off, 0, w, h, 0xFFFFFF00 | alpha);
 				break;
 			case APP_OPTION_CALL:
-				w = (int)(menu_textures[footer_ico_cross_png_index].texture->width / 1.8);
-				h = (int)(menu_textures[footer_ico_cross_png_index].texture->height / 1.8);
+				w = (int)(menu_textures[footer_ico_cross_png_index].width / 1.8);
+				h = (int)(menu_textures[footer_ico_cross_png_index].height / 1.8);
 				DrawTexture(&menu_textures[footer_ico_cross_png_index], OPTION_ITEM_OFF - 29, y_off+2, 0, w, h, 0xFFFFFF00 | alpha);
 				break;
 			case APP_OPTION_LIST:
@@ -56,8 +53,8 @@ void _draw_OptionsMenu(u8 alpha)
         if (menu_sel == ind)
         {
             int i = 0;
-            for (i = 0; i < 848; i++)
-				DrawTexture(&menu_textures[mark_line_png_index], i, y_off, 0, menu_textures[mark_line_png_index].texture->width, menu_textures[mark_line_png_index].texture->height, 0xFFFFFF00 | alpha);
+            for (i = 0; i < SCREEN_WIDTH; i++)
+				DrawTexture(&menu_textures[mark_line_png_index], i, y_off, 0, menu_textures[mark_line_png_index].width, menu_textures[mark_line_png_index].height, 0xFFFFFF00 | alpha);
         }
         
         y_off += 20;

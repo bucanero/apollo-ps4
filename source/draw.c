@@ -1,8 +1,11 @@
 #include <string.h>
-#include <orbis2d.h>
 #include <threads.h>
 #include <unistd.h>
 #include <stdio.h>
+
+#define STBI_ASSERT(x)
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 #include "types.h"
 #include "libfont.h"
@@ -13,15 +16,36 @@
 
 #define JAR_COLUMNS 7
 
-/*
-    From sprite2D source
-    I'm not going to document them for that reason
-*/
+
+void LoadMenuTexture(const char* path, int idx)
+{
+	int d;
+
+	menu_textures[idx].buffer = (uint32_t*) stbi_load(path, &menu_textures[idx].width, &menu_textures[idx].height, &d, STBI_rgb_alpha);
+
+	if (!menu_textures[idx].buffer)
+	{
+		LOG("Error Loading texture (%s)!", path);
+		return;
+	}
+
+	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(menu_textures[idx].buffer, menu_textures[idx].width, menu_textures[idx].height, 32, 4 * menu_textures[idx].width,
+												0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+
+	menu_textures[idx].texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+	SDL_FreeSurface(surface);
+	stbi_image_free(menu_textures[idx].buffer);
+
+	menu_textures[idx].size = menu_textures[idx].width * menu_textures[idx].height * 4;
+	menu_textures[idx].buffer = NULL;
+}
 
 // draw one background color in virtual 2D coordinates
 void DrawBackground2D(u32 rgba)
 {
-	orbis2dSetBgColor(rgba);
+	SDL_SetRenderDrawColor(renderer, RGBA_R(rgba), RGBA_G(rgba), RGBA_B(rgba), RGBA_A(rgba));
+
 	/*
 	tiny3d_SetPolygon(TINY3D_QUADS);
 
@@ -96,8 +120,8 @@ void DrawSpritesRot2D(float x, float y, float layer, float dx, float dy, u32 rgb
 void DrawSelector(int x, int y, int w, int h, int hDif, u8 alpha)
 {
 	int i = 0;
-	for (i = 0; i < 848; i++)
-		DrawTexture(&menu_textures[mark_line_png_index], i, y, 0, menu_textures[mark_line_png_index].texture->width, menu_textures[mark_line_png_index].texture->height + hDif, 0xFFFFFF00 | alpha);
+	for (i = 0; i < SCREEN_WIDTH; i++)
+		DrawTexture(&menu_textures[mark_line_png_index], i, y, 0, menu_textures[mark_line_png_index].width, menu_textures[mark_line_png_index].height + hDif, 0xFFFFFF00 | alpha);
 
 	DrawTextureCentered(&menu_textures[mark_arrow_png_index], x, y, 0, w, h, 0xFFFFFF00 | alpha);
 }
@@ -118,7 +142,7 @@ void _drawListBackground(int off, int icon)
 		case cat_sav_png_index:
 			DrawTexture(&menu_textures[help_png_index], help_png_x, help_png_y, 0, help_png_w, help_png_h, 0xFFFFFF00 | 0xFF);
 
-			if (menu_textures[icon_png_file_index].size)
+			if (menu_textures[icon_png_file_index].texture)
 			{
 				DrawTexture(&menu_textures[help_png_index], 624, help_png_y + 4, 0, 168, 98, 0xFFFFFF00 | 0xFF);
 				DrawTexture(&menu_textures[icon_png_file_index], 628, help_png_y + 8, 0, 160, 88, 0xFFFFFF00 | 0xFF);
@@ -126,7 +150,7 @@ void _drawListBackground(int off, int icon)
 			break;
 
 		case cat_cheats_png_index:
-			DrawTexture(&menu_textures[help_png_index], off + MENU_ICON_OFF, help_png_y, 0, 800 - off - MENU_ICON_OFF, help_png_h, 0xFFFFFF00 | 0xFF);
+			DrawTexture(&menu_textures[help_png_index], off + MENU_ICON_OFF, help_png_y, 0, (SCREEN_WIDTH - 75) - off - MENU_ICON_OFF, help_png_h, 0xFFFFFF00 | 0xFF);
 			break;
 
 		case cat_about_png_index:
@@ -151,11 +175,11 @@ void DrawHeader_Ani(int icon, const char * hdrTitle, const char * headerSubTitle
 	_drawListBackground(0, icon);
 	//------------- Menu Bar
 
-	int cnt, cntMax = ((ani * div) > 800) ? 800 : (ani * div);
+	int cnt, cntMax = ((ani * div) > (SCREEN_WIDTH - 75)) ? (SCREEN_WIDTH - 75) : (ani * div);
 	for (cnt = MENU_ICON_OFF; cnt < cntMax; cnt++)
-		DrawTexture(&menu_textures[header_line_png_index], cnt, 40, 0, menu_textures[header_line_png_index].texture->width, menu_textures[header_line_png_index].texture->height / 2, 0xffffffff);
+		DrawTexture(&menu_textures[header_line_png_index], cnt, 40, 0, menu_textures[header_line_png_index].width, menu_textures[header_line_png_index].height / 2, 0xffffffff);
 
-	DrawTexture(&menu_textures[header_dot_png_index], cnt - 4, 40, 0, menu_textures[header_dot_png_index].texture->width / 2, menu_textures[header_dot_png_index].texture->height / 2, 0xffffff00 | icon_a);
+	DrawTexture(&menu_textures[header_dot_png_index], cnt - 4, 40, 0, menu_textures[header_dot_png_index].width / 2, menu_textures[header_dot_png_index].height / 2, 0xffffff00 | icon_a);
 
 	//header mini icon
 	DrawTextureCenteredX(&menu_textures[icon], MENU_ICON_OFF - 20, 32, 0, 48, 48, 0xffffff00 | icon_a);
@@ -168,7 +192,7 @@ void DrawHeader_Ani(int icon, const char * hdrTitle, const char * headerSubTitle
 	//header sub title string
 	if (headerSubTitle)
 	{
-		int width = 800 - (MENU_ICON_OFF + MENU_TITLE_OFF + WidthFromStr(headerTitle)) - 30;
+		int width = (SCREEN_WIDTH - 75) - (MENU_ICON_OFF + MENU_TITLE_OFF + WidthFromStr(headerTitle)) - 30;
 		SetFontSize(APP_FONT_SIZE_SUBTITLE);
 		char * tName = malloc(strlen(headerSubTitle) + 1);
 		strcpy(tName, headerSubTitle);
@@ -177,7 +201,7 @@ void DrawHeader_Ani(int icon, const char * hdrTitle, const char * headerSubTitle
 			tName[strlen(tName) - 1] = 0;
 		}
 		SetFontAlign(FONT_ALIGN_RIGHT);
-		DrawString(800, 35, tName);
+		DrawString(SCREEN_WIDTH - 75, 35, tName);
 		free(tName);
 		SetFontAlign(FONT_ALIGN_LEFT);
 	}
@@ -194,10 +218,10 @@ void DrawHeader(int icon, int xOff, const char * hdrTitle, const char * headerSu
 	_drawListBackground(xOff, icon);
 	//------------ Menu Bar
 	int cnt = 0;
-	for (cnt = xOff + MENU_ICON_OFF; cnt < 800; cnt++)
-		DrawTexture(&menu_textures[header_line_png_index], cnt, 40, 0, menu_textures[header_line_png_index].texture->width, menu_textures[header_line_png_index].texture->height / 2, 0xffffffff);
+	for (cnt = xOff + MENU_ICON_OFF; cnt < (SCREEN_WIDTH - 75); cnt++)
+		DrawTexture(&menu_textures[header_line_png_index], cnt, 40, 0, menu_textures[header_line_png_index].width, menu_textures[header_line_png_index].height / 2, 0xffffffff);
 
-	DrawTexture(&menu_textures[header_dot_png_index], cnt - 4, 40, 0, menu_textures[header_dot_png_index].texture->width / 2, menu_textures[header_dot_png_index].texture->height / 2, 0xffffffff);
+	DrawTexture(&menu_textures[header_dot_png_index], cnt - 4, 40, 0, menu_textures[header_dot_png_index].width / 2, menu_textures[header_dot_png_index].height / 2, 0xffffffff);
 
 	//header mini icon
 	//header title string
@@ -218,7 +242,7 @@ void DrawHeader(int icon, int xOff, const char * hdrTitle, const char * headerSu
 	//header sub title string
 	if (headerSubTitle)
 	{
-		int width = 800 - (MENU_ICON_OFF + MENU_TITLE_OFF + WidthFromStr(headerTitle)) - 30;
+		int width = (SCREEN_WIDTH - 75) - (MENU_ICON_OFF + MENU_TITLE_OFF + WidthFromStr(headerTitle)) - 30;
 		SetFontSize(APP_FONT_SIZE_SUBTITLE);
 		char * tName = malloc(strlen(headerSubTitle) + 1);
 		strcpy(tName, headerSubTitle);
@@ -227,7 +251,7 @@ void DrawHeader(int icon, int xOff, const char * hdrTitle, const char * headerSu
 			tName[strlen(tName) - 1] = 0;
 		}
 		SetFontAlign(FONT_ALIGN_RIGHT);
-		DrawString(800, 35, tName);
+		DrawString(SCREEN_WIDTH - 75, 35, tName);
 		free(tName);
 		SetFontAlign(FONT_ALIGN_LEFT);
 	}
@@ -236,20 +260,21 @@ void DrawHeader(int icon, int xOff, const char * hdrTitle, const char * headerSu
 void DrawBackgroundTexture(int x, u8 alpha)
 {
 	if (x == 0)
-		orbis2dDrawTexture(menu_textures[bgimg_jpg_index].texture, 0, 0);
-//		DrawTexture(&menu_textures[bgimg_jpg_index], x - apollo_config.marginH, -apollo_config.marginV, 0, 848 - x + (apollo_config.marginH * 2), 512 + (apollo_config.marginV * 2), 0xFFFFFF00 | alpha);
+		DrawTexture(&menu_textures[bgimg_jpg_index], x - apollo_config.marginH, -apollo_config.marginV, 0, SCREEN_WIDTH - x + (apollo_config.marginH * 2), SCREEN_HEIGHT + (apollo_config.marginV * 2), 0xFFFFFF00 | alpha);
 	else
-		DrawTexture(&menu_textures[bgimg_jpg_index], x, -apollo_config.marginV, 0, 848 - x + apollo_config.marginH, 512 + (apollo_config.marginV * 2), 0xFFFFFF00 | alpha);
+		DrawTexture(&menu_textures[bgimg_jpg_index], x, -apollo_config.marginV, 0, SCREEN_WIDTH - x + apollo_config.marginH, SCREEN_HEIGHT + (apollo_config.marginV * 2), 0xFFFFFF00 | alpha);
 }
 
 void DrawTexture(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba)
 {
-	if (x < 0) x = 0;
-	if (y < 0) y = 0;
+	SDL_Rect dest = {
+		.x = x,
+		.y = y,
+		.w = w,
+		.h = h,
+	};
 
-//	LOG("X %d %d %d", tex->texture->width, tex->texture->height, tex->texture->depth);
-
-	orbis2dDrawTextureResized(tex->texture, x, y, w, h);
+	SDL_RenderCopy(renderer, tex->texture, NULL, &dest);
 
 	/*
     tiny3d_SetTexture(0, tex->texture_off, tex->texture.width,
@@ -264,7 +289,8 @@ void DrawTextureCentered(png_texture* tex, int x, int y, int z, int w, int h, u3
 	x -= w / 2;
 	y -= h / 2;
 
-	orbis2dDrawTextureResized(tex->texture, x, y, w, h);
+	DrawTexture(tex, x, y, z, w, h, rgba);
+
 /*
 	tiny3d_SetTexture(0, tex->texture_off, tex->texture.width,
 		tex->texture.height, tex->texture.pitch,
@@ -277,7 +303,8 @@ void DrawTextureCenteredX(png_texture* tex, int x, int y, int z, int w, int h, u
 {
 	x -= w / 2;
 
-	orbis2dDrawTextureResized(tex->texture, x, y, w, h);
+	DrawTexture(tex, x, y, z, w, h, rgba);
+
 /*
 	tiny3d_SetTexture(0, tex->texture_off, tex->texture.width,
 		tex->texture.height, tex->texture.pitch,
@@ -290,7 +317,8 @@ void DrawTextureCenteredY(png_texture* tex, int x, int y, int z, int w, int h, u
 {
 	y -= h / 2;
 
-	orbis2dDrawTextureResized(tex->texture, x, y, w, h);
+	DrawTexture(tex, x, y, z, w, h, rgba);
+
 /*
 	tiny3d_SetTexture(0, tex->texture_off, tex->texture.width,
 		tex->texture.height, tex->texture.pitch,
@@ -301,10 +329,15 @@ void DrawTextureCenteredY(png_texture* tex, int x, int y, int z, int w, int h, u
 
 void DrawTextureRotated(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba, float angle)
 {
-	x -= w / 2;
-	y -= h / 2;
+	SDL_Rect dest = {
+		.x = x - (w / 2),
+		.y = y - (h / 2),
+		.w = w,
+		.h = h,
+	};
 
-	orbis2dDrawTextureResized(tex->texture, x, y, w, h);
+	SDL_RenderCopyEx(renderer, tex->texture, NULL, &dest, angle, NULL, SDL_FLIP_NONE);
+
 /*
 	tiny3d_SetTexture(0, tex->texture_off, tex->texture.width,
 		tex->texture.height, tex->texture.pitch,
@@ -378,19 +411,19 @@ void stop_loading_screen()
 void drawJar(uint8_t idx, int pos_x, int pos_y, const char* text, uint8_t alpha)
 {
 	uint8_t active = (menu_sel + jar_trophy_png_index == idx);
-	DrawTexture(&menu_textures[idx], pos_x, apollo_config.marginV + pos_y, 0, menu_textures[idx].texture->width * SCREEN_W_ADJ, menu_textures[idx].texture->height * SCREEN_H_ADJ, 0xffffff00 | alpha);
+	DrawTexture(&menu_textures[idx], pos_x, apollo_config.marginV + pos_y, 0, menu_textures[idx].width * SCREEN_W_ADJ, menu_textures[idx].height * SCREEN_H_ADJ, 0xffffff00 | alpha);
 
 	//Selected
 	if (active)
-		DrawTexture(&menu_textures[idx + JAR_COLUMNS], pos_x, apollo_config.marginV + pos_y, 0, menu_textures[idx + JAR_COLUMNS].texture->width * SCREEN_W_ADJ, menu_textures[idx + JAR_COLUMNS].texture->height * SCREEN_H_ADJ, 0xffffff00 | alpha);
+		DrawTexture(&menu_textures[idx + JAR_COLUMNS], pos_x, apollo_config.marginV + pos_y, 0, menu_textures[idx + JAR_COLUMNS].width * SCREEN_W_ADJ, menu_textures[idx + JAR_COLUMNS].height * SCREEN_H_ADJ, 0xffffff00 | alpha);
 
-	SetFontColor(APP_FONT_MENU_COLOR | (alpha == 0xFF ? (active ? 0xFF000000 : 0x20000000) : (alpha << 24)), 0);
-	DrawStringMono(pos_x + (menu_textures[idx].texture->width * SCREEN_W_ADJ / 2), apollo_config.marginV + pos_y - 25, text);
+	SetFontColor(APP_FONT_MENU_COLOR | (alpha == 0xFF ? (active ? 0xFF : 0x20) : alpha), 0);
+	DrawStringMono(pos_x + (menu_textures[idx].width * SCREEN_W_ADJ / 2), apollo_config.marginV + pos_y - 25, text);
 }
 
 void _drawColumn(uint8_t idx, int pos_x, int pos_y, uint8_t alpha)
 {
-	DrawTexture(&menu_textures[idx], pos_x, apollo_config.marginV + pos_y, 0, menu_textures[idx].texture->width * SCREEN_W_ADJ, menu_textures[idx].texture->height * SCREEN_H_ADJ, 0xffffff00 | alpha);
+	DrawTexture(&menu_textures[idx], pos_x, apollo_config.marginV + pos_y, 0, menu_textures[idx].width * SCREEN_W_ADJ, menu_textures[idx].height * SCREEN_H_ADJ, 0xffffff00 | alpha);
 }
 
 void drawColumns(uint8_t alpha)
@@ -437,7 +470,7 @@ void drawJars(uint8_t alpha)
 	SetFontAlign(FONT_ALIGN_LEFT);
 }
 
-void drawSplashLogo(int mode, int64_t *flipArg)
+void drawSplashLogo(int mode)
 {
 	int ani, max;
 
@@ -466,10 +499,8 @@ void drawSplashLogo(int mode, int64_t *flipArg)
 		tiny3d_Project2D();
 */
 		//wait for current display buffer
-		orbis2dStartDrawing();
 
 		// clear the current display buffer
-		orbis2dClearBuffer(1);  // (don't use cached dumpBuf)
 
 		DrawBackground2D(0xFF000000);
 		
@@ -480,14 +511,11 @@ void drawSplashLogo(int mode, int64_t *flipArg)
 		u8 logo_a = (u8)logo_a_t;
 		
 		//App description
-		DrawTextureCentered(&menu_textures[buk_scr_png_index], 1280 /2, 720 /2, 0, 646, 484, 0xFFFFFF00 | logo_a);
+		DrawTextureCentered(&menu_textures[buk_scr_png_index], SCREEN_WIDTH/2, SCREEN_HEIGHT /2, 0, 484, 363, 0xFFFFFF00 | logo_a);
 
 		//flush and flip
-		orbis2dFinishDrawing(*flipArg);
 
 		//swap buffers
-		orbis2dSwapBuffers();
-		*flipArg += 1;
 
 //		tiny3d_Flip();
 	}
@@ -585,7 +613,7 @@ void Draw_MainMenu()
 	DrawTexture(&menu_textures[logo_png_index], logo_png_x, logo_png_y, 0, logo_png_w, logo_png_h, 0xffffffff);
 	
 	//App description
-	DrawTextureCenteredX(&menu_textures[logo_text_png_index], 424, 250, 0, 306, 50, 0xFFFFFF00 | 0xFF);
+	DrawTextureCenteredX(&menu_textures[logo_text_png_index], SCREEN_WIDTH/2, 320, 0, 459, 75, 0xFFFFFF00 | 0xFF);
 
 	drawColumns(0xFF);
 

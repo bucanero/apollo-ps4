@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include <orbis2d.h>
 #include <zlib.h>
 
 #include "types.h"
@@ -331,7 +330,7 @@ void RegisterSpecialCharacter(char value, short fy, float scale, png_texture* im
 		return;
 	if (image->texture == NULL || image->size == 0)
 		return;
-	if (image->texture->width == 0 || image->texture->height == 0)
+	if (image->width == 0 || image->height == 0)
 		return;
 	
 	// Verify value is not in use
@@ -369,12 +368,12 @@ int WidthFromStrMono(u8 * str)
 
 int DrawCharSpecial(float x, float y, float z, const special_char* schr, uint8_t draw)
 {
-    float dx = (float)font_datas.sx / (float)schr->image->texture->width;
-    float dy = (float)font_datas.sy / (float)schr->image->texture->height;
+    float dx = (float)font_datas.sx / (float)schr->image->width;
+    float dy = (float)font_datas.sy / (float)schr->image->height;
     float min = (dx >  dy ? dy : dx);
 
-	dx = (min * schr->scale * schr->image->texture->width);
-	dy = (min * schr->scale * schr->image->texture->height);
+	dx = (min * schr->scale * schr->image->width);
+	dy = (min * schr->scale * schr->image->height);
 
 	if (!draw)
 		return (int)dx;
@@ -385,7 +384,7 @@ int DrawCharSpecial(float x, float y, float z, const special_char* schr, uint8_t
 		y += ((float)font_datas.sy - dy)/2;
 	
 	// Load sprite texture
-    orbis2dDrawTextureResized(schr->image->texture, x, y, dx, dy);
+    DrawTexture(schr->image, x, y, z, dx, dy, 0xFFFFFFFF);
 /*
 	tiny3d_SetTexture(0, schr->image->texture_off, schr->image->texture.width,
 		schr->image->texture.height, schr->image->texture.pitch,
@@ -413,38 +412,25 @@ int DrawCharSpecial(float x, float y, float z, const special_char* schr, uint8_t
 
 void orbis2dDrawChar(float x, float y, const u8* bitmap, int bw, int bh, int dw, int dh, u32 rgba)
 {
-    int i, j;
-    u32 px, buf[bw * bh];
-    Orbis2dTexture tex = {buf, bw, bh, 4};
+    u32 buf[bw * bh];
+    u8 a = (rgba & 0x000000FF);
+    SDL_Rect dest = {
+        .x = x,
+        .y = y,
+        .w = dw,
+        .h = dh,
+    };
 
-    for (i = 0; i < bw; i++)
-    {
-        for (j = 0; j < bh; j++)
-        {
-        	px = bitmap[(bw * j) + i];
+    for (int i = 0; i < bw*bh; i++)
+        buf[i] = bitmap[i] ? ((rgba & 0xFFFFFF00) | ((bitmap[i] * a) / 0xFF)) : 0;
 
-        	if (px)
-        	{
-                // Linearly interpolate between the foreground and background for smoother rendering
-//				uint8_t r = (px * (rgba & 0x0000FF)) / 255;
-//				uint8_t g = (px * ((rgba & 0x00FF00) >> 8)) / 255;
-//				uint8_t b = (px * ((rgba & 0xFF0000) >>16)) / 255;
-				uint8_t a = (px * ((rgba & 0xFF000000) >> 24)) / 255;
-				
-				px = (rgba & 0x00FFFFFF) + (a << 24);
-//				px = (rgba & 0xFF000000) + (b << 16) + (g << 8) + r;
-			}
+    SDL_Surface* surface = SDL_CreateRGBSurfaceFrom((void*) buf, bw, bh, 32, 4 * bw, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+    SDL_Texture* sdl_tex = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_SetTextureBlendMode(sdl_tex, SDL_BLENDMODE_BLEND);
+    SDL_FreeSurface(surface);
 
-            buf[i + (j * bw)] = px;
-        }
-    }
-    
-    tex.width = bw;
-    tex.height = bh;
-    tex.depth = 4;
-    tex.datap = buf;
-
-    orbis2dDrawTextureResized(&tex, x, y, dw, dh);
+    SDL_RenderCopy(renderer, sdl_tex, NULL, &dest);
+    SDL_DestroyTexture(sdl_tex);
 }
 
 void DrawCharMono(float x, float y, float z, u8 chr)
@@ -465,7 +451,15 @@ void DrawCharMono(float x, float y, float z, u8 chr)
 	if (chr < font_datas.fonts[font_datas.current_font].first_char) return;
 
 	if (font_datas.bkcolor) {
-        orbis2dDrawRectColor(x, dx2, y, dy2, font_datas.bkcolor);
+        SDL_FRect rect = {
+            .x = x,
+            .y = y,
+            .w = dx2,
+            .h = dy2,
+        };
+
+        SDL_SetRenderDrawColor(renderer, RGBA_R(font_datas.bkcolor), RGBA_G(font_datas.bkcolor), RGBA_B(font_datas.bkcolor), RGBA_A(font_datas.bkcolor));
+        SDL_RenderFillRectF(renderer, &rect);
 /*
 		tiny3d_SetPolygon(TINY3D_QUADS);
 
@@ -534,7 +528,15 @@ void DrawChar(float x, float y, float z, u8 chr)
 	if (chr < font_datas.fonts[font_datas.current_font].first_char) return;
 
 	if (font_datas.bkcolor) {
-        orbis2dDrawRectColor(x, dx2, y, dy2, font_datas.bkcolor);
+        SDL_FRect rect = {
+            .x = x,
+            .y = y,
+            .w = dx2,
+            .h = dy2,
+        };
+
+        SDL_SetRenderDrawColor(renderer, RGBA_R(font_datas.bkcolor), RGBA_G(font_datas.bkcolor), RGBA_B(font_datas.bkcolor), RGBA_A(font_datas.bkcolor));
+        SDL_RenderFillRectF(renderer, &rect);
 /*
 		tiny3d_SetPolygon(TINY3D_QUADS);
 
@@ -611,7 +613,7 @@ float DrawStringMono(float x, float y, const char *str)
     switch (font_datas.align)
     {
     case FONT_ALIGN_SCREEN_CENTER:
-        x= (848 - WidthFromStrMono((u8 *) str)) / 2;
+        x= (SCREEN_WIDTH - WidthFromStrMono((u8 *) str)) / 2;
         break;
 
     case FONT_ALIGN_RIGHT:
@@ -673,7 +675,7 @@ float DrawString(float x, float y, const char *str)
     switch (font_datas.align)
     {
     case FONT_ALIGN_SCREEN_CENTER:
-        x= (848 - WidthFromStr(str)) / 2;
+        x= (SCREEN_WIDTH - WidthFromStr(str)) / 2;
         break;
 
     case FONT_ALIGN_RIGHT:
@@ -688,7 +690,7 @@ float DrawString(float x, float y, const char *str)
         break;
     }
 
-	display_ttf_string((int)x +1, (int)y +1, str, 0x00000000 | (font_datas.color & 0xff000000), 0, font_datas.sx, font_datas.sy+4, &skip_icon);
+	display_ttf_string((int)x +1, (int)y +1, str, 0x00000000 | (font_datas.color & 0x000000ff), 0, font_datas.sx, font_datas.sy+4, &skip_icon);
 
 	return display_ttf_string((int)x, (int)y, str, font_datas.color, font_datas.bkcolor, font_datas.sx, font_datas.sy+4, &draw_icon);
 }

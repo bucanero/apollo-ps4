@@ -1,11 +1,9 @@
 #include <proto-include.h>
-//#include <ft2build.h>
-//#include <freetype/freetype.h> 
-//#include <freetype/ftglyph.h>
-#include <orbis2d.h>
+#include <SDL2/SDL.h>
 
 #include "types.h"
 #include "ttf_render.h"
+#include "menu.h"
 
 /******************************************************************************************************************************************************/
 /* TTF functions to load and convert fonts                                                                                                             */
@@ -194,7 +192,7 @@ int Render_String_UTF8(u16 * bitmap, int w, int h, u8 *string, int sw, int sh)
 
 typedef struct ttf_dyn {
     u32 ttf;
-    u16 *text;
+    u8 *text;
     u32 r_use;
     u16 y_start;
     u16 width;
@@ -204,6 +202,7 @@ typedef struct ttf_dyn {
 } ttf_dyn;
 
 #define MAX_CHARS 1600
+#define TEX_SZ 64
 
 static ttf_dyn ttf_font_datas[MAX_CHARS];
 
@@ -214,8 +213,8 @@ float Z_ttf = 0.0f;
 
 static int Win_X_ttf = 0;
 static int Win_Y_ttf = 0;
-static int Win_W_ttf = 848;
-static int Win_H_ttf = 512;
+static int Win_W_ttf = SCREEN_WIDTH;
+static int Win_H_ttf = SCREEN_HEIGHT;
 
 
 static u32 Win_flag = 0;
@@ -232,7 +231,7 @@ void set_ttf_window(int x, int y, int width, int height, u32 mode)
    
 }
 
-u16 * init_ttf_table(u16 *texture)
+u16 * init_ttf_table(u8 *texture)
 {
     int n;
 
@@ -241,10 +240,10 @@ u16 * init_ttf_table(u16 *texture)
         memset(&ttf_font_datas[n], 0, sizeof(ttf_dyn));
         ttf_font_datas[n].text = texture;
 
-        texture+= 32*32;
+        texture+= TEX_SZ*TEX_SZ;
     }
 
-    return texture;
+    return (u16*)texture;
 
 }
 
@@ -263,7 +262,15 @@ void reset_ttf_frame(void)
 }
 static void DrawBox_ttf(float x, float y, float z, float w, float h, u32 rgba)
 {
-    orbis2dDrawRectColor(x, w, y, h, rgba);
+    SDL_FRect rect = {
+        .x = x,
+        .y = y,
+        .w = w,
+        .h = h,
+    };
+
+    SDL_SetRenderDrawColor(renderer, RGBA_R(rgba), RGBA_G(rgba), RGBA_B(rgba), RGBA_A(rgba));
+    SDL_RenderFillRectF(renderer, &rect);
 /*
     tiny3d_SetPolygon(TINY3D_QUADS);
     
@@ -281,41 +288,28 @@ static void DrawBox_ttf(float x, float y, float z, float w, float h, u32 rgba)
 */
 }
 
-
-static void DrawTextBox_ttf(const u16* bitmap, float x, float y, float z, float w, float h, u32 rgba, float tx, float ty)
+static void DrawTextBox_ttf(const u8* bitmap, float x, float y, float z, float w, float h, u32 rgba, float tx, float ty)
 {
-    int i, j;
-    u32 px, buf[32 * 32];
-    Orbis2dTexture tex = {
-        .width = 32,
-        .height = 32,
-        .depth = 4,
-        .datap = buf
+    u32 buf[TEX_SZ * TEX_SZ];
+    u8 a = (rgba & 0x000000FF);
+    SDL_FRect dest = {
+        .x = x,
+        .y = y,
+        .w = w,
+        .h = h,
     };
 
-    for (i = 0; i < tex.width; i++)
-    {
-        for (j = 0; j < tex.height; j++)
-        {
-        	px = bitmap[(tex.width * j) + i];
+    for (int i = 0; i < TEX_SZ*TEX_SZ; i++)
+        buf[i] = bitmap[i] ? ((rgba & 0xFFFFFF00) | ((bitmap[i] * a) / 0xFF)) : 0;
 
-        	if (px)
-        	{
-                // Linearly interpolate between the foreground and background for smoother rendering
-//				uint8_t r = (px * (rgba & 0x0000FF)) / 255;
-//				uint8_t g = (px * ((rgba & 0x00FF00) >> 8)) / 255;
-//				uint8_t b = (px * ((rgba & 0xFF0000) >>16)) / 255;
-				uint8_t a = (px * ((rgba & 0xFF000000) >> 24)) / 255;
-				
-				px = (rgba & 0x00FFFFFF) + (a << 24);
-//				px = (rgba & 0xFF000000) + (b << 16) + (g << 8) + r;
-			}
+    SDL_Surface* surface = SDL_CreateRGBSurfaceFrom((void*) buf, TEX_SZ, TEX_SZ, 32, 4 * TEX_SZ, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+    SDL_Texture* sdl_tex = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_SetTextureBlendMode(sdl_tex, SDL_BLENDMODE_BLEND);
+    SDL_FreeSurface(surface);
 
-            buf[i + (j * tex.width)] = px;
-        }
-    }
+    SDL_RenderCopyF(renderer, sdl_tex, NULL, &dest);
+    SDL_DestroyTexture(sdl_tex);
 
-    orbis2dDrawTextureResized(&tex, x, y, w, h);
 /*
     tiny3d_SetPolygon(TINY3D_QUADS);
     
@@ -337,8 +331,8 @@ static void DrawTextBox_ttf(const u16* bitmap, float x, float y, float z, float 
 */
 }
 
-#define TTF_UX 30
-#define TTF_UY 24
+#define TTF_UX 30 * (TEX_SZ /32)
+#define TTF_UY 24 * (TEX_SZ /32)
 
 
 int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bkcolor, int sw, int sh, int (*DrawIcon_cb)(int, int, char))
@@ -426,7 +420,7 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
 
         if(n >= MAX_CHARS) {ttf_font_datas[m].flags = 0; l= m;} else l=n;
 
-        u16 * bitmap = ttf_font_datas[l].text;
+        u8 * bitmap = ttf_font_datas[l].text;
         
         // building the character
 
@@ -439,7 +433,7 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
 
             FT_GlyphSlot slot = NULL;
 
-            memset(bitmap, 0, 32 * 32 * 2);
+            memset(bitmap, 0, TEX_SZ * TEX_SZ);
 
             ///////////
 
@@ -469,17 +463,17 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
                 
 
                 for(n = 0; n < slot->bitmap.rows; n++) {
-                    if(n >= 32) break;
+                    if(n >= TEX_SZ) break;
                     for (m = 0; m < slot->bitmap.width; m++) {
 
-                        if(m >= 32) continue;
+                        if(m >= TEX_SZ) continue;
                         
                         colorc = (u8) slot->bitmap.buffer[ww + m];
                         
                         if(colorc) bitmap[m + ww2] = colorc; //(colorc<<8) | 0xfff;
                     }
                 
-                ww2 += 32;
+                ww2 += TEX_SZ;
 
                 ww += slot->bitmap.width;
                 }
@@ -491,13 +485,13 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
         ttf_font_datas[l].flags |= 2; // in use
         ttf_font_datas[l].r_use = r_use;
 
-        if((Win_flag & WIN_AUTO_LF) && (posx + (ttf_font_datas[l].width * sw / 32) + 1) > Win_W_ttf) {
+        if((Win_flag & WIN_AUTO_LF) && (posx + (ttf_font_datas[l].width * sw / TEX_SZ) + 1) > Win_W_ttf) {
             posx = 0;
             posy += sh;
         }
 
         u32 ccolor = color;
-        u32 cx =(ttf_font_datas[l].width * sw / 32) + 1;
+        u32 cx =(ttf_font_datas[l].width * sw / TEX_SZ) + 1;
 
         // skip if out of window
         if((posx + cx) > Win_W_ttf || (posy + sh) > Win_H_ttf ) ccolor = 0;
@@ -508,7 +502,7 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
 
             if (bkcolor != 0) DrawBox_ttf((float) (Win_X_ttf + posx), (float) (Win_Y_ttf + posy) + ((float) ttf_font_datas[l].y_start * sh) * 0.03125f,
             Z_ttf, (float) sw, (float) sh, bkcolor);
-            DrawTextBox_ttf(bitmap, (float) (Win_X_ttf + posx), (float) (Win_Y_ttf + posy) + ((float) ttf_font_datas[l].y_start * sh) * 0.03125f,
+            DrawTextBox_ttf(bitmap, (float) (Win_X_ttf + posx), (float) (Win_Y_ttf + posy) + ((float) ttf_font_datas[l].y_start * sh) * 0.015625f,
             Z_ttf, (float) sw, (float) sh, color, 0.99f, 0.99f);
         }
 

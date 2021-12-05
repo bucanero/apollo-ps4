@@ -8,9 +8,9 @@ extern "C" {
 #endif
 
 #define SFO_PATCH_FLAG_REMOVE_COPY_PROTECTION (1 << 0)
-#define SFO_ACCOUNT_ID_SIZE 16
+#define SFO_ACCOUNT_ID_SIZE 8
 #define SFO_PSID_SIZE 16
-#define SFO_DIRECTORY_SIZE 64
+#define SFO_DIRECTORY_SIZE 32
 
 typedef struct sfo_context_s sfo_context_t;
 
@@ -22,7 +22,7 @@ typedef struct sfo_key_pair_s {
 typedef struct {
 	u32 flags;
 	u32 user_id;
-	char* account_id;
+	u64 account_id;
 	u8* psid;
 	char* directory;
 } sfo_patch_t;

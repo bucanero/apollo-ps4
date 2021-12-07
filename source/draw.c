@@ -46,75 +46,7 @@ void DrawBackground2D(u32 rgba)
 {
 	SDL_SetRenderDrawColor(renderer, RGBA_R(rgba), RGBA_G(rgba), RGBA_B(rgba), RGBA_A(rgba));
 
-	/*
-	tiny3d_SetPolygon(TINY3D_QUADS);
-
-	tiny3d_VertexPos(-apollo_config.marginH, -apollo_config.marginV, 65535);
-	tiny3d_VertexColor(rgba);
-
-	tiny3d_VertexPos(847 + apollo_config.marginH, -apollo_config.marginV, 65535);
-
-	tiny3d_VertexPos(847 + apollo_config.marginH, 511 + apollo_config.marginV, 65535);
-
-	tiny3d_VertexPos(-apollo_config.marginH, 511 + apollo_config.marginV, 65535);
-	tiny3d_End();
-	*/
-}
-
-void DrawSprites2D(float x, float y, float layer, float dx, float dy, u32 rgba)
-{
-	/*
-    tiny3d_SetPolygon(TINY3D_QUADS);
-
-    tiny3d_VertexPos(x     , y     , layer);
-    tiny3d_VertexColor(rgba);
-    tiny3d_VertexTexture(0.01f, 0.01f);
-
-    tiny3d_VertexPos(x + dx, y     , layer);
-    tiny3d_VertexTexture(0.99f, 0.01f);
-
-    tiny3d_VertexPos(x + dx, y + dy, layer);
-    tiny3d_VertexTexture(0.99f, 0.99f);
-
-    tiny3d_VertexPos(x     , y + dy, layer);
-    tiny3d_VertexTexture(0.01f, 0.99f);
-
-    tiny3d_End();
-	*/
-}
-
-void DrawSpritesRot2D(float x, float y, float layer, float dx, float dy, u32 rgba, float angle)
-{
-    dx /= 2.0f; dy /= 2.0f;
-/*
-    MATRIX matrix;
-    
-    // rotate and translate the sprite
-    matrix = MatrixRotationZ(angle);
-    matrix = MatrixMultiply(matrix, MatrixTranslation(x + dx, y + dy, 0.0f));
-    
-    // fix ModelView Matrix
-    tiny3d_SetMatrixModelView(&matrix);
-   
-    tiny3d_SetPolygon(TINY3D_QUADS);
-
-    tiny3d_VertexPos(-dx, -dy, layer);
-    tiny3d_VertexColor(rgba);
-    tiny3d_VertexTexture(0.0f , 0.0f);
-
-    tiny3d_VertexPos(dx , -dy, layer);
-    tiny3d_VertexTexture(0.99f, 0.0f);
-
-    tiny3d_VertexPos(dx , dy , layer);
-    tiny3d_VertexTexture(0.99f, 0.99f);
-
-    tiny3d_VertexPos(-dx, dy , layer);
-    tiny3d_VertexTexture(0.0f , 0.99f);
-
-    tiny3d_End();
-
-    tiny3d_SetMatrixModelView(NULL); // set matrix identity
-*/
+	SDL_RenderClear(renderer);
 }
 
 void DrawSelector(int x, int y, int w, int h, int hDif, u8 alpha)
@@ -274,14 +206,8 @@ void DrawTexture(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba)
 		.h = h,
 	};
 
+	SDL_SetTextureAlphaMod(tex->texture, RGBA_A(rgba));	
 	SDL_RenderCopy(renderer, tex->texture, NULL, &dest);
-
-	/*
-    tiny3d_SetTexture(0, tex->texture_off, tex->texture.width,
-        tex->texture.height, tex->texture.pitch,  
-        TINY3D_TEX_FORMAT_A8R8G8B8, TEXTURE_LINEAR);
-    DrawSprites2D(x, y, z, w, h, rgba);
-	*/
 }
 
 void DrawTextureCentered(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba)
@@ -290,13 +216,6 @@ void DrawTextureCentered(png_texture* tex, int x, int y, int z, int w, int h, u3
 	y -= h / 2;
 
 	DrawTexture(tex, x, y, z, w, h, rgba);
-
-/*
-	tiny3d_SetTexture(0, tex->texture_off, tex->texture.width,
-		tex->texture.height, tex->texture.pitch,
-		TINY3D_TEX_FORMAT_A8R8G8B8, TEXTURE_LINEAR);
-	DrawSprites2D(x, y, z, w, h, rgba);
-*/
 }
 
 void DrawTextureCenteredX(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba)
@@ -304,13 +223,6 @@ void DrawTextureCenteredX(png_texture* tex, int x, int y, int z, int w, int h, u
 	x -= w / 2;
 
 	DrawTexture(tex, x, y, z, w, h, rgba);
-
-/*
-	tiny3d_SetTexture(0, tex->texture_off, tex->texture.width,
-		tex->texture.height, tex->texture.pitch,
-		TINY3D_TEX_FORMAT_A8R8G8B8, TEXTURE_LINEAR);
-	DrawSprites2D(x, y, z, w, h, rgba);
-*/
 }
 
 void DrawTextureCenteredY(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba)
@@ -318,13 +230,6 @@ void DrawTextureCenteredY(png_texture* tex, int x, int y, int z, int w, int h, u
 	y -= h / 2;
 
 	DrawTexture(tex, x, y, z, w, h, rgba);
-
-/*
-	tiny3d_SetTexture(0, tex->texture_off, tex->texture.width,
-		tex->texture.height, tex->texture.pitch,
-		TINY3D_TEX_FORMAT_A8R8G8B8, TEXTURE_LINEAR);
-	DrawSprites2D(x, y, z, w, h, rgba);
-*/
 }
 
 void DrawTextureRotated(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba, float angle)
@@ -337,13 +242,6 @@ void DrawTextureRotated(png_texture* tex, int x, int y, int z, int w, int h, u32
 	};
 
 	SDL_RenderCopyEx(renderer, tex->texture, NULL, &dest, angle, NULL, SDL_FLIP_NONE);
-
-/*
-	tiny3d_SetTexture(0, tex->texture_off, tex->texture.width,
-		tex->texture.height, tex->texture.pitch,
-		TINY3D_TEX_FORMAT_A8R8G8B8, TEXTURE_LINEAR);
-	DrawSpritesRot2D(x, y, z, w, h, rgba, angle);
-*/
 }
 
 static int please_wait;
@@ -487,37 +385,24 @@ void drawSplashLogo(int mode)
 
 	for (; ani != max; ani += mode)
 	{
-/*
-		tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-		
-		tiny3d_AlphaTest(1, 0x10, TINY3D_ALPHA_FUNC_GEQUAL);
-		
-		tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_ALPHA_SRC_ALPHA,
-			TINY3D_BLEND_FUNC_SRC_ALPHA_ONE_MINUS_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_SRC_ALPHA,
-			TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
-		
-		tiny3d_Project2D();
-*/
-		//wait for current display buffer
-
 		// clear the current display buffer
+		SDL_RenderClear(renderer);
 
-		DrawBackground2D(0xFF000000);
+		DrawBackground2D(0x000000FF);
 		
 		//------------ Backgrounds
-		int logo_a_t = ((ani < 0x30) ? 0 : ((ani - 0x20)*3));
+		int logo_a_t = ((ani < 0x20) ? 0 : ((ani - 0x20)*3));
 		if (logo_a_t > 0xFF)
 			logo_a_t = 0xFF;
 		u8 logo_a = (u8)logo_a_t;
-		
+
+		SDL_SetTextureAlphaMod(menu_textures[buk_scr_png_index].texture, logo_a);
+
 		//App description
 		DrawTextureCentered(&menu_textures[buk_scr_png_index], SCREEN_WIDTH/2, SCREEN_HEIGHT /2, 0, 484, 363, 0xFFFFFF00 | logo_a);
 
 		//flush and flip
-
-		//swap buffers
-
-//		tiny3d_Flip();
+		SDL_UpdateWindowSurface(window);
 	}
 }
 
@@ -527,16 +412,7 @@ void Draw_MainMenu_Ani()
 	int max = MENU_ANI_MAX, ani = 0;
 	for (ani = 0; ani < max; ani++)
 	{
-		tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-		
-		tiny3d_AlphaTest(1, 0x10, TINY3D_ALPHA_FUNC_GEQUAL);
-		
-		tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_ALPHA_SRC_ALPHA,
-			TINY3D_BLEND_FUNC_SRC_ALPHA_ONE_MINUS_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_SRC_ALPHA,
-			TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
-		
-		tiny3d_Project2D();
-		
+		SDL_RenderClear(renderer);
 		DrawBackground2D(0xFFFFFFFF);
 		
 		//------------ Backgrounds
@@ -555,25 +431,16 @@ void Draw_MainMenu_Ani()
 		DrawTexture(&menu_textures[logo_png_index], logo_png_x, logo_png_y, 0, logo_png_w, logo_png_h, 0xFFFFFF00 | logo_a);
 		
 		//App description
-		DrawTextureCenteredX(&menu_textures[logo_text_png_index], 424, 250, 0, 306, 50, 0xFFFFFF00 | logo_a);
+		DrawTextureCenteredX(&menu_textures[logo_text_png_index], SCREEN_WIDTH/2, 320, 0, 459, 75, 0xFFFFFF00 | logo_a);
 
-		tiny3d_Flip();
+		SDL_UpdateWindowSurface(window);
 	}
 	
 	max = MENU_ANI_MAX / 2;
 	int rate = (0x100 / max);
 	for (ani = 0; ani < max; ani++)
 	{
-		tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-		
-		tiny3d_AlphaTest(1, 0x10, TINY3D_ALPHA_FUNC_GEQUAL);
-		
-		tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_ALPHA_SRC_ALPHA,
-			TINY3D_BLEND_FUNC_SRC_ALPHA_ONE_MINUS_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_SRC_ALPHA,
-			TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
-		
-		tiny3d_Project2D();
-		
+		SDL_RenderClear(renderer);
 		DrawBackground2D(0xFFFFFFFF);
 		
 		u8 icon_a = (u8)(((ani * rate) > 0xFF) ? 0xFF : (ani * rate));
@@ -587,14 +454,14 @@ void Draw_MainMenu_Ani()
 		DrawTexture(&menu_textures[logo_png_index], logo_png_x, logo_png_y, 0, logo_png_w, logo_png_h, 0xFFFFFFFF);
 
 		//App description
-		DrawTextureCenteredX(&menu_textures[logo_text_png_index], 424, 250, 0, 306, 50, 0xFFFFFF00 | 0xFF);
+		DrawTextureCenteredX(&menu_textures[logo_text_png_index], SCREEN_WIDTH/2, 320, 0, 459, 75, 0xFFFFFF00 | 0xFF);
 
 		drawColumns(icon_a);
 
 		//------------ Icons
 		drawJars(icon_a);
 		
-		tiny3d_Flip();
+		SDL_UpdateWindowSurface(window);
 
 		if (icon_a == 32)
 			break;

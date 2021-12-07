@@ -1,13 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <dirent.h>
-//#include <sysutil/sysutil.h>
 
 #include "saves.h"
 #include "menu.h"
 #include "common.h"
 #include "util.h"
-#include "pfd.h"
 #include "sfo.h"
 
 
@@ -813,7 +811,7 @@ if (0)
 			}
 		}
 
-		if (!apply_cheat_patch_code(tmpfile, selected_entry->title_id, code))
+		if (!apply_cheat_patch_code(tmpfile, selected_entry->title_id, code, APOLLO_LOCAL_CACHE))
 		{
 			LOG("Error: failed to apply (%s)", code->name);
 			ret = 0;

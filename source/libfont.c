@@ -12,7 +12,6 @@
 #include "libfont.h"
 #include "menu.h"
 #include "ttf_render.h"
-#include "imagefont.h"
 
 struct t_font_description
 {

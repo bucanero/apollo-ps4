@@ -1,7 +1,6 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
-//#include <soundlib/audioplayer.h>
 
 #include "types.h"
 #include "menu.h"
@@ -65,12 +64,6 @@ menu_option_t menu_options[] = {
 		.value = &owner_sel,
 		.callback = owner_callback
 	},
-	{ .name = "Update Account & Console IDs",
-		.options = NULL,
-		.type = APP_OPTION_CALL,
-		.value = NULL,
-		.callback = redetect_callback 
-	},
 	{ .name = "Enable Debug Log",
 		.options = NULL,
 		.type = APP_OPTION_CALL,
@@ -84,7 +77,6 @@ menu_option_t menu_options[] = {
 void music_callback(int sel)
 {
 	apollo_config.music = !sel;
-//	SND_PauseVoice(2, sel);
 }
 
 void sort_callback(int sel)
@@ -231,11 +223,4 @@ void log_callback(int sel)
 {
 	dbglogger_init_mode(FILE_LOGGER, "/data/apollo/tmp/apollo.log", 0);
 	show_message("Debug Logging Enabled!\n\n/data/apollo/tmp/apollo.log");
-}
-
-void redetect_callback(int sel)
-{
-	init_loading_screen("Updating Account & Console IDs...");
-//	reset_app_settings(&apollo_config);
-	stop_loading_screen();
 }

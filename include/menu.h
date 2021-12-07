@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 
+#include "types.h"
 #include "settings.h"
 
 // SDL window and software renderer
@@ -52,6 +53,7 @@ enum texture_index
 	tag_ps1_png_index,
 	tag_ps2_png_index,
 	tag_ps3_png_index,
+	tag_ps4_png_index,
 	tag_psp_png_index,
 	tag_psv_png_index,
 	tag_warning_png_index,
@@ -70,11 +72,11 @@ enum texture_index
 	icon_png_file_index,
 
 //Imagefont.bin assets
-	trp_sync_img_index,
-	trp_bronze_img_index,
-	trp_silver_img_index,
-	trp_gold_img_index,
-	trp_platinum_img_index,
+	trp_sync_png_index,
+	trp_bronze_png_index,
+	trp_silver_png_index,
+	trp_gold_png_index,
+	trp_platinum_png_index,
 
 //Artemis assets
 	help_png_index,

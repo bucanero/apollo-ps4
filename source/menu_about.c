@@ -1,12 +1,9 @@
 #include <unistd.h>
 #include <string.h>
-//#include <pngdec/pngdec.h>
 
 #include "saves.h"
 #include "menu.h"
 #include "menu_about.h"
-
-//#include <tiny3d.h>
 #include "libfont.h"
 
 void _draw_AboutMenu(u8 alpha)

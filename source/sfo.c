@@ -1,5 +1,5 @@
+#include <apollo.h>
 #include "sfo.h"
-#include "list.h"
 #include "util.h"
 
 #define SFO_MAGIC   0x46535000u
@@ -22,15 +22,14 @@ typedef struct sfo_index_table_s {
 } sfo_index_table_t;
 
 typedef struct sfo_param_params_s {
-	u8 unk1[12];
-	u32 unk2;
+	u32 unk1;
+	u32 user_id;
+	u8 unk2[32];
 	u32 unk3;
+	char title_id_1[0x10];
+	char title_id_2[0x10];
 	u32 unk4;
-	u32 user_id_1;
-	u8 psid[SFO_PSID_SIZE];
-	u32 user_id_2;
-	u8 account_id[SFO_ACCOUNT_ID_SIZE];
-	u8 chunk[0];
+	u8 chunk[0x3B0];
 } sfo_param_params_t;
 
 typedef struct sfo_context_param_s {
@@ -103,11 +102,6 @@ int sfo_read(sfo_context_t *context, const char *file_path) {
 	}
 
 	header = (sfo_header_t *)sfo;
-	header->magic = ES32(header->magic);
-	header->version = ES32(header->version);
-	header->key_table_offset = ES32(header->key_table_offset);
-	header->data_table_offset = ES32(header->data_table_offset);
-	header->num_entries = ES32(header->num_entries);
 
 	if (header->magic != SFO_MAGIC) {
 		ret = -1;
@@ -116,11 +110,6 @@ int sfo_read(sfo_context_t *context, const char *file_path) {
 
 	for (i = 0; i < header->num_entries; ++i) {
 		index_table = (sfo_index_table_t *)(sfo + sizeof(sfo_header_t) + i * sizeof(sfo_index_table_t));
-		index_table->key_offset = ES16(index_table->key_offset);
-		index_table->param_format = ES16(index_table->param_format);
-		index_table->param_length = ES32(index_table->param_length);
-		index_table->param_max_length = ES32(index_table->param_max_length);
-		index_table->data_offset = ES32(index_table->data_offset);
 
 		param = (sfo_context_param_t *)malloc(sizeof(sfo_context_param_t));
 		if	(param) {
@@ -186,8 +175,8 @@ int sfo_write(sfo_context_t *context, const char *file_path) {
 		data_table_size += param->actual_length;
 	}
 	sfo_size = sizeof(sfo_header_t) + num_params * sizeof(sfo_index_table_t) + key_table_size + data_table_size;
-	key_table_size += ALIGN(sfo_size, 16) - sfo_size;
-	sfo_size = ALIGN(sfo_size, 16);
+	key_table_size += ALIGN(sfo_size, 8) - sfo_size;
+	sfo_size = ALIGN(sfo_size, 8);
 
 	sfo = (u8 *)malloc(sfo_size);
 	if (!sfo) {
@@ -227,21 +216,6 @@ int sfo_write(sfo_context_t *context, const char *file_path) {
 		memcpy(sfo + header->key_table_offset + index_table->key_offset, param->key, strlen(param->key) + 1);
 		memcpy(sfo + header->data_table_offset + index_table->data_offset, param->value, param->actual_length);
 	}
-
-	for (i = 0; i < header->num_entries; ++i) {
-		index_table = (sfo_index_table_t *)(sfo + sizeof(sfo_header_t) + i * sizeof(sfo_index_table_t));
-		index_table->key_offset = ES16(index_table->key_offset);
-		index_table->param_format = ES16(index_table->param_format);
-		index_table->param_length = ES32(index_table->param_length);
-		index_table->param_max_length = ES32(index_table->param_max_length);
-		index_table->data_offset = ES32(index_table->data_offset);
-	}
-
-	header->magic = ES32(header->magic);
-	header->version = ES32(header->version);
-	header->key_table_offset = ES32(header->key_table_offset);
-	header->data_table_offset = ES32(header->data_table_offset);
-	header->num_entries = ES32(header->num_entries);
 
 	if ((ret = write_buffer(file_path, sfo, sfo_size)) < 0)
 		goto error;
@@ -303,10 +277,7 @@ void sfo_grab(sfo_context_t *inout, sfo_context_t *tpl, int num_keys, const sfo_
 				params1 = (sfo_param_params_t *)p1->value;
 				params2 = (sfo_param_params_t *)p2->value;
 
-				params1->user_id_1 = params2->user_id_1;
-				memcpy(params1->psid, params2->psid, SFO_PSID_SIZE);
-				params1->user_id_2 = params2->user_id_2;
-				memcpy(params1->account_id, params2->account_id, SFO_ACCOUNT_ID_SIZE);
+				params1->user_id = params2->user_id;
 			}
 		}
 	}
@@ -324,7 +295,7 @@ void sfo_patch_lock(sfo_context_t *inout, unsigned int flags) {
 	}
 }
 
-void sfo_patch_account(sfo_context_t *inout, const char* account) {
+void sfo_patch_account(sfo_context_t *inout, u64 account) {
 	sfo_context_param_t *p;
 
 	if (!account)
@@ -332,14 +303,15 @@ void sfo_patch_account(sfo_context_t *inout, const char* account) {
 
 	p = sfo_context_get_param(inout, "ACCOUNT_ID");
 	if (p != NULL && p->actual_length == SFO_ACCOUNT_ID_SIZE) {
-		memcpy(p->value, account, SFO_ACCOUNT_ID_SIZE);
+		memcpy(p->value, &account, SFO_ACCOUNT_ID_SIZE);
 	}
-
+/*
 	p = sfo_context_get_param(inout, "PARAMS");
 	if (p != NULL) {
 		sfo_param_params_t *params = (sfo_param_params_t *)p->value;
 		memcpy(params->account_id, account, SFO_ACCOUNT_ID_SIZE);
 	}
+*/
 }
 
 void sfo_patch_user_id(sfo_context_t *inout, u32 userid) {
@@ -351,8 +323,7 @@ void sfo_patch_user_id(sfo_context_t *inout, u32 userid) {
 	p = sfo_context_get_param(inout, "PARAMS");
 	if (p != NULL) {
 		sfo_param_params_t *params = (sfo_param_params_t *)p->value;
-		params->user_id_1 = ES32(userid);
-		params->user_id_2 = ES32(userid);
+		params->user_id = userid;
 	}
 }
 
@@ -361,12 +332,13 @@ void sfo_patch_psid(sfo_context_t *inout, u8* psid) {
 
 	if (!psid)
 		return;
-
+/*
 	p = sfo_context_get_param(inout, "PARAMS");
 	if (p != NULL) {
 		sfo_param_params_t *params = (sfo_param_params_t *)p->value;
 		memcpy(params->psid, psid, SFO_PSID_SIZE);
 	}
+*/
 }
 
 void sfo_patch_directory(sfo_context_t *inout, const char* save_dir) {

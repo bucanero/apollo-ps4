@@ -36,8 +36,7 @@ int is_char_letter(char c)
 
 int file_exists(const char *path)
 {
-    struct stat sb;
-    if ((stat(path, &sb) == 0) && S_ISREG(sb.st_mode)) {
+    if (access(path, F_OK) == 0) {
     	return SUCCESS;
     }
     
@@ -47,7 +46,7 @@ int file_exists(const char *path)
 int dir_exists(const char *path)
 {
     struct stat sb;
-    if ((stat(path, &sb) == 0) && S_ISDIR(sb.st_mode)) {
+    if ((stat(path, &sb) == 0) && sb.st_mode & S_IFDIR) {
         return SUCCESS;
     }
     return FAILED;
@@ -57,9 +56,8 @@ int unlink_secure(const char *path)
 {   
     if(file_exists(path)==SUCCESS)
     {
-//        sysLv2FsChmod(path, S_IFMT | 0777);
-        return unlink(path);
-		//return remove(path);
+        chmod(path, 0777);
+		return remove(path);
     }
     return FAILED;
 }
@@ -105,18 +103,18 @@ int mkdirs(const char* dir)
 
 int copy_file(const char* input, const char* output)
 {
-    u64 read, written;
-    s32 fd, fd2;
+    size_t read, written;
+    FILE *fd, *fd2;
 
     if (mkdirs(output) != SUCCESS)
         return FAILED;
-/*
-    if(sysLv2FsOpen(input, 0, &fd, SYS_O_RDONLY, NULL, 0) != SUCCESS)
+
+    if((fd = fopen(input, "rb")) == NULL)
         return FAILED;
 
-    if(sysLv2FsOpen(output, SYS_O_WRONLY | SYS_O_CREAT | SYS_O_TRUNC, &fd2, 0777, NULL, 0) != SUCCESS)
+    if((fd2 = fopen(output, "wb")) == NULL)
     {
-        sysLv2FsClose(fd);
+        fclose(fd);
         return FAILED;
     }
 
@@ -127,16 +125,16 @@ int copy_file(const char* input, const char* output)
 
     do
     {
-        sysLv2FsRead(fd, buffer, TMP_BUFF_SIZE, &read);
-        sysLv2FsWrite(fd2, buffer, read, &written);
+        read = fread(buffer, 1, TMP_BUFF_SIZE, fd);
+        written = fwrite(buffer, 1, read, fd2);
     }
     while ((read == written) && (read == TMP_BUFF_SIZE));
 
     free(buffer);
-    sysLv2FsClose(fd);
-    sysLv2FsClose(fd2);
-    sysLv2FsChmod(output, S_IFMT | 0777);
-*/
+    fclose(fd);
+    fclose(fd2);
+    chmod(output, 0777);
+
     return (read - written);
 }
 

@@ -6,10 +6,11 @@ CONTENT_ID  := IV0000-APOL00004_00-APOLLO0000000PS4
 
 # Libraries linked into the ELF.
 LIBS        := -lc -lkernel -lc++ -lSceAudioOut -lSceUserService -lSceVideoOut -lSceGnmDriver -lSceSysmodule -lSceFreeType \
-               -lScePad -lSceSystemService -lSceSaveData -lSDL2 -lapollo -ldbglogger -lpolarssl -lz -lzip
+               -lScePad -lSceSystemService -lSceSaveData -lSceCommonDialog -lSceMsgDialog \
+               -lSDL2 -lapollo -ldbglogger -lpolarssl -lz -lzip
 
 # Additional compile flags.
-EXTRAFLAGS  := -DAPOLLO_ENABLE_LOGGING
+EXTRAFLAGS  := -DAPOLLO_ENABLE_LOGGING -fcolor-diagnostics
 
 # Asset and module directories.
 ASSETS 		:= $(wildcard assets/**/*)

@@ -59,7 +59,7 @@ void DrawOptions(option_entry_t* option, u8 alpha, int y_inc, int selIndex)
     int startDrawX = selIndex - (maxPerPage / 2);
     int max = maxPerPage + startDrawX;
     
-    SetFontSize(y_inc-6, y_inc-4);
+    SetFontSize(APP_FONT_SIZE_SELECTION);
 
     for (c = startDrawX; c < max; c++)
     {
@@ -182,8 +182,8 @@ int DrawCodes(code_entry_t* code, u8 alpha, int y_inc, int xOff, int selIndex)
     if (!code->name || !code->codes)
         return 0;
     
-    int numOfLines = 0, c = 0, yOff = 80, cIndex = 0;
-    int maxPerPage = (SCREEN_HEIGHT - (yOff * 2)) / y_inc;
+    int numOfLines = 0, c = 0, yOff = 120, cIndex = 0;
+    int maxPerPage = (SCREEN_HEIGHT - (yOff * 2) - 30) / y_inc;
     int startDrawX = selIndex - (maxPerPage / 2);
     int max = maxPerPage + startDrawX;
     int len = strlen(code->codes);
@@ -213,12 +213,12 @@ int DrawCodes(code_entry_t* code, u8 alpha, int y_inc, int xOff, int selIndex)
         lines[c] = (char*)(&splitCodes[cIndex + 1]);
     }
     
-    SetFontSize(y_inc-6, y_inc-4);
+    SetFontSize(APP_FONT_SIZE_SELECTION);
     //SetCurrentFont(font_comfortaa_regular);
     //SetExtraSpace(0);
 
-    if (code->file)
-        DrawFormatString(xOff + MENU_ICON_OFF + 20, 434, "Target File: %s", code->file);
+    if (code->file && (code->type == PATCH_BSD || code->type == PATCH_GAMEGENIE))
+        DrawFormatString(xOff + MENU_ICON_OFF + 20, 585, "Target File: %s", code->file);
 
     for (c = startDrawX; c < max; c++)
     {
@@ -347,8 +347,8 @@ void DrawGameList(int selIndex, list_t * games, u8 alpha)
     list_node_t *node;
     save_entry_t *item;
     char tmp[4] = "   ";
-    int game_y = 160, y_inc = 20;
-    int maxPerPage = (SCREEN_HEIGHT - (game_y * 2)) / y_inc;
+    int game_y = 120, y_inc = 20;
+    int maxPerPage = (SCREEN_HEIGHT - (game_y * 2) - 30) / y_inc;
     
     int x = selIndex - (maxPerPage / 2);
     int max = maxPerPage + selIndex;
@@ -388,6 +388,7 @@ void DrawGameList(int selIndex, list_t * games, u8 alpha)
 			if (item->flags & SAVE_FLAG_PS2) tmp[0] = CHAR_TAG_PS2;
 			if (item->flags & SAVE_FLAG_PSP) tmp[0] = CHAR_TAG_PSP;
 			if (item->flags & SAVE_FLAG_PS3) tmp[0] = CHAR_TAG_PS3;
+			if (item->flags & SAVE_FLAG_PS4) tmp[0] = CHAR_TAG_PS4;
 			tmp[1] = (item->flags & SAVE_FLAG_OWNER) ? CHAR_TAG_OWNER : ' ';
 			tmp[2] = (item->flags & SAVE_FLAG_LOCKED) ? CHAR_TAG_LOCKED : ' ';
 			if (item->flags & SAVE_FLAG_PSV) tmp[1] = CHAR_TAG_PSV;
@@ -418,8 +419,8 @@ void DrawCheatsList(int selIndex, save_entry_t* game, u8 alpha)
     
     list_node_t *node;
     code_entry_t *code;
-    int game_y = 80, y_inc = 20;
-    int maxPerPage = (SCREEN_HEIGHT - (game_y * 2)) / y_inc;
+    int game_y = 120, y_inc = 20;
+    int maxPerPage = (SCREEN_HEIGHT - (game_y * 2) - 30) / y_inc;
     
     int x = selIndex - (maxPerPage / 2);
     int max = maxPerPage + selIndex;
@@ -440,6 +441,10 @@ void DrawCheatsList(int selIndex, save_entry_t* game, u8 alpha)
 			code = list_get(node);
             //u32 color = game.codes[x].activated ? 0x4040C000 : 0x00000000;
 			u8 a = (u8)((alpha * CalculateAlphaList(x, selIndex, maxPerPage)) / 0xFF);
+
+            if (!a)
+                goto skip_code;
+
             SetFontColor(APP_FONT_COLOR | a, 0);
             //printf ("Drawing code name %d\n", x);
             float dx = DrawString(MENU_ICON_OFF + (MENU_TITLE_OFF * 3) - xo, game_y, code->name);
@@ -480,6 +485,7 @@ void DrawCheatsList(int selIndex, save_entry_t* game, u8 alpha)
                     }
                 }
             }
+skip_code:
             node = list_next(node);
         }
         

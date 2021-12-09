@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdarg.h>
-#include <unistd.h>
+#include <string.h>
+#include <stdbool.h>
+
+#include <orbis/CommonDialog.h>
+#include <orbis/MsgDialog.h>
 
 #define MDIALOG_OK		0
 #define MDIALOG_YESNO	1
@@ -8,51 +12,59 @@
 void drawDialogBackground();
 
 static float bar1_countparts;
-volatile int msg_dialog_action = 0;
-/*
-void msg_dialog_event(msgButton button, void *userdata)
-{
-    switch(button) {
 
-        case MSG_DIALOG_BTN_YES:
-            msg_dialog_action = 1;
-            break;
-        case MSG_DIALOG_BTN_NO:
-        case MSG_DIALOG_BTN_ESCAPE:
-        case MSG_DIALOG_BTN_NONE:
-            msg_dialog_action = 2;
-            break;
-        default:
-		    break;
-    }
+static inline void _orbisCommonDialogSetMagicNumber(uint32_t* magic, const OrbisCommonDialogBaseParam* param)
+{
+    *magic = (uint32_t)(ORBIS_COMMON_DIALOG_MAGIC_NUMBER + (uint64_t)param);
 }
-*/
+
+static inline void _orbisCommonDialogBaseParamInit(OrbisCommonDialogBaseParam *param)
+{
+    memset(param, 0x0, sizeof(OrbisCommonDialogBaseParam));
+    param->size = (uint32_t)sizeof(OrbisCommonDialogBaseParam);
+    _orbisCommonDialogSetMagicNumber(&(param->magic), param);
+}
+
+static inline void orbisMsgDialogParamInitialize(OrbisMsgDialogParam *param)
+{
+    memset(param, 0x0, sizeof(OrbisMsgDialogParam));
+    _orbisCommonDialogBaseParamInit(&param->baseParam);
+    param->size = sizeof(OrbisMsgDialogParam);
+}
+
 int show_dialog(int tdialog, const char * format, ...)
 {
-/*
-    msg_dialog_action = 0;
+    OrbisMsgDialogParam param;
+    OrbisMsgDialogUserMessageParam userMsgParam;
+    OrbisMsgDialogResult result;
     char str[0x800];
     va_list	opt;
 
+    memset(str, 0, sizeof(str));
     va_start(opt, format);
     vsprintf((void*) str, format, opt);
     va_end(opt);
 
-    msgType mtype = MSG_DIALOG_BKG_INVISIBLE | MSG_DIALOG_NORMAL;
-    mtype |=  (tdialog ? (MSG_DIALOG_BTN_TYPE_YESNO  | MSG_DIALOG_DEFAULT_CURSOR_NO) : MSG_DIALOG_BTN_TYPE_OK);
+    sceMsgDialogInitialize();
+    orbisMsgDialogParamInitialize(&param);
+    param.mode = ORBIS_MSG_DIALOG_MODE_USER_MSG;
 
-    msgDialogOpen2(mtype, str, msg_dialog_event, NULL, NULL);
+    memset(&userMsgParam, 0, sizeof(userMsgParam));
+    userMsgParam.msg = str;
+    userMsgParam.buttonType = (tdialog ? ORBIS_MSG_DIALOG_BUTTON_TYPE_YESNO_FOCUS_NO : ORBIS_MSG_DIALOG_BUTTON_TYPE_OK);
+    param.userMsgParam = &userMsgParam;
 
-    while(!msg_dialog_action)
-    {
-        drawDialogBackground();
-    }
-    msgDialogAbort();
-    usleep(100 *1000);
+    if (sceMsgDialogOpen(&param) < 0)
+        return 0;
 
-    return (msg_dialog_action == 1);
-*/
-    return 0;
+    do { } while (sceMsgDialogUpdateStatus() != ORBIS_COMMON_DIALOG_STATUS_FINISHED);
+    sceMsgDialogClose();
+
+    memset(&result, 0, sizeof(result));
+    sceMsgDialogGetResult(&result);
+    sceMsgDialogTerminate();
+
+    return (result.buttonId == 1);
 }
 
 /*
@@ -89,86 +101,4 @@ void update_progress_bar(uint64_t* progress, const uint64_t total_size, const ch
 	drawDialogBackground();
 }
 
-/ *
-#define TOTAL_OPT 3
-
-void Xmsg_dialog_event(msgButton button, void *userdata)
-{
-    uint32_t* bits = (uint32_t*) userdata;
-
-    switch(button) {
-
-        case MSG_DIALOG_BTN_YES:
-            *bits |= (1 << 31);
-            *bits ^= (1 << msg_dialog_action);
-
-            if (msg_dialog_action == TOTAL_OPT)
-                msg_dialog_action = -msg_dialog_action;
-            break;
-
-        case MSG_DIALOG_BTN_NO:
-        case MSG_DIALOG_BTN_ESCAPE:
-        case MSG_DIALOG_BTN_NONE:
-            *bits |= (1 << 31);
-            msg_dialog_action++;
-
-            if (msg_dialog_action > TOTAL_OPT)
-                msg_dialog_action = 1;
-            break;
-
-        default:
-		    break;
-    }
-}
-
-#include <string.h>
-//#include <stdio.h>
-
-int Xshow_dialog()
-{
-    uint32_t enabled = 0;
-    char str[1024];
-    const char text_options[4][32] = {
-        "--- MENU ---",
-        "Option 1",
-        "Option 2",
-        "Exit",
-    };
-
-    msg_dialog_action = 1;
-    msgType mtype = MSG_DIALOG_BKG_INVISIBLE | MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK;
-
-    while(msg_dialog_action >= 0)
-    {
-        strcpy(str, text_options[0]);
-        strcat(str, "\n\n");
-
-        for (int i = 1; i <= TOTAL_OPT; i++)
-        {
-            strcat(str, (i == msg_dialog_action) ? "> " : "  ");
-            strcat(str, text_options[i]);
-
-            if (i < TOTAL_OPT)
-                strcat(str, (enabled & (1 << i)) ? ": ON" : ": OFF");
-
-            if (i == msg_dialog_action)
-                strcat(str, " <");
-
-            strcat(str, "\n");
-        }
-
-        msgDialogOpen2(mtype, str, Xmsg_dialog_event, &enabled, NULL);
-
-        while (!(enabled & (1 << 31)))
-        {
-            drawDialogBackground();
-        }
-
-        enabled ^= (1 << 31);
-    }
-    msgDialogAbort();
-    usleep(100 *1000);
-
-    return (msg_dialog_action == 1);
-}
 */

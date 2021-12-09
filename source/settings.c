@@ -150,7 +150,7 @@ if(1)
 	char *buffer;
 	long size = 0;
 
-	buffer = readFile(APOLLO_LOCAL_CACHE "ver.check", &size);
+	buffer = readTextFile(APOLLO_LOCAL_CACHE "ver.check", &size);
 
 	if (!buffer)
 		return;

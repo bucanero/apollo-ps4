@@ -1,8 +1,6 @@
 #ifndef TTF_RENDER_H
 #define TTF_RENDER_H
 
-//#include <tiny3d.h>
-
 
 int TTFLoadFont(int set, const char * path, void * from_memory, int size_from_memory);
 void TTFUnloadFont();

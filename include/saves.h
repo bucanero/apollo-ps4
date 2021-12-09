@@ -219,12 +219,13 @@ typedef struct
     list_t* (*ReadList)(const char*);
 } save_list_t;
 
+list_t * ReadUsbList(const char* userPath);
 list_t * ReadUserList(const char* userPath);
 list_t * ReadOnlineList(const char* urlPath);
 list_t * ReadBackupList(const char* userPath);
 list_t * ReadTrophyList(const char* userPath);
 void UnloadGameList(list_t * list);
-char * readFile(const char * path, long* size);
+char * readTextFile(const char * path, long* size);
 int sortSaveList_Compare(const void* A, const void* B);
 int sortCodeList_Compare(const void* A, const void* B);
 int ReadCodes(save_entry_t * save);

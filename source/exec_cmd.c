@@ -24,8 +24,7 @@ if(0)
 		return;
 	}
 
-if(0)
-//	if (extract_zip(APOLLO_LOCAL_CACHE "tmpsave.zip", path))
+	if (extract_zip(APOLLO_LOCAL_CACHE "tmpsave.zip", path))
 		show_message("Save game successfully downloaded to:\n%s", path);
 	else
 		show_message("Error extracting save game!");
@@ -80,7 +79,7 @@ void zipSave(const char* exp_path)
 	*strrchr(tmp, '/') = 0;
 	*strrchr(tmp, '/') = 0;
 
-//	zip_directory(tmp, selected_entry->path, export_file);
+	zip_directory(tmp, selected_entry->path, export_file);
 
 	sprintf(export_file, "%s%08d.txt", exp_path, fid);
 	FILE* f = fopen(export_file, "a");
@@ -215,7 +214,7 @@ void exportLicensesZip(const char* exp_path)
 	tmp = strdup(lic_path);
 	*strrchr(tmp, '/') = 0;
 
-//	zip_directory(tmp, lic_path, export_file);
+	zip_directory(tmp, lic_path, export_file);
 
 	sprintf(export_file, "%s" OWNER_XML_FILE, exp_path);
 	_saveOwnerData(export_file);
@@ -244,7 +243,7 @@ void exportFlashZip(const char* exp_path)
 	init_loading_screen("Exporting /dev_flash2.zip ...");
 
 	asprintf(&export_file, "%s" "dev_flash2.zip", exp_path);
-//	zip_directory("/dev_flash2", "/dev_flash2/", export_file);
+	zip_directory("/dev_flash2", "/dev_flash2/", export_file);
 
 	sprintf(export_file, "%s" OWNER_XML_FILE, exp_path);
 	_saveOwnerData(export_file);
@@ -278,7 +277,7 @@ void exportTrophiesZip(const char* exp_path)
 	tmp = strdup(trp_path);
 	*strrchr(tmp, '/') = 0;
 
-//	zip_directory(tmp, trp_path, export_file);
+	zip_directory(tmp, trp_path, export_file);
 
 	sprintf(export_file, "%s" OWNER_XML_FILE, exp_path);
 	_saveOwnerData(export_file);
@@ -709,7 +708,7 @@ int apply_sfo_patches(sfo_patch_t* patch)
             if (selected_entry->flags & SAVE_FLAG_OWNER)
                 selected_entry->flags ^= SAVE_FLAG_OWNER;
 
-            memcpy(patch->account_id, code->options->value[code->options->sel], SFO_ACCOUNT_ID_SIZE);
+            sscanf(code->options->value[code->options->sel], "%lx", &patch->account_id);
             break;
 
         case SFO_REMOVE_PSID:
@@ -868,7 +867,6 @@ void resignAllSaves(const char* path)
 	struct dirent *dir;
 	char sfoPath[256];
 	char titleid[10];
-	char acct_id[SFO_ACCOUNT_ID_SIZE+1] = {0};
 	char message[128] = "Resigning all saves...";
 
 	if (dir_exists(path) != SUCCESS)
@@ -883,14 +881,11 @@ void resignAllSaves(const char* path)
 
     init_loading_screen(message);
 
-	if (apollo_config.account_id)
-		snprintf(acct_id, sizeof(acct_id), "%*lx", SFO_ACCOUNT_ID_SIZE, apollo_config.account_id);
-
 	sfo_patch_t patch = {
 		.flags = SFO_PATCH_FLAG_REMOVE_COPY_PROTECTION,
 		.user_id = apollo_config.user_id,
 		.psid = (u8*) apollo_config.psid,
-		.account_id = acct_id,
+		.account_id = apollo_config.account_id,
 		.directory = NULL,
 	};
 
@@ -1105,7 +1100,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_DOWNLOAD_USB:
-			if (selected_entry->flags & SAVE_FLAG_PS3)
+			if (selected_entry->flags & SAVE_FLAG_PS4)
 				downloadSave(code->file, codecmd[1] ? SAVES_PATH_USB1 : SAVES_PATH_USB0);
 			else
 				downloadSave(code->file, codecmd[1] ? EXP_PSV_PATH_USB1 : EXP_PSV_PATH_USB0);
@@ -1185,13 +1180,10 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 					.user_id = apollo_config.user_id,
 					.psid = (u8*) apollo_config.psid,
 					.directory = NULL,
+					.account_id = apollo_config.account_id,
 				};
-				asprintf(&patch.account_id, "%*lx", SFO_ACCOUNT_ID_SIZE, apollo_config.account_id);
-				if (!apollo_config.account_id)
-					memset(patch.account_id, 0, SFO_ACCOUNT_ID_SIZE);
 
 				resignSave(&patch);
-				free(patch.account_id);
 			}
 			code->activated = 0;
 			break;

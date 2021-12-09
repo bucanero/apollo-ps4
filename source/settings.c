@@ -117,8 +117,7 @@ void clearcache_callback(int sel)
 
 void unzip_app_data(const char* zip_file)
 {
-if(0)
-//	if (extract_zip(zip_file, APOLLO_DATA_PATH))
+	if (extract_zip(zip_file, APOLLO_DATA_PATH))
 		show_message("Successfully installed local application data");
 
 	unlink_secure(zip_file);

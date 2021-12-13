@@ -202,6 +202,7 @@ typedef struct save_entry
     char * name;
 	char * title_id;
 	char * path;
+	char * dir_name;
     uint32_t blocks;
 	uint16_t flags;
     uint16_t type;

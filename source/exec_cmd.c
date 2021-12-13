@@ -17,8 +17,7 @@ void downloadSave(const char* file, const char* path)
 		return;
 	}
 
-if(0)
-//	if (!http_download(selected_entry->path, file, APOLLO_LOCAL_CACHE "tmpsave.zip", 1))
+	if (!http_download(selected_entry->path, file, APOLLO_LOCAL_CACHE "tmpsave.zip", 1))
 	{
 		show_message("Error downloading save game from:\n%s%s", selected_entry->path, file);
 		return;
@@ -183,7 +182,7 @@ void copyAllSavesHDD(const char* path)
 	{
 		if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0)
 		{
-			snprintf(savePath, sizeof(savePath), "%s%s/PARAM.SFO", path, dir->d_name);
+			snprintf(savePath, sizeof(savePath), "%s%s/sce_sys/param.sfo", path, dir->d_name);
 			if (file_exists(savePath) == SUCCESS)
 			{
 				snprintf(savePath, sizeof(savePath), "%s%s/", path, dir->d_name);
@@ -894,7 +893,7 @@ void resignAllSaves(const char* path)
 	{
 		if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0)
 		{
-			snprintf(sfoPath, sizeof(sfoPath), "%s%s/PARAM.SFO", path, dir->d_name);
+			snprintf(sfoPath, sizeof(sfoPath), "%s%s/sce_sys/param.sfo", path, dir->d_name);
 			if (file_exists(sfoPath) == SUCCESS)
 			{
 				LOG("Patching SFO '%s'...", sfoPath);

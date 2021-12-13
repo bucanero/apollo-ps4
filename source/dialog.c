@@ -64,7 +64,7 @@ int show_dialog(int tdialog, const char * format, ...)
     sceMsgDialogGetResult(&result);
     sceMsgDialogTerminate();
 
-    return (result.buttonId == 1);
+    return (result.buttonId == ORBIS_MSG_DIALOG_BUTTON_ID_YES);
 }
 
 /*

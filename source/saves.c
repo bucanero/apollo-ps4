@@ -641,18 +641,16 @@ int ReadOnlineSaves(save_entry_t * game)
 		stat(path, &stats);
 		// re-download if file is +1 day old
 		if ((stats.st_mtime + ONLINE_CACHE_TIMEOUT) < time(NULL))
-;//			http_download(game->path, "saves.txt", path, 0);
+			http_download(game->path, "saves.txt", path, 0);
 	}
 	else
 	{
-if(0)
-//		if (!http_download(game->path, "saves.txt", path, 0))
+		if (!http_download(game->path, "saves.txt", path, 0))
 			return -1;
 	}
 
 	long fsize;
-	char *data = readFile(path, &fsize);
-	data[fsize] = 0;
+	char *data = readTextFile(path, &fsize);
 	
 	char *ptr = data;
 	char *end = data + fsize + 1;
@@ -1057,6 +1055,12 @@ void UnloadGameList(list_t * list)
 			item->path = NULL;
 		}
 
+		if (item->dir_name)
+		{
+			free(item->dir_name);
+			item->dir_name = NULL;
+		}
+
 		if (item->title_id)
 		{
 			free(item->title_id);
@@ -1140,7 +1144,7 @@ void read_savegames(const char* userPath, list_t *list, uint32_t flag)
 		if (dir->d_type != DT_DIR || strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
 			continue;
 
-		snprintf(sfoPath, sizeof(sfoPath), "%s%s/PARAM.SFO", userPath, dir->d_name);
+		snprintf(sfoPath, sizeof(sfoPath), "%s%s/sce_sys/param.sfo", userPath, dir->d_name);
 		if (file_exists(sfoPath) == SUCCESS)
 		{
 			LOG("Reading %s...", sfoPath);
@@ -1424,18 +1428,16 @@ void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 		stat(path, &stats);
 		// re-download if file is +1 day old
 		if ((stats.st_mtime + ONLINE_CACHE_TIMEOUT) < time(NULL))
-;//			http_download(urlPath, "games.txt", path, 0);
+			http_download(urlPath, "games.txt", path, 0);
 	}
 	else
 	{
-if(0)
-//		if (!http_download(urlPath, "games.txt", path, 0))
+		if (!http_download(urlPath, "games.txt", path, 0))
 			return;
 	}
 	
 	long fsize;
-	char *data = readFile(path, &fsize);
-	data[fsize] = 0;
+	char *data = readTextFile(path, &fsize);
 	
 	char *ptr = data;
 	char *end = data + fsize + 1;

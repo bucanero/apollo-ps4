@@ -125,8 +125,7 @@ void unzip_app_data(const char* zip_file)
 
 void upd_appdata_callback(int sel)
 {
-if(0)
-//	if (http_download(ONLINE_URL, "appdata.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
+	if (http_download(ONLINE_URL, "appdata.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
 		unzip_app_data(APOLLO_LOCAL_CACHE "appdata.zip");
 }
 
@@ -139,8 +138,7 @@ void update_callback(int sel)
 
 	LOG("checking latest Apollo version at %s", APOLLO_UPDATE_URL);
 
-if(1)
-//	if (!http_download(APOLLO_UPDATE_URL, "", APOLLO_LOCAL_CACHE "ver.check", 0))
+	if (!http_download(APOLLO_UPDATE_URL, "", APOLLO_LOCAL_CACHE "ver.check", 0))
 	{
 		LOG("http request to %s failed", APOLLO_UPDATE_URL);
 		return;
@@ -155,7 +153,6 @@ if(1)
 		return;
 
 	LOG("received %u bytes", size);
-	buffer[size-1] = 0;
 
 	static const char find[] = "\"name\":\"Apollo Save Tool v";
 	const char* start = strstr(buffer, find);

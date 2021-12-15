@@ -3,20 +3,19 @@
 #include <string.h>
 #include <assert.h>
 #include <unistd.h>
-#include <math.h>
-#include <assert.h>
 #include <time.h>
 #include <dirent.h>
 //#include <libxml/parser.h>
 //#include <libxml/tree.h>
+#include <orbis/SaveData.h>
 
 #include "saves.h"
 #include "common.h"
 #include "sfo.h"
 #include "settings.h"
 #include "util.h"
-#include "pfd.h"
 #include "trophy.h"
+#include "sqlite3.h"
 
 #define UTF8_CHAR_GROUP		"\xe2\x97\x86"
 #define UTF8_CHAR_ITEM		"\xe2\x94\x97"
@@ -147,13 +146,7 @@ option_entry_t* _getFileOptions(const char* save_path, const char* mask, uint8_t
 
 	while ((dir = readdir(d)) != NULL)
 	{
-		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0 &&
-			strcmp(dir->d_name, "SND0.AT3") != 0 &&
-			strcmp(dir->d_name, "PIC1.PNG") != 0 &&
-			strcmp(dir->d_name, "ICON0.PNG") != 0 &&
-			strcmp(dir->d_name, "ICON1.PAM") != 0 &&
-			strcmp(dir->d_name, "PARAM.PFD") != 0 &&
-			strcmp(dir->d_name, "PARAM.SFO") != 0 &&
+		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0 && dir->d_type == DT_REG &&
 			wildcard_match_icase(dir->d_name, mask))
 		{
 			i++;
@@ -170,13 +163,7 @@ option_entry_t* _getFileOptions(const char* save_path, const char* mask, uint8_t
 	d = opendir(save_path);
 	while ((dir = readdir(d)) != NULL)
 	{
-		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0 &&
-			strcmp(dir->d_name, "SND0.AT3") != 0 &&
-			strcmp(dir->d_name, "PIC1.PNG") != 0 &&
-			strcmp(dir->d_name, "ICON0.PNG") != 0 &&
-			strcmp(dir->d_name, "ICON1.PAM") != 0 &&
-			strcmp(dir->d_name, "PARAM.PFD") != 0 &&
-			strcmp(dir->d_name, "PARAM.SFO") != 0 &&
+		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0 && dir->d_type == DT_REG &&
 			wildcard_match_icase(dir->d_name, mask))
 		{
 			LOG("Adding '%s' (%s)", dir->d_name, mask);
@@ -479,56 +466,21 @@ char* _get_xml_node_value(xmlNode * a_node, const xmlChar* node_name)
 
 	return value;
 }
+*/
 
 int ReadTrophies(save_entry_t * game)
 {
 	int trop_count = 0;
 	code_entry_t * trophy;
-	char filePath[256];
-	long bufferLen;
-	char * buffer = NULL;
-	xmlDoc *doc = NULL;
-	xmlNode *root_element = NULL;
-	xmlNode *cur_node = NULL;
-	char *value;
-	u8* usr_data;
-	tropTimeInfo_t* tti;
+	char query[256];
+	sqlite3 *db;
+	sqlite3_stmt *res;
 
-	snprintf(filePath, sizeof(filePath), "%s" "TROPCONF.SFM", game->path);
-	if (file_exists(filePath) != SUCCESS)
+	if ((db = open_sqlite_db(game->path)) == NULL)
 		return 0;
-
-	buffer = readFile(filePath, &bufferLen);
-	buffer[bufferLen]=0;
-
-	//parse the file and get the DOM
-	doc = xmlReadMemory(buffer + 0x40, bufferLen - 0x40, NULL, NULL, XML_PARSE_NONET);
-
-	if (!doc)
-	{
-		LOG("XML: could not parse file %s", filePath);
-		free(buffer);
-		return 0;
-	}
-
-	snprintf(filePath, sizeof(filePath), "%s" "TROPUSR.DAT", game->path);
-	if (read_buffer(filePath, &usr_data, NULL) != SUCCESS)
-	{
-		LOG("Cannot open %s.", filePath);
-		free(buffer);
-		return 0;
-	}
-
-	if ((tti = getTrophyTimeInfo(usr_data)) == NULL)
-	{
-		LOG("Cannot parse %s.", filePath);
-		free(usr_data);
-		free(buffer);
-		return 0;
-	}
 
 	game->codes = list_alloc();
-
+/*
 	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Apply Changes & Resign Trophy Set", CMD_RESIGN_TROPHY);
 	list_append(game->codes, trophy);
 
@@ -543,82 +495,71 @@ int ReadTrophies(save_entry_t * game)
 	trophy->options_count = 1;
 	trophy->options = _createOptions(2, "Save .Zip to USB", CMD_EXPORT_ZIP_USB);
 	list_append(game->codes, trophy);
-
+*/
 	trophy = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Trophies " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(game->codes, trophy);
 
-	//Get the root element node
-	root_element = xmlDocGetRootElement(doc);
+	snprintf(query, sizeof(query), "SELECT title_id, trophy_title_id, title, description, grade, unlocked, id FROM tbl_trophy_flag WHERE title_id = %d", game->blocks);
 
-	for (cur_node = root_element->children; cur_node; cur_node = cur_node->next)
+	if (sqlite3_prepare_v2(db, query, -1, &res, NULL) != SQLITE_OK)
 	{
-		if (cur_node->type != XML_ELEMENT_NODE)
-			continue;
-
-		if (xmlStrcasecmp(cur_node->name, BAD_CAST "trophy") == 0)
-		{
-			value = _get_xml_node_value(cur_node->children, BAD_CAST "name");
-			snprintf(filePath, sizeof(filePath), "   %s", value);
-			trophy = _createCmdCode(PATCH_NULL, filePath, CMD_CODE_NULL);
-
-			value = _get_xml_node_value(cur_node->children, BAD_CAST "detail");
-			asprintf(&trophy->codes, "%s\n", value);
-
-			value = (char*) xmlGetProp(cur_node, BAD_CAST "ttype");
-
-			switch (value[0])
-			{
-			case 'B':
-				trophy->name[0] = CHAR_TRP_BRONZE;
-				break;
-
-			case 'S':
-				trophy->name[0] = CHAR_TRP_SILVER;
-				break;
-
-			case 'G':
-				trophy->name[0] = CHAR_TRP_GOLD;
-				break;
-
-			case 'P':
-				trophy->name[0] = CHAR_TRP_PLATINUM;
-				break;
-
-			default:
-				break;
-			}
-
-			value = (char*) xmlGetProp(cur_node, BAD_CAST "id");
-			if (value)
-			{
-				sscanf(value, "%d", &trop_count);
-				trophy->file = malloc(sizeof(trop_count));
-				memcpy(trophy->file, &trop_count, sizeof(trop_count));
-
-				if (!tti[trop_count].unlocked)
-					trophy->name[1] = CHAR_TAG_LOCKED;
-
-				// if trophy has been synced, we can't allow changes
-				if (tti[trop_count].syncState & TROP_STATE_SYNCED)
-					trophy->name[1] = CHAR_TRP_SYNC;
-				else
-					trophy->type = (tti[trop_count].unlocked) ? PATCH_TROP_LOCK : PATCH_TROP_UNLOCK;
-			}
-			LOG("Trophy=%d [%d] '%s' (%s)", trop_count, trophy->type, trophy->name, trophy->codes);
-
-			list_append(game->codes, trophy);
-		}
+		LOG("Failed to fetch data: %s", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return 0;
 	}
 
-	//free the document
-	xmlFreeDoc(doc);
-	xmlCleanupParser();
-	free(buffer);
-	free(usr_data);
+	while (sqlite3_step(res) == SQLITE_ROW)
+	{
+		snprintf(query, sizeof(query), "   %s", sqlite3_column_text(res, 2));
+		trophy = _createCmdCode(PATCH_NULL, query, CMD_CODE_NULL);
+
+		asprintf(&trophy->codes, "%s\n", sqlite3_column_text(res, 3));
+
+		switch (sqlite3_column_int(res, 4))
+		{
+		case 4:
+			trophy->name[0] = CHAR_TRP_BRONZE;
+			break;
+
+		case 3:
+			trophy->name[0] = CHAR_TRP_SILVER;
+			break;
+
+		case 2:
+			trophy->name[0] = CHAR_TRP_GOLD;
+			break;
+
+		case 1:
+			trophy->name[0] = CHAR_TRP_PLATINUM;
+			break;
+
+		default:
+			break;
+		}
+
+		trop_count = sqlite3_column_int(res, 6);
+		trophy->file = malloc(sizeof(trop_count));
+		memcpy(trophy->file, &trop_count, sizeof(trop_count));
+
+		if (!sqlite3_column_int(res, 5))
+			trophy->name[1] = CHAR_TAG_LOCKED;
+
+		// if trophy has been synced, we can't allow changes
+		if (0 & TROP_STATE_SYNCED)
+			trophy->name[1] = CHAR_TRP_SYNC;
+//		else
+//			trophy->type = (tti[trop_count].unlocked) ? PATCH_TROP_LOCK : PATCH_TROP_UNLOCK;
+
+		LOG("Trophy=%d [%d] '%s' (%s)", trop_count, trophy->type, trophy->name, trophy->codes);
+		list_append(game->codes, trophy);
+	}
+
+	sqlite3_finalize(res);
+	sqlite3_close(db);
 
 	return list_count(game->codes);
 }
-*/
+
 /*
  * Function:		ReadOnlineSaves()
  * File:			saves.c
@@ -697,17 +638,19 @@ int ReadOnlineSaves(save_entry_t * game)
 
 list_t * ReadBackupList(const char* userPath)
 {
+	return NULL;
+
 	char tmp[128];
 	save_entry_t * item;
 	code_entry_t * cmd;
 	list_t *list = list_alloc();
 
-	item = _createSaveEntry(SAVE_FLAG_PS3, CHAR_ICON_COPY " Export Licenses");
+	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_COPY " Export Licenses");
 	asprintf(&item->path, EXDATA_PATH_HDD, apollo_config.user_id);
 	item->type = FILE_TYPE_RIF;
 	list_append(list, item);
 
-	item = _createSaveEntry(SAVE_FLAG_PS3, CHAR_ICON_USER " Activate PS3 Account");
+	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_USER " Activate PS4 Account");
 	asprintf(&item->path, EXDATA_PATH_HDD, apollo_config.user_id);
 	item->type = FILE_TYPE_ACT;
 	list_append(list, item);

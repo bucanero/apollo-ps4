@@ -197,9 +197,8 @@ void update_callback(int sel)
 
 	if (show_dialog(1, "New version available! Download update?"))
 	{
-if(0)
-//		if (http_download(start, "", "/dev_hdd0/packages/apollo-ps3.pkg", 1))
-			show_message("Update downloaded to /dev_hdd0/packages/");
+		if (http_download(start, "", "/data/apollo-ps4.pkg", 1))
+			show_message("Update downloaded to /data/apollo-ps4.pkg");
 		else
 			show_message("Download error!");
 	}

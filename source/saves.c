@@ -1481,10 +1481,11 @@ list_t * ReadOnlineList(const char* urlPath)
 	char url[256];
 	list_t *list = list_alloc();
 
-	// PS3 save-games (Zip folder)
-	snprintf(url, sizeof(url), "%s" "PS3/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_PS3, list);
+	// PS4 save-games (Zip folder)
+	snprintf(url, sizeof(url), "%s" "PS4/", urlPath);
+	_ReadOnlineListEx(url, SAVE_FLAG_PS4, list);
 
+/*
 	// PS2 save-games (Zip PSV)
 	snprintf(url, sizeof(url), "%s" "PS2/", urlPath);
 	_ReadOnlineListEx(url, SAVE_FLAG_PS2, list);
@@ -1492,6 +1493,7 @@ list_t * ReadOnlineList(const char* urlPath)
 	// PS1 save-games (Zip PSV)
 	//snprintf(url, sizeof(url), "%s" "PS1/", urlPath);
 	//_ReadOnlineListEx(url, SAVE_FLAG_PS1, list);
+*/
 
 	if (!list_count(list))
 	{
@@ -1501,27 +1503,25 @@ list_t * ReadOnlineList(const char* urlPath)
 
 	return list;
 }
-/*
+
 list_t * ReadTrophyList(const char* userPath)
 {
-	DIR *d;
-	struct dirent *dir;
 	save_entry_t *item;
 	code_entry_t *cmd;
 	list_t *list;
 	char filePath[256];
-	xmlDoc *doc = NULL;
-	xmlNode *root_element = NULL;
-	char *value, *buffer;
-	long bufferLen;
+	sqlite3 *db;
+	sqlite3_stmt *res;
 
-	if (dir_exists(userPath) != SUCCESS)
+	snprintf(filePath, sizeof(filePath), "%s" "trophy_local.db", userPath);
+
+	if ((db = open_sqlite_db(filePath)) == NULL)
 		return NULL;
 
 	list = list_alloc();
-
-	item = _createSaveEntry(SAVE_FLAG_PS3, CHAR_ICON_COPY " Export Trophies");
-	asprintf(&item->path, userPath);
+/*
+	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_COPY " Export Trophies");
+	item->path = strdup(userPath);
 	item->codes = list_alloc();
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup Trophies to USB", CMD_CODE_NULL);
 	cmd->options_count = 1;
@@ -1532,58 +1532,29 @@ list_t * ReadTrophyList(const char* userPath)
 	cmd->options = _createOptions(2, "Save .Zip to USB", CMD_ZIP_TROPHY_USB);
 	list_append(item->codes, cmd);
 	list_append(list, item);
-
-	d = opendir(userPath);
-
-	if (!d)
-		return list;
-
-	while ((dir = readdir(d)) != NULL)
+*/
+	int rc = sqlite3_prepare_v2(db, "SELECT id, trophy_title_id, title FROM tbl_trophy_title", -1, &res, NULL);
+	if (rc != SQLITE_OK)
 	{
-		if (dir->d_type != DT_DIR || strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
-			continue;
-
-		snprintf(filePath, sizeof(filePath), "%s%s/TROPCONF.SFM", userPath, dir->d_name);
-		if (file_exists(filePath) == SUCCESS)
-		{
-			LOG("Reading %s...", filePath);
-
-			buffer = readFile(filePath, &bufferLen);
-			buffer[bufferLen]=0;
-
-			//parse the file and get the DOM
-			doc = xmlReadMemory(buffer + 0x40, bufferLen - 0x40, NULL, NULL, XML_PARSE_NONET);
-
-			if (!doc)
-			{
-				LOG("XML: could not parse file %s", filePath);
-				free(buffer);
-				continue;
-			}
-
-			//Get the root element node
-			root_element = xmlDocGetRootElement(doc);
-			value = _get_xml_node_value(root_element->children, BAD_CAST "title-name");
-
-			item = _createSaveEntry(SAVE_FLAG_PS3 | SAVE_FLAG_TROPHY, value);
-			asprintf(&item->path, "%s%s/", userPath, dir->d_name);
-
-			value = _get_xml_node_value(root_element->children, BAD_CAST "npcommid");
-			item->title_id = strdup(value);
-			item->type = FILE_TYPE_TRP;
-
-			//free the document
-			xmlFreeDoc(doc);
-			xmlCleanupParser();
-			free(buffer);
-				
-			LOG("[%s] F(%d) name '%s'", item->title_id, item->flags, item->name);
-			list_append(list, item);
-		}
+		LOG("Failed to fetch data: %s", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return NULL;
 	}
 
-	closedir(d);
+	while (sqlite3_step(res) == SQLITE_ROW)
+	{
+		item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_TROPHY, (const char*) sqlite3_column_text(res, 2));
+		item->blocks = sqlite3_column_int(res, 0);
+		item->path = strdup(filePath);
+		item->title_id = strdup((const char*) sqlite3_column_text(res, 1));
+		item->type = FILE_TYPE_TRP;
+
+		LOG("[%s] F(%d) name '%s'", item->title_id, item->flags, item->name);
+		list_append(list, item);
+	}
+
+	sqlite3_finalize(res);
+	sqlite3_close(db);
 
 	return list;
 }
-*/

@@ -11,7 +11,6 @@
 
 void drawDialogBackground();
 
-static float bar1_countparts;
 
 static inline void _orbisCommonDialogSetMagicNumber(uint32_t* magic, const OrbisCommonDialogBaseParam* param)
 {
@@ -67,38 +66,42 @@ int show_dialog(int tdialog, const char * format, ...)
     return (result.buttonId == ORBIS_MSG_DIALOG_BUTTON_ID_YES);
 }
 
-/*
-void init_progress_bar(const char* progress_bar_title, const char* msg)
+void init_progress_bar(const char* msg)
 {
-	bar1_countparts = 0.0f;
+    OrbisMsgDialogParam param;
+    OrbisMsgDialogProgressBarParam userBarParam;
+    OrbisMsgDialogResult result;
 
-    msgDialogOpen2(MSG_DIALOG_BKG_INVISIBLE | MSG_DIALOG_SINGLE_PROGRESSBAR | MSG_DIALOG_MUTE_ON, progress_bar_title, NULL, NULL, NULL);
-    msgDialogProgressBarSetMsg(MSG_PROGRESSBAR_INDEX0, msg);
-    msgDialogProgressBarReset(MSG_PROGRESSBAR_INDEX0);
+    sceMsgDialogInitialize();
+    orbisMsgDialogParamInitialize(&param);
+    param.mode = ORBIS_MSG_DIALOG_MODE_PROGRESS_BAR;
+
+    memset(&userBarParam, 0, sizeof(userBarParam));
+    userBarParam.msg = msg;
+    userBarParam.barType = ORBIS_MSG_DIALOG_PROGRESSBAR_TYPE_PERCENTAGE;
+    param.progBarParam = &userBarParam;
+
+    if (sceMsgDialogOpen(&param) < 0)
+        return;
 
     drawDialogBackground();
 }
 
 void end_progress_bar(void)
 {
-    msgDialogAbort();
+    sceMsgDialogClose();
+    sceMsgDialogTerminate();
 }
 
-void update_progress_bar(uint64_t* progress, const uint64_t total_size, const char* msg)
+void update_progress_bar(uint64_t progress, const uint64_t total_size, const char* msg)
 {
-	if(*progress > 0) {
-		bar1_countparts += (100.0f * ((double) *progress)) / ((double) total_size);
-        *progress = 0;
-	}
+    float bar_value = (100.0f * ((double) progress)) / ((double) total_size);
 
-	if(bar1_countparts >= 1.0f) {
-        msgDialogProgressBarSetMsg(MSG_PROGRESSBAR_INDEX0, msg);
-        msgDialogProgressBarInc(MSG_PROGRESSBAR_INDEX0, (u32) bar1_countparts);
-            
-       	bar1_countparts -= (float) ((u32) bar1_countparts);
-	}
+    if (sceMsgDialogUpdateStatus() == ORBIS_COMMON_DIALOG_STATUS_RUNNING)
+    {
+        sceMsgDialogProgressBarSetMsg(0, msg);
+        sceMsgDialogProgressBarSetValue(0, (uint32_t) bar_value);
+    }
 
-	drawDialogBackground();
+    drawDialogBackground();
 }
-
-*/

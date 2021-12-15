@@ -127,6 +127,7 @@ enum cmd_code_enum
 #define SAVE_FLAG_TROPHY        128
 #define SAVE_FLAG_ONLINE        256
 #define SAVE_FLAG_PS4           512
+#define SAVE_FLAG_HDD           1024
 
 enum save_type_enum
 {
@@ -242,8 +243,8 @@ int extract_zip(const char* zip_file, const char* dest_path);
 int zip_directory(const char* basedir, const char* inputdir, const char* output_zipfile);
 
 int show_dialog(int dialog_type, const char * format, ...);
-void init_progress_bar(const char* progress_bar_title, const char* msg);
-void update_progress_bar(uint64_t* progress, const uint64_t total_size, const char* msg);
+void init_progress_bar(const char* msg);
+void update_progress_bar(uint64_t progress, const uint64_t total_size, const char* msg);
 void end_progress_bar(void);
 #define show_message(...)	show_dialog(0, __VA_ARGS__)
 

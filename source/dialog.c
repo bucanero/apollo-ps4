@@ -70,7 +70,6 @@ void init_progress_bar(const char* msg)
 {
     OrbisMsgDialogParam param;
     OrbisMsgDialogProgressBarParam userBarParam;
-    OrbisMsgDialogResult result;
 
     sceMsgDialogInitialize();
     orbisMsgDialogParamInitialize(&param);

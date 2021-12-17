@@ -35,7 +35,6 @@ sqlite3* open_sqlite_db(const char* db_path)
 	uint8_t* db_buf;
 	size_t db_size;
 	sqlite3 *db;
-	sqlite3_stmt *res;
 	const sqlite3_api_routines* api = sqlite3_get_sqlite3Apis();
 
 	// Open an in-memory database to use as a handle for loading the memvfs extension
@@ -314,7 +313,7 @@ option_entry_t* _getFileOptions(const char* save_path, const char* mask, uint8_t
 		{
 			LOG("Adding '%s' (%s)", dir->d_name, mask);
 
-			asprintf(&opt->name[i], "%s", dir->d_name);
+			opt->name[i] = strdup(dir->d_name);
 			if (is_cmd)
 				asprintf(&opt->value[i], "%c", is_cmd);
 			else
@@ -696,8 +695,8 @@ int ReadTrophies(save_entry_t * game)
 		// if trophy has been synced, we can't allow changes
 		if (0 & TROP_STATE_SYNCED)
 			trophy->name[1] = CHAR_TRP_SYNC;
-//		else
-//			trophy->type = (tti[trop_count].unlocked) ? PATCH_TROP_LOCK : PATCH_TROP_UNLOCK;
+		else
+			trophy->type = (sqlite3_column_int(res, 5) ? PATCH_TROP_LOCK : PATCH_TROP_UNLOCK);
 
 		LOG("Trophy=%d [%d] '%s' (%s)", trop_count, trophy->type, trophy->name, trophy->codes);
 		list_append(game->codes, trophy);

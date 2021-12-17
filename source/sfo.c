@@ -328,11 +328,12 @@ void sfo_patch_user_id(sfo_context_t *inout, u32 userid) {
 }
 
 void sfo_patch_psid(sfo_context_t *inout, u8* psid) {
+/*
 	sfo_context_param_t *p;
 
 	if (!psid)
 		return;
-/*
+
 	p = sfo_context_get_param(inout, "PARAMS");
 	if (p != NULL) {
 		sfo_param_params_t *params = (sfo_param_params_t *)p->value;
@@ -374,7 +375,7 @@ int patch_sfo(const char *in_file_path, sfo_patch_t* patches) {
 		return -1;
 	}
 
-	sfo_patch_lock(sfo, patches->flags);
+//	sfo_patch_lock(sfo, patches->flags);
 	sfo_patch_account(sfo, patches->account_id);
 	sfo_patch_user_id(sfo, patches->user_id);
 	sfo_patch_psid(sfo, patches->psid);

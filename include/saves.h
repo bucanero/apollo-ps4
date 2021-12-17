@@ -134,6 +134,7 @@ enum save_type_enum
     FILE_TYPE_NULL,
     FILE_TYPE_PSV,
     FILE_TYPE_TRP,
+    FILE_TYPE_MENU,
 
     // PS1 File Types
     FILE_TYPE_PSX,

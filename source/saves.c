@@ -27,6 +27,152 @@
 #define CHAR_ICON_USER		"\x07"
 #define CHAR_ICON_LOCK		"\x08"
 
+const void* sqlite3_get_sqlite3Apis();
+int sqlite3_memvfs_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi);
+
+sqlite3* open_sqlite_db(const char* db_path)
+{
+	uint8_t* db_buf;
+	size_t db_size;
+	sqlite3 *db;
+	sqlite3_stmt *res;
+	const sqlite3_api_routines* api = sqlite3_get_sqlite3Apis();
+
+	// Open an in-memory database to use as a handle for loading the memvfs extension
+	if (sqlite3_open(":memory:", &db) != SQLITE_OK)
+	{
+		LOG("open :memory: %s", sqlite3_errmsg(db));
+		return NULL;
+	}
+
+	sqlite3_enable_load_extension(db, 1);
+	if (sqlite3_memvfs_init(db, NULL, api) != SQLITE_OK_LOAD_PERMANENTLY)
+	{
+		LOG("Error loading extension: %s", "memvfs");
+		return NULL;
+	}
+
+	// Done with this database
+	sqlite3_close(db);
+
+	if (read_buffer(db_path, &db_buf, &db_size) != SUCCESS)
+	{
+		LOG("Cannot open database file: %s", db_path);
+		return NULL;
+	}
+
+	// And open that memory with memvfs now that it holds a valid database
+	char *memuri = sqlite3_mprintf("file:memdb?ptr=0x%p&sz=%lld&freeonclose=1", db_buf, db_size);
+	LOG("Opening '%s'...", memuri);
+
+	if (sqlite3_open_v2(memuri, &db, SQLITE_OPEN_READONLY | SQLITE_OPEN_URI, "memvfs") != SQLITE_OK)
+	{
+		LOG("Error open memvfs: %s", sqlite3_errmsg(db));
+		return NULL;
+	}
+	sqlite3_free(memuri);
+
+	return db;
+}
+
+void orbis_SaveDelete(save_entry_t *save)
+{
+	OrbisSaveDataDelete del;
+
+	memset(&del, 0, sizeof(OrbisSaveDataDelete));
+	del.userId = apollo_config.user_id;
+	del.dirName = save->dir_name;
+	del.titleId = save->title_id;
+
+	if (sceSaveDataDelete(&del) < 0) {
+		LOG("DELETE_ERROR");
+	}
+}
+
+int orbis_SaveUmount(save_entry_t *save, const char* mountPath)
+{
+	OrbisSaveDataUMount umount;
+
+	memset(&umount, 0, sizeof(OrbisSaveDataUMount));
+	strncpy(umount.mountPathName, mountPath, sizeof(umount.mountPathName));
+
+	int32_t umountErrorCode = sceSaveDataUmount(&umount);
+	
+	if (umountErrorCode < 0)
+		LOG("UMOUNT_ERROR (%X)", umountErrorCode);
+
+	return (umountErrorCode == SUCCESS);
+}
+
+int orbis_SaveMount(save_entry_t *save, char* mount_path)
+{
+	char dirName[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	char titleId[0x10];
+	int32_t saveDataInitializeResult = sceSaveDataInitialize3(0);
+
+	if (saveDataInitializeResult != SUCCESS)
+	{
+		LOG("Failed to initialize save data library (%X)", saveDataInitializeResult);
+		return 0;
+	}
+
+	memset(dirName, 0, sizeof(dirName));
+	memset(titleId, 0, sizeof(titleId));
+	strncpy(dirName, save->dir_name, sizeof(dirName));
+	strncpy(titleId, save->title_id, sizeof(titleId));
+
+	OrbisSaveDataMount mount;
+	memset(&mount, 0, sizeof(OrbisSaveDataMount));
+
+	char fingerprint[80];
+	memset(fingerprint, 0, sizeof(fingerprint));
+	strcpy(fingerprint, "0000000000000000000000000000000000000000000000000000000000000000");
+
+	mount.userId = apollo_config.user_id;
+	mount.dirName = dirName;
+	mount.fingerprint = fingerprint;
+	mount.titleId = titleId;
+	mount.blocks = save->blocks;
+	mount.mountMode = ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_DESTRUCT_OFF;
+	
+	OrbisSaveDataMountResult mountResult;
+	memset(&mountResult, 0, sizeof(OrbisSaveDataMountResult));
+
+	int32_t mountErrorCode = sceSaveDataMount(&mount, &mountResult);
+	if (mountErrorCode < 0)
+	{
+		LOG("ERROR (%X): can't mount '%s/%s'", mountErrorCode, save->title_id, save->dir_name);
+		return 0;
+	}
+
+	LOG("'%s/%s' mountPath (%s)", save->title_id, save->dir_name, mountResult.mountPathName);
+	strncpy(mount_path, mountResult.mountPathName, ORBIS_SAVE_DATA_MOUNT_POINT_DATA_MAXSIZE);
+
+	return 1;
+}
+
+int orbis_UpdateSaveParams(save_entry_t *save, const char* mountPath, const char* title, const char* subtitle, const char* details)
+{
+	OrbisSaveDataParam saveParams;
+	OrbisSaveDataUMount mount;
+
+	memset(&saveParams, 0, sizeof(OrbisSaveDataParam));
+	memset(&mount, 0, sizeof(OrbisSaveDataUMount));
+
+	strncpy(mount.mountPathName, mountPath, sizeof(mount.mountPathName));
+	strncpy(saveParams.title, title, ORBIS_SAVE_DATA_TITLE_MAXSIZE);
+	strncpy(saveParams.subtitle, subtitle, ORBIS_SAVE_DATA_SUBTITLE_MAXSIZE);
+	strncpy(saveParams.details, details, ORBIS_SAVE_DATA_DETAIL_MAXSIZE);
+	saveParams.mtime = time(NULL);
+
+	int32_t setParamResult = sceSaveDataSetParam(mount.mountPathName, 0, &saveParams, sizeof(OrbisSaveDataParam));
+	if (setParamResult < 0) {
+		LOG("sceSaveDataSetParam error (%X)", setParamResult);
+		return 0;
+	}
+
+	return (setParamResult == SUCCESS);
+}
 
 /*
  * Function:		endsWith()
@@ -209,6 +355,9 @@ void _addBackupCommands(save_entry_t* item)
 	asprintf(&cmd->options->name[2], "Export Zip to HDD");
 	asprintf(&cmd->options->value[2], "%c", CMD_EXPORT_ZIP_HDD);
 	list_append(item->codes, cmd);
+
+	if(!(item->flags & SAVE_FLAG_HDD))
+		return;
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Decrypt save game files", CMD_CODE_NULL);
 	cmd->options_count = 1;
@@ -1070,7 +1219,7 @@ int sortSaveList_Compare(const void* a, const void* b)
 	return strcasecmp(((save_entry_t*) a)->name, ((save_entry_t*) b)->name);
 }
 
-void read_savegames(const char* userPath, list_t *list, uint32_t flag)
+void read_usb_savegames(const char* userPath, list_t *list, uint32_t flag)
 {
 	DIR *d;
 	struct dirent *dir;
@@ -1099,21 +1248,27 @@ void read_savegames(const char* userPath, list_t *list, uint32_t flag)
 				continue;
 			}
 
-			char *sfo_data = (char*) sfo_get_param_value(sfo, "TITLE");
+			char *sfo_data = (char*) sfo_get_param_value(sfo, "MAINTITLE");
 			item = _createSaveEntry(flag, sfo_data);
 
+			sfo_data = (char*) sfo_get_param_value(sfo, "TITLE_ID");
 			asprintf(&item->path, "%s%s/", userPath, dir->d_name);
-			asprintf(&item->title_id, "%.9s", dir->d_name);
+			asprintf(&item->title_id, "%.9s", sfo_data);
 
-			if (flag & SAVE_FLAG_PS3)
+			if (flag & SAVE_FLAG_PS4)
 			{
-				sfo_data = (char*) sfo_get_param_value(sfo, "ATTRIBUTE");
-				item->flags |=	(sfo_data[0] ? SAVE_FLAG_LOCKED : 0);
+				sfo_data = (char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY");
+				item->dir_name = strdup(sfo_data);
 
-				snprintf(sfoPath, sizeof(sfoPath), "%*lx", SFO_ACCOUNT_ID_SIZE, apollo_config.account_id);
-				sfo_data = (char*) sfo_get_param_value(sfo, "ACCOUNT_ID");
-				if (strncmp(sfo_data, sfoPath, SFO_ACCOUNT_ID_SIZE) == 0)
-					item->flags |=	SAVE_FLAG_OWNER;
+				sfo_data = (char*) sfo_get_param_value(sfo, "ATTRIBUTE");
+				item->flags |= (sfo_data[0] ? SAVE_FLAG_LOCKED : 0);
+
+				uint64_t* int_data = (uint64_t*) sfo_get_param_value(sfo, "ACCOUNT_ID");
+				if (int_data && (apollo_config.account_id == *int_data))
+					item->flags |= SAVE_FLAG_OWNER;
+
+				int_data = (uint64_t*) sfo_get_param_value(sfo, "SAVEDATA_BLOCKS");
+				item->blocks = (*int_data);
 			}
 
 			sfo_free(sfo);
@@ -1124,6 +1279,40 @@ void read_savegames(const char* userPath, list_t *list, uint32_t flag)
 	}
 
 	closedir(d);
+}
+
+void read_hdd_savegames(const char* userPath, list_t *list, uint32_t flag)
+{
+	save_entry_t *item;
+	sqlite3_stmt *res;
+	sqlite3 *db = open_sqlite_db(userPath);
+
+	if (!db)
+		return;
+
+	int rc = sqlite3_prepare_v2(db, "SELECT title_id, dir_name, main_title, blocks, account_id, user_id FROM savedata", -1, &res, NULL);
+	if (rc != SQLITE_OK)
+	{
+		LOG("Failed to fetch data: %s", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return;
+	}
+
+	while (sqlite3_step(res) == SQLITE_ROW)
+	{
+		item = _createSaveEntry(flag, (const char*) sqlite3_column_text(res, 2));
+		item->path = strdup(userPath);
+		item->dir_name = strdup((const char*) sqlite3_column_text(res, 1));
+		item->title_id = strdup((const char*) sqlite3_column_text(res, 0));
+		item->blocks = sqlite3_column_int(res, 3);
+		item->flags |= (apollo_config.account_id == (uint64_t)sqlite3_column_int64(res, 4) ? SAVE_FLAG_OWNER : 0);
+
+		LOG("[%s] F(%d) {%d} '%s'", item->title_id, item->flags, item->blocks, item->name);
+		list_append(list, item);
+	}
+
+	sqlite3_finalize(res);
+	sqlite3_close(db);
 }
 
 void read_psv_savegames(const char* userPath, list_t *list)
@@ -1500,4 +1689,133 @@ list_t * ReadTrophyList(const char* userPath)
 	sqlite3_close(db);
 
 	return list;
+}
+
+int get_save_details(save_entry_t* save, char **details)
+{
+	char sfoPath[256];
+	sqlite3 *db;
+	sqlite3_stmt *res;
+
+
+	if (!(save->flags & SAVE_FLAG_PS4))
+	{
+		asprintf(details, "%s\n\nTitle: %s\n", save->path, save->name);
+		return 1;
+	}
+
+	if (save->flags & SAVE_FLAG_TROPHY)
+	{
+		if ((db = open_sqlite_db(save->path)) == NULL)
+			return 0;
+
+		char* query = sqlite3_mprintf("SELECT id, description, trophy_num, unlocked_trophy_num, progress,"
+			"platinum_num, unlocked_platinum_num, gold_num, unlocked_gold_num, silver_num, unlocked_silver_num,"
+			"bronze_num, unlocked_bronze_num FROM tbl_trophy_title WHERE id = %d", save->blocks);
+
+		if (sqlite3_prepare_v2(db, query, -1, &res, NULL) != SQLITE_OK || sqlite3_step(res) != SQLITE_ROW)
+		{
+			LOG("Failed to fetch data: %s", sqlite3_errmsg(db));
+			sqlite3_free(query);
+			sqlite3_close(db);
+			return 0;
+		}
+
+		asprintf(details, "Trophy-Set Details\n\n"
+			"Title: %s\n"
+			"Description: %s\n"
+			"NP Comm ID: %s\n"
+			"Progress: %d/%d - %d%%\n"
+			"%c Platinum: %d/%d\n"
+			"%c Gold: %d/%d\n"
+			"%c Silver: %d/%d\n"
+			"%c Bronze: %d/%d\n",
+			save->name, sqlite3_column_text(res, 1), save->title_id,
+			sqlite3_column_int(res, 3), sqlite3_column_int(res, 2), sqlite3_column_int(res, 4),
+			CHAR_TRP_PLATINUM, sqlite3_column_int(res, 6), sqlite3_column_int(res, 5),
+			CHAR_TRP_GOLD, sqlite3_column_int(res, 8), sqlite3_column_int(res, 7),
+			CHAR_TRP_SILVER, sqlite3_column_int(res, 10), sqlite3_column_int(res, 9),
+			CHAR_TRP_BRONZE, sqlite3_column_int(res, 12), sqlite3_column_int(res, 11));
+
+		sqlite3_free(query);
+		sqlite3_finalize(res);
+		sqlite3_close(db);
+
+		return 1;
+	}
+
+	if(save->flags & SAVE_FLAG_HDD)
+	{
+		if ((db = open_sqlite_db(save->path)) == NULL)
+			return 0;
+
+		char* query = sqlite3_mprintf("SELECT sub_title, detail, free_blocks, size_kib, user_id, account_id FROM savedata "
+			" WHERE title_id = %Q AND dir_name = %Q", save->title_id, save->dir_name);
+
+		if (sqlite3_prepare_v2(db, query, -1, &res, NULL) != SQLITE_OK || sqlite3_step(res) != SQLITE_ROW)
+		{
+			LOG("Failed to fetch data: %s", sqlite3_errmsg(db));
+			sqlite3_free(query);
+			sqlite3_close(db);
+			return 0;
+		}
+
+		asprintf(details, "%s\n\n"
+			"Title: %s\n"
+			"Subtitle: %s\n"
+			"Detail: %s\n"
+			"Dir Name: %s\n"
+			"Blocks: %d (%d Free)\n"
+			"Size: %d Kb\n"
+			"User ID: %08x\n"
+			"Account ID: %016llX\n",
+			save->path, save->name, 
+			sqlite3_column_text(res, 0),
+			sqlite3_column_text(res, 1),
+			save->dir_name,
+			save->blocks, sqlite3_column_int(res, 2), 
+			sqlite3_column_int(res, 3),
+			sqlite3_column_int(res, 4),
+			sqlite3_column_int64(res, 5));
+
+		sqlite3_free(query);
+		sqlite3_finalize(res);
+		sqlite3_close(db);
+
+		return 1;
+	}
+
+	snprintf(sfoPath, sizeof(sfoPath), "%s" "sce_sys/param.sfo", save->path);
+	LOG("Save Details :: Reading %s...", sfoPath);
+
+	sfo_context_t* sfo = sfo_alloc();
+	if (sfo_read(sfo, sfoPath) < 0) {
+		LOG("Unable to read from '%s'", sfoPath);
+		sfo_free(sfo);
+		return 0;
+	}
+
+	char* subtitle = (char*) sfo_get_param_value(sfo, "SUBTITLE");
+	char* detail = (char*) sfo_get_param_value(sfo, "DETAIL");
+	uint64_t* account_id = (uint64_t*) sfo_get_param_value(sfo, "ACCOUNT_ID");
+	sfo_params_ids_t* param_ids = (sfo_params_ids_t*) sfo_get_param_value(sfo, "PARAMS");
+
+	asprintf(details, "%s\n\n"
+		"Title: %s\n"
+		"Subtitle: %s\n"
+		"Detail: %s\n"
+		"Dir Name: %s\n"
+		"Blocks: %d\n"
+		"User ID: %08x\n"
+		"Account ID: %016lX\n",
+		save->path, save->name,
+		subtitle,
+		detail,
+		save->dir_name,
+		save->blocks,
+		param_ids->user_id,
+		*account_id);
+
+	sfo_free(sfo);
+	return 1;
 }

@@ -28,17 +28,17 @@
 #define PS1_IMP_PATH_USB        "PS1/SAVEDATA/"
 #define PS2_IMP_PATH_USB        "PS2/SAVEDATA/"
 
-#define SAVES_PATH_USB0         USB0_PATH PS3_SAVES_PATH_USB
-#define SAVES_PATH_USB1         USB1_PATH PS3_SAVES_PATH_USB
+#define SAVES_PATH_USB0         USB0_PATH PS4_SAVES_PATH_USB
+#define SAVES_PATH_USB1         USB1_PATH PS4_SAVES_PATH_USB
 #define SAVES_PATH_HDD          USER_PATH_HDD PS3_SAVES_PATH_HDD
 
 #define TROPHY_PATH_USB0        USB0_PATH TROPHIES_PATH_USB
 #define TROPHY_PATH_USB1        USB1_PATH TROPHIES_PATH_USB
-#define TROPHY_PATH_HDD			USER_PATH_HDD "trophy/"
+#define TROPHY_PATH_HDD         "/user/home/%08x/trophy/db/"        // trophy_local.db
 #define EXDATA_PATH_HDD			USER_PATH_HDD PS3_LICENSE_PATH
 
-#define EXPORT_PATH_USB0        USB0_PATH "PS3/EXPORT/"
-#define EXPORT_PATH_USB1        USB1_PATH "PS3/EXPORT/"
+#define EXPORT_PATH_USB0        USB0_PATH "PS4/EXPORT/"
+#define EXPORT_PATH_USB1        USB1_PATH "PS4/EXPORT/"
 #define EXPORT_RAP_PATH_USB     USB_PATH PS3_LICENSE_PATH
 #define EXPORT_RAP_PATH_HDD     "/dev_hdd0/" PS3_LICENSE_PATH
 
@@ -55,7 +55,7 @@
 #define PS2ISO_PATH_USB         USB_PATH "PS2ISO/"
 #define PS2ISO_PATH_HDD         "/dev_hdd0/PS2ISO/"
 
-#define ONLINE_URL				"http://apollo-db.psdev.tk/"
+#define ONLINE_URL				"https://apollo-db.psdev.tk/"
 #define ONLINE_CACHE_TIMEOUT    24*3600     // 1-day local cache
 
 #define OWNER_XML_FILE          "owners.xml"
@@ -263,6 +263,10 @@ int create_actdat(const char* exdata_path, uint64_t account_id);
 uint64_t create_fake_account(uint32_t user_id);
 
 int create_savegame_folder(const char* folder);
+int get_save_details(save_entry_t *save, char** details);
+int orbis_SaveUmount(save_entry_t *save, const char* mountPath);
+int orbis_SaveMount(save_entry_t *save, char* mountPath);
+int orbis_UpdateSaveParams(save_entry_t *save, const char* mountPath, const char* title, const char* subtitle, const char* details);
 
 void ps2_encrypt_image(uint8_t dex_mode, const char* image_name, const char* data_file, char* msg_update);
 void ps2_decrypt_image(uint8_t dex_mode, const char* image_name, const char* data_file, char* msg_update);

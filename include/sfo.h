@@ -28,9 +28,8 @@ typedef struct {
 } sfo_patch_t;
 
 typedef struct {
-	uint64_t psid[2];
+	uint32_t unk1;
 	uint32_t user_id;
-	char account_id[SFO_ACCOUNT_ID_SIZE+1];
 } sfo_params_ids_t;
 
 sfo_context_t * sfo_alloc(void);

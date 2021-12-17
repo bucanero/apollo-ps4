@@ -83,13 +83,12 @@ int mkdirs(const char* dir)
         char last = *ptr;
         *ptr = 0;
 
-        if (dir_exists(path) == FAILED)
+        if (file_exists(path) == FAILED)
         {
             if (mkdir(path, 0777) < 0)
                 return FAILED;
             else
                 chmod(path, 0777);
-//                sysLv2FsChmod(path, S_IFDIR | 0777);
         }
         
         *ptr++ = last;

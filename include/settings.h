@@ -59,3 +59,4 @@ void unzip_app_data(const char* zip_file);
 int save_xml_owner(const char *xmlfile, const char *owner);
 int read_xml_owner(const char *xmlfile, const char *owner);
 char** get_xml_owners(const char *xmlfile);
+char** get_logged_users();

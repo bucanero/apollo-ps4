@@ -26,6 +26,7 @@
 #define CHAR_ICON_SIGN		"\x06"
 #define CHAR_ICON_USER		"\x07"
 #define CHAR_ICON_LOCK		"\x08"
+#define CHAR_ICON_WARN		"\x0F"
 
 const void* sqlite3_get_sqlite3Apis();
 int sqlite3_memvfs_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi);
@@ -74,26 +75,36 @@ sqlite3* open_sqlite_db(const char* db_path)
 	return db;
 }
 
-void orbis_SaveDelete(save_entry_t *save)
+int orbis_SaveDelete(const save_entry_t *save)
 {
 	OrbisSaveDataDelete del;
+	OrbisSaveDataDirName dir;
+	OrbisSaveDataTitleId title;
 
 	memset(&del, 0, sizeof(OrbisSaveDataDelete));
+	memset(&dir, 0, sizeof(OrbisSaveDataDirName));
+	memset(&title, 0, sizeof(OrbisSaveDataTitleId));
+	strlcpy(dir.data, save->dir_name, sizeof(dir.data));
+	strlcpy(title.data, save->title_id, sizeof(title.data));
+
 	del.userId = apollo_config.user_id;
-	del.dirName = save->dir_name;
-	del.titleId = save->title_id;
+	del.dirName = &dir;
+	del.titleId = &title;
 
 	if (sceSaveDataDelete(&del) < 0) {
 		LOG("DELETE_ERROR");
+		return 0;
 	}
+
+	return 1;
 }
 
-int orbis_SaveUmount(save_entry_t *save, const char* mountPath)
+int orbis_SaveUmount(const char* mountPath)
 {
-	OrbisSaveDataUMount umount;
+	OrbisSaveDataMountPoint umount;
 
-	memset(&umount, 0, sizeof(OrbisSaveDataUMount));
-	strncpy(umount.mountPathName, mountPath, sizeof(umount.mountPathName));
+	memset(&umount, 0, sizeof(OrbisSaveDataMountPoint));
+	strncpy(umount.data, mountPath, sizeof(umount.data));
 
 	int32_t umountErrorCode = sceSaveDataUmount(&umount);
 	
@@ -103,10 +114,10 @@ int orbis_SaveUmount(save_entry_t *save, const char* mountPath)
 	return (umountErrorCode == SUCCESS);
 }
 
-int orbis_SaveMount(save_entry_t *save, char* mount_path)
+int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_path)
 {
-	char dirName[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
-	char titleId[0x10];
+	OrbisSaveDataDirName dirName;
+	OrbisSaveDataTitleId titleId;
 	int32_t saveDataInitializeResult = sceSaveDataInitialize3(0);
 
 	if (saveDataInitializeResult != SUCCESS)
@@ -115,24 +126,24 @@ int orbis_SaveMount(save_entry_t *save, char* mount_path)
 		return 0;
 	}
 
-	memset(dirName, 0, sizeof(dirName));
-	memset(titleId, 0, sizeof(titleId));
-	strncpy(dirName, save->dir_name, sizeof(dirName));
-	strncpy(titleId, save->title_id, sizeof(titleId));
+	memset(&dirName, 0, sizeof(OrbisSaveDataDirName));
+	memset(&titleId, 0, sizeof(OrbisSaveDataTitleId));
+	strlcpy(dirName.data, save->dir_name, sizeof(dirName.data));
+	strlcpy(titleId.data, save->title_id, sizeof(titleId.data));
 
 	OrbisSaveDataMount mount;
 	memset(&mount, 0, sizeof(OrbisSaveDataMount));
 
-	char fingerprint[80];
-	memset(fingerprint, 0, sizeof(fingerprint));
-	strcpy(fingerprint, "0000000000000000000000000000000000000000000000000000000000000000");
+	OrbisSaveDataFingerprint fingerprint;
+	memset(&fingerprint, 0, sizeof(OrbisSaveDataFingerprint));
+	strlcpy(fingerprint.data, "0000000000000000000000000000000000000000000000000000000000000000", sizeof(fingerprint.data));
 
 	mount.userId = apollo_config.user_id;
-	mount.dirName = dirName;
-	mount.fingerprint = fingerprint;
-	mount.titleId = titleId;
+	mount.dirName = dirName.data;
+	mount.fingerprint = fingerprint.data;
+	mount.titleId = titleId.data;
 	mount.blocks = save->blocks;
-	mount.mountMode = ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_DESTRUCT_OFF;
+	mount.mountMode = mount_mode | ORBIS_SAVE_DATA_MOUNT_MODE_DESTRUCT_OFF;
 	
 	OrbisSaveDataMountResult mountResult;
 	memset(&mountResult, 0, sizeof(OrbisSaveDataMountResult));
@@ -150,21 +161,21 @@ int orbis_SaveMount(save_entry_t *save, char* mount_path)
 	return 1;
 }
 
-int orbis_UpdateSaveParams(save_entry_t *save, const char* mountPath, const char* title, const char* subtitle, const char* details)
+int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details)
 {
 	OrbisSaveDataParam saveParams;
-	OrbisSaveDataUMount mount;
+	OrbisSaveDataMountPoint mount;
 
 	memset(&saveParams, 0, sizeof(OrbisSaveDataParam));
-	memset(&mount, 0, sizeof(OrbisSaveDataUMount));
+	memset(&mount, 0, sizeof(OrbisSaveDataMountPoint));
 
-	strncpy(mount.mountPathName, mountPath, sizeof(mount.mountPathName));
+	strncpy(mount.data, mountPath, sizeof(mount.data));
 	strncpy(saveParams.title, title, ORBIS_SAVE_DATA_TITLE_MAXSIZE);
 	strncpy(saveParams.subtitle, subtitle, ORBIS_SAVE_DATA_SUBTITLE_MAXSIZE);
 	strncpy(saveParams.details, details, ORBIS_SAVE_DATA_DETAIL_MAXSIZE);
 	saveParams.mtime = time(NULL);
 
-	int32_t setParamResult = sceSaveDataSetParam(mount.mountPathName, 0, &saveParams, sizeof(OrbisSaveDataParam));
+	int32_t setParamResult = sceSaveDataSetParam(&mount, ORBIS_SAVE_DATA_PARAM_TYPE_ALL, &saveParams, sizeof(OrbisSaveDataParam));
 	if (setParamResult < 0) {
 		LOG("sceSaveDataSetParam error (%X)", setParamResult);
 		return 0;
@@ -418,7 +429,7 @@ void _addSfoCommands(save_entry_t* save)
 	cmd->options = _initOptions(2);
 	cmd->options->name[0] = strdup("Remove ID/Offline");
 	cmd->options->value[0] = calloc(1, SFO_ACCOUNT_ID_SIZE);
-	cmd->options->name[1] = strdup("Fake Owner/Rebug");
+	cmd->options->name[1] = strdup("Fake Owner");
 	cmd->options->value[1] = strdup("ffffffffffffffff");
 	list_append(save->codes, cmd);
 
@@ -558,6 +569,8 @@ int ReadCodes(save_entry_t * save)
 	char filePath[256];
 	long bufferLen;
 	char * buffer = NULL;
+	char mount[32];
+	char *tmp;
 
 	if (save->flags & SAVE_FLAG_PSV)
 		return set_psv_codes(save);
@@ -570,12 +583,24 @@ int ReadCodes(save_entry_t * save)
 
 	save->codes = list_alloc();
 
+	if (save->flags & SAVE_FLAG_HDD)
+	{
+		if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
+		{
+			code = _createCmdCode(PATCH_NULL, CHAR_ICON_WARN " --- Error Mounting Save! Check Save Mount Patches --- " CHAR_ICON_WARN, CMD_CODE_NULL);
+			list_append(save->codes, code);
+			return list_count(save->codes);
+		}
+		tmp = save->path;
+		asprintf(&save->path, APOLLO_SANDBOX_PATH, mount);
+	}
+
 	_addBackupCommands(save);
-	_addSfoCommands(save);
+//	_addSfoCommands(save);
 
 	snprintf(filePath, sizeof(filePath), APOLLO_DATA_PATH "%s.savepatch", save->title_id);
 	if (file_exists(filePath) != SUCCESS)
-		return list_count(save->codes);
+		goto skip_end;
 
 	code = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Cheats " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);	
 	list_append(save->codes, code);
@@ -586,10 +611,17 @@ int ReadCodes(save_entry_t * save)
 	LOG("Loading BSD codes '%s'...", filePath);
 	buffer = readTextFile(filePath, &bufferLen);
 	load_patch_code_list(buffer, save->codes, &get_file_entries, save->path);
-
 	free (buffer);
 
 	LOG("Loaded %d codes", list_count(save->codes));
+
+skip_end:
+	if (save->flags & SAVE_FLAG_HDD)
+	{
+		orbis_SaveUmount(mount);
+		free(save->path);
+		save->path = tmp;
+	}
 
 	return list_count(save->codes);
 }
@@ -1236,45 +1268,43 @@ void read_usb_savegames(const char* userPath, list_t *list, uint32_t flag)
 			continue;
 
 		snprintf(sfoPath, sizeof(sfoPath), "%s%s/sce_sys/param.sfo", userPath, dir->d_name);
-		if (file_exists(sfoPath) == SUCCESS)
-		{
-			LOG("Reading %s...", sfoPath);
+		if (file_exists(sfoPath) != SUCCESS)
+			continue;
 
-			sfo_context_t* sfo = sfo_alloc();
-			if (sfo_read(sfo, sfoPath) < 0) {
-				LOG("Unable to read from '%s'", sfoPath);
-				sfo_free(sfo);
-				continue;
-			}
+		LOG("Reading %s...", sfoPath);
 
-			char *sfo_data = (char*) sfo_get_param_value(sfo, "MAINTITLE");
-			item = _createSaveEntry(flag, sfo_data);
-
-			sfo_data = (char*) sfo_get_param_value(sfo, "TITLE_ID");
-			asprintf(&item->path, "%s%s/", userPath, dir->d_name);
-			asprintf(&item->title_id, "%.9s", sfo_data);
-
-			if (flag & SAVE_FLAG_PS4)
-			{
-				sfo_data = (char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY");
-				item->dir_name = strdup(sfo_data);
-
-				sfo_data = (char*) sfo_get_param_value(sfo, "ATTRIBUTE");
-				item->flags |= (sfo_data[0] ? SAVE_FLAG_LOCKED : 0);
-
-				uint64_t* int_data = (uint64_t*) sfo_get_param_value(sfo, "ACCOUNT_ID");
-				if (int_data && (apollo_config.account_id == *int_data))
-					item->flags |= SAVE_FLAG_OWNER;
-
-				int_data = (uint64_t*) sfo_get_param_value(sfo, "SAVEDATA_BLOCKS");
-				item->blocks = (*int_data);
-			}
-
+		sfo_context_t* sfo = sfo_alloc();
+		if (sfo_read(sfo, sfoPath) < 0) {
+			LOG("Unable to read from '%s'", sfoPath);
 			sfo_free(sfo);
-				
-			LOG("[%s] F(%d) name '%s'", item->title_id, item->flags, item->name);
-			list_append(list, item);
+			continue;
 		}
+
+		char *sfo_data = (char*) sfo_get_param_value(sfo, "MAINTITLE");
+		item = _createSaveEntry(flag, sfo_data);
+		item->type = FILE_TYPE_PS4;
+
+		sfo_data = (char*) sfo_get_param_value(sfo, "TITLE_ID");
+		asprintf(&item->path, "%s%s/", userPath, dir->d_name);
+		asprintf(&item->title_id, "%.9s", sfo_data);
+
+		sfo_data = (char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY");
+		item->dir_name = strdup(sfo_data);
+
+//		sfo_data = (char*) sfo_get_param_value(sfo, "ATTRIBUTE");
+//		item->flags |= (sfo_data[0] ? SAVE_FLAG_LOCKED : 0);
+
+		uint64_t* int_data = (uint64_t*) sfo_get_param_value(sfo, "ACCOUNT_ID");
+		if (int_data && (apollo_config.account_id == *int_data))
+			item->flags |= SAVE_FLAG_OWNER;
+
+		int_data = (uint64_t*) sfo_get_param_value(sfo, "SAVEDATA_BLOCKS");
+		item->blocks = (*int_data);
+
+		sfo_free(sfo);
+			
+		LOG("[%s] F(%d) name '%s'", item->title_id, item->flags, item->name);
+		list_append(list, item);
 	}
 
 	closedir(d);
@@ -1300,6 +1330,7 @@ void read_hdd_savegames(const char* userPath, list_t *list, uint32_t flag)
 	while (sqlite3_step(res) == SQLITE_ROW)
 	{
 		item = _createSaveEntry(flag, (const char*) sqlite3_column_text(res, 2));
+		item->type = FILE_TYPE_PS4;
 		item->path = strdup(userPath);
 		item->dir_name = strdup((const char*) sqlite3_column_text(res, 1));
 		item->title_id = strdup((const char*) sqlite3_column_text(res, 0));
@@ -1465,74 +1496,60 @@ void read_psx_savegames(const char* userPath, list_t *list)
  *	gmc:			Set as the number of games read
  * Return:			Pointer to array of game_entry, null if failed
  */
-list_t * ReadUserList(const char* userPath)
+list_t * ReadUsbList(const char* userPath)
 {
 	save_entry_t *item;
 	code_entry_t *cmd;
 	list_t *list;
-	char savePath[256];
-	char * save_paths[3];
 
 	if (dir_exists(userPath) != SUCCESS)
 		return NULL;
 
 	list = list_alloc();
 
-	item = _createSaveEntry(SAVE_FLAG_PS3, CHAR_ICON_COPY " Bulk Save Management");
+	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_COPY " Bulk Save Management");
+	item->type = FILE_TYPE_MENU;
 	item->codes = list_alloc();
+	item->path = strdup(userPath);
 
-	if (strncmp(userPath, "/dev_hdd0/", 10) == 0)
-	{
-		asprintf(&item->path, SAVES_PATH_HDD, apollo_config.user_id);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign all Saves", CMD_RESIGN_ALL_SAVES);
+	list_append(item->codes, cmd);
 
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign & Unlock all Saves", CMD_RESIGN_ALL_SAVES);
-		list_append(item->codes, cmd);
-
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all Saves to USB", CMD_CODE_NULL);
-		cmd->options_count = 1;
-		cmd->options = _createOptions(2, "Copy Saves to USB", CMD_COPY_SAVES_USB);
-		list_append(item->codes, cmd);
-
-		save_paths[0] = PS3_SAVES_PATH_HDD;
-		save_paths[1] = PS2_SAVES_PATH_HDD;
-		save_paths[2] = PSP_SAVES_PATH_HDD;
-	}
-	else
-	{
-		asprintf(&item->path, "%s" PS3_SAVES_PATH_USB, userPath);
-
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign & Unlock all Saves", CMD_RESIGN_ALL_SAVES);
-		list_append(item->codes, cmd);
-
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all Saves to HDD", CMD_COPY_SAVES_HDD);
-		list_append(item->codes, cmd);
-
-		save_paths[0] = PS3_SAVES_PATH_USB;
-		save_paths[1] = PS2_SAVES_PATH_USB;
-		save_paths[2] = PSP_SAVES_PATH_USB;
-	}
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all Saves to HDD", CMD_COPY_SAVES_HDD);
+	list_append(item->codes, cmd);
 	list_append(list, item);
 
-	snprintf(savePath, sizeof(savePath), "%s%s", userPath, save_paths[0]);
-	read_savegames(savePath, list, SAVE_FLAG_PS3);
+	read_usb_savegames(userPath, list, SAVE_FLAG_PS4);
 
-	snprintf(savePath, sizeof(savePath), "%s%s", userPath, save_paths[1]);
-	read_savegames(savePath, list, SAVE_FLAG_PS2);
+	return list;
+}
 
-	snprintf(savePath, sizeof(savePath), "%s%s", userPath, save_paths[2]);
-	read_savegames(savePath, list, SAVE_FLAG_PSP);
+list_t * ReadUserList(const char* userPath)
+{
+	save_entry_t *item;
+	code_entry_t *cmd;
+	list_t *list;
 
-	if (strncmp(userPath, "/dev_usb00", 10) == 0)
-	{
-		snprintf(savePath, sizeof(savePath), "%s%s", userPath, PSV_SAVES_PATH_USB);
-		read_psv_savegames(savePath, list);
+	if (file_exists(userPath) != SUCCESS)
+		return NULL;
 
-		snprintf(savePath, sizeof(savePath), "%s%s", userPath, PS2_IMP_PATH_USB);
-		read_psx_savegames(savePath, list);
+	list = list_alloc();
 
-		snprintf(savePath, sizeof(savePath), "%s%s", userPath, PS1_IMP_PATH_USB);
-		read_psx_savegames(savePath, list);
-	}
+	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_COPY " Bulk Save Management");
+	item->type = FILE_TYPE_MENU;
+	item->codes = list_alloc();
+	item->path = strdup(userPath);
+/*
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign & Unlock all Saves", CMD_RESIGN_ALL_SAVES);
+	list_append(item->codes, cmd);
+*/
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all Saves to USB", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(2, "Copy Saves to USB", CMD_COPY_SAVES_USB);
+	list_append(item->codes, cmd);
+	list_append(list, item);
+
+	read_hdd_savegames(userPath, list, SAVE_FLAG_PS4 | SAVE_FLAG_HDD);
 
 	return list;
 }
@@ -1640,18 +1657,16 @@ list_t * ReadTrophyList(const char* userPath)
 	save_entry_t *item;
 	code_entry_t *cmd;
 	list_t *list;
-	char filePath[256];
 	sqlite3 *db;
 	sqlite3_stmt *res;
 
-	snprintf(filePath, sizeof(filePath), "%s" "trophy_local.db", userPath);
-
-	if ((db = open_sqlite_db(filePath)) == NULL)
+	if ((db = open_sqlite_db(userPath)) == NULL)
 		return NULL;
 
 	list = list_alloc();
 /*
 	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_COPY " Export Trophies");
+	item->type = FILE_TYPE_MENU;
 	item->path = strdup(userPath);
 	item->codes = list_alloc();
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup Trophies to USB", CMD_CODE_NULL);
@@ -1676,7 +1691,7 @@ list_t * ReadTrophyList(const char* userPath)
 	{
 		item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_TROPHY, (const char*) sqlite3_column_text(res, 2));
 		item->blocks = sqlite3_column_int(res, 0);
-		item->path = strdup(filePath);
+		item->path = strdup(userPath);
 		item->title_id = strdup((const char*) sqlite3_column_text(res, 1));
 		item->type = FILE_TYPE_TRP;
 
@@ -1690,7 +1705,7 @@ list_t * ReadTrophyList(const char* userPath)
 	return list;
 }
 
-int get_save_details(save_entry_t* save, char **details)
+int get_save_details(const save_entry_t* save, char **details)
 {
 	char sfoPath[256];
 	sqlite3 *db;

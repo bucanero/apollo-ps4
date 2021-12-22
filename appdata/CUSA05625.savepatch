@@ -1,0 +1,11 @@
+;CUSA05625
+;PS4 Assassin's Creed Origins
+;source:Petterhung+skiller@hackinformer
+
+:*
+
+[Max Ap Points]
+8001000D C80A5A6E
+00000000 00000700
+0B000000 00000000
+2800000D 0000FFFF

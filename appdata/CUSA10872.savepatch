@@ -1,0 +1,86 @@
+;CUSA10872
+;PS4 Shadow of Tomb Raider
+;source:pj1980@hackinformer
+
+:*
+
+[smg 999]
+80010004 7925525C
+A8000004 00000002
+0F270000 00000000
+
+[shotgun 999]
+80010004 97E330A2
+A8000004 00000002
+0F270000 00000000 
+
+[pistol 999]
+80010004 6C6E2BB6
+A8000004 00000002
+0F270000 00000000
+
+[arrow 999]
+80010004 99BA6388
+A8000004 00000002
+0F270000 00000000 
+
+
+[ammo 65535]
+[smg]
+80010004 7925525C
+A8000004 00000002
+FFFF0000 00000000
+
+[shotgun]
+80010004 97E330A2
+A8000004 00000002
+FFFF0000 00000000
+
+[pistol]
+80010004 6C6E2BB6
+A8000004 00000002
+FFFF0000 00000000
+
+[arrow]
+80010004 99BA6388
+A8000004 00000002
+FFFF0000 00000000
+
+[items]
+80010004 XXXXXXXX
+A8000004 00000002
+YYYY0000 00000000
+
+;YYYY how much you want the. hex number is backwards eg hex for 999 is 270F backwards its 0F27
+
+;XXXXXXXX item id
+;33D87C0B shotgun alt ammo
+;A35E34CA empress jaguar
+;A0200913 dart poison
+;572CB062 albino capybara
+;7925525C smg ammo
+;71D539DC focus plant
+;97E330A2 shotgun ammo 
+;C8D22000 black wolf hide 
+;B69FA001 pistol alt ammo
+;1B30622B medical herb 
+;60DE7AF8 condor feather
+;396A824D cloth 
+;9C01F890 feather 
+;D1C196AA smg alt ammo
+;4C5060FA fat 
+;2482636F venom 
+;B519EADD jade ore 
+;D4CAFC16 jaguar hide
+;6C6E2BB6 pistol ammo 
+;1E419B3D salvage 
+;4AF6B9DD eagle feather  
+;563C0F54 fire arrow 
+;0F8367D3 gold pieces (money)
+;25F1285F hide 
+;4694C91E hardwood 
+;99BA6388 silent arrow 
+;9504406A gun powder 
+;3F90C2DD gold ore
+;6AD5E3C1 nerve arrrow 
+;1883DE85 endurance plant

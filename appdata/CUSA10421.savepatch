@@ -1,0 +1,66 @@
+;CUSA10421
+;PS4 Dynasty Warriors 9
+;source: krustytoe@hackinformer
+
+:*
+
+[Total Kills - 99,999 Kills]
+20082FE5 0001869F
+2039DB0D 0001869F
+
+[All Animals - Speed 250/Stamina 500/Impact 999]
+413ABD88 000000FA
+40320021 00000000
+413ABD8E 000001F4
+40320021 00000000
+413ABD90 000003E7
+40320021 00000000
+
+[Accessory Mod - Slot 01 (Infinite Health)]
+003BDC47 0000001B
+103BDC49 000003E7
+
+[Accessory Mod - Slot 02 (Infinite Musou)]
+003BDC59 00000019
+103BDC5B 000003E7
+
+[Accessory Mod - Slot 03 (EXP +999%)]
+003BDC6B 00000005
+103BDC6D 000003E7
+
+[Accessory Mod - Slot 04 (Gold Drop Rate +999%)]
+003BDC7D 0000000A
+103BDC7F 000003E7
+
+[version 1.16+(thanks wild007 for finding new offset after patched)]
+
+[Total Kills - 99,999 Kills]
+20082FE5 0001869F
+2039DB0D 0001869F
+
+[All Animals - Speed 250/Stamina 500/Impact 999]
+413ABD88 000000FA
+40320021 00000000
+413ABD8E 000001F4
+40320021 00000000
+413ABD90 000003E7
+40320021 00000000
+
+[Accessory Mod - Slot 01 (Infinite Health)]
+00411126 0000001B
+10411128 000003E7
+
+[Accessory Mod - Slot 02 (Infinite Musou)]
+00411138 00000019
+1041113A 000003E7
+
+[Accessory Mod - Slot 03 (EXP +999%)]
+0041114A 00000005
+1041114C 000003E7
+
+[Accessory Mod - Slot 04 (Gold Drop Rate +999%)]
+0041115C 0000000A
+1041115E 000003E7
+
+[Total Kills - 99,999 Kills]
+203F035D 0001869F

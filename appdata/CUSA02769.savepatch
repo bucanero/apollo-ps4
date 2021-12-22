@@ -1,0 +1,188 @@
+;CUSA02769
+;PS4 Dragon Quest Heroes
+;source: krustytoe@hackinformer
+
+:*
+
+[Max Out All Ingredients in Bag (99)]
+40003117 00000063
+404B0014 00000000
+
+[All Characters - Max EXP (9,999,999)]
+420028A8 0098967F
+400D008C 00000000
+
+[Accessory Effect MOD]
+80010004 xxxxxxxx
+18000004 0000yyyy
+08000006 000000zz
+18000008 0000yyyy
+0800000A 000000zz
+1800000C 0000yyyy
+0800000E 000000zz
+
+;xxxxxxxx = Equipment ID
+;0000yyyy = Value
+;000000zz = Effect
+
+;yyyy
+;03E8 = 100
+;2710 = 1000
+
+;-=-Accessory-=-
+;xxxxxxxx
+;00000201 = Slime Earrings (Don't Use. Too common)
+;01000201 = Beckoning Bell
+;02000201 = Banishing Bell
+;03000201 = Gold Ring
+;04000201 = Bunny Tail 
+;05000201 = Garter
+;06000201 = Gold Bracer
+;07000201 = Pink Pearl Ring
+;08000201 = Bow Tie
+;09000201 = Scholar's Specs 
+;0B000201 = Fishnet Stockings
+;0C000201 = Tough Guy Tattoo
+;0D000201 = Strength Ring
+;0E000201 = Metrorite Bracer 
+;0F000201 = Agility Ring
+;10000201 = Raging Ruby
+;11000201 = Ruby of Protection
+;12000201 = Prayer Ring
+;13000201 = Gold Rosary
+;14000201 = Mighty Armlet
+;15000201 = Titan Belt
+;16000201 = Life Ring 
+;17000201 = Goddess Ring
+;18000201 = Elevating Shoes
+;19000201 = Mugger's Mask
+;1A000201 = Sorcerer's Ring
+;1B000201 = Lucky Dragon's Wing
+;1C000201 = Stimulating Specs
+;1D000201 = Gold Chain
+;1E000201 = Ace of Spoils 
+;1F000201 = Catholicon Ring
+;20000201 = Wrecklace
+;21000201 = Heart Pendant
+;22000201 = Loin-girder
+;23000201 = Care Ring
+;24000201 = Dogged Collar
+;25000201 = Venus' Tear
+;26000201 = Mirror Ring
+;27000201 = Adamant Pendant
+;28000201 = Rousing Ring
+;29000201 = Papillion Pendant
+;2B000201 = Monarchic Mark 
+;2C000201 = Endure Ring
+;2D000201 = Ring of Truth
+;2E000201 = Ring of Immunity
+;2F000201 = Sock-it Locket
+;30000201 = Block-it Locket
+;33000201 = Nacreous Necromonocle
+;Glass Slippers
+;Allure Ring
+;Perpetunia Posy
+;Magnetic Necklace
+
+;-Effect-
+;zz
+;00 = Maximum HP
+;01 = Maximum MP
+;02 = Attack
+;03 = Defence
+;04 = Magical Might
+;05 = Deftness
+;06 = Blocking
+;07 = Critical Hit Chance
+;08 = HP Recovery
+;09 = MP Recovery Speed
+;0A = Tension Build Rate
+;0B = Physical Resistance
+;0C = Magical Resistance
+;0D = Poison Resistance
+;0E = Seal Resistance
+;0F = Sleep Resistance
+;10 = Bedazzlement Resistance
+;11 = Status Ailment Resistance
+;12 = Instant Death Resistance
+;13 = HP Down, Spell Resistance Up
+;14 = More Yggdrasil Leaves
+;15 = Mini Medal Drop Rate
+;16 = Spell Activation Speed
+;17 = Strength
+;18 = Resilience
+;19 = Wisdom
+;1A = East Target
+;1B = Hard Target
+;1C = Evasion
+;1D = Tension Up When Damaged
+;1E = Chance of No MP Cost
+;1F = Reduced MP Consumption
+;20 = Recover HP on Attack
+;21 = Recover MP on Attack
+;22 = Recover HP on Critical Hit
+;23 = Recover MP on Critical Hit
+;24 = Attack Up on Critical Hit
+;25 = Defence Up on Critical Hit
+;26 = Healstone Power
+;27 = Free Healstone Use
+;28 = Attack Up on Revival
+;29 = Defence Up on Revival
+;2A = Chance of Free Revival
+;2B = Longer High-Tension Period
+;2C = Wider Variety of Item Drops
+;2D = More Item Drops
+;2E = More HP/MP Back on Revival
+;2F = MP Recovers When Low on HP
+;30 = Tension Up When Low on HP
+;31 = Attack Up When Low on HP
+;32 = Defence Up When Low on HP
+;33 = Criticals Up When Low on HP
+;34 = Revive Instantly on Death
+;35 = Quake/Roar Resistance
+;36 = Defence Drain Resistance
+;37 = MP Drain Resistance
+;38 = Critical Hit Resistance
+;39 = Reduced Freeze Time
+;3A = Blast Resistance
+;3B = Boggy Terrain Has No Effect
+;3C = Reduced Damge From Falling
+;3D = Chance to Stun
+;3E = Damge to Flying MOnsters
+;3F = Ignore Enemy Block
+;40 = Coup de Grace Damage
+;41 = Damage to Weak Points
+;42 = Critical Hits on Weak Points
+;43 = No Recoil When Attacked
+;44 = Chance to Auto-Defend
+;45 = 360-Degree Block
+;46 = Chance to Auto-Bounce
+;47 = Gold Earned
+;48 = Experience Earned
+;49 = Ingredient Drop Rate
+;4A = Medicinal Herb Drop Rate
+;4B = Extra Spoils
+;4C = Damage Up, MP Reduced to 0
+;4D = Lower Damage, More Criticals
+;4E = Damage Up with Small Party
+;4F = Cast Kamikazee on Death
+;50 = Stat Boosts Last Longer
+;51 = Movement Speed
+;52 = Chance to Heal When Blocking
+;53 = Death Blow Survival Chance
+;54 = Equip 3 For Strength Boost
+;55 = Status Effect Resistance
+;56 = Increased Starting Tension
+;57 = Helping Hand from Healix
+;58 = HP of Person/Object Defended
+;59 = Strength of Monster Minions
+;5A = Skill Boost Until Damaged
+;5B = HP/MP Up at Max Tension
+;5C = Monster Medals Heal Minion
+;5D = Chance to Poison
+;5E = Chance to Bedazzle
+;5F = Chance to Instantly Kill
+;60 = Chance to Divide upon Attach
+;61 = Occasional HP Recovery
+;62 = Attacks can Reduce Defence
+;63 = Metal Monster Encounters Up

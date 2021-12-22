@@ -104,3 +104,15 @@ void update_progress_bar(uint64_t progress, const uint64_t total_size, const cha
 
     drawDialogBackground();
 }
+
+int init_loading_screen(const char* message)
+{
+	init_progress_bar(message);
+    return 1;
+}
+
+void stop_loading_screen()
+{
+	update_progress_bar(1, 1, "");
+	end_progress_bar();
+}

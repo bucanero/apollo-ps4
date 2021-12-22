@@ -1,0 +1,59 @@
+;CUSA00006
+;PS4 Knack
+;source: krustytoe@hackinformer
+
+:*
+
+[Difficulty Easy]
+000005C4 00000002
+
+[Difficulty Normal]
+000005C4 00000003
+
+[Difficulty Hard]
+000005C4 00000004
+
+[Difficulty Very Hard]
+000005C4 00000005
+
+[Sunstone (19)]
+00007314 00000013
+
+[Ruby (14)]
+000073C4 0000000E
+
+[Amethyst (19)]
+00007474 00000013
+
+[Emerald (14)]
+00007524 0000000E
+
+[Aqua (9)]
+000075D4 00000009
+
+[Diamond (9)]
+00007684 00000009
+
+[Current Knack Mod - Diamond Knack]
+00000CA4 00000006
+
+[Sun Energy Gain Multiplier]
+00001174 00000009
+
+[All Secret Room Opened (except first room in 1-2)]
+40002984 00000001
+404300B0 00000000
+000028D4 00000000
+
+[All Secret Room and Treasure Box Unopened (For Farming Parts and Jewels/Relics)]
+400028D4 00000000
+404400B0 00000000
+
+[Have All Gadgets Parts]
+40005794 00000001
+402800B0 00000000
+
+[Have All Gadgets Parts (except 1)]
+40005794 00000001
+402800B0 00000000
+00005794 00000000

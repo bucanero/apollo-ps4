@@ -1,0 +1,35 @@
+;CUSA09407
+;PS4 Devil May Cry HD Collection
+;same saveformat as ps3 version
+
+:*
+
+[Devil May Cry HD 3]
+
+[File 1 ONLY]
+
+[Max HP]
+20000464 469C4000
+
+[Super Max HP - Do not upgrade]
+20000464 50000000
+
+[Max Devil Trigger]
+20000468 461C4000
+
+[Super Max DT - Do not upgrade]
+20000468 50000000
+
+[File 2 ONLY]
+
+[Max HP]
+20000B70 469C4000
+
+[Super Max HP - Do not upgrade]
+20000B70 50000000
+
+[Max Devil Trigger]
+20000B74 461C4000
+
+[Super Max DT - Do not upgrade]
+20000B74 50000000

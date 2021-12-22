@@ -383,7 +383,7 @@ int DrawCharSpecial(float x, float y, float z, const special_char* schr, uint8_t
 		y += ((float)font_datas.sy - dy)/2;
 	
 	// Load sprite texture
-    DrawTexture(schr->image, x, y, z, dx, dy, 0xFFFFFFFF);
+    DrawTexture(schr->image, x, y, z, dx, dy, 0xFFFFFF00 | RGBA_A(font_datas.color));
 /*
 	tiny3d_SetTexture(0, schr->image->texture_off, schr->image->texture.width,
 		schr->image->texture.height, schr->image->texture.pitch,

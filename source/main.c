@@ -7,13 +7,16 @@
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <stdbool.h>
 #include <orbis/Pad.h>
 #include <orbis/Sysmodule.h>
 #include <orbis/UserService.h>
+#include <orbis/AudioOut.h>
+#include <orbis/CommonDialog.h>
+#include <orbis/Sysmodule.h>
 
 #include "saves.h"
 #include "sfo.h"
-#include "pfd.h"
 #include "util.h"
 #include "common.h"
 
@@ -107,20 +110,20 @@ png_texture * menu_textures;                // png_texture array for main menu, 
 
 
 const char * menu_about_strings[] = { "Bucanero", "Developer",
+									"", "", "", "",
+									"PS3", "credits",
 									"Berion", "GUI design",
 									"Dnawrkshp", "Artemis code",
-									"flatz", "PFD/SFO tools",
 									"aldostools", "Bruteforce Save Data",
 									NULL, NULL };
 
 char user_id_str[9] = "00000000";
-char idps_str[SFO_PSID_SIZE*2+2] = "0000000000000000 0000000000000000";
 char psid_str[SFO_PSID_SIZE*2+2] = "0000000000000000 0000000000000000";
-char account_id_str[SFO_ACCOUNT_ID_SIZE+1] = "0000000000000000";
+char account_id_str[SFO_ACCOUNT_ID_SIZE*2+1] = "0000000000000000";
 
 const char * menu_about_strings_project[] = { "User ID", user_id_str,
 											"Account ID", account_id_str,
-											idps_str, psid_str,
+											"Console PSID", psid_str,
 											NULL, NULL };
 
 /*
@@ -176,7 +179,7 @@ save_list_t usb_saves = {
 	.title = "USB Saves",
     .list = NULL,
     .path = "",
-    .ReadList = &ReadUserList,
+    .ReadList = &ReadUsbList,
     .ReadCodes = &ReadCodes,
     .UpdatePath = &update_usb_path,
 };
@@ -189,10 +192,8 @@ save_list_t trophies = {
 	.title = "Trophies",
     .list = NULL,
     .path = "",
-    .ReadList = &ReadUserList,
-    .ReadCodes = &ReadCodes,
-//    .ReadList = &ReadTrophyList,
-//    .ReadCodes = &ReadTrophies,
+    .ReadList = &ReadTrophyList,
+    .ReadCodes = &ReadTrophies,
     .UpdatePath = &update_trophy_path,
 };
 
@@ -509,20 +510,10 @@ void LoadTextures_Menu()
 	free_mem = (u32 *) AddFontFromBitmapArray((u8 *) data_font_Adonais, (u8 *) texture_mem, 0x20, 0x7e, 32, 31, 1, BIT7_FIRST_PIXEL);
 	
 	TTFUnloadFont();
-	TTFLoadFont(0, "/data/apollo/SCE-PS3-SR-R-LATIN2.TTF", NULL, 0);
-	TTFLoadFont(1, "/data/apollo/SCE-PS3-DH-R-CGB.TTF", NULL, 0);
-	TTFLoadFont(2, "/data/apollo/SCE-PS3-SR-R-JPN.TTF", NULL, 0);
-	TTFLoadFont(3, "/data/apollo/SCE-PS3-YG-R-KOR.TTF", NULL, 0);
-/*
-	TTFLoadFont(0, "/app0/assets/fonts/SCE-PS3-SR-R-LATIN2.TTF", NULL, 0);
-	TTFLoadFont(1, "/app0/assets/fonts/SCE-PS3-DH-R-CGB.TTF", NULL, 0);
-	TTFLoadFont(2, "/app0/assets/fonts/SCE-PS3-SR-R-JPN.TTF", NULL, 0);
-	TTFLoadFont(3, "/app0/assets/fonts/SCE-PS3-YG-R-KOR.TTF", NULL, 0);
-*/
-	free_mem = (u32*) init_ttf_table((u16*) free_mem);
-	
-	set_ttf_window(0, 0, 848 + apollo_config.marginH, 512 + apollo_config.marginV, WIN_SKIP_LF);
-//	TTFUnloadFont();
+	TTFLoadFont(0, "/preinst/common/font/DFHEI5-SONY.ttf", NULL, 0);
+	free_mem = (u32*) init_ttf_table((u8*) free_mem);
+
+	set_ttf_window(0, 0, SCREEN_WIDTH + apollo_config.marginH, SCREEN_HEIGHT + apollo_config.marginV, WIN_SKIP_LF);
 	
 	if (!menu_textures)
 		menu_textures = (png_texture *)malloc(sizeof(png_texture) * TOTAL_MENU_TEXTURES);
@@ -589,6 +580,7 @@ void LoadTextures_Menu()
 	load_menu_texture(tag_ps1, png);
 	load_menu_texture(tag_ps2, png);
 	load_menu_texture(tag_ps3, png);
+	load_menu_texture(tag_ps4, png);
 	load_menu_texture(tag_psp, png);
 	load_menu_texture(tag_psv, png);
 	load_menu_texture(tag_warning, png);
@@ -596,79 +588,70 @@ void LoadTextures_Menu()
 	load_menu_texture(tag_apply, png);
 	load_menu_texture(tag_transfer, png);
 
-/*
-	u8* imagefont;
-	if (read_buffer("/dev_flash/vsh/resource/imagefont.bin", &imagefont, NULL) == SUCCESS)
-	{
-		LoadImageFontTexture(imagefont, 0xF888, footer_ico_lt_png_index);
-		LoadImageFontTexture(imagefont, 0xF88B, footer_ico_rt_png_index);
-		LoadImageFontTexture(imagefont, 0xF6AD, trp_sync_img_index);
-		LoadImageFontTexture(imagefont, 0xF8AC, trp_bronze_img_index);
-		LoadImageFontTexture(imagefont, 0xF8AD, trp_silver_img_index);
-		LoadImageFontTexture(imagefont, 0xF8AE, trp_gold_img_index);
-		LoadImageFontTexture(imagefont, 0xF8AF, trp_platinum_img_index);
+	load_menu_texture(trp_sync, png);
+	load_menu_texture(trp_bronze, png);
+	load_menu_texture(trp_silver, png);
+	load_menu_texture(trp_gold, png);
+	load_menu_texture(trp_platinum, png);
 
-		free(imagefont);
-	}
-*/
-
-	menu_textures[icon_png_file_index].buffer = NULL;
-	LoadFileTexture(APOLLO_PATH "../ICON0.PNG", icon_png_file_index);
+	menu_textures[icon_png_file_index].texture = NULL;
 
 	u32 tBytes = free_mem - texture_mem;
 	LOG("LoadTextures_Menu() :: Allocated %db (%.02fkb, %.02fmb) for textures", tBytes, tBytes / (float)1024, tBytes / (float)(1024 * 1024));
 }
 
-short *background_music = NULL;
-int background_music_size = 48000*72*4; // initial size of buffer to decode (for 48000 samples x 72 seconds and 16 bit stereo as reference)
-int effect_freq;
-int effect_is_stereo;
-
-void LoadSounds()
+int LoadSounds(void* data)
 {
-	/*
-	//Initialize SPU
-	u32 entry = 0;
-	u32 segmentcount = 0;
-	sysSpuSegment* segments;
-	
-	sysSpuInitialize(6, 5);
-	sysSpuRawCreate(&spu, NULL);
-	sysSpuElfGetInformation(spu_soundmodule_bin, &entry, &segmentcount);
-	
-	size_t segmentsize = sizeof(sysSpuSegment) * segmentcount;
-	segments = (sysSpuSegment*)memalign(128, SPU_SIZE(segmentsize)); // must be aligned to 128 or it break malloc() allocations
-	memset(segments, 0, segmentsize);
+	uint8_t* play_audio = data;
+	int32_t sOffs = 0;
+	drmp3 wav;
 
-	sysSpuElfGetSegments(spu_soundmodule_bin, segments, segmentcount);
-	sysSpuImageImport(&spu_image, spu_soundmodule_bin, 0);
-	sysSpuRawImageLoad(spu, &spu_image);
-	
-	inited |= INITED_SPU;
-	if(SND_Init(spu)==0)
-		inited |= INITED_SOUNDLIB;
-	
-	background_music   = (short *) malloc(background_music_size);
+	// Decode a mp3 file to play
+	if (!drmp3_init_file(&wav, APOLLO_APP_PATH "audio/background_music.mp3", NULL))
+	{
+		LOG("[ERROR] Failed to decode audio file");
+		return -1;
+	}
 
-	// decode the mp3 effect file included to memory. It stops by EOF or when samples exceed size_effects_samples
-	DecodeAudio( (void *) background_music_mp3, background_music_mp3_size, background_music, &background_music_size, &effect_freq, &effect_is_stereo);
+	// Calculate the sample count and allocate a buffer for the sample data accordingly
+	size_t sampleCount = drmp3_get_pcm_frame_count(&wav) * wav.channels;
+	drmp3_int16 *pSampleData = (drmp3_int16 *)malloc(sampleCount * sizeof(uint16_t));
 
-	// adjust the sound buffer sample correctly to the background_music_size
-	// SPU dma works aligned to 128 bytes. SPU module is designed to read unaligned buffers and it is better thing aligned buffers)
-	short *temp = (short *)memalign(128, SPU_SIZE(background_music_size));
-	memcpy((void *) temp, (void *) background_music, background_music_size);
-	free(background_music);
-	background_music = temp;
-	
-	SND_Pause(0);
-	*/
+	// Decode the wav into pSampleData  wav.totalPCMFrameCount
+	drmp3_read_pcm_frames_s16(&wav, drmp3_get_pcm_frame_count(&wav), pSampleData);
+
+	// Play the song in a loop
+	while (!close_app)
+	{
+		if (*play_audio == 0)
+			continue;
+
+		/* Output audio */
+		sceAudioOutOutput(audio, NULL);	// NULL: wait for completion
+
+		if (sceAudioOutOutput(audio, pSampleData + sOffs) < 0) {
+
+			LOG("Failed to output audio");
+			return -1;
+		}
+
+		sOffs += 256 * 2;
+
+		if (sOffs >= sampleCount)
+			sOffs = 0;
+	}
+
+	free(pSampleData);
+	drmp3_uninit(&wav);
+
+	return 0;
 }
 
 void update_usb_path(char* path)
 {
 	for (int i = 0; i <= MAX_USB_DEVICES; i++)
 	{
-		sprintf(path, USB_PATH, i);
+		sprintf(path, USB_PATH PS4_SAVES_PATH_USB, i);
 
 		if (dir_exists(path) == SUCCESS)
 			return;
@@ -722,7 +705,7 @@ code_entry_t* LoadRawPatch()
 	code_entry_t* centry = calloc(1, sizeof(code_entry_t));
 
 	centry->name = strdup(selected_entry->title_id);
-	snprintf(patchPath, sizeof(patchPath), APOLLO_DATA_PATH "%s.ps3savepatch", selected_entry->title_id);
+	snprintf(patchPath, sizeof(patchPath), APOLLO_DATA_PATH "%s.savepatch", selected_entry->title_id);
 	read_buffer(patchPath, (u8**) &centry->codes, &len);
 	centry->codes[len] = 0;
 
@@ -731,58 +714,13 @@ code_entry_t* LoadRawPatch()
 
 code_entry_t* LoadSaveDetails()
 {
-	char sfoPath[256];
 	code_entry_t* centry = calloc(1, sizeof(code_entry_t));
-
 	centry->name = strdup(selected_entry->title_id);
 
-	if (!(selected_entry->flags & SAVE_FLAG_PS3))
-	{
-		asprintf(&centry->codes, "%s\n\nTitle: %s\n", selected_entry->path, selected_entry->name);
-		return(centry);
-	}
+	if (!get_save_details(selected_entry, &centry->codes))
+		asprintf(&centry->codes, "Error getting details (%s)", selected_entry->name);
 
-	snprintf(sfoPath, sizeof(sfoPath), "%s" "PARAM.SFO", selected_entry->path);
-	LOG("Save Details :: Reading %s...", sfoPath);
-
-	sfo_context_t* sfo = sfo_alloc();
-	if (sfo_read(sfo, sfoPath) < 0) {
-		LOG("Unable to read from '%s'", sfoPath);
-		sfo_free(sfo);
-		return centry;
-	}
-
-	if (selected_entry->flags & SAVE_FLAG_TROPHY)
-	{
-		char* account = (char*) sfo_get_param_value(sfo, "ACCOUNTID");
-		asprintf(&centry->codes, "%s\n\n"
-			"Title: %s\n"
-			"NP Comm ID: %s\n"
-			"Account ID: %.16s\n", selected_entry->path, selected_entry->name, selected_entry->title_id, account);
-		LOG(centry->codes);
-
-		sfo_free(sfo);
-		return(centry);
-	}
-
-	char* subtitle = (char*) sfo_get_param_value(sfo, "SUB_TITLE");
-	sfo_params_ids_t* param_ids = (sfo_params_ids_t*)(sfo_get_param_value(sfo, "PARAMS") + 0x1C);
-	param_ids->user_id = ES32(param_ids->user_id);
-
-    asprintf(&centry->codes, "%s\n\n"
-        "Title: %s\n"
-        "Sub-Title: %s\n"
-        "Lock: %s\n\n"
-        "User ID: %08d\n"
-        "Account ID: %.16s (%s)\n"
-        "PSID: %016lX %016lX\n", selected_entry->path, selected_entry->name, subtitle, 
-        (selected_entry->flags & SAVE_FLAG_LOCKED ? "Copying Prohibited" : "Unlocked"),
-        param_ids->user_id, param_ids->account_id, 
-        (selected_entry->flags & SAVE_FLAG_OWNER ? "Owner" : "Not Owner"),
-		param_ids->psid[0], param_ids->psid[1]);
-	LOG(centry->codes);
-
-	sfo_free(sfo);
+	LOG("%s", centry->codes);
 	return (centry);
 }
 
@@ -885,15 +823,17 @@ void SetMenu(int id)
 				menu_old_sel[MENU_PATCHES] = 0;
 
 			char iconfile[256];
-			snprintf(iconfile, sizeof(iconfile), "%s" "ICON0.PNG", selected_entry->path);
+			snprintf(iconfile, sizeof(iconfile), "%s" "sce_sys/icon0.png", selected_entry->path);
 
 			if (selected_entry->flags & SAVE_FLAG_ONLINE)
 			{
-				snprintf(iconfile, sizeof(iconfile), APOLLO_TMP_PATH "%s.PNG", selected_entry->title_id);
+				snprintf(iconfile, sizeof(iconfile), APOLLO_LOCAL_CACHE "%s.PNG", selected_entry->title_id);
 
 				if (file_exists(iconfile) != SUCCESS)
-;//					http_download(selected_entry->path, "ICON0.PNG", iconfile, 0);
+					http_download(selected_entry->path, "icon0.png", iconfile, 0);
 			}
+			else if (selected_entry->flags & SAVE_FLAG_HDD)
+				snprintf(iconfile, sizeof(iconfile), "/user/home/%08x/savedata_meta/user/%s/%s_icon0.png", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
 
 			if (file_exists(iconfile) == SUCCESS)
 				LoadFileTexture(iconfile, icon_png_file_index);
@@ -1425,15 +1365,16 @@ void registerSpecialChars()
 	RegisterSpecialCharacter(CHAR_TAG_PS1, 2, 1.5, &menu_textures[tag_ps1_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PS2, 2, 1.5, &menu_textures[tag_ps2_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PS3, 2, 1.5, &menu_textures[tag_ps3_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_PS4, 2, 1.5, &menu_textures[tag_ps4_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PSP, 2, 1.5, &menu_textures[tag_psp_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PSV, 2, 1.5, &menu_textures[tag_psv_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PCE, 2, 1.5, &menu_textures[tag_pce_png_index]);
-	RegisterSpecialCharacter(CHAR_TAG_LOCKED, 0, 1.5, &menu_textures[tag_lock_png_index]);
-	RegisterSpecialCharacter(CHAR_TAG_OWNER, 0, 1.5, &menu_textures[tag_own_png_index]);
-	RegisterSpecialCharacter(CHAR_TAG_WARNING, 0, 1.5, &menu_textures[tag_warning_png_index]);
-	RegisterSpecialCharacter(CHAR_TAG_APPLY, 2, 1.1, &menu_textures[tag_apply_png_index]);
-	RegisterSpecialCharacter(CHAR_TAG_ZIP, 0, 1.2, &menu_textures[tag_zip_png_index]);
-	RegisterSpecialCharacter(CHAR_TAG_TRANSFER, 0, 1.2, &menu_textures[tag_transfer_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_LOCKED, 0, 1.3, &menu_textures[tag_lock_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_OWNER, 0, 1.3, &menu_textures[tag_own_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_WARNING, 0, 1.3, &menu_textures[tag_warning_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_APPLY, 2, 1.0, &menu_textures[tag_apply_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_ZIP, 0, 1.0, &menu_textures[tag_zip_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_TRANSFER, 0, 1.0, &menu_textures[tag_transfer_png_index]);
 
 	// Register button icons
 	RegisterSpecialCharacter(CHAR_BTN_X, 0, 1.2, &menu_textures[footer_ico_cross_png_index]);
@@ -1606,13 +1547,12 @@ MvC3:703B3123 <xor> 8FC4CEDC
 //SDL_RenderPresent
 	}
 
-	release_all();
-
     // Cleanup resources
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     // Stop all SDL sub-systems
     SDL_Quit();
+	http_end();
 
 	return 0;
 }

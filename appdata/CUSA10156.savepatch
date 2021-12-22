@@ -1,0 +1,12 @@
+;CUSA10156
+;PS4 The Lost Child
+;source: pj1980@hackinformer
+
+:*
+
+[All Lua Skills]
+40014aab 00000001
+40160001 00000000
+
+;*the code to get all off lua skills there a bug where sometimes she dont learn 
+;any skills if enoch learns a skill before her. you need one of her skills in post game.

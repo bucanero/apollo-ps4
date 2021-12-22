@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <dirent.h>
+#include <time.h>
+#include <orbis/SaveData.h>
 
 #include "saves.h"
 #include "menu.h"
@@ -98,12 +100,11 @@ void zipSave(const char* exp_path)
 	show_message("Zip file successfully saved to:\n%s%08d.zip", exp_path, fid);
 }
 
-void copySave(const char* save_path, const char* exp_path)
+void copySave(const save_entry_t* save, const char* exp_path)
 {
 	char* copy_path;
-	char* tmp;
 
-	if (strncmp(save_path, exp_path, strlen(exp_path)) == 0)
+	if (strncmp(save->path, exp_path, strlen(exp_path)) == 0)
 		return;
 
 	if (mkdirs(exp_path) != SUCCESS)
@@ -114,85 +115,118 @@ void copySave(const char* save_path, const char* exp_path)
 
 	init_loading_screen("Copying files...");
 
-	tmp = strdup(save_path);
-	*strrchr(tmp, '/') = 0;
-	asprintf(&copy_path, "%s%s/", exp_path, strrchr(tmp, '/')+1);
+	asprintf(&copy_path, "%s%08x_%s_%s/", exp_path, apollo_config.user_id, save->title_id, save->dir_name);
 
-	LOG("Copying <%s> to %s...", save_path, copy_path);
-	copy_directory(save_path, save_path, copy_path);
+	LOG("Copying <%s> to %s...", save->path, copy_path);
+	copy_directory(save->path, save->path, copy_path);
 
 	free(copy_path);
-	free(tmp);
 
 	stop_loading_screen();
 	show_message("Files successfully copied to:\n%s", exp_path);
 }
 
-void copySaveHDD(const char* save_path)
+static int _copy_save_hdd(const save_entry_t* save)
 {
-	char* copy_path;
-	char* tmp = strdup(save_path);
-	const char* folder;
+	char copy_path[256];
+	char mount[32];
+	uint8_t* iconBuf;
+	size_t iconSize;
 
-	*strrchr(tmp, '/') = 0;
-	folder = strrchr(tmp, '/')+1;
-	asprintf(&copy_path, SAVES_PATH_HDD "%s/", apollo_config.user_id, folder);
+	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
+		return 0;
 
-	if (dir_exists(copy_path) == SUCCESS)
+	snprintf(copy_path, sizeof(copy_path), APOLLO_SANDBOX_PATH, mount);
+
+	LOG("Copying <%s> to %s...", save->path, copy_path);
+	copy_directory(save->path, save->path, copy_path);
+
+	snprintf(copy_path, sizeof(copy_path), "%s" "sce_sys/param.sfo", save->path);
+	LOG("Save Details :: Reading %s...", copy_path);
+
+	sfo_context_t* sfo = sfo_alloc();
+	if (sfo_read(sfo, copy_path) == SUCCESS)
 	{
-		show_message("Error! Save-game folder already exists:\n%s", copy_path);
-		free(copy_path);
-		free(tmp);
-		return;
+		char* subtitle = (char*) sfo_get_param_value(sfo, "SUBTITLE");
+		char* detail = (char*) sfo_get_param_value(sfo, "DETAIL");
+
+		orbis_UpdateSaveParams(mount, save->name, subtitle, detail);
 	}
+	sfo_free(sfo);
+
+	snprintf(copy_path, sizeof(copy_path), "%s" "sce_sys/icon0.png", save->path);
+	if (read_buffer(copy_path, &iconBuf, &iconSize) == SUCCESS)
+	{
+		OrbisSaveDataMountPoint mp;
+		OrbisSaveDataIcon icon;
+
+		strlcpy(mp.data, mount, sizeof(mp.data));
+		memset(&icon, 0x00, sizeof(icon));
+		icon.buf = iconBuf;
+		icon.bufSize = iconSize;
+		icon.dataSize = iconSize;  // Icon data size
+
+		if (sceSaveDataSaveIcon(&mp, &icon) < 0) {
+			// Error handling
+			LOG("ERROR sceSaveDataSaveIcon");
+		}
+
+		free(iconBuf);
+	}
+
+	orbis_SaveUmount(mount);
+	return 1;
+}
+
+void copySaveHDD(const save_entry_t* save)
+{
+	//source save is already on HDD
+	if (save->flags & SAVE_FLAG_HDD)
+		return;
 
 	init_loading_screen("Copying save game...");
-
-if (0)
-//	if (create_savegame_folder(folder))
-	{
-		LOG("Copying <%s> to %s...", save_path, copy_path);
-		copy_directory(save_path, save_path, copy_path);
-	}
-
-	free(copy_path);
-	free(tmp);
-
+	int ret = _copy_save_hdd(save);
 	stop_loading_screen();
+
+	if (ret)
+		show_message("Files successfully copied to:\n%s/%s", save->title_id, save->dir_name);
+	else
+		show_message("Error! Can't copy Save-game folder:\n%s/%s", save->title_id, save->dir_name);
 }
 
 void copyAllSavesHDD(const char* path)
 {
-	DIR *d;
-	struct dirent *dir;
-	char savePath[256];
+	int err_count = 0;
+	list_node_t *node;
+	save_entry_t *item;
+	uint64_t progress = 0;
+	list_t *list = ReadUsbList(path);
 
-	if (dir_exists(path) != SUCCESS)
+	if (!list)
 	{
 		show_message("Error! Folder is not available:\n%s", path);
 		return;
 	}
 
-	d = opendir(path);
-	if (!d)
-		return;
+	init_progress_bar("Copying all saves...");
 
 	LOG("Copying all saves from '%s'...", path);
-	while ((dir = readdir(d)) != NULL)
+	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
-		if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0)
-		{
-			snprintf(savePath, sizeof(savePath), "%s%s/sce_sys/param.sfo", path, dir->d_name);
-			if (file_exists(savePath) == SUCCESS)
-			{
-				snprintf(savePath, sizeof(savePath), "%s%s/", path, dir->d_name);
-				copySaveHDD(savePath);
-			}
-		}
+		update_progress_bar(progress++, list_count(list), item->name);
+		if (item->type == FILE_TYPE_PS4)
+			err_count += ! _copy_save_hdd(item);
 	}
-	closedir(d);
-}
 
+	end_progress_bar();
+	UnloadGameList(list);
+
+	if (err_count)
+		show_message("Error: %d Saves couldn't be copied to HDD", err_count);
+	else
+		show_message("All Saves copied to HDD");
+}
+/*
 void exportLicensesZip(const char* exp_path)
 {
 	char* export_file;
@@ -580,7 +614,48 @@ void exportPS2classics(const char* enc_path, const char* enc_file, uint8_t dst)
 
 	show_message("File successfully saved to:\n%s", outfile);
 }
+*/
+void copyAllSavesUSB(const char* path, const char* dst_path)
+{
+	char copy_path[256];
+	char save_path[256];
+	char mount[32];
+	uint64_t progress = 0;
+	list_node_t *node;
+	save_entry_t *item;
+	list_t *list = ReadUserList(path);
 
+	if (!list || mkdirs(dst_path) != SUCCESS)
+	{
+		show_message("Error! Folder is not available:\n%s", dst_path);
+		return;
+	}
+
+	init_progress_bar("Copying all saves...");
+
+	LOG("Copying all saves from '%s'...", path);
+	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+	{
+		update_progress_bar(progress++, list_count(list), item->name);
+		if (item->type == FILE_TYPE_PS4)
+		{
+			if (!orbis_SaveMount(item, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
+				continue;
+
+			snprintf(save_path, sizeof(save_path), APOLLO_SANDBOX_PATH, mount);
+			snprintf(copy_path, sizeof(copy_path), "%s%08x_%s_%s/", dst_path, apollo_config.user_id, item->title_id, item->dir_name);
+
+			LOG("Copying <%s> to %s...", save_path, copy_path);
+			copy_directory(save_path, save_path, copy_path);
+
+			orbis_SaveUmount(mount);
+		}
+	}
+
+	end_progress_bar();
+	UnloadGameList(list);
+	show_message("All Saves copied to:\n%s", dst_path);
+}
 
 void exportFolder(const char* src_path, const char* exp_path, const char* msg)
 {
@@ -598,7 +673,7 @@ void exportFolder(const char* src_path, const char* exp_path, const char* msg)
 	stop_loading_screen();
 	show_message("Files successfully copied to:\n%s", exp_path);
 }
-
+/*
 void exportLicensesRap(const char* fname, uint8_t dest)
 {
 	DIR *d;
@@ -678,7 +753,7 @@ void importLicenses(const char* fname, const char* exdata_path)
     stop_loading_screen();
 	show_message("Files successfully copied to:\n%s", lic_path);
 }
-
+*/
 int apply_sfo_patches(sfo_patch_t* patch)
 {
     code_entry_t* code;
@@ -737,24 +812,10 @@ int apply_sfo_patches(sfo_patch_t* patch)
         code->activated = 0;
     }
 
-	snprintf(in_file_path, sizeof(in_file_path), "%s" "PARAM.SFO", selected_entry->path);
+	snprintf(in_file_path, sizeof(in_file_path), "%s" "sce_sys/param.sfo", selected_entry->path);
 	LOG("Applying SFO patches '%s'...", in_file_path);
 
 	return (patch_sfo(in_file_path, patch) == SUCCESS);
-}
-
-int _is_decrypted(list_t* list, const char* fname) {
-	list_node_t *node;
-	u8 *protected_file_id = NULL;//get_secure_file_id(selected_entry->title_id, "UNPROTECTED");
-
-	if (protected_file_id && (strncmp("UNPROTECTEDGAME", (char*)protected_file_id, 16) == 0))
-		return 1;
-
-	for (node = list_head(list); node; node = list_next(node))
-		if (strcmp(list_get(node), fname) == 0)
-			return 1;
-
-	return 0;
 }
 
 int apply_cheat_patches()
@@ -763,8 +824,6 @@ int apply_cheat_patches()
 	char tmpfile[256];
 	char* filename;
 	code_entry_t* code;
-	uint8_t* protected_file_id;
-	list_t* decrypted_files = list_alloc();
 	list_node_t* node;
 
 	init_loading_screen("Applying changes...");
@@ -787,27 +846,7 @@ int apply_cheat_patches()
 		if (strstr(code->file, "~extracted\\"))
 			snprintf(tmpfile, sizeof(tmpfile), "%s[%s]%s", APOLLO_LOCAL_CACHE, selected_entry->title_id, filename);
 		else
-		{
 			snprintf(tmpfile, sizeof(tmpfile), "%s%s", selected_entry->path, filename);
-
-			if (!_is_decrypted(decrypted_files, filename))
-			{
-				LOG("Decrypting '%s'...", filename);
-//				protected_file_id = get_secure_file_id(selected_entry->title_id, filename);
-
-if (0)
-//				if (decrypt_save_file(selected_entry->path, filename, NULL, protected_file_id))
-				{
-					list_append(decrypted_files, strdup(filename));
-				}
-				else
-				{
-					LOG("Error: failed to decrypt (%s)", filename);
-					ret = 0;
-					continue;
-				}
-			}
-		}
 
 		if (!apply_cheat_patch_code(tmpfile, selected_entry->title_id, code, APOLLO_LOCAL_CACHE))
 		{
@@ -818,22 +857,6 @@ if (0)
 		code->activated = 0;
 	}
 
-	for (node = list_head(decrypted_files); (filename = list_get(node)); node = list_next(node))
-	{
-		LOG("Encrypting '%s'...", filename);
-//		protected_file_id = get_secure_file_id(selected_entry->title_id, filename);
-		
-if (0)
-//		if (!encrypt_save_file(selected_entry->path, filename, protected_file_id))
-		{
-			LOG("Error: failed to encrypt (%s)", filename);
-			ret = 0;
-		}
-
-		free(filename);
-	}
-
-	list_free(decrypted_files);
 	free_patch_var_list();
 	stop_loading_screen();
 
@@ -842,6 +865,8 @@ if (0)
 
 void resignSave(sfo_patch_t* patch)
 {
+    LOG("Resigning save '%s'...", selected_entry->name);
+
     if (!apply_sfo_patches(patch))
         show_message("Error! Account changes couldn't be applied");
 
@@ -849,15 +874,7 @@ void resignSave(sfo_patch_t* patch)
     if (!apply_cheat_patches())
         show_message("Error! Cheat codes couldn't be applied");
 
-    LOG("Resigning save '%s'...", selected_entry->name);
-if (0)
-//    if (!pfd_util_init((u8*) apollo_config.idps, apollo_config.user_id, selected_entry->title_id, selected_entry->path) ||
-//        (pfd_util_process(PFD_CMD_UPDATE, 0) != SUCCESS))
-        show_message("Error! Save %s couldn't be resigned", selected_entry->title_id);
-    else
-        show_message("Save %s successfully modified!", selected_entry->title_id);
-
-//    pfd_util_end();
+    show_message("Save %s successfully modified!", selected_entry->title_id);
 }
 
 void resignAllSaves(const char* path)
@@ -905,12 +922,6 @@ void resignAllSaves(const char* path)
 				snprintf(message, sizeof(message), "Resigning %s...", dir->d_name);
 
 				LOG("Resigning save '%s'...", sfoPath);
-if (0)
-//				if (!pfd_util_init((u8*) apollo_config.idps, apollo_config.user_id, titleid, sfoPath) ||
-//					(pfd_util_process(PFD_CMD_UPDATE, 0) != SUCCESS))
-					LOG("Error! Save file couldn't be resigned");
-
-//				pfd_util_end();
 			}
 		}
 	}
@@ -918,7 +929,7 @@ if (0)
 
 	stop_loading_screen();
 }
-
+/*
 int apply_trophy_account()
 {
 	char sfoPath[256];
@@ -1021,7 +1032,7 @@ if (0)
 		write_buffer("/dev_hdd0/mms/db.err", (u8*) "\x00\x00\x03\xE9", 4);
 	}
 }
-
+*/
 int _copy_save_file(const char* src_path, const char* dst_path, const char* filename)
 {
 	char src[256], dst[256];
@@ -1029,7 +1040,7 @@ int _copy_save_file(const char* src_path, const char* dst_path, const char* file
 	snprintf(src, sizeof(src), "%s%s", src_path, filename);
 	snprintf(dst, sizeof(dst), "%s%s", dst_path, filename);
 
-	return copy_file(src, dst);
+	return (copy_file(src, dst) == SUCCESS);
 }
 
 void decryptSaveFile(const char* filename)
@@ -1039,19 +1050,9 @@ void decryptSaveFile(const char* filename)
 	snprintf(path, sizeof(path), APOLLO_TMP_PATH "%s/", selected_entry->title_id);
 	mkdirs(path);
 
-	if (_is_decrypted(NULL, filename))
-	{
-		_copy_save_file(selected_entry->path, path, filename);
-		show_message("Save-game %s is not encrypted. File was not decrypted:\n%s%s", selected_entry->title_id, path, filename);
-		return;
-	}
-
-	u8* protected_file_id = NULL;//get_secure_file_id(selected_entry->title_id, filename);
-
 	LOG("Decrypt '%s%s' to '%s'...", selected_entry->path, filename, path);
 
-if (0)
-//	if (decrypt_save_file(selected_entry->path, filename, path, protected_file_id))
+	if (_copy_save_file(selected_entry->path, path, filename))
 		show_message("File successfully decrypted to:\n%s%s", path, filename);
 	else
 		show_message("Error! File %s couldn't be decrypted", filename);
@@ -1070,20 +1071,9 @@ void encryptSaveFile(const char* filename)
 	}
 	*(strrchr(path, '/')+1) = 0;
 
-	if (_is_decrypted(NULL, filename))
-	{
-		_copy_save_file(path, selected_entry->path, filename);
-		show_message("Save-game %s is not encrypted.\nFile %s was not encrypted", selected_entry->title_id, filename);
-		return;
-	}
-
-	u8* protected_file_id = NULL;//get_secure_file_id(selected_entry->title_id, filename);
-
 	LOG("Encrypt '%s%s' to '%s'...", path, filename, selected_entry->path);
-	_copy_save_file(path, selected_entry->path, filename);
 
-if (0)
-//	if (encrypt_save_file(selected_entry->path, filename, protected_file_id))
+	if (_copy_save_file(path, selected_entry->path, filename))
 		show_message("File successfully encrypted to:\n%s%s", selected_entry->path, filename);
 	else
 		show_message("Error! File %s couldn't be encrypted", filename);
@@ -1091,6 +1081,20 @@ if (0)
 
 void execCodeCommand(code_entry_t* code, const char* codecmd)
 {
+	char *tmp, mount[32];
+
+	if (selected_entry->flags & SAVE_FLAG_HDD)
+	{
+		if (!orbis_SaveMount(selected_entry, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
+		{
+			LOG("Error Mounting Save! Check Save Mount Patches");
+			return;
+		}
+
+		tmp = selected_entry->path;
+		asprintf(&selected_entry->path, APOLLO_SANDBOX_PATH, mount);
+	}
+
 	switch (codecmd[0])
 	{
 		case CMD_DECRYPT_FILE:
@@ -1118,15 +1122,15 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_COPY_SAVE_USB:
-			copySave(selected_entry->path, codecmd[1] ? SAVES_PATH_USB1 : SAVES_PATH_USB0);
+			copySave(selected_entry, codecmd[1] ? SAVES_PATH_USB1 : SAVES_PATH_USB0);
 			code->activated = 0;
 			break;
 
 		case CMD_COPY_SAVE_HDD:
-			copySaveHDD(selected_entry->path);
+			copySaveHDD(selected_entry);
 			code->activated = 0;
 			break;
-
+/*
 		case CMD_EXP_EXDATA_USB:
 			exportLicensesZip(codecmd[1] ? EXPORT_PATH_USB1 : EXPORT_PATH_USB0);
 			code->activated = 0;
@@ -1143,7 +1147,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_EXP_TROPHY_USB:
-			copySave(selected_entry->path, codecmd[1] ? TROPHY_PATH_USB1 : TROPHY_PATH_USB0);
+			copySave(selected_entry, codecmd[1] ? TROPHY_PATH_USB1 : TROPHY_PATH_USB0);
 			code->activated = 0;
 			break;
 
@@ -1156,12 +1160,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			exportFolder(selected_entry->path, codecmd[1] ? TROPHY_PATH_USB1 : TROPHY_PATH_USB0, "Copying trophies...");
 			code->activated = 0;
 			break;
-
+*/
 		case CMD_COPY_SAVES_USB:
-			exportFolder(selected_entry->path, codecmd[1] ? SAVES_PATH_USB1 : SAVES_PATH_USB0, "Copying saves...");
+			copyAllSavesUSB(selected_entry->path, codecmd[1] ? SAVES_PATH_USB1 : SAVES_PATH_USB0);
 			code->activated = 0;
 			break;
-
+/*
 		case CMD_EXP_FLASH2_USB:
 			exportFlashZip(codecmd[1] ? EXPORT_PATH_USB1 : EXPORT_PATH_USB0);
 			code->activated = 0;
@@ -1171,7 +1175,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			importLicenses(code->file, selected_entry->path);
 			code->activated = 0;
 			break;
-
+*/
 		case CMD_RESIGN_SAVE:
 			{
 				sfo_patch_t patch = {
@@ -1196,7 +1200,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			copyAllSavesHDD(selected_entry->path);
 			code->activated = 0;
 			break;
-
+/*
 		case CMD_RESIGN_PSV:
 			resignPSVfile(selected_entry->path);
 			code->activated = 0;
@@ -1266,9 +1270,17 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			resignTrophy();
 			code->activated = 0;
 			break;
-
+*/
 		default:
 			break;
 	}
 
+	if (selected_entry->flags & SAVE_FLAG_HDD)
+	{
+		orbis_SaveUmount(mount);
+		free(selected_entry->path);
+		selected_entry->path = tmp;
+	}
+
+	return;
 }

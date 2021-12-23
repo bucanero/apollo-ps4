@@ -786,8 +786,8 @@ void SetMenu(int id)
 			break;
 
 		case MENU_ONLINE_DB: //Cheats Online Menu
-			if (!online_saves.list)
-				ReloadUserSaves(&online_saves);
+			if (!online_saves.list && !ReloadUserSaves(&online_saves))
+				return;
 
 			if (apollo_config.doAni)
 				Draw_UserCheatsMenu_Ani(&online_saves);
@@ -795,9 +795,8 @@ void SetMenu(int id)
 
 		case MENU_CREDITS: //About Menu
 			// set to display the PSID on the About menu
-			sprintf(idps_str, "%016lX %016lX", apollo_config.idps[0], apollo_config.idps[1]);
 			sprintf(psid_str, "%016lX %016lX", apollo_config.psid[0], apollo_config.psid[1]);
-			sprintf(user_id_str, "%08d", apollo_config.user_id);
+			sprintf(user_id_str, "%08x", apollo_config.user_id);
 			sprintf(account_id_str, "%016lx", apollo_config.account_id);
 
 			if (apollo_config.doAni)

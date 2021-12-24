@@ -227,275 +227,114 @@ save_entry_t* selected_entry;
 code_entry_t* selected_centry;
 int option_index = 0;
 
-void release_all()
-{
-	/*
-	if(inited & INITED_CALLBACK)
-		sysUtilUnregisterCallback(SYSUTIL_EVENT_SLOT0);
 
-	if(inited & INITED_AUDIOPLAYER)
-		StopAudio();
-	
-	if(inited & INITED_SOUNDLIB)
-		SND_End();
-
-	if(inited & INITED_SPU) {
-		sysSpuRawDestroy(spu);
-		sysSpuImageClose(&spu_image);
-	}
-*/
-	inited=0;
-}
-
-static void sys_callback(uint64_t status, uint64_t param, void* userdata)
-{
-	/*
-	 switch (status) {
-		case SYSUTIL_EXIT_GAME: //0x0101
-			release_all();
-			if (file_exists("/dev_hdd0/mms/db.err") == SUCCESS)
-				sys_reboot();
-
-			sysProcessExit(1);
-			break;
-	  
-		case SYSUTIL_MENU_OPEN: //0x0131
-			break;
-
-		case SYSUTIL_MENU_CLOSE: //0x0132
-			break;
-
-	   default:
-		   break;
-		 
-	}
-	*/
-}
-
-int initPad(int controllerUserID)
+int initPad()
 {
 	int userID;
 
     // Initialize the Pad library
     if (scePadInit() != 0)
     {
-        LOG("[DEBUG] [ERROR] Failed to initialize pad library!");
+        LOG("[ERROR] Failed to initialize pad library!");
         return 0;
     }
 
     // Get the user ID
-    if (controllerUserID < 0)
-    {
-    	OrbisUserServiceInitializeParams param;
-    	param.priority = ORBIS_KERNEL_PRIO_FIFO_LOWEST;
-    	sceUserServiceInitialize(&param);
-    	sceUserServiceGetInitialUser(&userID);
-    }
-    else
-    {
-    	userID = controllerUserID;
-    }
+	OrbisUserServiceInitializeParams param;
+	param.priority = ORBIS_KERNEL_PRIO_FIFO_LOWEST;
+	sceUserServiceInitialize(&param);
+	sceUserServiceGetInitialUser(&userID);
 
     // Open a handle for the controller
     padhandle = scePadOpen(userID, 0, 0, NULL);
+	apollo_config.user_id = userID;
 
     if (padhandle < 0)
     {
-        LOG("[DEBUG] [ERROR] Failed to open pad!");
+        LOG("[ERROR] Failed to open pad!");
         return 0;
     }
     
     return 1;
 }
 
-int readPad(int port)
+int g_frame_count = 0;
+
+int pad_input_update(void *data)
 {
-	int off = 2;
-	int retDPAD = 0, retREST = 0;
-	u32 dpad = 0, _dpad = 0;
-	u32 rest = 0, _rest = 0;
+	pad_input_t* input = data;
+	int button_frame_count = 0;
 
-	scePadReadState(padhandle, &padA[port]);
-
-//	if(padinfo.status[port])
-	if(padA[port].connected || 1)
+	while (!close_app)
 	{
-//		ioPadGetData(port, &padA[port]);
-		
-		if (padA[port].leftStick.y < ANALOG_MIN)
-			padA[port].buttons |= ORBIS_PAD_BUTTON_UP;
-			
-		if (padA[port].leftStick.y > ANALOG_MAX)
-			padA[port].buttons |= ORBIS_PAD_BUTTON_DOWN;
-			
-		if (padA[port].leftStick.x < ANALOG_MIN)
-			padA[port].buttons |= ORBIS_PAD_BUTTON_LEFT;
-			
-		if (padA[port].leftStick.x > ANALOG_MAX)
-			padA[port].buttons |= ORBIS_PAD_BUTTON_RIGHT;
+//		scePadReadState(padhandle, &padA[0]);
+		scePadRead(padhandle, padA, 1);
 
-		//new
-		dpad = padA[port].buttons & PAD_DPAD;
-		rest = padA[port].buttons & PAD_REST;
-		
-		//old
-		_dpad = padB[port].buttons & PAD_DPAD;
-		_rest = padB[port].buttons & PAD_REST;
-		
-		if (dpad == 0 && rest == 0)
-			idle_time++;
-		else
-			idle_time = 0;
-		
-		//Copy new to old
-		memcpy(paddata, padA, sizeof(OrbisPadData));
-		memcpy(padB, padA, sizeof(OrbisPadData));
-		
-		//DPad has 3 mode input delay
-		if (dpad == _dpad && dpad != 0)
+		if(padA[0].connected && g_frame_count > 0)
 		{
-			if (pad_time > 0) //dpad delay
+			uint32_t previous = input->down;
+
+			input->down = padA[0].buttons;
+			g_frame_count = 0;
+
+			if (!input->down)
+				input->idle += 10;
+			else
+				input->idle = 0;
+
+			if (padA[0].leftStick.y < ANALOG_MIN)
+				input->down |= ORBIS_PAD_BUTTON_UP;
+
+			if (padA[0].leftStick.y > ANALOG_MAX)
+				input->down |= ORBIS_PAD_BUTTON_DOWN;
+
+			if (padA[0].leftStick.x < ANALOG_MIN)
+				input->down |= ORBIS_PAD_BUTTON_LEFT;
+
+			if (padA[0].leftStick.x > ANALOG_MAX)
+				input->down |= ORBIS_PAD_BUTTON_RIGHT;
+
+			input->pressed = input->down & ~previous;
+			input->active = input->pressed;
+
+			if (input->down == previous)
 			{
-				pad_held_time++;
-				pad_time--;
-				retDPAD = 0;
+				if (button_frame_count > 1)
+				{
+					input->active = input->down;
+				}
+				button_frame_count++;
 			}
 			else
 			{
-				//So the pad speeds up after a certain amount of time being held
-				if (pad_held_time > 180)
-				{
-					pad_time = 2;
-				}
-				else if (pad_held_time > 60)
-				{
-					pad_time = 5;
-				}
-				else
-					pad_time = 20;
-				
-				retDPAD = 1;
+				button_frame_count = 0;
 			}
 		}
-		else
-		{
-			pad_held_time = 0;
-			pad_time = 0;
-		}
-		
-		//rest has its own delay
-		if (rest == _rest && rest != 0)
-		{
-			if (rest_time > 0) //rest delay
-			{
-				rest_held_time++;
-				rest_time--;
-				retREST = 0;
-			}
-			else
-			{
-				//So the pad speeds up after a certain amount of time being held
-				if (rest_held_time > 180)
-				{
-					rest_time = 2;
-				}
-				else if (rest_held_time > 60)
-				{
-					rest_time = 5;
-				}
-				else
-					rest_time = 20;
-				
-				retREST = 1;
-			}
-		}
-		else
-		{
-			rest_held_time = 0;
-			rest_time = 0;
-		}
-		
 	}
 	
-	if (!retDPAD && !retREST)
-		return 0;
-	
-	if (!retDPAD)
-	{
-		paddata[port].buttons |= PAD_DPAD;
-		paddata[port].buttons &= ~PAD_DPAD;
-//		paddata[port].buttons ^= ORBIS_PAD_BUTTON_UP;
-//		paddata[port].buttons ^= ORBIS_PAD_BUTTON_DOWN;
-//		paddata[port].buttons ^= ORBIS_PAD_BUTTON_LEFT;
-//		paddata[port].buttons ^= ORBIS_PAD_BUTTON_RIGHT;
-	}
-	
-	if (!retREST)
-	{
-		paddata[port].buttons |= PAD_REST;
-		paddata[port].buttons &= ~PAD_REST;
-/*
-		paddata[port].buttons ^= ORBIS_PAD_BUTTON_CROSS;
-		paddata[port].buttons ^= ORBIS_PAD_BUTTON_CIRCLE;
-		paddata[port].buttons ^= ORBIS_PAD_BUTTON_SQUARE;
-		paddata[port].buttons ^= ORBIS_PAD_BUTTON_TRIANGLE;
-		paddata[port].buttons ^= ORBIS_PAD_BUTTON_L1;
-		paddata[port].buttons ^= ORBIS_PAD_BUTTON_L2;
-		paddata[port].buttons ^= ORBIS_PAD_BUTTON_R1;
-		paddata[port].buttons ^= ORBIS_PAD_BUTTON_R2;
-		paddata[port].buttons ^= ORBIS_PAD_BUTTON_OPTIONS;
-	*/
-/*
-		paddata[port].BTN_SELECT = 0;
-		paddata[port].BTN_L3 = 0;
-		paddata[port].BTN_R3 = 0;
-		paddata[port].BTN_START = 0;
-*/
-	}
-
-	return 1;
+    return 1;
 }
 
-	/*
-void copyTexture(int cnt)
+int pad_check_button(uint32_t button)
 {
-	// copy texture datas from PNG to the RSX memory allocated for textures
-	if (menu_textures[cnt].texture.bmp_out)
+	if (pad_data.pressed & button)
 	{
-		memcpy(free_mem, menu_textures[cnt].texture.bmp_out, menu_textures[cnt].texture.pitch * menu_textures[cnt].texture.height);
-		free(menu_textures[cnt].texture.bmp_out); // free the PNG because i don't need this datas
-		menu_textures[cnt].texture_off = tiny3d_TextureOffset(free_mem);      // get the offset (RSX use offset instead address)
-		free_mem += ((menu_textures[cnt].texture.pitch * menu_textures[cnt].texture.height + 15) & ~15) / 4; // aligned to 16 bytes (it is u32) and update the pointer
+		pad_data.pressed ^= button;
+		return 1;
 	}
-}
-	*/
 
-void LoadMenuTexture(const char* path, int idx)
-{
-//	LOG("Loading texture (%s)...", path);
-	menu_textures[idx].texture = orbis2dLoadImageFromSandBox(path);
-//	pngLoadFromBuffer(menu_textures[idx].buffer, menu_textures[idx].size, &menu_textures[idx].texture);
-//	copyTexture(idx);
-	menu_textures[idx].size = 1;
-	menu_textures[idx].buffer = NULL;
-}
-
-void LoadImageFontTexture(const u8* rawData, uint16_t unicode, int idx)
-{
-//	menu_textures[idx].size = LoadImageFontEntry(rawData, unicode, &menu_textures[idx].texture);
-//	copyTexture(idx);
+	return 0;
 }
 
 void LoadFileTexture(const char* fname, int idx)
 {
-	if (!menu_textures[idx].buffer)
-		menu_textures[idx].buffer = free_mem;
+	LOG("Loading '%s'", fname);
+	if (menu_textures[idx].texture)
+		SDL_DestroyTexture(menu_textures[idx].texture);
 
-//	pngLoadFromFile(fname, &menu_textures[idx].texture);
-//	copyTexture(idx);
-
-	menu_textures[idx].size = 1;
-	free_mem = (u32*) menu_textures[idx].buffer;
+	menu_textures[idx].size = 0;
+	menu_textures[idx].texture = NULL;
+	LoadMenuTexture(fname, idx);
 }
 
 // Used only in initialization. Allocates 64 mb for textures and loads the font
@@ -809,8 +648,8 @@ void SetMenu(int id)
 			break;
 
 		case MENU_USER_BACKUP: //User Backup Menu
-			if (!user_backup.list)
-				ReloadUserSaves(&user_backup);
+			if (!user_backup.list && !ReloadUserSaves(&user_backup))
+				return;
 
 			if (apollo_config.doAni)
 				Draw_UserCheatsMenu_Ani(&user_backup);
@@ -930,38 +769,38 @@ void move_selection_fwd(int game_count, int steps)
 
 void doSaveMenu(save_list_t * save_list)
 {
-    if(readPad(0))
+    if(1)
     {
-    	if(paddata[0].buttons & ORBIS_PAD_BUTTON_UP)
+    	if(pad_data.active & ORBIS_PAD_BUTTON_UP)
     		move_selection_back(list_count(save_list->list), 1);
     
-    	else if(paddata[0].buttons & ORBIS_PAD_BUTTON_DOWN)
+    	else if(pad_data.active & ORBIS_PAD_BUTTON_DOWN)
     		move_selection_fwd(list_count(save_list->list), 1);
     
-    	else if (paddata[0].buttons & ORBIS_PAD_BUTTON_LEFT)
+    	else if (pad_data.active & ORBIS_PAD_BUTTON_LEFT)
     		move_selection_back(list_count(save_list->list), 5);
     
-    	else if (paddata[0].buttons & ORBIS_PAD_BUTTON_L1)
+    	else if (pad_data.active & ORBIS_PAD_BUTTON_L1)
     		move_selection_back(list_count(save_list->list), 25);
     
-    	else if (paddata[0].buttons & ORBIS_PAD_BUTTON_L2)
+    	else if (pad_data.active & ORBIS_PAD_BUTTON_L2)
     		move_letter_back(save_list->list);
     
-    	else if (paddata[0].buttons & ORBIS_PAD_BUTTON_RIGHT)
+    	else if (pad_data.active & ORBIS_PAD_BUTTON_RIGHT)
     		move_selection_fwd(list_count(save_list->list), 5);
     
-    	else if (paddata[0].buttons & ORBIS_PAD_BUTTON_R1)
+    	else if (pad_data.active & ORBIS_PAD_BUTTON_R1)
     		move_selection_fwd(list_count(save_list->list), 25);
     
-    	else if (paddata[0].buttons & ORBIS_PAD_BUTTON_R2)
+    	else if (pad_data.active & ORBIS_PAD_BUTTON_R2)
     		move_letter_fwd(save_list->list);
     
-    	else if (paddata[0].buttons & ORBIS_PAD_BUTTON_CIRCLE)
+    	else if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
     	{
     		SetMenu(MENU_MAIN_SCREEN);
     		return;
     	}
-    	else if (paddata[0].buttons & ORBIS_PAD_BUTTON_CROSS)
+    	else if (pad_check_button(ORBIS_PAD_BUTTON_CROSS))
     	{
 			selected_entry = list_get_item(save_list->list, menu_sel);
 
@@ -978,14 +817,17 @@ void doSaveMenu(save_list_t * save_list)
     		SetMenu(MENU_PATCHES);
     		return;
     	}
-    	else if (paddata[0].buttons & ORBIS_PAD_BUTTON_TRIANGLE && save_list->UpdatePath)
+    	else if (pad_check_button(ORBIS_PAD_BUTTON_TRIANGLE) && save_list->UpdatePath)
     	{
 			selected_entry = list_get_item(save_list->list, menu_sel);
-			selected_centry = LoadSaveDetails();
-    		SetMenu(MENU_SAVE_DETAILS);
-    		return;
-    	}
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_SQUARE)
+			if (selected_entry->type != FILE_TYPE_MENU)
+			{
+				selected_centry = LoadSaveDetails();
+				SetMenu(MENU_SAVE_DETAILS);
+				return;
+			}
+		}
+		else if (pad_check_button(ORBIS_PAD_BUTTON_SQUARE))
 		{
 			ReloadUserSaves(save_list);
 		}
@@ -997,18 +839,18 @@ void doSaveMenu(save_list_t * save_list)
 void doMainMenu()
 {
 	// Check the pads.
-	if (readPad(0))
+	if (1)
 	{
-		if(paddata[0].buttons & ORBIS_PAD_BUTTON_LEFT)
+		if(pad_data.active & ORBIS_PAD_BUTTON_LEFT)
 			move_selection_back(MENU_CREDITS, 1);
 
-		else if(paddata[0].buttons & ORBIS_PAD_BUTTON_RIGHT)
+		else if(pad_data.active & ORBIS_PAD_BUTTON_RIGHT)
 			move_selection_fwd(MENU_CREDITS, 1);
 
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_CROSS)
+		else if (pad_check_button(ORBIS_PAD_BUTTON_CROSS))
 		    SetMenu(menu_sel+1);
 
-		else if(paddata[0].buttons & ORBIS_PAD_BUTTON_CIRCLE && show_dialog(1, "Exit to XMB?"))
+		else if(pad_check_button(ORBIS_PAD_BUTTON_CIRCLE) && show_dialog(1, "Exit to XMB?"))
 			close_app = 1;
 	}
 	
@@ -1018,9 +860,9 @@ void doMainMenu()
 void doAboutMenu()
 {
 	// Check the pads.
-	if (readPad(0))
+	if (1)
 	{
-		if (paddata[0].buttons & ORBIS_PAD_BUTTON_CIRCLE)
+		if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
 		{
 			SetMenu(MENU_MAIN_SCREEN);
 			return;
@@ -1033,22 +875,22 @@ void doAboutMenu()
 void doOptionsMenu()
 {
 	// Check the pads.
-	if (readPad(0))
+	if (1)
 	{
-		if(paddata[0].buttons & ORBIS_PAD_BUTTON_UP)
+		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
 			move_selection_back(menu_options_maxopt, 1);
 
-		else if(paddata[0].buttons & ORBIS_PAD_BUTTON_DOWN)
+		else if(pad_data.active & ORBIS_PAD_BUTTON_DOWN)
 			move_selection_fwd(menu_options_maxopt, 1);
 
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_CIRCLE)
+		else if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
 		{
-//			save_app_settings(&apollo_config);
+			save_app_settings(&apollo_config);
 			set_ttf_window(0, 0, SCREEN_WIDTH + apollo_config.marginH, SCREEN_HEIGHT + apollo_config.marginV, WIN_SKIP_LF);
 			SetMenu(MENU_MAIN_SCREEN);
 			return;
 		}
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_LEFT)
+		else if (pad_data.active & ORBIS_PAD_BUTTON_LEFT)
 		{
 			if (menu_options[menu_sel].type == APP_OPTION_LIST)
 			{
@@ -1063,7 +905,7 @@ void doOptionsMenu()
 			if (menu_options[menu_sel].type != APP_OPTION_CALL)
 				menu_options[menu_sel].callback(*menu_options[menu_sel].value);
 		}
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_RIGHT)
+		else if (pad_data.active & ORBIS_PAD_BUTTON_RIGHT)
 		{
 			if (menu_options[menu_sel].type == APP_OPTION_LIST)
 			{
@@ -1078,7 +920,7 @@ void doOptionsMenu()
 			if (menu_options[menu_sel].type != APP_OPTION_CALL)
 				menu_options[menu_sel].callback(*menu_options[menu_sel].value);
 		}
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_CROSS)
+		else if (pad_check_button(ORBIS_PAD_BUTTON_CROSS))
 		{
 			if (menu_options[menu_sel].type == APP_OPTION_BOOL)
 				menu_options[menu_sel].callback(*menu_options[menu_sel].value);
@@ -1111,15 +953,15 @@ void doPatchViewMenu()
 	int max = count_code_lines();
 	
 	// Check the pads.
-	if (readPad(0))
+	if (1)
 	{
-		if(paddata[0].buttons & ORBIS_PAD_BUTTON_UP)
+		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
 			move_selection_back(max, 1);
 
-		else if(paddata[0].buttons & ORBIS_PAD_BUTTON_DOWN)
+		else if(pad_data.active & ORBIS_PAD_BUTTON_DOWN)
 			move_selection_fwd(max, 1);
 
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_CIRCLE)
+		else if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
 		{
 			SetMenu(last_menu_id[MENU_PATCH_VIEW]);
 			return;
@@ -1133,21 +975,21 @@ void doCodeOptionsMenu()
 {
     code_entry_t* code = list_get_item(selected_entry->codes, menu_old_sel[last_menu_id[MENU_CODE_OPTIONS]]);
 	// Check the pads.
-	if (readPad(0))
+	if (1)
 	{
-		if(paddata[0].buttons & ORBIS_PAD_BUTTON_UP)
+		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
 			move_selection_back(selected_centry->options[option_index].size, 1);
 
-		else if(paddata[0].buttons & ORBIS_PAD_BUTTON_DOWN)
+		else if(pad_data.active & ORBIS_PAD_BUTTON_DOWN)
 			move_selection_fwd(selected_centry->options[option_index].size, 1);
 
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_CIRCLE)
+		else if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
 		{
 			code->activated = 0;
 			SetMenu(last_menu_id[MENU_CODE_OPTIONS]);
 			return;
 		}
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_CROSS)
+		else if (pad_check_button(ORBIS_PAD_BUTTON_CROSS))
 		{
 			code->options[option_index].sel = menu_sel;
 
@@ -1174,15 +1016,15 @@ void doSaveDetailsMenu()
 	int max = count_code_lines();
 
 	// Check the pads.
-	if (readPad(0))
+	if (1)
 	{
-		if(paddata[0].buttons & ORBIS_PAD_BUTTON_UP)
+		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
 			move_selection_back(max, 1);
 
-		else if(paddata[0].buttons & ORBIS_PAD_BUTTON_DOWN)
+		else if(pad_data.active & ORBIS_PAD_BUTTON_DOWN)
 			move_selection_fwd(max, 1);
 
-		if (paddata[0].buttons & ORBIS_PAD_BUTTON_CIRCLE)
+		if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
 		{
 			if (selected_centry->name)
 				free(selected_centry->name);
@@ -1201,32 +1043,32 @@ void doSaveDetailsMenu()
 void doPatchMenu()
 {
 	// Check the pads.
-	if (readPad(0))
+	if (1)
 	{
-		if(paddata[0].buttons & ORBIS_PAD_BUTTON_UP)
+		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
 			move_selection_back(list_count(selected_entry->codes), 1);
 
-		else if(paddata[0].buttons & ORBIS_PAD_BUTTON_DOWN)
+		else if(pad_data.active & ORBIS_PAD_BUTTON_DOWN)
 			move_selection_fwd(list_count(selected_entry->codes), 1);
 
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_LEFT)
+		else if (pad_data.active & ORBIS_PAD_BUTTON_LEFT)
 			move_selection_back(list_count(selected_entry->codes), 5);
 
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_RIGHT)
+		else if (pad_data.active & ORBIS_PAD_BUTTON_RIGHT)
 			move_selection_fwd(list_count(selected_entry->codes), 5);
 
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_L1)
+		else if (pad_data.active & ORBIS_PAD_BUTTON_L1)
 			move_selection_back(list_count(selected_entry->codes), 25);
 
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_R1)
+		else if (pad_data.active & ORBIS_PAD_BUTTON_R1)
 			move_selection_fwd(list_count(selected_entry->codes), 25);
 
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_CIRCLE)
+		else if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
 		{
 			SetMenu(last_menu_id[MENU_PATCHES]);
 			return;
 		}
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_CROSS)
+		else if (pad_check_button(ORBIS_PAD_BUTTON_CROSS))
 		{
 			selected_centry = list_get_item(selected_entry->codes, menu_sel);
 
@@ -1281,12 +1123,12 @@ void doPatchMenu()
 				}
 			}
 		}
-		else if (paddata[0].buttons & ORBIS_PAD_BUTTON_TRIANGLE)
+		else if (pad_check_button(ORBIS_PAD_BUTTON_TRIANGLE))
 		{
 			selected_centry = list_get_item(selected_entry->codes, menu_sel);
 
 			if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD ||
-				(selected_entry->type == FILE_TYPE_TRP && selected_entry->flags & SAVE_FLAG_TROPHY))
+				selected_centry->type == PATCH_TROP_LOCK || selected_centry->type == PATCH_TROP_UNLOCK)
 			{
 				SetMenu(MENU_PATCH_VIEW);
 				return;
@@ -1512,22 +1354,13 @@ MvC3:703B3123 <xor> 8FC4CEDC
 */
 		drawScene();
 
-#ifdef APOLLO_ENABLE_LOGGING
-		if(paddata[0].buttons & ORBIS_PAD_BUTTON_OPTIONS)
-		{
-			LOG("Screen");
-//			dbglogger_screenshot_tmp(0);
-			LOG("Shot");
-		}
-#endif
-
 		//Draw help
 		if (menu_pad_help[menu_id])
 		{
 			u8 alpha = 0xFF;
-			if (idle_time > 80)
+			if (pad_data.idle > 80)
 			{
-				int dec = (idle_time - 80) * 4;
+				int dec = (pad_data.idle - 80) * 4;
 				if (dec > alpha)
 					dec = alpha;
 				alpha -= dec;

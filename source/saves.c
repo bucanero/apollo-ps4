@@ -14,7 +14,6 @@
 #include "sfo.h"
 #include "settings.h"
 #include "util.h"
-#include "trophy.h"
 #include "sqlite3.h"
 
 #define UTF8_CHAR_GROUP		"\xe2\x97\x86"
@@ -725,7 +724,7 @@ int ReadTrophies(save_entry_t * game)
 			trophy->name[1] = CHAR_TAG_LOCKED;
 
 		// if trophy has been synced, we can't allow changes
-		if (0 & TROP_STATE_SYNCED)
+		if (0)
 			trophy->name[1] = CHAR_TRP_SYNC;
 		else
 			trophy->type = (sqlite3_column_int(res, 5) ? PATCH_TROP_LOCK : PATCH_TROP_UNLOCK);

@@ -6,7 +6,7 @@
 
 The `apollo-ps4` homebrew app allows to download, unlock, patch and resign save-game files directly on your PS4.
 
-![image](./screenshots/screenshot_main.jpg)
+![image](./screenshots/screenshot-main.jpg)
 
 **Comments, ideas, suggestions?** You can contact [me](https://github.com/bucanero/) on [Twitter](https://twitter.com/dparrino) and on [my website](http://www.bucanero.com.ar/).
 
@@ -92,7 +92,6 @@ Currently, the list of available games and files is limited, but the project aim
 * [flatz](https://github.com/flatz): [SFO/PFD tools](https://github.com/bucanero/pfd_sfo_tools/)
 * [aldostools](https://aldostools.org/): [Bruteforce Save Data](https://bruteforcesavedata.forumms.net/)
 * [aluigi](http://aluigi.org): [offzip/packzip](http://aluigi.altervista.org/mytoolz.htm)
-* [darkautism](https://darkautism.blogspot.com/): [PS3TrophyIsGood](https://github.com/darkautism/PS3TrophyIsGood)
 
 # Building
 

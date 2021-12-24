@@ -97,7 +97,7 @@ Currently, the list of available games and files is limited, but the project aim
 
 You need to have installed:
 
-- [Open Orbis SDK](https://github.com/bucanero/ps3toolchain)
+- [Open Orbis SDK](https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/)
 - [Apollo](https://github.com/bucanero/apollo-lib) library
 - [Zip](https://github.com/bucanero/zip) library
 - [polarSSL](https://github.com/bucanero/oosdk_libraries/tree/master/polarssl-1.3.9) library

@@ -6,7 +6,7 @@
 
 The `apollo-ps4` homebrew app allows to download, unlock, patch and resign save-game files directly on your PS4.
 
-![image](./docs/screenshots/screenshot_main.jpg)
+![image](./docs/screenshots/screenshot-main.jpg)
 
 **Comments, ideas, suggestions?** You can contact [me](https://github.com/bucanero/) on [Twitter](https://twitter.com/dparrino) and on [my website](http://www.bucanero.com.ar/).
 

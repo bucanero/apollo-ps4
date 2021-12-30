@@ -239,4 +239,9 @@ int load_app_settings(app_config_t* config);
 int save_app_settings(app_config_t* config);
 int reset_app_settings(app_config_t* config);
 
+int initialize_jbc();
+void terminate_jbc();
+int patch_save_libraries();
+int unpatch_SceShellCore();
+
 #endif

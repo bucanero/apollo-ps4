@@ -1781,7 +1781,7 @@ int get_save_details(const save_entry_t* save, char **details)
 			"Blocks: %d (%d Free)\n"
 			"Size: %d Kb\n"
 			"User ID: %08x\n"
-			"Account ID: %016llX\n",
+			"Account ID: %016llx\n",
 			save->path, save->name, 
 			sqlite3_column_text(res, 0),
 			sqlite3_column_text(res, 1),
@@ -1820,7 +1820,7 @@ int get_save_details(const save_entry_t* save, char **details)
 		"Dir Name: %s\n"
 		"Blocks: %d\n"
 		"User ID: %08x\n"
-		"Account ID: %016lX\n",
+		"Account ID: %016lx\n",
 		save->path, save->name,
 		subtitle,
 		detail,

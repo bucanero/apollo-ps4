@@ -17,7 +17,7 @@
 #define JAR_COLUMNS 7
 
 
-void LoadMenuTexture(const char* path, int idx)
+int LoadMenuTexture(const char* path, int idx)
 {
 	int d;
 
@@ -26,7 +26,7 @@ void LoadMenuTexture(const char* path, int idx)
 	if (!menu_textures[idx].buffer)
 	{
 		LOG("Error Loading texture (%s)!", path);
-		return;
+		return 0;
 	}
 
 	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(menu_textures[idx].buffer, menu_textures[idx].width, menu_textures[idx].height, 32, 4 * menu_textures[idx].width,
@@ -39,6 +39,7 @@ void LoadMenuTexture(const char* path, int idx)
 
 	menu_textures[idx].size = menu_textures[idx].width * menu_textures[idx].height * 4;
 	menu_textures[idx].buffer = NULL;
+	return 1;
 }
 
 // draw one background color in virtual 2D coordinates
@@ -244,12 +245,13 @@ void DrawTextureRotated(png_texture* tex, int x, int y, int z, int w, int h, u32
 	SDL_RenderCopyEx(renderer, tex->texture, NULL, &dest, angle, NULL, SDL_FLIP_NONE);
 }
 
+/*
 static int please_wait;
 
 void loading_screen_thread(void* user_data)
 {
     float angle = 0;
-/*
+
     while (please_wait == 1)
     {
         angle += 0.1f;
@@ -275,12 +277,10 @@ void loading_screen_thread(void* user_data)
 
     please_wait = -1;
     sysThreadExit (0);
-	*/
 }
 
 int init_loading_screen(const char* message)
 {
-	/*
     sys_ppu_thread_t tid;
     please_wait = 1;
 
@@ -291,8 +291,6 @@ int init_loading_screen(const char* message)
     int ret = sysThreadCreate (&tid, loading_screen_thread, (void*) message, 1000, 16*1024, THREAD_JOINABLE, "please_wait");
 
     return ret;
-	*/
-	return 1;
 }
 
 void stop_loading_screen()
@@ -305,6 +303,7 @@ void stop_loading_screen()
     while (please_wait != -1)
         usleep(1000);
 }
+*/
 
 void drawJar(uint8_t idx, int pos_x, int pos_y, const char* text, uint8_t alpha)
 {

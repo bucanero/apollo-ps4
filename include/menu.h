@@ -229,7 +229,7 @@ extern void DrawBackgroundTexture(int x, u8 alpha);
 extern void DrawTextureRotated(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba, float angle);
 extern void Draw_MainMenu();
 extern void Draw_MainMenu_Ani();
-void LoadMenuTexture(const char* path, int idx);
+int LoadMenuTexture(const char* path, int idx);
 
 void drawJars(uint8_t alpha);
 void drawColumns(uint8_t alpha);

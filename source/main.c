@@ -14,11 +14,13 @@
 #include <orbis/AudioOut.h>
 #include <orbis/CommonDialog.h>
 #include <orbis/Sysmodule.h>
+#include <orbis/SystemService.h>
 
 #include "saves.h"
 #include "sfo.h"
 #include "util.h"
 #include "common.h"
+#include "notifi.h"
 
 //Menus
 #include "menu.h"
@@ -49,21 +51,15 @@ enum menu_screen_ids
 #include "font_adonais.h"
 
 //Sound
-//#include <soundlib/audioplayer.h>
+#define DR_MP3_IMPLEMENTATION
+#include "dr_mp3.h"
 
-// SPU
-u32 inited;
-u32 spu = 0;
+// Audio handle
+int32_t audio = 0;
 
-#define INITED_CALLBACK     1
-#define INITED_SPU          2
-#define INITED_SOUNDLIB     4
-#define INITED_AUDIOPLAYER  8
-
-#define SPU_SIZE(x) (((x)+127) & ~127)
 
 #define load_menu_texture(name, type) \
-	   LoadMenuTexture("/app0/assets/images/" #name "." #type , name##_##type##_index);
+			if (!LoadMenuTexture(APOLLO_APP_PATH "images/" #name "." #type , name##_##type##_index)) return 0;
 
 
 //Pad stuff
@@ -71,16 +67,11 @@ u32 spu = 0;
 #define ANALOG_THRESHOLD    0x68
 #define ANALOG_MIN          (ANALOG_CENTER - ANALOG_THRESHOLD)
 #define ANALOG_MAX          (ANALOG_CENTER + ANALOG_THRESHOLD)
-#define PAD_DPAD            (ORBIS_PAD_BUTTON_UP | ORBIS_PAD_BUTTON_DOWN | ORBIS_PAD_BUTTON_LEFT | ORBIS_PAD_BUTTON_RIGHT)
-#define PAD_REST            (ORBIS_PAD_BUTTON_CROSS | ORBIS_PAD_BUTTON_CIRCLE | ORBIS_PAD_BUTTON_SQUARE | \
-                             ORBIS_PAD_BUTTON_TRIANGLE | ORBIS_PAD_BUTTON_L1 | ORBIS_PAD_BUTTON_L2 | \
-							 ORBIS_PAD_BUTTON_R1 | ORBIS_PAD_BUTTON_R2 | ORBIS_PAD_BUTTON_OPTIONS)
 #define MAX_PADS            1
 
-int padhandle, pad_time = 0, rest_time = 0, pad_held_time = 0, rest_held_time = 0;
-OrbisPadData paddata[MAX_PADS];
+int padhandle;
+pad_input_t pad_data;
 OrbisPadData padA[MAX_PADS];
-OrbisPadData padB[MAX_PADS];
 
 
 void update_usb_path(char *p);
@@ -338,18 +329,19 @@ void LoadFileTexture(const char* fname, int idx)
 }
 
 // Used only in initialization. Allocates 64 mb for textures and loads the font
-void LoadTextures_Menu()
+int LoadTextures_Menu()
 {
 //	texture_mem = tiny3d_AllocTexture(64*1024*1024); // alloc 64MB of space for textures (this pointer can be global)
 	texture_mem = malloc(2048 * 32 * 32 * 4);
 	
-	if(!texture_mem) return; // fail!
+	if(!texture_mem)
+		return 0; // fail!
 	
 	ResetFont();
 	free_mem = (u32 *) AddFontFromBitmapArray((u8 *) data_font_Adonais, (u8 *) texture_mem, 0x20, 0x7e, 32, 31, 1, BIT7_FIRST_PIXEL);
 	
-	TTFUnloadFont();
-	TTFLoadFont(0, "/preinst/common/font/DFHEI5-SONY.ttf", NULL, 0);
+	if (TTFLoadFont(0, "/preinst/common/font/DFHEI5-SONY.ttf", NULL, 0) != SUCCESS)
+		return 0;
 	free_mem = (u32*) init_ttf_table((u8*) free_mem);
 
 	set_ttf_window(0, 0, SCREEN_WIDTH + apollo_config.marginH, SCREEN_HEIGHT + apollo_config.marginV, WIN_SKIP_LF);
@@ -437,6 +429,7 @@ void LoadTextures_Menu()
 
 	u32 tBytes = free_mem - texture_mem;
 	LOG("LoadTextures_Menu() :: Allocated %db (%.02fkb, %.02fmb) for textures", tBytes, tBytes / (float)1024, tBytes / (float)(1024 * 1024));
+	return 1;
 }
 
 int LoadSounds(void* data)

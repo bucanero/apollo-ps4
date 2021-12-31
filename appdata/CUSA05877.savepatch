@@ -1,0 +1,785 @@
+; CUSA05877
+; PS4 Persona 5
+
+:DATA.DAT
+
+[Money 9999999]
+20002D5A 0098967F
+
+[Fishing points]
+20003336 0098967F
+
+[Hero EXP MAX]
+2000006C 0098967F
+
+[Hero 6 Equipped Personas EXP MAX]
+4200009C 0098967F
+40060030 00000000
+
+[Hero 6 Equipped Persona MAX Stat]
+420000B0 63636363
+40060030 00000000
+400000B4 00000063
+40060030 00000000
+
+[Ryuji Sakamoto - EXP MAX]
+20000344 0098967F
+
+[Ryuji Sakamoto - Persona MAX Stat]
+20000358 63636363
+0000035C 00000063
+
+[Morgana - EXP MAX]
+200005EC 0098967F
+
+[Morgana - Persona MAX Stat]
+20000600 63636363
+00000604 00000063
+
+[Ann Takamaki - EXP MAX]
+20000894 0098967F
+
+[Ann Takamaki - Persona MAX Stat]
+200008A8 63636363
+000008AC 00000063
+
+[Yusuke Kitagawa - EXP MAX]
+20000B3C 0098967F
+
+[Yusuke Kitagawa - Persona MAX Stat]
+20000B50 63636363
+00000B54 00000063
+
+[Makoto Niijima - EXP MAX]
+20000DE4 0098967F
+
+[Makoto Niijima - Persona MAX Stat]
+20000DE8 63636363
+00000DEC 00000063
+
+[Haru Okumura - EXP MAX]
+2000108C 0098967F
+
+[Haru Okumura - Persona MAX Stat]
+200010A0 63636363
+000010A4 00000063
+
+[Futaba Sakura - EXP MAX]
+20001334 0098967F
+
+[Futaba Sakura - Persona MAX Stat]
+20001338 63636363
+0000133C 00000063
+
+[Goro Akechi - EXP MAX]
+200015DC 0098967F
+
+[Goro Akechi - Persona MAX Stat]
+200015F0 63636363
+000015F4 00000063
+
+[All Characters - EXP MAX]
+42000344 0098967F
+400802A8 00000000
+
+[All Characters - Persona MAX Stat Other Than The Hero]
+42000358 63636363
+400802A8 00000000
+4000035C 00000063
+400802A8 00000000
+
+[Knowledge Lv. 4 (just do one to max it)]
+00012513 000000BF
+
+[Charm Lv. 4(just do one to max it)]
+00012515 00000083
+
+[Proficiency Lv. 4(just do one to max it)]
+00012517 00000056
+
+[Guts Lv. 4(just do one to max it)]
+00012519 00000070
+
+[Kindness Lv. 4(just do one to max it)]
+0001251B 00000087
+
+[Max Friendship Points for All Confidants]
+400122DF 000000FF
+40160010 00000000
+
+[Futaba 249 navi for trophy]
+0001470B 000000F9
+
+[Consumables & Materials 98 v2.0]
+40002253 00000062
+40100001 00000000
+40002264 00000062
+40030001 00000000
+40002269 00000062
+40070001 00000000
+40002271 00000062
+40220001 00000000
+40002294 00000062
+40030001 00000000
+4000229C 00000062
+40040001 00000000
+400022B6 00000062
+40020001 00000000
+000022B9 00000062
+400022BB 00000062
+40030001 00000000
+400022BF 00000062
+400B0001 00000000
+400022D2 00000062
+40020001 00000000
+000022E1 00000062
+400022E5 00000062
+40020001 00000000
+400022EE 00000062
+40030001 00000000
+4000230D 00000062
+40080001 00000000
+4000231A 00000062
+40070001 00000000
+40002327 00000062
+400C0001 00000000
+00002334 00000062
+40002336 00000062
+40040001 00000000
+4000233C 00000062
+400B0001 00000000
+4000234A 00000062
+40040001 00000000
+4000238A 00000062
+40030001 00000000
+4000238E 00000062
+40080001 00000000
+400023A2 00000062
+40030001 00000000
+000023A6 00000062
+400023A8 00000062
+400A0001 00000000
+400023B3 00000062
+40020001 00000000
+400023B7 00000062
+40040001 00000000
+000026BD 00000062
+400023F0 00000062
+400A0001 00000000
+400023FB 00000062
+40040001 00000000
+40002401 00000062
+40060001 00000000
+4000240B 00000062
+40090001 00000000
+00002420 00000062
+40002424 00000062
+400B0001 00000000
+4000243A 00000062
+40070001 00000000
+40002445 00000062
+40020001 00000000
+4000244B 00000062
+40050001 00000000
+
+[Materials 98]
+400022BF 00000062
+400B0001 00000000
+
+[All Skill Cards]
+40002953 0000005A
+40CF0001 00000000
+40002A24 0000005A
+403C0001 00000000
+40002A61 0000005A
+40260001 00000000
+40002A88 0000005A
+40080001 00000000
+40002A91 0000005A
+40100001 00000000
+40002AA2 0000005A
+40200001 00000000
+00002AD4 0000005A
+
+[Eternal Lockpick - Open any treasure chests]
+000023A3 00000001
+
+[Reserve Ammo x99]
+000023A4 00000063
+
+[Omnipotent Orb - Null all except Almighty]
+0000213A 00000009
+
+[Black Weapons]
+40002C62 00000009
+40C20001 00000000
+2000193B 00000900
+
+[Weapons]
+40001854 00000002
+40180001 00000000
+1000186D 00000202
+40001870 00000002
+401D0001 00000000
+4000188E 00000002
+400A0001 00000000
+0000189B 00000002
+2000189D 02020202
+200018B1 02020202
+400018B6 00000002
+402C0001 00000000
+400018E3 00000002
+40130001 00000000
+400018F7 00000002
+40210001 00000000
+4000191B 00000002
+400D0001 00000000
+2000192A 02020202
+10001930 00000202
+00001933 00000002
+10001935 00000202
+2000193B 00020202
+0000193F 00000002
+20001941 00020202
+10001945 00020202
+
+[Guns]
+40002C62 00000002
+40C20001 00000000
+40002D26 00000002
+400A0001 00000000
+40002D32 00000002
+401D0001 00000000
+
+[Armours]
+40001C53 0000000A
+400A0001 00000000
+40001C5F 0000000A
+40250001 00000000
+40001C86 0000000A
+40120001 00000000
+40001C9A 0000000A
+40120001 00000000
+40001CAE 0000000A
+40120001 00000000
+40001CC2 0000000A
+40120001 00000000
+40001CD6 0000000A
+40120001 00000000
+40001CEA 0000000A
+40120001 00000000
+40001CFE 0000000A
+40120001 00000000
+
+[All Accessories]
+40002053 0000000F
+40BD0001 00000000
+40002112 0000000F
+40040001 00000000
+40002118 0000000F
+403A0001 00000000
+
+[All Costumes]
+40002B54 00000001
+40B40001 00000000
+
+[100% Personas in Compendium]
+42003607 01000101
+41410030 00000100
+4200360E 0098967F
+41410030 00000000
+42003612 00000000
+41410030 00000000
+42003616 00000000
+41410030 00000000
+4200361A 00000000
+41410030 00000000
+4200361E 00000000
+41410030 00000000
+42003622 63636363
+41410030 00000000
+40003626 00000063
+41410030 00000000
+
+; =OP Skills=
+; 035D Victory Cry HP/SP FULL AFTER BATTLE***
+; 00D7 Hassou Tobi Light Physical damage to all foes 8x. 25% HP
+; 02C4 Shining Arrows Light Bless damage to all foes 4x to 8x. 22 SP
+; 03D2 Bless Boost Strengthen (non instant death) Bless attacks by 25%.
+; 03D3 Bless Amp Strengthen (non instant death) Bless attacks by 50%.
+; 01B3 Ultra Charge Multiply party's next attack damage by 2.5 regardless of type.***
+; 0349 Auto-Mataru Automatic Matarukaja at the start of battle. Increases party's Attack for 3 turns.
+; 034C Auto-Maraku Automatic Marakukaja at the start of battle. Increases party's Defense for 3 turns.
+; 034F Auto-Masuku Automatic Masukukaja at the start of battle. Increases party's Agility for 3 turns.
+; 03D8 Magic Ability Strengthen all magical attacks by 25%.
+; 03DC Zenith Defense Nullifies Fire/Ice/Wind/Elec/Nuke/Psy/Bless/Curse attacks
+; 00F2 Swift Strike Light Physical damage to all foes 3x to 4x. 17% HP
+; 01B2 All-Kaja - It gives all -kaja buffs to all party member(no surrounded requirement either)
+; 020B Soma Fully restores party's HP and SP.***
+; 
+; =Skills: 1 enemy hit Severe Damage=
+; 0078 Inferno Severe Fire damage to 1 foe. 48 SP
+; 0082 Diamond Dust Severe Ice damage to 1 foe. 48 SP
+; 008C Panta Rhei Severe Wind damage to 1 foe. 42 SP
+; 0096 Thunder Reign Severe Electric damage to 1 foe. 48 SP
+; 00B0 Atomic Flare Severe Nuclear damage to 1 foe. 48 SP
+; 00B4 Black Viper Severe Almighty damage to 1 foe. 48 SP
+; 00C5 Psychokinesis Severe Psy damage to 1 foe. 48 SP
+; 
+; =Skills: hit All Enemies Severe Damage=
+; 0048 Megidolaon Severe Almighty damage to all foes. 38 SP
+; 0079 Blazing Hell Severe Fire damage to all foes. 54 SP
+; 0083 Ice Age   Severe Ice damage to all foes. 54 SP
+; 008D Vacum Wave Severe Wind damage to all foes. 48 SP
+; 0097 El Jihad Severe Electric damage to all foes. 54 SP
+; 00A1 Samsara High chance of instantly killing all foes. 44 SP
+; 00AB Die For Me! High chance of instantly killing all foes. 44 SP
+; 00B1 Cosmic Flare Severe Nuclear damage to all foes. 54 SP
+; 00B5 Morning Star Severe Almighty damage to all foes. 52 SP
+; 00C6 Psycho Force Severe Psy damage to all foes. 54 SP
+; 
+; =Support Skills=
+; 013E Salvation Fully restore HP and cure all ailments of party except for unique status. 48 SP
+; 014F Tarukaja Increase 1 ally's Attack power for 3 turns. 8 SP
+; 0150 Rakukaja Increase 1 ally's Defense for 3 turns. 8 SP
+; 0151 Sukukaja Increase 1 ally's Agility for 3 turns. 8 SP
+; 0152 Heat Riser Increase 1 ally's Attack, Defense and Agility for 3 turns. 30 SP
+; 0154 Matarukaja Increase party's Attack power for 3 turns. 24 SP
+; 0155 Marakukaja Increase party's Defense for 3 turns. 24 SP
+; 0156 Masukukaja Increase party's Agility for 3 turns. 24 SP
+; 0157 Thermopylae Increase party's Attack, Defense and Agility for 3 turns. (Only when ambushed) 30 SP
+; 0159 Tarunda Decrease 1 foe's Attack power for 3 turns. 8 SP
+; 015A Rakunda Decrease 1 foe's Defense for 3 turns. 8 SP
+; 015B Sukunda Decrease 1 foe's Agility for 3 turns. 8 SP
+; 015C Debilitate Decrease 1 foe's Attack, Defense and Agility for 3 turns. 30 SP
+; 015E Matarunda Decrease all foes' Attack power for 3 turns. 24 SP
+; 015F Marakunda Decrease all foes' Defense for 3 turns. 24 SP
+; 0160 Masukunda Decrease all foes' Agility for 3 turns. 24 SP
+; 0163 Dekunda Negate all -nda debuff effects of party. 10 SP
+; 0164 Dekaja Negate all -kaja buff effects of all foes. 10 SP
+; 0168 Charge Multiply user's next Physical or Gun attack damage by 2.5. 15 SP
+; 0169 Concentrate Multiply user's next magical attack damage by 2.5. 15 SP
+; 016D Rebellion Increase 1 ally's critical rate for 3 turns. 10 SP
+; 016E Revolution Increase all foes and allies' critical rate for 3 turns.
+; 0172 Tetrakarn Erect a shield on 1 ally to repel 1 Physical or Gun attack. 36 SP
+; 0173 Makarakarn Erect a shield on 1 ally to repel 1 magical attack. 36 SP
+; 0174 Tetraja Erect shields on party to nullify one instant death attack of Bless or Curse types. 24 SP
+; 0177 Tetra Break Remove physical-repellent shields from all foes.
+; 0178 Makara Break Remove magic-repellent shields from all foes
+; 
+; =Passive Skills=
+; 0334 Fire Boost Strengthen Fire attacks by 25%.
+; 0335 Fire Amp Strengthen Fire attacks by 50%.
+; 0336 Ice Boost Strengthen Ice attacks by 25%.
+; 0337 Ice Amp Strengthen Ice attacks by 50%.
+; 0338 Wind Boost Strengthen Wind attacks by 25%.
+; 0339 Wind Amp Strengthen Wind attacks by 50%.
+; 033A Electric Boost Strengthen Electric attacks by 25%.
+; 033B Electric Amp Strengthen Electric attacks by 50%.
+; 033C Angelic Grace Double evasion rate against all attacks except Bless/Curse/Almighty.
+; 0349 Auto-Mataru Automatic Matarukaja at the start of battle. Increases party's Attack for 3 turns.
+; 034C Auto-Maraku Automatic Marakukaja at the start of battle. Increases party's Defense for 3 turns.
+; 034F Auto-Masuku Automatic Masukukaja at the start of battle. Increases party's Agility for 3 turns.
+; 035D Victory Cry HP/SP FULL AFTER BATTLE***
+; 0387 Absorb Phys Absorb Physical attacks.
+; 03C6 Nuke Boost Strengthen Nuclear attacks by 25%.
+; 03C7 Nuke Amp Strengthen Nuclear attacks by 50%.
+; 03C9 Psy Boost Strengthen Psy attacks by 25%.
+; 03CA Psy Amp Strengthen Psy attacks by 50%.
+; 03D2 Bless Boost Strengthen (non instant death) Bless attacks by 25%.
+; 03D3 Bless Amp Strengthen (non instant death) Bless attacks by 50%.
+; 03D5 Curse Boost Strengthen (non instant death) Curse attacks by 25%
+; 03D6 Curse Amp Strengthen (non instant death) Curse attacks by 50%.
+; 03D8 Magic Ability Strengthen all magical attacks by 25%.
+; 03DA Almighty Boost Strengthen Almighty attacks by 25%.
+; 03DB Almighty Amp Strengthen Almighty attacks by 50%.
+; 03DC Zenith Defense Nullifies Fire/Ice/Wind/Elec/Nuke/Psy/Bless/Curse attacks
+; 
+; =Extra Skills=
+; 025B Megidolaon 9999 Damage ON ALL ENEMIES***
+; 02A2 Desperation Boosts user's attack but drops defense for 3 turns. Independent from -kaja and -nda effects and cannot be negated.
+; 02C0 Cadenza Restore 50% HP of party and increase evasion rate. 24 SP
+; 02C1 Cross Slash Heavy Physical damage to 1 foe 2x. High accuracy. 20% HP
+; 02C2 Door of Hades Heavy Almighty damage to all foes with medium chance of instant kill. 32 SP
+; 02C3 Magatsu Mandala Heavy Curse damage to all foes and inflict Confuse/Fear/Despair (medium odds). 30 SP
+; 02C4 Shining Arrows Light Bless damage to all foes 4x to 8x. 22 SP
+; 02C5 String Art Beast Colossal Physical damage to 1 foe and user is debuffed with Tarunda
+; 02C6 Titanomachia Severe Fire damage to all foes and inflict Fear (high odds)
+; 02C7 Purgatorial Wing Severe Curse damage to all foes.
+; 02C8 Oratorio Fully restore party's HP and negate all -nda debuffs.
+;
+; More Skill digits here
+; http://web.save-editor.com/bbs/patchcode/ps3/file_1897.txt
+
+[Hero - Persona 1 Skills 1-8]
+100000A0 0000XXXX
+100000A2 0000XXXX
+100000A4 0000XXXX
+100000A6 0000XXXX
+100000A8 0000XXXX
+100000AA 0000XXXX
+100000AC 0000XXXX
+100000AE 0000XXXX
+
+[Hero - Persona 2 Skills 1-8]
+100000D0 0000XXXX
+100000D2 0000XXXX
+100000D4 0000XXXX
+100000D6 0000XXXX
+100000D8 0000XXXX
+100000DA 0000XXXX
+100000DC 0000XXXX
+100000DE 0000XXXX
+
+[Hero - Persona 3 Skills 1-8]
+10000100 0000XXXX
+10000102 0000XXXX
+10000104 0000XXXX
+10000106 0000XXXX
+10000108 0000XXXX
+1000010A 0000XXXX
+1000010C 0000XXXX
+1000010E 0000XXXX
+
+[Hero - Persona 4 Skills 1-8]
+10000140 0000XXXX
+10000142 0000XXXX
+10000144 0000XXXX
+10000146 0000XXXX
+10000148 0000XXXX
+1000014A 0000XXXX
+1000014C 0000XXXX
+1000014E 0000XXXX
+
+[Hero - Persona 5 Skills 1-8]
+10000170 0000XXXX
+10000172 0000XXXX
+10000174 0000XXXX
+10000176 0000XXXX
+10000178 0000XXXX
+1000017A 0000XXXX
+1000017C 0000XXXX
+1000017E 0000XXXX
+
+[Hero - Persona 6 Skills 1-8]
+100001A0 0000XXXX
+100001A2 0000XXXX
+100001A4 0000XXXX
+100001A6 0000XXXX
+100001A8 0000XXXX
+100001AA 0000XXXX
+100001AC 0000XXXX
+100001AE 0000XXXX
+
+[Ryuji Sakamoto - Skills 1-8]
+10000348 0000XXXX
+1000034A 0000XXXX
+1000034C 0000XXXX
+1000034E 0000XXXX
+10000350 0000XXXX
+10000352 0000XXXX
+10000354 0000XXXX
+10000356 0000XXXX
+
+[Morgana - Skills 1-8]
+100005F0 0000XXXX
+100005F2 0000XXXX
+100005F4 0000XXXX
+100005F6 0000XXXX
+100005F8 0000XXXX
+100005FA 0000XXXX
+100005FC 0000XXXX
+100005FE 0000XXXX
+
+[Ann Takamaki - Skills 1-8]
+10000898 0000XXXX
+1000089A 0000XXXX
+1000089C 0000XXXX
+1000089E 0000XXXX
+100008A0 0000XXXX
+100008A2 0000XXXX
+100008A4 0000XXXX
+100008A6 0000XXXX
+
+[Yusuke Kitagawa - Skills 1-8]
+10000B40 0000XXXX
+10000B42 0000XXXX
+10000B44 0000XXXX
+10000B46 0000XXXX
+10000B48 0000XXXX
+10000B4A 0000XXXX
+10000B4C 0000XXXX
+10000B4E 0000XXXX
+
+[Makoto Niijima - Skill 1-8]
+10000DE8 0000XXXX
+10000DEA 0000XXXX
+10000DEC 0000XXXX
+10000DEE 0000XXXX
+10000DF0 0000XXXX
+10000DF2 0000XXXX
+10000DF4 0000XXXX
+10000DF6 0000XXXX
+
+[Haru Okumura Skills 1-8]
+10001090 0000XXXX
+10001092 0000XXXX
+10001094 0000XXXX
+10001096 0000XXXX
+10001098 0000XXXX
+1000109A 0000XXXX
+1000109C 0000XXXX
+1000109E 0000XXXX
+
+[Futaba Sakura - Skills 1-8]
+10001338 0000XXXX
+1000133A 0000XXXX
+1000133C 0000XXXX
+1000133E 0000XXXX
+10001340 0000XXXX
+10001342 0000XXXX
+10001344 0000XXXX
+10001346 0000XXXX
+
+[Goro Akechi - Skills 1-8]
+100015E0 0000XXXX
+100015E2 0000XXXX
+100015E4 0000XXXX
+100015E6 0000XXXX
+100015E8 0000XXXX
+100015EA 0000XXXX
+100015EC 0000XXXX
+100015EE 0000XXXX
+
+; Persona change ID list
+; 0001 Metatron
+; 0002 Beelzebub
+; 0003 Khoo Fuling
+; 0004 Jack lantern
+; 0005 Jack Frost
+; 0006 Pixie
+; 0007 Cerberus
+; 0008 Ririmu
+; 0009 Erigoru
+; 000A Odin
+; 000B National Museum of Nature and Science, Tokyo
+; 000C Dekarabia
+; 000D Mara
+; 000E Océ
+; 000F tall
+; 0010 Unicorn
+; 0011 Uriel
+; 12 Sarasuvati
+; 13 Valkyrie
+; 14 Yakushini
+; 15 Ganesha
+; 16 Anubis
+; 17 Moto
+; 18 Rafael
+; 19 scáthach
+; 1A high Pixie
+; 1B Baron
+; 1C girimekhala
+; 1D King Frost
+; 1E Narcissus
+; 1F Isis
+; 20 Lamia
+; 21 Legion
+; 22 Rakushasa
+; 23 Mokoi
+; 24 forneus
+; 25 Setanta
+; 26 Titania
+; 27 Incubus
+; 28 demon
+; 29 Lilith
+; 2A Landa
+; 2B Makami
+; 2C Pearl Cordova tee
+; 2D Gabriel
+; 2E Zaougongen
+; 2F Alice
+; 30 Curly
+; 31 Kuramatengu
+; 32 Oberon
+; 33 Shikiouji
+; 34 Yamata no Orochi
+; 35 orobas
+; 36 Hanuman
+; 37 Archangel
+; 38 Obariyon
+; 39 Queen Meibu
+; 3A sandals phone
+; 3B Abaddon
+; 3C Schiesser
+; 3D Zantoman
+; 3E Belial
+; 3F leanan sídhe
+; 40 Cybele
+; 41 chernobog
+; 42 Furarousu
+; 43 Ippondatara
+; 44 Orthros
+; 45 succubus
+; 46 Mossman
+; 48 Dominion
+; 49 Nekomata
+; 4A Jaaku Frost
+; 4B Arahabaki
+; 4C Angel
+; 4D Sukadi
+; 4E Kikurihime
+; 4F oxalic
+; 50 power
+; 51 Inugami
+; 52 Nebirosu
+; 54 slime
+; 55 Anzu
+; 56 Yatagarasu
+; 0057 Yoshitsune
+; 58 Takeminakata
+; 59 Ame-no-Uzume-no- Mikoto
+; 5A kushinadahime
+; 5B Kuvanda
+; 5C Ongyouki
+; 5D Kinki
+; 5E Suiki
+; 5F public morals
+; 60 Jatayu
+; 61 momentum
+; 62 Kelpie
+; 63 Tote
+; 64 Dionysus
+; 65 Apsaras
+; 66 Andrus
+; 68 Koropokkuru
+; 69 Koppatengu
+; 6A Regent
+; 6B queen of necklace
+; 6C stone of Scone
+; 6D Koh-i-Noor
+; 73 Orlov
+; 74 Emperor of amulet
+; 75 Hope diamond
+; 76 crystal skull
+; 79 mandrake
+; 7A Baal
+; 7B Dakini
+; 7C silky
+; 7D Bagus
+; 7E black ooze
+; 7F Bicorn
+; 80 Mitorasu
+; 81 Sudama
+; 82 Kodama
+; 83 Agashion
+; 84 Onmoraki
+; 85 Nue
+; 86 pishacha
+; 87 Merukisedeku
+; 88 Baphomet
+; 89 Nagaraja
+; 8A Naga
+; 8B Garuda
+; 8C Moloch
+; 8D Norns
+; 8E Belphegor
+; 8F Bellis
+; 90 choronzon
+; 97 Nigimitama
+; 98 Kushimitama
+; 99 Aramitama
+; 9A Sakimitama
+; 9C Shiva
+; 9D Michael
+; 9E Asura king
+; 9F Mada
+; A0 Mazaharotto
+; A1 Kroto
+; A2 Lachesis
+; A3 Atropos
+; A4 Alder
+; A6 Vishnu
+; A7 Hariti
+; A8 Yurungu
+; A9 hekatonkheires
+; AA Satanaeru
+; B5 Orpheus
+; B6 Thanatos
+; B7 Izanagi
+; B8 Magatsuizanagi
+; B9 KAGUYA
+; BA Ariadne
+; BB Asuteriosu
+; BC Tsukiyomi
+; BD Messiah
+; BE Messiah-bandits God
+; BF Orpheus bandits God
+; C0 Thanatos-bandits God
+; C1 Izanagi-bandits God
+; C2 Magatsuizanagi-bandits God
+; C3 furniture store, pirates God
+; C4 Ariadne-bandits God
+; C5 Asuteriosu-bandits God
+; C6 Tsukiyomi-thief God
+; C7 Satanaeru
+; C8? ? ?
+; C9 Arsene
+; CA Captain Kidd
+; CB Zoro
+; CC Carmen
+; CD Goemon
+; CE Johanna
+; CF Milady
+; D0 Necronomicon
+; D1 Robin Hood
+; D2 Loki
+; D3 Satanaeru
+; D4 Say Ten Taisei
+; D5 Merikuriusu
+; D6 Hekate
+; FE detention
+; FF Ookuninushi
+; 103 Futsunushi
+; 105 Seto
+; 106 Ishtar
+; 108 Surt
+; 109 Siegfried
+; 10A Lakshmi
+; 110 Fortuna
+; 111 Suzaku
+; 112 Seiryu
+; 113 Xuanwu
+; 114 white tiger
+; 115 Bishamon Ten
+; 116 Jikokuten
+; 117 virupak?a
+; 118 Zouchouten
+; 119 Hells Angel
+; 11A Archbishop
+; 11B trumpeter
+; 11C white rider
+; 11D Matador
+; 11E Pale Rider
+; 11F Horus
+; 121 Atisu
+; 124 sraosha
+; 127 Mitra
+; 128 Ho-Oh
+; 129 pudding shea parity
+; 12A Nekoshougun
+; 12B Vasuki
+; 12C Ananta
+; 12D Sorone
+; 12F Ketsuarukatoru
+; 130 Red Ryder
+; 131 black Rider
+; 134 Pazusu
+
+[Hero Persona Slot 1-6]
+10000096 0000XXXX
+100000C6 0000XXXX
+100000F6 0000XXXX
+10000126 0000XXXX
+10000156 0000XXXX
+10000186 0000XXXX

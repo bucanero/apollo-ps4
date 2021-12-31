@@ -817,23 +817,32 @@ int ReadOnlineSaves(save_entry_t * game)
 
 list_t * ReadBackupList(const char* userPath)
 {
-	return NULL;
-
-	char tmp[128];
+	char tmp[32];
 	save_entry_t * item;
 	code_entry_t * cmd;
 	list_t *list = list_alloc();
 
+/*
 	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_COPY " Export Licenses");
 	asprintf(&item->path, EXDATA_PATH_HDD, apollo_config.user_id);
 	item->type = FILE_TYPE_RIF;
 	list_append(list, item);
+*/
 
-	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_USER " Activate PS4 Account");
+	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_USER " Activate PS4 Accounts");
 	asprintf(&item->path, EXDATA_PATH_HDD, apollo_config.user_id);
 	item->type = FILE_TYPE_ACT;
 	list_append(list, item);
 
+	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_LOCK " Show Parental Security Passcode");
+	item->codes = list_alloc();
+	cmd = _createCmdCode(PATCH_NULL, CHAR_ICON_LOCK " Security Passcode: ????????", CMD_CODE_NULL);
+	regMgr_GetParentalPasscode(tmp);
+	strncpy(cmd->name + 21, tmp, 8);
+	list_append(item->codes, cmd);
+	list_append(list, item);
+
+/*
 	for (int i = 0; i <= MAX_USB_DEVICES; i++)
 	{
 		snprintf(tmp, sizeof(tmp), USB_PATH, i);
@@ -870,19 +879,11 @@ list_t * ReadBackupList(const char* userPath)
 	item->type = FILE_TYPE_BINENC;
 	list_append(list, item);
 
-	item = _createSaveEntry(SAVE_FLAG_PS3, CHAR_ICON_COPY " Export /dev_flash2");
-	asprintf(&item->path, "/dev_flash2/");
-	item->codes = list_alloc();
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " Zip /dev_flash2 to USB", CMD_CODE_NULL);
-	cmd->options_count = 1;
-	cmd->options = _createOptions(2, "Save dev_flash2.zip to USB", CMD_EXP_FLASH2_USB);
-	list_append(item->codes, cmd);
-	list_append(list, item);
-
 	item = _createSaveEntry(SAVE_FLAG_PS2, CHAR_ICON_COPY " Export PS2 .VM2 memory cards to USB");
 	asprintf(&item->path, EXP_PS2_PATH_HDD);
 	item->type = FILE_TYPE_VM2;
 	list_append(list, item);
+*/
 
 	return list;
 }
@@ -1074,8 +1075,28 @@ int ReadBackupCodes(save_entry_t * bup)
 
 	case FILE_TYPE_ACT:
 		bup->codes = list_alloc();
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " Activate PS3 Account (act.dat)", CMD_CREATE_ACT_DAT);
-		list_append(bup->codes, cmd);
+
+		LOG("Getting Users...");
+		for (int i = 1; i <= 16; i++)
+		{
+			uint64_t account;
+			char userName[0x20];
+			regMgr_GetUserName(i, userName);
+			if (userName[0])
+			{
+				char tmp[0x80];
+
+				regMgr_GetAccountId(i, &account);
+				snprintf(tmp, sizeof(tmp), "%c Activate Offline Account %s (%016lx)", account ? CHAR_TAG_LOCKED : CHAR_TAG_OWNER, userName, account);
+				cmd = _createCmdCode(account ? PATCH_NULL : PATCH_COMMAND, tmp, CMD_CREATE_ACT_DAT);
+				cmd->file = malloc(1);
+				cmd->file[0] = i;
+				list_append(bup->codes, cmd);
+
+				LOG("ID %d = '%s' (%lx)", i, userName, account);
+			}
+		}
+
 		return list_count(bup->codes);
 
 	default:
@@ -1654,7 +1675,7 @@ list_t * ReadOnlineList(const char* urlPath)
 list_t * ReadTrophyList(const char* userPath)
 {
 	save_entry_t *item;
-	code_entry_t *cmd;
+//	code_entry_t *cmd;
 	list_t *list;
 	sqlite3 *db;
 	sqlite3_stmt *res;

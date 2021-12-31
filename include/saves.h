@@ -258,11 +258,10 @@ void execCodeCommand(code_entry_t* code, const char* codecmd);
 int patch_trophy_account(const char* trp_path, const char* account_id);
 int apply_trophy_patch(const char* trp_path, uint32_t trophy_id, int unlock);
 
-int rif2rap(const uint8_t* idps_key, const char* lic_path, const char* rifFile, const char* rap_path);
-int rap2rif(const uint8_t* idps_key, const char* exdata_path, const char* rap_file, const char *rif_path);
-int rif2klicensee(const uint8_t* idps_key, const char* exdata_path, const char* rif_file, uint8_t* klic);
-int create_actdat(const char* exdata_path, uint64_t account_id);
-uint64_t create_fake_account(uint32_t user_id);
+int regMgr_GetParentalPasscode(char* passcode);
+int regMgr_GetUserName(int userNumber, char* outString);
+int regMgr_GetAccountId(int userNumber, uint64_t* psnAccountId);
+int regMgr_SetAccountId(int userNumber, uint64_t* psnAccountId);
 
 int create_savegame_folder(const char* folder);
 int get_save_details(const save_entry_t *save, char** details);
@@ -270,11 +269,6 @@ int orbis_SaveUmount(const char* mountPath);
 int orbis_SaveMount(const save_entry_t *save, uint32_t mode, char* mountPath);
 int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details);
 
-void ps2_encrypt_image(uint8_t dex_mode, const char* image_name, const char* data_file, char* msg_update);
-void ps2_decrypt_image(uint8_t dex_mode, const char* image_name, const char* data_file, char* msg_update);
-void ps2_crypt_vmc(uint8_t dex_mode, const char* vmc_path, const char* vmc_out, int crypt_mode);
-int ps2_add_vmc_ecc(const char* src, const char* dst);
-int ps2_remove_vmc_ecc(const char* src, const char* dst);
 int psv_resign(const char *src_psv);
 
 int ps1_mcs2psv(const char* save, const char* psv_path);

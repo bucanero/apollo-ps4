@@ -331,47 +331,21 @@ void resignPSVfile(const char* psv_path)
 
 	show_message("File successfully resigned!");
 }
-
-void activateAccount(const char* ex_path)
+*/
+void activateAccount(int user)
 {
-	int ret;
-	char path[256];
+	uint64_t account = (0x6F6C6C6F70610000 + ((user & 0xFFFF) ^ 0xFFFF));
 
-	snprintf(path, sizeof(path), "%s" "act.dat", ex_path);
-	if (file_exists(path) == SUCCESS)
+	LOG("Activating user=%d (%lx)...", user, account);
+	if (regMgr_SetAccountId(user, &account) != SUCCESS)
 	{
-		show_message("Error! The account already has an act.dat");
+		show_message("Error! Couldn't activate user account");
 		return;
 	}
-
-	if (mkdirs(ex_path) != SUCCESS)
-	{
-		show_message("Error! Folder is not available:\n%s", ex_path);
-		return;
-	}
-
-if (0)
-//	if (!apollo_config.account_id && (apollo_config.account_id = create_fake_account(apollo_config.user_id)) == 0)
-	{
-		show_message("Error! Fake Account could not be assigned to xRegistry.sys");
-		return;
-	}
-
-	init_loading_screen("Activating PS3...");
-//	ret = create_actdat(ex_path, apollo_config.account_id);
-	stop_loading_screen();
-
-	if (!ret)
-	{
-		show_message("Error! Account could not be activated!");
-		return;
-	}
-
-//	save_app_settings(&apollo_config);
 
 	show_message("Account successfully activated!\nA system reboot might be required");
 }
-
+/*
 void copyDummyPSV(const char* psv_file, const char* out_path)
 {
 	char *in, *out;
@@ -1140,12 +1114,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			exportLicensesRap(code->file, codecmd[1]);
 			code->activated = 0;
 			break;
-
+*/
 		case CMD_CREATE_ACT_DAT:
-			activateAccount(selected_entry->path);
+			activateAccount(code->file[0]);
 			code->activated = 0;
 			break;
-
+/*
 		case CMD_EXP_TROPHY_USB:
 			copySave(selected_entry, codecmd[1] ? TROPHY_PATH_USB1 : TROPHY_PATH_USB0);
 			code->activated = 0;

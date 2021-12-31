@@ -11,7 +11,7 @@
 #include "sfo.h"
 
 
-void downloadSave(const char* file, const char* path)
+static void downloadSave(const char* file, const char* path)
 {
 	if (mkdirs(path) != SUCCESS)
 	{
@@ -44,7 +44,7 @@ void _saveOwnerData(const char* path)
 	*/
 }
 
-uint32_t get_filename_id(const char* dir)
+static uint32_t get_filename_id(const char* dir)
 {
 	char path[128];
 	uint32_t tid = 0;
@@ -59,7 +59,7 @@ uint32_t get_filename_id(const char* dir)
 	return tid;
 }
 
-void zipSave(const char* exp_path)
+static void zipSave(const char* exp_path)
 {
 	char* export_file;
 	char* tmp;
@@ -100,7 +100,7 @@ void zipSave(const char* exp_path)
 	show_message("Zip file successfully saved to:\n%s%08d.zip", exp_path, fid);
 }
 
-void copySave(const save_entry_t* save, const char* exp_path)
+static void copySave(const save_entry_t* save, const char* exp_path)
 {
 	char* copy_path;
 
@@ -178,7 +178,7 @@ static int _copy_save_hdd(const save_entry_t* save)
 	return 1;
 }
 
-void copySaveHDD(const save_entry_t* save)
+static void copySaveHDD(const save_entry_t* save)
 {
 	//source save is already on HDD
 	if (save->flags & SAVE_FLAG_HDD)
@@ -194,7 +194,7 @@ void copySaveHDD(const save_entry_t* save)
 		show_message("Error! Can't copy Save-game folder:\n%s/%s", save->title_id, save->dir_name);
 }
 
-void copyAllSavesHDD(const char* path)
+static void copyAllSavesHDD(const char* path)
 {
 	int err_count = 0;
 	list_node_t *node;
@@ -332,7 +332,7 @@ void resignPSVfile(const char* psv_path)
 	show_message("File successfully resigned!");
 }
 */
-void activateAccount(int user)
+static void activateAccount(int user)
 {
 	uint64_t account = (0x6F6C6C6F70610000 + ((user & 0xFFFF) ^ 0xFFFF));
 
@@ -431,165 +431,8 @@ void convertSavePSV(const char* save_path, const char* out_path, uint16_t type)
 	stop_loading_screen();
 	show_message("File successfully saved to:\n%s", out_path);
 }
-
-void decryptVMEfile(const char* vme_path, const char* vme_file, uint8_t dst)
-{
-	char vmefile[256];
-	char outfile[256];
-	const char *path;
-
-	switch (dst)
-	{
-	case 0:
-		path = EXP_PS2_PATH_USB0;
-		break;
-
-	case 1:
-		path = EXP_PS2_PATH_USB1;
-		break;
-
-	case 2:
-		path = EXP_PS2_PATH_HDD;
-		break;
-
-	default:
-		return;
-	}
-
-	if (mkdirs(path) != SUCCESS)
-	{
-		show_message("Error! Export folder is not available:\n%s", path);
-		return;
-	}
-
-	snprintf(vmefile, sizeof(vmefile), "%s%s", vme_path, vme_file);
-	snprintf(outfile, sizeof(outfile), "%sAPOLLO%c.VM2", path, vme_file[6]);
-
-	init_loading_screen("Decrypting VME card...");
-	ps2_crypt_vmc(0, vmefile, outfile, 0);
-	stop_loading_screen();
-
-	show_message("File successfully saved to:\n%s", outfile);
-}
-
-void encryptVM2file(const char* vme_path, const char* vme_file, const char* src_name)
-{
-	char vmefile[256];
-	char srcfile[256];
-
-	snprintf(vmefile, sizeof(vmefile), "%s%s", vme_path, vme_file);
-	snprintf(srcfile, sizeof(srcfile), "%s%s", EXP_PS2_PATH_HDD, src_name);
-
-	init_loading_screen("Encrypting VM2 card...");
-	ps2_crypt_vmc(0, srcfile, vmefile, 1);
-	stop_loading_screen();
-
-	show_message("File successfully saved to:\n%s", vmefile);
-}
-
-void importPS2VMC(const char* vmc_path, const char* vmc_file)
-{
-	char vm2file[256];
-	char srcfile[256];
-
-	snprintf(srcfile, sizeof(srcfile), "%s%s", vmc_path, vmc_file);
-	snprintf(vm2file, sizeof(vm2file), "%s%s", EXP_PS2_PATH_HDD, vmc_file);
-	strcpy(strrchr(vm2file, '.'), ".VM2");
-
-	init_loading_screen("Importing PS2 memory card...");
-	ps2_add_vmc_ecc(srcfile, vm2file);
-	stop_loading_screen();
-
-	show_message("File successfully saved to:\n%s", vm2file);
-}
-
-void exportVM2raw(const char* vm2_path, const char* vm2_file, const char* dst_path)
-{
-	char vm2file[256];
-	char dstfile[256]; 
-
-	if (mkdirs(dst_path) != SUCCESS)
-	{
-		show_message("Error! Export folder is not available:\n%s", dst_path);
-		return;
-	}
-
-	snprintf(vm2file, sizeof(vm2file), "%s%s", vm2_path, vm2_file);
-	snprintf(dstfile, sizeof(dstfile), "%s%s.vmc", dst_path, vm2_file);
-
-	init_loading_screen("Exporting PS2 .VM2 memory card...");
-	ps2_remove_vmc_ecc(vm2file, dstfile);
-	stop_loading_screen();
-
-	show_message("File successfully saved to:\n%s%s", dstfile);
-}
-
-void importPS2classicsCfg(const char* cfg_path, const char* cfg_file)
-{
-	char ps2file[256];
-	char outfile[256];
-
-	snprintf(ps2file, sizeof(ps2file), "%s%s", cfg_path, cfg_file);
-	snprintf(outfile, sizeof(outfile), PS2ISO_PATH_HDD "%s", cfg_file);
-	*strrchr(outfile, '.') = 0;
-	strcat(outfile, ".ENC");
-
-	init_loading_screen("Encrypting PS2 CONFIG...");
-	ps2_encrypt_image(1, ps2file, outfile, NULL);
-	stop_loading_screen();
-
-	show_message("File successfully saved to:\n%s", outfile);
-}
-
-void importPS2classics(const char* iso_path, const char* iso_file)
-{
-	char ps2file[256];
-	char outfile[256];
-	char msg[128] = "Encrypting PS2 ISO...";
-
-	snprintf(ps2file, sizeof(ps2file), "%s%s", iso_path, iso_file);
-	snprintf(outfile, sizeof(outfile), PS2ISO_PATH_HDD "%s", iso_file);
-	*strrchr(outfile, '.') = 0;
-	strcat(outfile, ".BIN.ENC");
-
-	init_loading_screen(msg);
-	ps2_encrypt_image(0, ps2file, outfile, msg);
-	stop_loading_screen();
-
-	show_message("File successfully saved to:\n%s", outfile);
-}
-
-void exportPS2classics(const char* enc_path, const char* enc_file, uint8_t dst)
-{
-	char path[256];
-	char ps2file[256];
-	char outfile[256];
-	char msg[128] = "Decrypting PS2 BIN.ENC...";
-
-	if (dst <= MAX_USB_DEVICES)
-		snprintf(path, sizeof(path), PS2ISO_PATH_USB, dst);
-	else
-		snprintf(path, sizeof(path), PS2ISO_PATH_HDD);
-
-	snprintf(ps2file, sizeof(ps2file), "%s%s", enc_path, enc_file);
-	snprintf(outfile, sizeof(outfile), "%s%s", path, enc_file);
-	*strrchr(outfile, '.') = 0;
-	strcat(outfile, ".ps2.iso");
-
-	if (mkdirs(outfile) != SUCCESS)
-	{
-		show_message("Error! Export folder is not available:\n%s", outfile);
-		return;
-	}
-
-	init_loading_screen(msg);
-	ps2_decrypt_image(0, ps2file, outfile, msg);
-	stop_loading_screen();
-
-	show_message("File successfully saved to:\n%s", outfile);
-}
 */
-void copyAllSavesUSB(const char* path, const char* dst_path)
+static void copyAllSavesUSB(const char* path, const char* dst_path)
 {
 	char copy_path[256];
 	char save_path[256];
@@ -728,7 +571,7 @@ void importLicenses(const char* fname, const char* exdata_path)
 	show_message("Files successfully copied to:\n%s", lic_path);
 }
 */
-int apply_sfo_patches(sfo_patch_t* patch)
+static int apply_sfo_patches(sfo_patch_t* patch)
 {
     code_entry_t* code;
     char in_file_path[256];
@@ -792,7 +635,7 @@ int apply_sfo_patches(sfo_patch_t* patch)
 	return (patch_sfo(in_file_path, patch) == SUCCESS);
 }
 
-int apply_cheat_patches()
+static int apply_cheat_patches()
 {
 	int ret = 1;
 	char tmpfile[256];
@@ -837,7 +680,7 @@ int apply_cheat_patches()
 	return ret;
 }
 
-void resignSave(sfo_patch_t* patch)
+static void resignSave(sfo_patch_t* patch)
 {
     LOG("Resigning save '%s'...", selected_entry->name);
 
@@ -851,7 +694,7 @@ void resignSave(sfo_patch_t* patch)
     show_message("Save %s successfully modified!", selected_entry->title_id);
 }
 
-void resignAllSaves(const char* path)
+static void resignAllSaves(const char* path)
 {
 	DIR *d;
 	struct dirent *dir;
@@ -1007,7 +850,7 @@ if (0)
 	}
 }
 */
-int _copy_save_file(const char* src_path, const char* dst_path, const char* filename)
+static int _copy_save_file(const char* src_path, const char* dst_path, const char* filename)
 {
 	char src[256], dst[256];
 
@@ -1180,26 +1023,6 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			code->activated = 0;
 			break;
 
-		case CMD_DECRYPT_PS2_VME:
-			decryptVMEfile(selected_entry->path, code->file, codecmd[1]);
-			code->activated = 0;
-			break;
-
-		case CMD_ENCRYPT_PS2_VMC:
-			encryptVM2file(selected_entry->path, code->file, code->options[0].name[code->options[0].sel]);
-			code->activated = 0;
-			break;
-
-		case CMD_IMP_PS2_ISO:
-			importPS2classics(selected_entry->path, code->file);
-			code->activated = 0;
-			break;
-
-		case CMD_IMP_PS2_CONFIG:
-			importPS2classicsCfg(selected_entry->path, code->file);
-			code->activated = 0;
-			break;
-
 		case CMD_CONVERT_TO_PSV:
 			convertSavePSV(selected_entry->path, codecmd[1] ? EXP_PSV_PATH_USB1 : EXP_PSV_PATH_USB0, selected_entry->type);
 			code->activated = 0;
@@ -1207,11 +1030,6 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_COPY_DUMMY_PSV:
 			copyDummyPSV(code->file, codecmd[1] ? EXP_PSV_PATH_USB1 : EXP_PSV_PATH_USB0);
-			code->activated = 0;
-			break;
-
-		case CMD_EXP_PS2_BINENC:
-			exportPS2classics(selected_entry->path, code->file, codecmd[1]);
 			code->activated = 0;
 			break;
 
@@ -1224,22 +1042,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			exportPSVfile(selected_entry->path, codecmd[1] ? USB1_PATH PS2_IMP_PATH_USB : USB0_PATH PS2_IMP_PATH_USB);
 			code->activated = 0;
 			break;
-
-		case CMD_EXP_VM2_RAW:
-			exportVM2raw(selected_entry->path, code->file, codecmd[1] ? EXP_PS2_PATH_USB1 : EXP_PS2_PATH_USB0);
-			code->activated = 0;
-			break;
-
-		case CMD_IMP_PS2VMC_USB:
-			importPS2VMC(selected_entry->path, code->file);
-			code->activated = 0;
-			break;
-
+*/
 		case CMD_IMPORT_DATA_FILE:
 			encryptSaveFile(code->options[0].name[code->options[0].sel]);
 			code->activated = 0;
 			break;
-
+/*
 		case CMD_RESIGN_TROPHY:
 			resignTrophy();
 			code->activated = 0;

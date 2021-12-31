@@ -4,7 +4,7 @@
 #include <string.h>
 #include <orbis/libkernel.h>
 
-#include "libjbc_stub.h"
+#include "libjbc.h"
 #include "orbis_patches.h"
 #include "util.h"
 #include "notifi.h"
@@ -51,7 +51,7 @@ int sysKernelGetLowerLimitUpdVersion(int* unk);
 int sysKernelGetUpdVersion(int* unk);
 
 static orbis_patch_t *shellcore_backup = NULL;
-static int goldhen = -1;
+static int goldhen2 = 0;
 
 int _sceKernelGetModuleInfo(OrbisKernelModule handle, OrbisKernelModuleInfo* info)
 {
@@ -182,57 +182,56 @@ static int get_firmware_version()
 }
 
 // custom syscall 112
-// int sys_console_cmd(uint64_t cmd, void *data);
-int is_ps4debug()
+int sys_console_cmd(uint64_t cmd, void *data)
 {
-    return (orbis_syscall(112, SYS_CONSOLE_CMD_PRINT, "apollo") == 0);
+    return orbis_syscall(goldhen2 ? 200 : 112, cmd, data);
 }
 
 // GoldHEN 2+ only
 // custom syscall 200
-// int sys_console_cmd(uint64_t cmd, void *data);
-static int is_goldhen2()
+static int check_syscalls()
 {
-    if (goldhen >= 0)
-        return goldhen;
+    uint64_t tmp;
 
-    goldhen = 0;
     if (orbis_syscall(200, SYS_CONSOLE_CMD_ISLOADED, NULL) == 1)
     {
         LOG("GoldHEN 2.x is loaded!");
-        goldhen = 90;
+        goldhen2 = 90;
+        return 1;
     }
     else if (orbis_syscall(200, SYS_CONSOLE_CMD_PRINT, "apollo") == 0)
     {
         LOG("GoldHEN 1.x is loaded!");
+        return 1;
     }
-    else if (orbis_syscall(112, SYS_CONSOLE_CMD_PRINT, "apollo") == 0)
+    else if (orbis_syscall(107, NULL, &tmp) == 0)
     {
         LOG("ps4debug is loaded!");
+        return 1;
     }
 
-    return goldhen;
+    return 0;
 }
 
 // GoldHEN 2+ custom syscall 197
 // (same as ps4debug syscall 107)
 int sys_proc_list(struct proc_list_entry *procs, uint64_t *num)
 {
-    return orbis_syscall(107 + is_goldhen2(), procs, num);
+    return orbis_syscall(107 + goldhen2, procs, num);
 }
 
 // GoldHEN 2+ custom syscall 198
 // (same as ps4debug syscall 108)
 int sys_proc_rw(uint64_t pid, uint64_t address, void *data, uint64_t length, uint64_t write)
 {
-    return orbis_syscall(108 + is_goldhen2(), pid, address, data, length, write);
+    return orbis_syscall(108 + goldhen2, pid, address, data, length, write);
 }
 
 // GoldHEN 2+ custom syscall 199
 // (same as ps4debug syscall 109)
 int sys_proc_cmd(uint64_t pid, uint64_t cmd, void *data)
 {
-    return orbis_syscall(109 + is_goldhen2(), pid, cmd, data);
+    return orbis_syscall(109 + goldhen2, pid, cmd, data);
 }
 
 /*
@@ -414,7 +413,11 @@ int patch_save_libraries()
         return 0;
     }
 
-    is_goldhen2();
+    if (!check_syscalls())
+    {
+        notifi(NULL, "Missing %X.%02X GoldHEN or ps4debug payload!", version >> 8, version & 0xFF);
+        return 0;
+    }
 
     if (patch_SceShellCore(shellcore_patch) && patch_SceSaveData(savedata_patch))
         notifi(NULL, "PS4 %X.%02X Save patches applied", version >> 8, version & 0xFF);
@@ -465,23 +468,9 @@ static void unjailbreak()
     jbc_set_cred(&g_Cred);
 }
 
-// Initalize libraries (PRXs)
+// Initialize jailbreak
 int initialize_jbc()
 {
-    if ((g_LibJbcHandle = sceKernelLoadStartModule("/app0/sce_module/libjbc.prx", 0, 0, 0, NULL, NULL)) < 0)
-    {
-        LOG("Failed to start the libjbc library");
-        return 0;
-    }
-
-    if (jbcInitalize(g_LibJbcHandle) != 0)
-    {
-        LOG("Failed to initialize the libjbc library's functions");
-        return 0;
-    }
-
-    LOG("libjbc.prx Initialized");
-
     // Pop notification depending on jailbreak result
     if (!jailbreak())
     {

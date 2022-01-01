@@ -1,6 +1,6 @@
 # Package metadata.
 TITLE       := Apollo Save Tool
-VERSION     := 0.50
+VERSION     := 0.60
 TITLE_ID    := APOL00004
 CONTENT_ID  := IV0000-APOL00004_00-APOLLO0000000PS4
 
@@ -22,14 +22,14 @@ LIBMODULES  := $(wildcard sce_module/*)
 TOOLCHAIN   := $(OO_PS4_TOOLCHAIN)
 #PROJDIR     := $(shell basename $(CURDIR))
 PROJDIR     := source
-COMMONDIR   := $(TOOLCHAIN)/samples/_common
+#COMMONDIR   := $(TOOLCHAIN)/samples/_common
 #INTDIR      := $(PROJDIR)/x64/Debug
 INTDIR      := build/x64/Debug
 
 # Define objects to build
 CFILES      := $(wildcard $(PROJDIR)/*.c)
 CPPFILES    := $(wildcard $(PROJDIR)/*.cpp)
-COMMONFILES := $(wildcard $(COMMONDIR)/*.cpp)
+#COMMONFILES := $(wildcard $(COMMONDIR)/*.cpp)
 OBJS        := $(patsubst $(PROJDIR)/%.c, $(INTDIR)/%.o, $(CFILES)) $(patsubst $(PROJDIR)/%.cpp, $(INTDIR)/%.o, $(CPPFILES))
 
 # Define final C/C++ flags

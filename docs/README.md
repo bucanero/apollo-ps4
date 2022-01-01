@@ -120,7 +120,7 @@ UDP multicast address `239.255.0.100:30000`. To receive them you can use [socat]
 
 # License
 
-[Apollo Save Tool](https://github.com/bucanero/apollo-ps4/) (PS4) - Copyright (C) 2020-2021  Damian Parrino
+[Apollo Save Tool](https://github.com/bucanero/apollo-ps4/) (PS4) - Copyright (C) 2020-2022  Damian Parrino
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the [GNU General Public License](https://github.com/bucanero/apollo-ps4/LICENSE) as published by

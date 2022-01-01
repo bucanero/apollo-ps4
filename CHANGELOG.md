@@ -8,9 +8,11 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ### Added
 
-* Save-mounting patches (GoldHEN or ps4debug required)
+* Automatic Save-mounting patches (GoldHEN or ps4debug required)
+  * Supported FWs 5.05, 6.72, 7.02, 7.5x
 * Offline Account activation
 * Show Parental security passcode
+* Save Keystone fingerprint dump
 
 ### Fixed
 

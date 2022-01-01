@@ -10,7 +10,7 @@ LIBS        := -lc -lkernel -lc++ -lSceAudioOut -lSceUserService -lSceVideoOut -
                -lSceRegMgr -lSDL2 -lapollo -ldbglogger -lpolarssl -lz -lzip -ljbc
 
 # Additional compile flags.
-EXTRAFLAGS  := -DAPOLLO_ENABLE_LOGGING -fcolor-diagnostics -Wall
+EXTRAFLAGS  := -fcolor-diagnostics -Wall
 
 # Asset and module directories.
 ASSETS 		:= $(wildcard assets/**/*)

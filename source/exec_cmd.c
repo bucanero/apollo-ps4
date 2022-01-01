@@ -82,7 +82,7 @@ static void zipSave(const char* exp_path)
 
 	zip_directory(tmp, selected_entry->path, export_file);
 
-	sprintf(export_file, "%s%08d.txt", exp_path, fid);
+	sprintf(export_file, "%s%08x.txt", exp_path, apollo_config.user_id);
 	FILE* f = fopen(export_file, "a");
 	if (f)
 	{
@@ -262,34 +262,39 @@ void exportLicensesZip(const char* exp_path)
 	stop_loading_screen();
 	show_message("Licenses successfully saved to:\n%slicenses_%08d.zip", exp_path, apollo_config.user_id);
 }
-
-void exportFlashZip(const char* exp_path)
+*/
+static void exportFingerprint(const save_entry_t* save, int silent)
 {
-	char* export_file;
+	char fpath[256];
+	uint8_t buffer[0x40];
 
-	if (mkdirs(exp_path) != SUCCESS)
+	snprintf(fpath, sizeof(fpath), "%ssce_sys/keystone", save->path);
+	LOG("Reading '%s' ...", fpath);
+
+	if (read_file(fpath, buffer, sizeof(buffer)) != SUCCESS)
 	{
-		show_message("Error! Export folder is not available:\n%s", exp_path);
+		if (!silent) show_message("Error! Keystone file is not available:\n%s", fpath);
 		return;
 	}
 
-	init_loading_screen("Exporting /dev_flash2.zip ...");
+	snprintf(fpath, sizeof(fpath), APOLLO_PATH "fingerprints.txt");
+	FILE *fp = fopen(fpath, "a");
+	if (!fp)
+	{
+		if (!silent) show_message("Error! Can't open file:\n%s", fpath);
+		return;
+	}
 
-	asprintf(&export_file, "%s" "dev_flash2.zip", exp_path);
-	zip_directory("/dev_flash2", "/dev_flash2/", export_file);
+	fprintf(fp, "%s=", save->title_id);
+	for (size_t i = 0x20; i < 0x40; i++)
+		fprintf(fp, "%02x", buffer[i]);
 
-	sprintf(export_file, "%s" OWNER_XML_FILE, exp_path);
-	_saveOwnerData(export_file);
+	fprintf(fp, "\n");
+	fclose(fp);
 
-	sprintf(export_file, "%s" "idps.hex", exp_path);
-	write_buffer(export_file, (u8*) apollo_config.idps, 16);
-
-	free(export_file);
-
-	stop_loading_screen();
-	show_message("Files successfully saved to:\n%sdev_flash2.zip", exp_path);
+	if (!silent) show_message("%s fingerprint successfully saved to:\n%s", save->title_id, fpath);
 }
-
+/*
 void exportTrophiesZip(const char* exp_path)
 {
 	char* export_file;
@@ -332,6 +337,55 @@ void resignPSVfile(const char* psv_path)
 	show_message("File successfully resigned!");
 }
 */
+
+static void dumpAllFingerprints(const char* path)
+{
+	char mount[32];
+	uint64_t progress = 0;
+	list_node_t *node;
+	save_entry_t *item;
+	list_t *list;
+
+	if (strncmp(path, USB_PATH, 8) == 0)
+		list = ReadUsbList(path);
+	else
+		list = ReadUserList(path);
+
+	if (!list)
+	{
+		show_message("Error! Folder is not available:\n%s", APOLLO_PATH);
+		return;
+	}
+
+	init_progress_bar("Dumping all fingerprints...");
+
+	LOG("Copying all saves from '%s'...", path);
+	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+	{
+		update_progress_bar(progress++, list_count(list), item->name);
+		if (item->type != FILE_TYPE_PS4)
+			continue;
+
+		if (item->flags & SAVE_FLAG_HDD)
+		{
+			if (!orbis_SaveMount(item, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
+				continue;
+
+			free(item->path);
+			asprintf(&item->path, APOLLO_SANDBOX_PATH, mount);
+		}
+
+		exportFingerprint(item, 1);
+
+		if (item->flags & SAVE_FLAG_HDD)
+			orbis_SaveUmount(mount);
+	}
+
+	end_progress_bar();
+	UnloadGameList(list);
+	show_message("All fingerprints dumped to:\n%s", APOLLO_PATH);
+}
+
 static void activateAccount(int user)
 {
 	uint64_t account = (0x6F6C6C6F70610000 + ((user & 0xFFFF) ^ 0xFFFF));
@@ -860,26 +914,26 @@ static int _copy_save_file(const char* src_path, const char* dst_path, const cha
 	return (copy_file(src, dst) == SUCCESS);
 }
 
-void decryptSaveFile(const char* filename)
+static void decryptSaveFile(const char* filename)
 {
 	char path[256];
 
-	snprintf(path, sizeof(path), APOLLO_TMP_PATH "%s/", selected_entry->title_id);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/", apollo_config.user_id, selected_entry->title_id);
 	mkdirs(path);
 
 	LOG("Decrypt '%s%s' to '%s'...", selected_entry->path, filename, path);
 
 	if (_copy_save_file(selected_entry->path, path, filename))
-		show_message("File successfully decrypted to:\n%s%s", path, filename);
+		show_message("File successfully exported to:\n%s%s", path, filename);
 	else
-		show_message("Error! File %s couldn't be decrypted", filename);
+		show_message("Error! File %s couldn't be exported", filename);
 }
 
-void encryptSaveFile(const char* filename)
+static void encryptSaveFile(const char* filename)
 {
 	char path[256];
 
-	snprintf(path, sizeof(path), APOLLO_TMP_PATH "%s/%s", selected_entry->title_id, filename);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/%s", apollo_config.user_id, selected_entry->title_id, filename);
 
 	if (file_exists(path) != SUCCESS)
 	{
@@ -891,9 +945,9 @@ void encryptSaveFile(const char* filename)
 	LOG("Encrypt '%s%s' to '%s'...", path, filename, selected_entry->path);
 
 	if (_copy_save_file(path, selected_entry->path, filename))
-		show_message("File successfully encrypted to:\n%s%s", selected_entry->path, filename);
+		show_message("File successfully imported to:\n%s%s", selected_entry->path, filename);
 	else
-		show_message("Error! File %s couldn't be encrypted", filename);
+		show_message("Error! File %s couldn't be imported", filename);
 }
 
 void execCodeCommand(code_entry_t* code, const char* codecmd)
@@ -934,7 +988,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_EXPORT_ZIP_HDD:
-			zipSave(APOLLO_TMP_PATH);
+			zipSave(APOLLO_PATH);
 			code->activated = 0;
 			break;
 
@@ -982,17 +1036,17 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			copyAllSavesUSB(selected_entry->path, codecmd[1] ? SAVES_PATH_USB1 : SAVES_PATH_USB0);
 			code->activated = 0;
 			break;
-/*
-		case CMD_EXP_FLASH2_USB:
-			exportFlashZip(codecmd[1] ? EXPORT_PATH_USB1 : EXPORT_PATH_USB0);
+
+		case CMD_EXP_FINGERPRINT:
+			exportFingerprint(selected_entry, 0);
 			code->activated = 0;
 			break;
 
-		case CMD_IMP_EXDATA_USB:
-			importLicenses(code->file, selected_entry->path);
+		case CMD_DUMP_FINGERPRINTS:
+			dumpAllFingerprints(selected_entry->path);
 			code->activated = 0;
 			break;
-*/
+
 		case CMD_RESIGN_SAVE:
 			{
 				sfo_patch_t patch = {

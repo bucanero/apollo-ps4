@@ -26,7 +26,6 @@ int get_file_size(const char *file_path, u64 *size) {
 
 int read_file(const char *file_path, u8 *data, u64 size) {
 	FILE *fp;
-	struct stat stat_buf;
 
 	if (!file_path || !data)
 		return -1;
@@ -34,16 +33,6 @@ int read_file(const char *file_path, u8 *data, u64 size) {
 	fp = fopen(file_path, "rb");
 	if (!fp)
 		return -1;
-
-	if (fstat(fileno(fp), &stat_buf) < 0)  {
-		fclose(fp);
-		return -1;
-	}
-
-	if (stat_buf.st_size < size) {
-		fclose(fp);
-		return -1;
-	}
 
 	memset(data, 0, size);
 

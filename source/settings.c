@@ -132,7 +132,7 @@ void unzip_app_data(const char* zip_file)
 
 void upd_appdata_callback(int sel)
 {
-	if (http_download(ONLINE_URL, "appdata.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
+	if (http_download(ONLINE_URL, "PS4/ps4appdata.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
 		unzip_app_data(APOLLO_LOCAL_CACHE "appdata.zip");
 }
 

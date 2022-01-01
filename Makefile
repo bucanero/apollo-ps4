@@ -90,3 +90,10 @@ $(INTDIR)/%.o: $(PROJDIR)/%.cpp
 clean:
 	rm -f $(CONTENT_ID).pkg pkg.gp4 pkg/sce_sys/param.sfo eboot.bin \
 		$(INTDIR)/$(PROJDIR).elf $(INTDIR)/$(PROJDIR).oelf $(OBJS)
+
+#---------------------------------------------------------------------------------
+createzip:
+	@echo "creating appdata.zip ..."
+	@[ -d assets/misc ] || mkdir -p assets/misc
+	@rm -fr assets/misc/appdata.zip
+	@cd appdata && zip ../assets/misc/appdata.zip *.* && cd ..

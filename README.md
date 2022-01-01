@@ -12,9 +12,9 @@ The `apollo-ps4` homebrew app allows to download, unlock, patch and resign save-
 
 # Features
 
-* **Easy to use:** no crypto-key configuration or advanced setup needed.
+* **Easy to use:** no save-mount patches or advanced setup needed. _(GoldHEN or ps4debug payload required)_
 * **Standalone:** no computer required, everything happens on the PS4.
-* **Automatic settings:** auto-detection of PSID, User ID and Account-ID settings.
+* **Automatic settings:** auto-detection of PS4 firmware, User ID, and Account-ID settings.
 * **Multi-user:** supports multiple user accounts.
 
 ## Save Management
@@ -24,6 +24,11 @@ The `apollo-ps4` homebrew app allows to download, unlock, patch and resign save-
 * **Save files patching:** complete support for Save Wizard and [Bruteforce Save Data](https://bruteforcesavedata.forumms.net/) cheat patches to enhance your save-games.
 * **Save import/export:** allows the user to decrypt and export save files, and import decrypted saves from other consoles.
 * **Save downloading:** easy access to an Online Database of save-game files to download straight to your PlayStation.
+
+## Account Management
+
+* **Account activation:** create fake Account IDs and generate offline PS4 activations
+* **Recover passcode:** simple recovery method for the Parental Security Passcode.
 
 # Download
 

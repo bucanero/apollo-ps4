@@ -3,25 +3,27 @@
 #define LOG dbglogger_log
 
 #define APOLLO_PATH				"/data/apollo/"
-#define APOLLO_TMP_PATH			"/data/apollo/tmp/"
-#define APOLLO_DATA_PATH		APOLLO_PATH "DATA/"
-#define APOLLO_LOCAL_CACHE		APOLLO_PATH "CACHE/"
+#define APOLLO_APP_PATH			"/mnt/sandbox/APOL00004_000/app0/assets/"
+#define APOLLO_SANDBOX_PATH		"/mnt/sandbox/APOL00004_000%s/"
+#define APOLLO_USER_PATH		"/data/apollo/%08x/"
+#define APOLLO_DATA_PATH		APOLLO_PATH "data/"
+#define APOLLO_LOCAL_CACHE		APOLLO_PATH "cache/"
 #define APOLLO_UPDATE_URL		"https://api.github.com/repos/bucanero/apollo-ps4/releases/latest"
 
 #define MAX_USB_DEVICES         6
-#define USB0_PATH               "/dev_usb000/"
-#define USB1_PATH               "/dev_usb001/"
-#define USB_PATH                "/dev_usb%03d/"
-#define USER_PATH_HDD			"/dev_hdd0/home/%08d/"
+#define USB0_PATH               "/mnt/usb0/"
+#define USB1_PATH               "/mnt/usb1/"
+#define USB_PATH                "/mnt/usb%d/"
+#define USER_PATH_HDD           "/system_data/savedata/%08x/db/user/savedata.db"
 
-#define PS3_SAVES_PATH_USB      "PS3/SAVEDATA/"
+#define PS4_SAVES_PATH_USB      "PS4/APOLLO/"
 #define PS2_SAVES_PATH_USB      "PS3/EXPORT/PS2SD/"
 #define PSP_SAVES_PATH_USB      "PSP/SAVEDATA/"
 #define PSV_SAVES_PATH_USB      "PS3/EXPORT/PSV/"
-#define TROPHIES_PATH_USB       "PS3/EXPORT/TROPHY/"
+#define TROPHIES_PATH_USB       "PS4/EXPORT/TROPHY/"
 
 #define PS3_LICENSE_PATH        "exdata/"
-#define PS3_SAVES_PATH_HDD      "savedata/"
+#define PS4_SAVES_PATH_HDD      "/user/home/%08x/savedata_meta/user/"
 #define PS2_SAVES_PATH_HDD      "ps2emu2_savedata/"
 #define PSP_SAVES_PATH_HDD      "minis_savedata/"
 

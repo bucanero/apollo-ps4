@@ -146,15 +146,18 @@ void DrawHeader(int icon, int xOff, const char * hdrTitle, const char * headerSu
 	snprintf(headerTitle, sizeof(headerTitle), "%.40s%s", hdrTitle, (strlen(hdrTitle) > 40 ? "..." : ""));
 
 	//Background
-	DrawBackgroundTexture(xOff, (u8)bgrgba);
+	DrawBackground2D(0x202030FF);
+
+	if (icon == cat_about_png_index)
+		DrawBackgroundTexture(xOff, (u8)bgrgba);
 
 	_drawListBackground(xOff, icon);
 	//------------ Menu Bar
 	int cnt = 0;
 	for (cnt = xOff + MENU_ICON_OFF; cnt < (SCREEN_WIDTH - 75); cnt++)
-		DrawTexture(&menu_textures[header_line_png_index], cnt, 40, 0, menu_textures[header_line_png_index].width, menu_textures[header_line_png_index].height / 2, 0xffffffff);
+		DrawTexture(&menu_textures[header_line_png_index], cnt, 55, 0, menu_textures[header_line_png_index].width, menu_textures[header_line_png_index].height / 2, 0xffffffff);
 
-	DrawTexture(&menu_textures[header_dot_png_index], cnt - 4, 40, 0, menu_textures[header_dot_png_index].width / 2, menu_textures[header_dot_png_index].height / 2, 0xffffffff);
+	DrawTexture(&menu_textures[header_dot_png_index], cnt - 4, 55, 0, menu_textures[header_dot_png_index].width / 2, menu_textures[header_dot_png_index].height / 2, 0xffffffff);
 
 	//header mini icon
 	//header title string

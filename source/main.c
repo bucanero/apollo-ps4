@@ -249,7 +249,13 @@ int initPad()
     return 1;
 }
 
-int g_frame_count = 0;
+int g_padSync = 0;
+
+int pad_sync()
+{
+	for (g_padSync++; g_padSync;);
+	return 1;
+}
 
 int pad_input_update(void *data)
 {
@@ -261,12 +267,12 @@ int pad_input_update(void *data)
 //		scePadReadState(padhandle, &padA[0]);
 		scePadRead(padhandle, padA, 1);
 
-		if(padA[0].connected && g_frame_count > 0)
+		if(padA[0].connected && g_padSync)
 		{
 			uint32_t previous = input->down;
 
 			input->down = padA[0].buttons;
-			g_frame_count = 0;
+			g_padSync = 0;
 
 			if (!input->down)
 				input->idle += 10;
@@ -664,7 +670,7 @@ void SetMenu(int id)
 					http_download(selected_entry->path, "icon0.png", iconfile, 0);
 			}
 			else if (selected_entry->flags & SAVE_FLAG_HDD)
-				snprintf(iconfile, sizeof(iconfile), "/user/home/%08x/savedata_meta/user/%s/%s_icon0.png", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
+				snprintf(iconfile, sizeof(iconfile), PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
 
 			if (file_exists(iconfile) == SUCCESS)
 				LoadFileTexture(iconfile, icon_png_file_index);
@@ -762,7 +768,7 @@ void move_selection_fwd(int game_count, int steps)
 
 void doSaveMenu(save_list_t * save_list)
 {
-    if(1)
+    if (pad_sync())
     {
     	if(pad_data.active & ORBIS_PAD_BUTTON_UP)
     		move_selection_back(list_count(save_list->list), 1);
@@ -832,7 +838,7 @@ void doSaveMenu(save_list_t * save_list)
 void doMainMenu()
 {
 	// Check the pads.
-	if (1)
+	if (pad_sync())
 	{
 		if(pad_data.active & ORBIS_PAD_BUTTON_LEFT)
 			move_selection_back(MENU_CREDITS, 1);
@@ -853,7 +859,7 @@ void doMainMenu()
 void doAboutMenu()
 {
 	// Check the pads.
-	if (1)
+	if (pad_sync())
 	{
 		if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
 		{
@@ -868,7 +874,7 @@ void doAboutMenu()
 void doOptionsMenu()
 {
 	// Check the pads.
-	if (1)
+	if (pad_sync())
 	{
 		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
 			move_selection_back(menu_options_maxopt, 1);
@@ -946,7 +952,7 @@ void doPatchViewMenu()
 	int max = count_code_lines();
 	
 	// Check the pads.
-	if (1)
+	if (pad_sync())
 	{
 		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
 			move_selection_back(max, 1);
@@ -968,7 +974,7 @@ void doCodeOptionsMenu()
 {
     code_entry_t* code = list_get_item(selected_entry->codes, menu_old_sel[last_menu_id[MENU_CODE_OPTIONS]]);
 	// Check the pads.
-	if (1)
+	if (pad_sync())
 	{
 		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
 			move_selection_back(selected_centry->options[option_index].size, 1);
@@ -1009,7 +1015,7 @@ void doSaveDetailsMenu()
 	int max = count_code_lines();
 
 	// Check the pads.
-	if (1)
+	if (pad_sync())
 	{
 		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
 			move_selection_back(max, 1);
@@ -1036,7 +1042,7 @@ void doSaveDetailsMenu()
 void doPatchMenu()
 {
 	// Check the pads.
-	if (1)
+	if (pad_sync())
 	{
 		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
 			move_selection_back(list_count(selected_entry->codes), 1);
@@ -1217,11 +1223,28 @@ void registerSpecialChars()
 	RegisterSpecialCharacter(CHAR_BTN_O, 0, 1.2, &menu_textures[footer_ico_circle_png_index]);
 
 	// Register trophy icons
-	RegisterSpecialCharacter(CHAR_TRP_BRONZE, 2, 1.0, &menu_textures[trp_bronze_img_index]);
-	RegisterSpecialCharacter(CHAR_TRP_SILVER, 2, 1.0, &menu_textures[trp_silver_img_index]);
-	RegisterSpecialCharacter(CHAR_TRP_GOLD, 2, 1.0, &menu_textures[trp_gold_img_index]);
-	RegisterSpecialCharacter(CHAR_TRP_PLATINUM, 0, 1.2, &menu_textures[trp_platinum_img_index]);
-	RegisterSpecialCharacter(CHAR_TRP_SYNC, 0, 1.2, &menu_textures[trp_sync_img_index]);
+	RegisterSpecialCharacter(CHAR_TRP_BRONZE, 2, 0.9f, &menu_textures[trp_bronze_png_index]);
+	RegisterSpecialCharacter(CHAR_TRP_SILVER, 2, 0.9f, &menu_textures[trp_silver_png_index]);
+	RegisterSpecialCharacter(CHAR_TRP_GOLD, 2, 0.9f, &menu_textures[trp_gold_png_index]);
+	RegisterSpecialCharacter(CHAR_TRP_PLATINUM, 0, 0.9f, &menu_textures[trp_platinum_png_index]);
+	RegisterSpecialCharacter(CHAR_TRP_SYNC, 0, 1.2f, &menu_textures[trp_sync_png_index]);
+}
+
+void terminate()
+{
+	// Unload loaded libraries
+	if (unpatch_SceShellCore())
+		notifi(NULL, "PS4 Save patches removed from memory");
+
+	terminate_jbc();
+	sceSystemServiceLoadExec("exit", NULL);
+}
+
+int appdata_check(const char* vfile)
+{
+	uint32_t version = 0;
+
+	return (read_file(vfile, (uint8_t*) &version, sizeof(uint32_t)) != SUCCESS ||  version < APOLLO_DATA_VERSION);
 }
 
 /*
@@ -1231,55 +1254,103 @@ s32 main(s32 argc, const char* argv[])
 {
 #ifdef APOLLO_ENABLE_LOGGING
 	dbglogger_init();
-//	dbglogger_failsafe("9999");
 #endif
 
-//	http_init();
+	http_init();
+	initPad();
 
-//	tiny3d_Init(1024*1024);
-    orbis2dInit();
+	// Initialize audio output library
+	if (sceAudioOutInit() != SUCCESS)
+	{
+		LOG("[ERROR] Failed to initialize audio output");
+		return (-1);
+	}
 
-//	ioPadInit(7);
-	initPad(-1);
+	// Open a handle to audio output device
+	audio = sceAudioOutOpen(ORBIS_USER_SERVICE_USER_ID_SYSTEM, ORBIS_AUDIO_OUT_PORT_TYPE_MAIN, 0, 256, 48000, ORBIS_AUDIO_OUT_PARAM_FORMAT_S16_STEREO);
+
+	if (audio <= 0)
+	{
+		LOG("[ERROR] Failed to open audio on main port");
+		return audio;
+	}
+
+	// Initialize SDL functions
+	LOG("Initializing SDL");
+
+	if (SDL_Init(SDL_INIT_VIDEO) != SUCCESS)
+	{
+		LOG("Failed to initialize SDL: %s", SDL_GetError());
+		return (-1);
+	}
+
+	// Create a window context
+	LOG( "Creating a window");
+	window = SDL_CreateWindow("main", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+
+	// Create a software rendering instance for the window
+	SDL_Surface* windowSurface = SDL_GetWindowSurface(window);
+	renderer = SDL_CreateSoftwareRenderer(windowSurface);
+	SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	// Initialize jailbreak
+	if (!initialize_jbc())
+		terminate();
+
+	mkdirs(APOLLO_DATA_PATH);
+	mkdirs(APOLLO_LOCAL_CACHE);
 	
 	// Load freetype
-	if (sceSysmoduleLoadModule(0x009A) < 0)
+	if (sceSysmoduleLoadModule(ORBIS_SYSMODULE_FREETYPE_OL) < 0)
 	{
 		LOG("Failed to load freetype!");
 		return (-1);
 	}
 
-	atexit(exiting); // Tiny3D register the event 3 and do exit() call when you exit  to the menu
+	// Load MsgDialog
+	if (sceSysmoduleLoadModule(ORBIS_SYSMODULE_MESSAGE_DIALOG) < 0)
+	{
+		LOG("Failed to load dialog!");
+		return (-1);
+	}
+
+	if (sceCommonDialogInitialize() < 0)
+	{
+		LOG("Failed to init CommonDialog!");
+		return (-1);
+	}
 
 	// register exit callback
-//	if(sysUtilRegisterCallback(SYSUTIL_EVENT_SLOT0, sys_callback, NULL)==0) inited |= INITED_CALLBACK;
+	atexit(terminate);
 	
 	// Load texture
-	LoadTextures_Menu();
-	LoadSounds();
+	if (!LoadTextures_Menu())
+	{
+		LOG("Failed to load menu textures!");
+		return (-1);
+	}
 
 	// Unpack application data on first run
-	if (file_exists(APOLLO_LOCAL_CACHE "appdata.zip") == SUCCESS)
+	if (appdata_check(APOLLO_DATA_PATH "version.dat"))
 	{
 		clean_directory(APOLLO_DATA_PATH);
-		unzip_app_data(APOLLO_LOCAL_CACHE "appdata.zip");
+		if (extract_zip(APOLLO_APP_PATH "misc/appdata.zip", APOLLO_DATA_PATH))
+			show_message("Successfully installed local application data");
 	}
 
 	// Splash screen logo (fade-in)
-//	drawSplashLogo(1, &flipArg);
+	drawSplashLogo(1);
+
+	// Apply save-mounter patches
+	patch_save_libraries();
 
 	// Load application settings
-//	load_app_settings(&apollo_config);
+	load_app_settings(&apollo_config);
 
 //	if (file_exists(APOLLO_PATH OWNER_XML_FILE) == SUCCESS)
 //		save_xml_owner(APOLLO_PATH OWNER_XML_FILE, NULL);
 
-//-
-        char** retm = calloc(1, sizeof(char*) * 2);
-        retm[0] = strdup("DEFAULT_USERNAME");
-
-	menu_options[8].options = retm;
-//-
+	menu_options[8].options = get_logged_users();
  
 	// Setup font
 	SetExtraSpace(5);
@@ -1304,31 +1375,22 @@ s32 main(s32 argc, const char* argv[])
 	}
 
 	// Splash screen logo (fade-out)
-//	drawSplashLogo(-1, &flipArg);
+	drawSplashLogo(-1);
 	SDL_DestroyTexture(menu_textures[buk_scr_png_index].texture);
-
-//	SND_SetInfiniteVoice(2, (effect_is_stereo) ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT, effect_freq, 0, background_music, background_music_size, 255, 255);
 	
 	//Set options
 	music_callback(!apollo_config.music);
 	update_callback(!apollo_config.update);
-	*menu_options[8].value = menu_options_maxsel[8] - 1;
 
 	SetMenu(MENU_MAIN_SCREEN);
 
-// 	dbglogger_init_mode(TCP_LOGGER, "192.168.1.249", 19999);
-
-/*
-FC3: BF6723C1 / 23d93d8a4bd443f719dd086b2e9c9c07
-ABC: 2109CF2B
-MvC3:703B3123 <xor> 8FC4CEDC
-
-*/
+	SDL_CreateThread(&pad_input_update, "input_thread", &pad_data);
+	SDL_CreateThread(&LoadSounds, "audio_thread", &apollo_config.music);
 
 	while (!close_app)
 	{
 		// Clear the canvas
-		SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x20, 0xFF);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
 		SDL_RenderClear(renderer);
 
 /*

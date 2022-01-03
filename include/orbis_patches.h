@@ -140,7 +140,7 @@ const orbis_patch_t scesavedata_patches_900[] = {
     {0x00034679, "\x00", 1},        // 'sce_sdmemory' patch
     {0x00034609, "\x00", 1},        // by @Ctn
     {0x00036256, "\x00", 1},        // by @Ctn
-    {0x00000FA1, "\x1F", 1},        // by readable_name-NeqTyKto
+    {0x00000FA1, "\x1F", 1},        // by GRModSave_Username
     {0, NULL, 0},
 };
 
@@ -211,7 +211,7 @@ const orbis_patch_t shellcore_patches_900[] = {
     {0x008AEAE0, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
     {0x0006C560, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
     {0x000C9000, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
-    {0x0006DC5D, "\x90\x90", 2},                    // ^
+    {0x0006defe, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
     {0x0006C0A8, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
     {0x0006BA62, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
     {0x0006B2C4, "\x90\x90", 2},                    //nevah jump                    

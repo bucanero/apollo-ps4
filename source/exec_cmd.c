@@ -105,7 +105,10 @@ static void copySave(const save_entry_t* save, const char* exp_path)
 	char* copy_path;
 
 	if (strncmp(save->path, exp_path, strlen(exp_path)) == 0)
+	{
+		show_message("Copy operation cancelled!\nSame source and destination.");
 		return;
+	}
 
 	if (mkdirs(exp_path) != SUCCESS)
 	{
@@ -182,7 +185,10 @@ static void copySaveHDD(const save_entry_t* save)
 {
 	//source save is already on HDD
 	if (save->flags & SAVE_FLAG_HDD)
+	{
+		show_message("Copy operation cancelled!\nSame source and destination.");
 		return;
+	}
 
 	init_loading_screen("Copying save game...");
 	int ret = _copy_save_hdd(save);

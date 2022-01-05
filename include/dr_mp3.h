@@ -2440,6 +2440,7 @@ DRMP3_API void drmp3dec_f32_to_s16(const float *in, drmp3_int16 *out, size_t num
 
 #define DRMP3_DEFAULT_RESAMPLER_LPF_ORDER   2
 
+#ifndef __PS4__
 static DRMP3_INLINE float drmp3_mix_f32(float x, float y, float a)
 {
     return x*(1-a) + y*a;
@@ -2488,7 +2489,7 @@ static DRMP3_INLINE double drmp3_cos(double x)
 {
     return drmp3_sin((DRMP3_PI_D*0.5) - x);
 }
-
+#endif
 
 static void* drmp3__malloc_default(size_t sz, void* pUserData)
 {

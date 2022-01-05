@@ -223,6 +223,9 @@ int initPad()
 {
 	int userID;
 
+	if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_PAD) < 0)
+		return 0;
+
     // Initialize the Pad library
     if (scePadInit() != 0)
     {
@@ -296,7 +299,7 @@ int pad_input_update(void *data)
 
 			if (input->down == previous)
 			{
-				if (button_frame_count > 1)
+				if (button_frame_count > 30)
 				{
 					input->active = input->down;
 				}
@@ -337,8 +340,7 @@ void LoadFileTexture(const char* fname, int idx)
 // Used only in initialization. Allocates 64 mb for textures and loads the font
 int LoadTextures_Menu()
 {
-//	texture_mem = tiny3d_AllocTexture(64*1024*1024); // alloc 64MB of space for textures (this pointer can be global)
-	texture_mem = malloc(2048 * 32 * 32 * 4);
+	texture_mem = malloc(256 * 32 * 32 * 4);
 	
 	if(!texture_mem)
 		return 0; // fail!
@@ -346,7 +348,8 @@ int LoadTextures_Menu()
 	ResetFont();
 	free_mem = (u32 *) AddFontFromBitmapArray((u8 *) data_font_Adonais, (u8 *) texture_mem, 0x20, 0x7e, 32, 31, 1, BIT7_FIRST_PIXEL);
 	
-	if (TTFLoadFont(0, "/preinst/common/font/DFHEI5-SONY.ttf", NULL, 0) != SUCCESS)
+	if (TTFLoadFont(0, "/preinst/common/font/DFHEI5-SONY.ttf", NULL, 0) != SUCCESS ||
+		TTFLoadFont(1, "/system_ex/app/NPXS20113/bdjstack/lib/fonts/SCE-PS3-RD-R-LATIN.TTF", NULL, 0) != SUCCESS)
 		return 0;
 	free_mem = (u32*) init_ttf_table((u8*) free_mem);
 
@@ -1193,12 +1196,6 @@ void drawScene()
 	}
 }
 
-void exiting()
-{
-//	http_end();
-//	sysModuleUnload(SYSMODULE_PNGDEC);
-}
-
 void registerSpecialChars()
 {
 	// Register save tags
@@ -1232,6 +1229,7 @@ void registerSpecialChars()
 
 void terminate()
 {
+	LOG("Exiting...");
 	// Unload loaded libraries
 	if (unpatch_SceShellCore())
 		notifi(NULL, "PS4 Save patches removed from memory");
@@ -1247,20 +1245,52 @@ int appdata_check(const char* vfile)
 	return (read_file(vfile, (uint8_t*) &version, sizeof(uint32_t)) != SUCCESS ||  version < APOLLO_DATA_VERSION);
 }
 
+static int initInternal()
+{
+    // load common modules
+    int ret = sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_SYSTEM_SERVICE);
+    if (ret != SUCCESS) {
+        LOG("load module failed: SYSTEM_SERVICE (0x%08x)\n", ret);
+        return 0;
+    }
+
+    ret = sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_USER_SERVICE);
+    if (ret != SUCCESS) {
+        LOG("load module failed: USER_SERVICE (0x%08x)\n", ret);
+        return 0;
+    }
+
+    ret = sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_SAVE_DATA);
+    if (ret != SUCCESS) {
+        LOG("load module failed: SAVE_DATA (0x%08x)\n", ret);
+        return 0;
+    }
+
+    return 1;
+}
+
+
 /*
 	Program start
 */
 s32 main(s32 argc, const char* argv[])
 {
 #ifdef APOLLO_ENABLE_LOGGING
+	// Frame tracking info for debugging
+	uint32_t lastFrameTicks  = 0;
+	uint32_t startFrameTicks = 0;
+	uint32_t deltaFrameTicks = 0;
+
 	dbglogger_init();
 #endif
 
+	initInternal();
 	http_init();
 	initPad();
 
 	// Initialize audio output library
-	if (sceAudioOutInit() != SUCCESS)
+	if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_AUDIOOUT) < 0 ||
+		sceAudioOutInit() != SUCCESS)
 	{
 		LOG("[ERROR] Failed to initialize audio output");
 		return (-1);
@@ -1287,11 +1317,17 @@ s32 main(s32 argc, const char* argv[])
 	// Create a window context
 	LOG( "Creating a window");
 	window = SDL_CreateWindow("main", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+	if (!window) {
+		LOG("SDL_CreateWindow: %s", SDL_GetError());
+		return (-1);
+	}
 
-	// Create a software rendering instance for the window
-	SDL_Surface* windowSurface = SDL_GetWindowSurface(window);
-	renderer = SDL_CreateSoftwareRenderer(windowSurface);
-	SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+	// Create a renderer (OpenGL ES2)
+	renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (!renderer) {
+		LOG("SDL_CreateRenderer: %s", SDL_GetError());
+		return (-1);
+	}
 
 	// Initialize jailbreak
 	if (!initialize_jbc())
@@ -1314,7 +1350,8 @@ s32 main(s32 argc, const char* argv[])
 		return (-1);
 	}
 
-	if (sceCommonDialogInitialize() < 0)
+	if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_COMMON_DIALOG) < 0 ||
+		sceCommonDialogInitialize() < 0)
 	{
 		LOG("Failed to init CommonDialog!");
 		return (-1);
@@ -1389,24 +1426,15 @@ s32 main(s32 argc, const char* argv[])
 
 	while (!close_app)
 	{
+#ifdef APOLLO_ENABLE_LOGGING
+        startFrameTicks = SDL_GetTicks();
+        deltaFrameTicks = startFrameTicks - lastFrameTicks;
+        lastFrameTicks  = startFrameTicks;
+#endif
 		// Clear the canvas
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
 		SDL_RenderClear(renderer);
 
-/*
-		tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-
-		// Enable alpha Test
-		tiny3d_AlphaTest(1, 0x10, TINY3D_ALPHA_FUNC_GEQUAL);
-
-		// Enable alpha blending.
-		tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_ALPHA_SRC_ALPHA,
-			TINY3D_BLEND_FUNC_SRC_ALPHA_ONE_MINUS_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_SRC_ALPHA,
-			TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
-		
-		// change to 2D context (remember you it works with 848 x 512 as virtual coordinates)
-		tiny3d_Project2D();
-*/
 		drawScene();
 
 		//Draw help
@@ -1429,9 +1457,13 @@ s32 main(s32 argc, const char* argv[])
 			SetFontAlign(FONT_ALIGN_LEFT);
 		}
 
+#ifdef APOLLO_ENABLE_LOGGING
+		// Calculate FPS and ms/frame
+		SetFontColor(APP_FONT_COLOR | 0xFF, 0);
+		DrawFormatString(30, 660, "FPS: %d", (1000 / deltaFrameTicks));
+#endif
 		// Propagate the updated window to the screen
-		SDL_UpdateWindowSurface(window);
-//SDL_RenderPresent
+		SDL_RenderPresent(renderer);
 	}
 
     // Cleanup resources

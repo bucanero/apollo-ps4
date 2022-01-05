@@ -1,0 +1,27 @@
+;CUSA13367
+;PS4 Asterix & Obelix XXL 2
+;source: xdgmods.com forum
+
+:*
+
+[All but one figurine] 
+200052BC 01010100
+200052C0 01010101
+200052C4 01010101
+200052C8 01010101
+200052CC 01010101
+200052D0 01010118
+;(Buy the first one to get the trophy)
+
+[9998 Helmets] 
+10005263 0000270E
+;(just get 1 more yourself to get the trophy)
+
+[All but one Postcard] 
+200052D7 01010100
+200052DB 01010101
+200052DF 01010101
+200052E3 01010101
+200052E7 01010101
+200052EB 01010101
+;(Collect the first one in the first level to get the trophy

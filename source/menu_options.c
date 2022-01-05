@@ -67,14 +67,7 @@ void Draw_OptionsMenu_Ani()
     int ani = 0;
     for (ani = 0; ani < MENU_ANI_MAX; ani++)
     {
-        tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-        tiny3d_AlphaTest(1, 0x0, TINY3D_ALPHA_FUNC_GEQUAL);
-        tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_ALPHA_SRC_ALPHA,
-            0x00000303 | 0x00000000,
-            TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
-        
-        tiny3d_Project2D();
-        
+        SDL_RenderClear(renderer);
         DrawHeader_Ani(cat_opt_png_index, "Settings", NULL, APP_FONT_TITLE_COLOR, 0xffffffff, ani, 12);
         
 		u8 icon_a = (u8)(((ani * 2) > 0xFF) ? 0xFF : (ani * 2));
@@ -86,7 +79,7 @@ void Draw_OptionsMenu_Ani()
         if (game_a > 0)
         	_draw_OptionsMenu(game_a);
         
-        tiny3d_Flip();
+        SDL_RenderPresent(renderer);
         
         if (game_a == 0xFF)
             return;

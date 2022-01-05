@@ -5,7 +5,7 @@
 #define APOLLO_PATH				"/data/apollo/"
 #define APOLLO_APP_PATH			"/mnt/sandbox/APOL00004_000/app0/assets/"
 #define APOLLO_SANDBOX_PATH		"/mnt/sandbox/APOL00004_000%s/"
-#define APOLLO_USER_PATH		"/data/apollo/%08x/"
+#define APOLLO_USER_PATH		APOLLO_PATH "%08x/"
 #define APOLLO_DATA_PATH		APOLLO_PATH "data/"
 #define APOLLO_LOCAL_CACHE		APOLLO_PATH "cache/"
 #define APOLLO_UPDATE_URL		"https://api.github.com/repos/bucanero/apollo-ps4/releases/latest"

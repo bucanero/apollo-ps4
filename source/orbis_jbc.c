@@ -425,9 +425,6 @@ int patch_save_libraries()
     return 1;
 }
 
-// Handles for the libraries
-int g_LibJbcHandle = -1;
-
 // Variables for (un)jailbreaking
 jbc_cred g_Cred;
 jbc_cred g_RootCreds;
@@ -487,10 +484,7 @@ int initialize_jbc()
 void terminate_jbc()
 {
 	unjailbreak();
-
-	if (g_LibJbcHandle >= 0) {
-		sceKernelStopUnloadModule(g_LibJbcHandle, 0, 0, 0, NULL, NULL);
-	}
+    LOG("Jailbreak removed!");
 }
 
 /*

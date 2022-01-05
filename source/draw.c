@@ -29,8 +29,12 @@ int LoadMenuTexture(const char* path, int idx)
 		return 0;
 	}
 
+	// GLES2 supports RGBA8888 only
+	for (d = 0; d < menu_textures[idx].width * menu_textures[idx].height; d++)
+		menu_textures[idx].buffer[d] = ES32(menu_textures[idx].buffer[d]);
+
 	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(menu_textures[idx].buffer, menu_textures[idx].width, menu_textures[idx].height, 32, 4 * menu_textures[idx].width,
-												0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+												0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 
 	menu_textures[idx].texture = SDL_CreateTextureFromSurface(renderer, surface);
 
@@ -409,7 +413,6 @@ void drawSplashLogo(int mode)
 
 void Draw_MainMenu_Ani()
 {
-	/*
 	int max = MENU_ANI_MAX, ani = 0;
 	for (ani = 0; ani < max; ani++)
 	{
@@ -434,7 +437,7 @@ void Draw_MainMenu_Ani()
 		//App description
 		DrawTextureCenteredX(&menu_textures[logo_text_png_index], SCREEN_WIDTH/2, 320, 0, 459, 75, 0xFFFFFF00 | logo_a);
 
-		SDL_UpdateWindowSurface(window);
+		SDL_RenderPresent(renderer);
 	}
 	
 	max = MENU_ANI_MAX / 2;
@@ -462,12 +465,11 @@ void Draw_MainMenu_Ani()
 		//------------ Icons
 		drawJars(icon_a);
 		
-		SDL_UpdateWindowSurface(window);
+		SDL_RenderPresent(renderer);
 
 		if (icon_a == 32)
 			break;
 	}
-	*/
 }
 
 void Draw_MainMenu()

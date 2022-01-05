@@ -192,7 +192,7 @@ int Render_String_UTF8(u16 * bitmap, int w, int h, u8 *string, int sw, int sh)
 
 typedef struct ttf_dyn {
     u32 ttf;
-    u8 *text;
+    SDL_Texture *text[2];
     u32 r_use;
     u16 y_start;
     u16 width;
@@ -238,9 +238,6 @@ u16 * init_ttf_table(u8 *texture)
     r_use= 0;
     for(n= 0; n <  MAX_CHARS; n++) {
         memset(&ttf_font_datas[n], 0, sizeof(ttf_dyn));
-        ttf_font_datas[n].text = texture;
-
-        texture+= TEX_SZ*TEX_SZ;
     }
 
     return (u16*)texture;
@@ -288,10 +285,23 @@ static void DrawBox_ttf(float x, float y, float z, float w, float h, u32 rgba)
 */
 }
 
-static void DrawTextBox_ttf(const u8* bitmap, float x, float y, float z, float w, float h, u32 rgba, float tx, float ty)
+static SDL_Texture* create_texture(const u8* bitmap, u32 rgba)
 {
     u32 buf[TEX_SZ * TEX_SZ];
-    u8 a = (rgba & 0x000000FF);
+
+    for (int i = 0; i < TEX_SZ*TEX_SZ; i++)
+        buf[i] = bitmap[i] ? ((rgba & 0xFFFFFF00) | bitmap[i]) : 0;
+
+    SDL_Surface* surface = SDL_CreateRGBSurfaceFrom((void*) buf, TEX_SZ, TEX_SZ, 32, 4 * TEX_SZ, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+    SDL_Texture* sdl_tex = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_SetTextureBlendMode(sdl_tex, SDL_BLENDMODE_BLEND);
+    SDL_FreeSurface(surface);
+
+    return (sdl_tex);
+}
+
+static void DrawTextBox_ttf(SDL_Texture* bitmap, float x, float y, float z, float w, float h, u32 rgba, float tx, float ty)
+{
     SDL_FRect dest = {
         .x = x,
         .y = y,
@@ -299,36 +309,8 @@ static void DrawTextBox_ttf(const u8* bitmap, float x, float y, float z, float w
         .h = h,
     };
 
-    for (int i = 0; i < TEX_SZ*TEX_SZ; i++)
-        buf[i] = bitmap[i] ? ((rgba & 0xFFFFFF00) | ((bitmap[i] * a) / 0xFF)) : 0;
-
-    SDL_Surface* surface = SDL_CreateRGBSurfaceFrom((void*) buf, TEX_SZ, TEX_SZ, 32, 4 * TEX_SZ, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
-    SDL_Texture* sdl_tex = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_SetTextureBlendMode(sdl_tex, SDL_BLENDMODE_BLEND);
-    SDL_FreeSurface(surface);
-
-    SDL_RenderCopyF(renderer, sdl_tex, NULL, &dest);
-    SDL_DestroyTexture(sdl_tex);
-
-/*
-    tiny3d_SetPolygon(TINY3D_QUADS);
-    
-   
-    tiny3d_VertexPos(x    , y    , z);
-    tiny3d_VertexColor(rgba);
-    tiny3d_VertexTexture(0.0f , 0.0f);
-
-    tiny3d_VertexPos(x + w, y    , z);
-    tiny3d_VertexTexture(tx, 0.0f);
-
-    tiny3d_VertexPos(x + w, y + h, z);
-    tiny3d_VertexTexture(tx, ty);
-
-    tiny3d_VertexPos(x    , y + h, z);
-    tiny3d_VertexTexture(0.0f , ty);
-
-    tiny3d_End();
-*/
+	SDL_SetTextureAlphaMod(bitmap, RGBA_A(rgba));
+    SDL_RenderCopyF(renderer, bitmap, NULL, &dest);
 }
 
 #define TTF_UX 30 * (TEX_SZ /32)
@@ -420,10 +402,7 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
 
         if(n >= MAX_CHARS) {ttf_font_datas[m].flags = 0; l= m;} else l=n;
 
-        u8 * bitmap = ttf_font_datas[l].text;
-        
         // building the character
-
         if(!(ttf_font_datas[l].flags & 1)) { 
 
             if(f_face[0]) FT_Set_Pixel_Sizes(face[0], TTF_UX, TTF_UY);
@@ -433,6 +412,7 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
 
             FT_GlyphSlot slot = NULL;
 
+            u8 bitmap[TEX_SZ * TEX_SZ];
             memset(bitmap, 0, TEX_SZ * TEX_SZ);
 
             ///////////
@@ -477,8 +457,10 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
 
                 ww += slot->bitmap.width;
                 }
-                
+                ttf_font_datas[l].text[0] = create_texture(bitmap, 0x000000FF);
+                ttf_font_datas[l].text[1] = create_texture(bitmap, 0xFFFFFFFF);
             }
+            else continue;
         }
 
         // displaying the character
@@ -502,7 +484,7 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
 
             if (bkcolor != 0) DrawBox_ttf((float) (Win_X_ttf + posx), (float) (Win_Y_ttf + posy) + ((float) ttf_font_datas[l].y_start * sh) * 0.03125f,
             Z_ttf, (float) sw, (float) sh, bkcolor);
-            DrawTextBox_ttf(bitmap, (float) (Win_X_ttf + posx), (float) (Win_Y_ttf + posy) + ((float) ttf_font_datas[l].y_start * sh) * 0.015625f,
+            DrawTextBox_ttf(ttf_font_datas[l].text[((color & 0xFFFFFF00) != 0)], (float) (Win_X_ttf + posx), (float) (Win_Y_ttf + posy) + ((float) ttf_font_datas[l].y_start * sh) * 0.015625f,
             Z_ttf, (float) sw, (float) sh, color, 0.99f, 0.99f);
         }
 

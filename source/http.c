@@ -169,7 +169,7 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 		if (show_progress)
 			update_progress_bar(total_read, contentLength, "Downloading...");
 
-		LOG("Downloaded %d/%d\n", total_read, contentLength);
+		LOG("Downloaded %ld/%ld\n", total_read, contentLength);
 	}
 
 	fclose(fd);

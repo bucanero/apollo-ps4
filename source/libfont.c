@@ -428,6 +428,7 @@ void orbis2dDrawChar(float x, float y, const u8* bitmap, int bw, int bh, int dw,
     SDL_SetTextureBlendMode(sdl_tex, SDL_BLENDMODE_BLEND);
     SDL_FreeSurface(surface);
 
+    SDL_SetTextureAlphaMod(sdl_tex, RGBA_A(rgba));
     SDL_RenderCopy(renderer, sdl_tex, NULL, &dest);
     SDL_DestroyTexture(sdl_tex);
 }

@@ -52,9 +52,8 @@ void _draw_OptionsMenu(u8 alpha)
         
         if (menu_sel == ind)
         {
-            int i = 0;
-            for (i = 0; i < SCREEN_WIDTH; i++)
-				DrawTexture(&menu_textures[mark_line_png_index], i, y_off, 0, menu_textures[mark_line_png_index].width, menu_textures[mark_line_png_index].height, 0xFFFFFF00 | alpha);
+            DrawTexture(&menu_textures[mark_line_png_index], 0, y_off, 0, SCREEN_WIDTH, menu_textures[mark_line_png_index].height, 0xFFFFFF00 | alpha);
+            DrawTextureCenteredX(&menu_textures[mark_arrow_png_index], MENU_ICON_OFF + MENU_TITLE_OFF, y_off, 0, (2 * 20) / 3, 22, 0xFFFFFF00 | alpha);
         }
         
         y_off += 20;

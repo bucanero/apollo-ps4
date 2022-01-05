@@ -146,18 +146,17 @@ void DrawHeader(int icon, int xOff, const char * hdrTitle, const char * headerSu
 	snprintf(headerTitle, sizeof(headerTitle), "%.40s%s", hdrTitle, (strlen(hdrTitle) > 40 ? "..." : ""));
 
 	//Background
-	DrawBackground2D(0x202030FF);
-
-	if (icon == cat_about_png_index)
-		DrawBackgroundTexture(xOff, (u8)bgrgba);
+	DrawBackgroundTexture(xOff, (u8)bgrgba);
 
 	_drawListBackground(xOff, icon);
 	//------------ Menu Bar
+/*
 	int cnt = 0;
 	for (cnt = xOff + MENU_ICON_OFF; cnt < (SCREEN_WIDTH - 75); cnt++)
 		DrawTexture(&menu_textures[header_line_png_index], cnt, 55, 0, menu_textures[header_line_png_index].width, menu_textures[header_line_png_index].height / 2, 0xffffffff);
 
 	DrawTexture(&menu_textures[header_dot_png_index], cnt - 4, 55, 0, menu_textures[header_dot_png_index].width / 2, menu_textures[header_dot_png_index].height / 2, 0xffffffff);
+*/
 
 	//header mini icon
 	//header title string
@@ -210,7 +209,7 @@ void DrawTexture(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba)
 		.h = h,
 	};
 
-	SDL_SetTextureAlphaMod(tex->texture, RGBA_A(rgba));	
+	SDL_SetTextureAlphaMod(tex->texture, RGBA_A(rgba));
 	SDL_RenderCopy(renderer, tex->texture, NULL, &dest);
 }
 
@@ -404,7 +403,7 @@ void drawSplashLogo(int mode)
 		DrawTextureCentered(&menu_textures[buk_scr_png_index], SCREEN_WIDTH/2, SCREEN_HEIGHT /2, 0, 484, 363, 0xFFFFFF00 | logo_a);
 
 		//flush and flip
-		SDL_UpdateWindowSurface(window);
+		SDL_RenderPresent(renderer);
 	}
 }
 

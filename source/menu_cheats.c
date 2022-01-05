@@ -73,9 +73,7 @@ void DrawOptions(option_entry_t* option, u8 alpha, int y_inc, int selIndex)
             //Selector
             if (c == selIndex)
             {
-                int i = 0;
-				for (i = MENU_SPLIT_OFF; i < SCREEN_WIDTH; i++)
-					DrawTexture(&menu_textures[mark_line_png_index], i, yOff, 0, menu_textures[mark_line_png_index].width, menu_textures[mark_line_png_index].height, 0xFFFFFF00 | alpha);
+                DrawTexture(&menu_textures[mark_line_png_index], MENU_SPLIT_OFF, yOff, 0, SCREEN_WIDTH - MENU_SPLIT_OFF, menu_textures[mark_line_png_index].height, 0xFFFFFF00 | alpha);
             }
             
             cIndex++;
@@ -231,8 +229,7 @@ int DrawCodes(code_entry_t* code, u8 alpha, int y_inc, int xOff, int selIndex)
             
             //Selector
             if (c == selIndex)
-                for (int i = 0; i < SCREEN_WIDTH; i++)
-                    DrawTexture(&menu_textures[mark_line_png_index], xOff + i, yOff, 0, menu_textures[mark_line_png_index].width, menu_textures[mark_line_png_index].height, 0xFFFFFF00 | alpha);
+                DrawTexture(&menu_textures[mark_line_png_index], xOff, yOff, 0, SCREEN_WIDTH - xOff, menu_textures[mark_line_png_index].height, 0xFFFFFF00 | alpha);
         }
         yOff += y_inc;
     }
@@ -400,12 +397,9 @@ skip_draw:
         
         if (x == selIndex)
         {
-            int c;
-            for (c = 0; c < SCREEN_WIDTH; c++)
-				DrawTexture(&menu_textures[mark_line_png_index], c, game_y, 0, menu_textures[mark_line_png_index].width, menu_textures[mark_line_png_index].height, 0xFFFFFF00 | alpha);
-        
-			DrawTextureCenteredX(&menu_textures[mark_arrow_png_index], MENU_ICON_OFF - 20, game_y, 0, (2 * y_inc) / 3, y_inc + 2, 0xFFFFFF00 | alpha);
-		}
+            DrawTexture(&menu_textures[mark_line_png_index], 0, game_y, 0, SCREEN_WIDTH, menu_textures[mark_line_png_index].height, 0xFFFFFF00 | alpha);
+            DrawTextureCenteredX(&menu_textures[mark_arrow_png_index], MENU_ICON_OFF - 20, game_y, 0, (2 * y_inc) / 3, y_inc + 2, 0xFFFFFF00 | alpha);
+        }
         
         game_y += y_inc;
     }
@@ -492,12 +486,9 @@ skip_code:
         if (x == selIndex)
         {
             //Draw selection bar
-            int c = 0;
-            for (c = 0; c < SCREEN_WIDTH; c++)
-				DrawTexture(&menu_textures[mark_line_png_index], c, game_y, 0, menu_textures[mark_line_png_index].width, menu_textures[mark_line_png_index].height, 0xFFFFFF00 | alpha);
-        
-			DrawTextureCenteredX(&menu_textures[mark_arrow_png_index], MENU_ICON_OFF - 20, game_y, 0, (2 * y_inc) / 3, y_inc + 2, 0xFFFFFF00 | alpha);
-		}
+            DrawTexture(&menu_textures[mark_line_png_index], 0, game_y, 0, SCREEN_WIDTH, menu_textures[mark_line_png_index].height, 0xFFFFFF00 | alpha);
+            DrawTextureCenteredX(&menu_textures[mark_arrow_png_index], MENU_ICON_OFF - 20, game_y, 0, (2 * y_inc) / 3, y_inc + 2, 0xFFFFFF00 | alpha);
+        }
         
         game_y += y_inc;
     }

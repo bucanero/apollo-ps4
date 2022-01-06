@@ -4,6 +4,18 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v0.7.0](https://github.com/bucanero/apollo-ps4/releases/tag/v0.7.0) - 2022-01-05
+
+### Added
+
+* 9.00 firmware support
+* New Save Wizard codes (thanks to sdragon001)
+* Improved graphics library (SDL2 lib by cpasjuste)
+
+### Fixed
+
+* Fixed save-mount patches for 9.00 (thanks to GRModSave_Username)
+
 ## [v0.6.0](https://github.com/bucanero/apollo-ps4/releases/tag/v0.6.0) - 2022-01-01
 
 ### Added

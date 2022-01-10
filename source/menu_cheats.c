@@ -84,19 +84,13 @@ void DrawOptions(option_entry_t* option, u8 alpha, int y_inc, int selIndex)
 
 void Draw_CheatsMenu_Options_Ani_Exit(void)
 {
-    /*
 	int div = 12, ani = 0, left = MENU_SPLIT_OFF;
 	for (ani = MENU_ANI_MAX - 1; ani >= 0; ani--)
 	{
-		tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-		tiny3d_AlphaTest(1, 0x0, TINY3D_ALPHA_FUNC_GEQUAL);
-		tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_ALPHA_SRC_ALPHA,
-			0x00000303 | 0x00000000,
-			TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
+		SDL_RenderClear(renderer);
+		DrawBackground2D(0xFFFFFFFF);
 
-		tiny3d_Project2D();
-
-		u8 icon_a = (u8)((int)(((SCREEN_WIDTH - left) / SCREEN_WIDTH.0) * 255.0));
+		u8 icon_a = (u8)((int)(((SCREEN_WIDTH - left) / SCREEN_WIDTH) * 255.0));
 		left = MENU_SPLIT_OFF + ((MENU_ANI_MAX - ani) * div * 3);
 		if (left > SCREEN_WIDTH)
 			left = SCREEN_WIDTH;
@@ -107,33 +101,26 @@ void Draw_CheatsMenu_Options_Ani_Exit(void)
 			rgbVal = 0xD0;
 		Draw_CheatsMenu_Selection(menu_old_sel[5], (rgbVal << 24) | (rgbVal << 16) | (rgbVal << 8) | 0xFF);
 
-		DrawTexture(&menu_textures[edit_shadow_png_index], left - (menu_textures[edit_shadow_png_index].texture.width * 1) + 1, -apollo_config.marginV, 0, menu_textures[edit_shadow_png_index].texture.width, SCREEN_HEIGHT + (apollo_config.marginV * 2), icon_a);
+		DrawTexture(&menu_textures[edit_shadow_png_index], left - (menu_textures[edit_shadow_png_index].width * 1) + 1, -apollo_config.marginV, 0, menu_textures[edit_shadow_png_index].width, SCREEN_HEIGHT + (apollo_config.marginV * 2), icon_a);
 		DrawHeader(cat_cheats_png_index, left, selected_centry->name, "Options", APP_FONT_TITLE_COLOR | icon_a, 0xffffffff, 1);
 
 		//DrawOptions(selected_centry->options[option_index], game_a, 18, menu_old_sel[7]);
 		//DrawScrollBar2(menu_old_sel[7], selected_centry->options[option_index].size, 18, 700, game_a);
 
-		tiny3d_Flip();
+		SDL_RenderPresent(renderer);
 
 		if (left == SCREEN_WIDTH)
 			return;
 	}
-    */
 }
 
 void Draw_CheatsMenu_Options_Ani(void)
 {
-    /*
 	int div = 12, ani = 0, left = SCREEN_WIDTH;
     for (ani = 0; ani < MENU_ANI_MAX; ani++)
     {
-        tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-        tiny3d_AlphaTest(1, 0x0, TINY3D_ALPHA_FUNC_GEQUAL);
-        tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_ALPHA_SRC_ALPHA,
-            0x00000303 | 0x00000000,
-            TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
-        
-        tiny3d_Project2D();
+		SDL_RenderClear(renderer);
+		DrawBackground2D(0xFFFFFFFF);
         
 		u8 icon_a = (u8)(((ani * 4 + 0x40) > 0xFF) ? 0xFF : (ani * 4 + 0x40));
 		left = SCREEN_WIDTH - (ani * div * 3);
@@ -147,19 +134,18 @@ void Draw_CheatsMenu_Options_Ani(void)
 			rgbVal = 0xD0;
 		Draw_CheatsMenu_Selection(menu_sel, (rgbVal << 24) | (rgbVal << 16) | (rgbVal << 8) | 0xFF);
 
-		DrawTexture(&menu_textures[edit_shadow_png_index], left - (menu_textures[edit_shadow_png_index].texture.width * 1) + 1, -apollo_config.marginV, 0, menu_textures[edit_shadow_png_index].texture.width, SCREEN_HEIGHT + (apollo_config.marginV * 2), icon_a);
+		DrawTexture(&menu_textures[edit_shadow_png_index], left - (menu_textures[edit_shadow_png_index].width * 1) + 1, -apollo_config.marginV, 0, menu_textures[edit_shadow_png_index].width, SCREEN_HEIGHT + (apollo_config.marginV * 2), icon_a);
 		DrawHeader(cat_cheats_png_index, left, selected_centry->name, "Options", APP_FONT_TITLE_COLOR | icon_a, 0xffffffff, 1);
         
 		u8 game_a = (u8)(icon_a < 0x8F ? 0 : icon_a);
-		DrawOptions(&selected_centry->options[option_index], game_a, 20, menu_old_sel[7]);
-        DrawScrollBar(menu_old_sel[7], selected_centry->options[option_index].size, 20, SCREEN_WIDTH - 75, game_a);
+		DrawOptions(&selected_centry->options[option_index], game_a, APP_LINE_OFFSET, menu_old_sel[7]);
+        DrawScrollBar(menu_old_sel[7], selected_centry->options[option_index].size, APP_LINE_OFFSET, SCREEN_WIDTH - 75, game_a);
         
-        tiny3d_Flip();
+		SDL_RenderPresent(renderer);
         
 		if ((SCREEN_WIDTH - (ani * div * 3)) < (MENU_SPLIT_OFF / 2))
             return;
     }
-    */
 }
 
 void Draw_CheatsMenu_Options(void)
@@ -246,19 +232,13 @@ int DrawCodes(code_entry_t* code, u8 alpha, int y_inc, int xOff, int selIndex)
 
 void Draw_CheatsMenu_View_Ani_Exit(void)
 {
-    /*
 	int div = 12, ani = 0, left = MENU_SPLIT_OFF;
 	for (ani = MENU_ANI_MAX - 1; ani >= 0; ani--)
 	{
-		tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-		tiny3d_AlphaTest(1, 0x0, TINY3D_ALPHA_FUNC_GEQUAL);
-		tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_ALPHA_SRC_ALPHA,
-			0x00000303 | 0x00000000,
-			TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
+		SDL_RenderClear(renderer);
+		DrawBackground2D(0xFFFFFFFF);
 
-		tiny3d_Project2D();
-
-		u8 icon_a = (u8)((int)(((SCREEN_WIDTH - left) / SCREEN_WIDTH.0) * 255.0));
+		u8 icon_a = (u8)((int)(((SCREEN_WIDTH - left) / SCREEN_WIDTH) * 255.0));
 		left = MENU_SPLIT_OFF + ((MENU_ANI_MAX - ani) * div * 3);
 		if (left > SCREEN_WIDTH)
 			left = SCREEN_WIDTH;
@@ -269,31 +249,24 @@ void Draw_CheatsMenu_View_Ani_Exit(void)
 			rgbVal = 0xD0;
 		Draw_CheatsMenu_Selection(menu_old_sel[5], (rgbVal << 24) | (rgbVal << 16) | (rgbVal << 8) | 0xFF);
 
-		DrawTexture(&menu_textures[edit_shadow_png_index], left - (menu_textures[edit_shadow_png_index].texture.width * 1) + 1, -apollo_config.marginV, 0, menu_textures[edit_shadow_png_index].texture.width, SCREEN_HEIGHT + (apollo_config.marginV * 2), icon_a);
+		DrawTexture(&menu_textures[edit_shadow_png_index], left - (menu_textures[edit_shadow_png_index].width * 1) + 1, -apollo_config.marginV, 0, menu_textures[edit_shadow_png_index].width, SCREEN_HEIGHT + (apollo_config.marginV * 2), icon_a);
 		DrawHeader(cat_cheats_png_index, left, "Details", selected_centry->name, APP_FONT_TITLE_COLOR | icon_a, 0xffffffff, 1);
 
-		tiny3d_Flip();
+		SDL_RenderPresent(renderer);
 
 		if (left == SCREEN_WIDTH)
 			return;
 	}
-    */
 }
 
 void Draw_CheatsMenu_View_Ani(const char* title)
 {
-    /*
 	int div = 12, ani = 0, left = MENU_SPLIT_OFF;
     for (ani = 0; ani < MENU_ANI_MAX; ani++)
     {
-        tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-        tiny3d_AlphaTest(1, 0x0, TINY3D_ALPHA_FUNC_GEQUAL);
-        tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_ALPHA_SRC_ALPHA,
-            0x00000303 | 0x00000000,
-            TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
-        
-        tiny3d_Project2D();
-        
+		SDL_RenderClear(renderer);
+		DrawBackground2D(0xFFFFFFFF);
+
 		u8 icon_a = (u8)(((ani * 4 + 0x40) > 0xFF) ? 0xFF : (ani * 4 + 0x40));
 		left = SCREEN_WIDTH - (ani * div * 3);
 		if (left < MENU_SPLIT_OFF)
@@ -305,19 +278,18 @@ void Draw_CheatsMenu_View_Ani(const char* title)
 			rgbVal = 0xD0;
 		Draw_CheatsMenu_Selection(menu_sel, (rgbVal << 24) | (rgbVal << 16) | (rgbVal << 8) | 0xFF);
 
-		DrawTexture(&menu_textures[edit_shadow_png_index], left - (menu_textures[edit_shadow_png_index].texture.width * 1) + 1, -apollo_config.marginV, 0, menu_textures[edit_shadow_png_index].texture.width, SCREEN_HEIGHT + (apollo_config.marginV * 2), icon_a);
+		DrawTexture(&menu_textures[edit_shadow_png_index], left - (menu_textures[edit_shadow_png_index].width * 1) + 1, -apollo_config.marginV, 0, menu_textures[edit_shadow_png_index].width, SCREEN_HEIGHT + (apollo_config.marginV * 2), icon_a);
 		DrawHeader(cat_cheats_png_index, left, title, selected_centry->name, APP_FONT_TITLE_COLOR | icon_a, 0xffffffff, 1);
 
 		u8 game_a = (u8)(icon_a < 0x8F ? 0 : icon_a);
-		int nlines = DrawCodes(selected_centry, game_a, 20, left, menu_old_sel[6]);
-		DrawScrollBar(menu_old_sel[6], nlines, 20, SCREEN_WIDTH - 75, game_a);
+		int nlines = DrawCodes(selected_centry, game_a, APP_LINE_OFFSET, left, menu_old_sel[6]);
+		DrawScrollBar(menu_old_sel[6], nlines, APP_LINE_OFFSET, SCREEN_WIDTH - 75, game_a);
 		
-		tiny3d_Flip();
+		SDL_RenderPresent(renderer);
 
 		if ((SCREEN_WIDTH - (ani * div * 3)) < (MENU_SPLIT_OFF / 2))
 			return;
     }
-    */
 }
 
 void Draw_CheatsMenu_View(const char* title)

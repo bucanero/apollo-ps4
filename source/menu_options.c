@@ -7,9 +7,9 @@
 #include "menu_options.h"
 #include "libfont.h"
 
-void _draw_OptionsMenu(u8 alpha)
+static void _draw_OptionsMenu(u8 alpha)
 {
-	int c = 0, w = 0, h = 0;
+	int c = 0;
 	char *option_name;
 
     SetFontSize(APP_FONT_SIZE_SELECTION);
@@ -19,7 +19,7 @@ void _draw_OptionsMenu(u8 alpha)
         if (option_name[0] == '\n')
         {
             option_name++;
-            y_off += 20;
+            y_off += APP_LINE_OFFSET;
         }
 
         SetFontColor(APP_FONT_COLOR | alpha, 0);
@@ -29,14 +29,10 @@ void _draw_OptionsMenu(u8 alpha)
 		{
 			case APP_OPTION_BOOL:
 				c = (*menu_options[ind].value == 1) ? opt_on_png_index : opt_off_png_index;
-				w = (int)(menu_textures[c].width / 1.8);
-				h = (int)(menu_textures[c].height / 1.8);
-				DrawTexture(&menu_textures[c], OPTION_ITEM_OFF - 29, y_off, 0, w, h, 0xFFFFFF00 | alpha);
+				DrawTexture(&menu_textures[c], OPTION_ITEM_OFF - 29, y_off, 0, menu_textures[c].width, menu_textures[c].height, 0xFFFFFF00 | alpha);
 				break;
 			case APP_OPTION_CALL:
-				w = (int)(menu_textures[footer_ico_cross_png_index].width / 1.8);
-				h = (int)(menu_textures[footer_ico_cross_png_index].height / 1.8);
-				DrawTexture(&menu_textures[footer_ico_cross_png_index], OPTION_ITEM_OFF - 29, y_off+2, 0, w, h, 0xFFFFFF00 | alpha);
+				DrawTexture(&menu_textures[footer_ico_cross_png_index], OPTION_ITEM_OFF - 29, y_off+2, 0, menu_textures[footer_ico_cross_png_index].width, menu_textures[footer_ico_cross_png_index].height, 0xFFFFFF00 | alpha);
 				break;
 			case APP_OPTION_LIST:
 				SetFontAlign(FONT_ALIGN_CENTER);
@@ -52,11 +48,11 @@ void _draw_OptionsMenu(u8 alpha)
         
         if (menu_sel == ind)
         {
-            DrawTexture(&menu_textures[mark_line_png_index], 0, y_off, 0, SCREEN_WIDTH, menu_textures[mark_line_png_index].height, 0xFFFFFF00 | alpha);
-            DrawTextureCenteredX(&menu_textures[mark_arrow_png_index], MENU_ICON_OFF + MENU_TITLE_OFF, y_off, 0, (2 * 20) / 3, 22, 0xFFFFFF00 | alpha);
+            DrawTexture(&menu_textures[mark_line_png_index], 0, y_off, 0, SCREEN_WIDTH, menu_textures[mark_line_png_index].height * 2, 0xFFFFFF00 | alpha);
+            DrawTextureCenteredX(&menu_textures[mark_arrow_png_index], MENU_ICON_OFF + MENU_TITLE_OFF, y_off, 0, (2 * APP_LINE_OFFSET) / 3, APP_LINE_OFFSET + 2, 0xFFFFFF00 | alpha);
         }
         
-        y_off += 20;
+        y_off += APP_LINE_OFFSET;
         ind++;
     }
 }

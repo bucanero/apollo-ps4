@@ -101,7 +101,7 @@ png_texture * menu_textures;                // png_texture array for main menu, 
 
 
 const char * menu_about_strings[] = { "Bucanero", "Developer",
-									"", "", "", "",
+									"", "",
 									"PS3", "credits",
 									"Berion", "GUI design",
 									"Dnawrkshp", "Artemis code",
@@ -1390,7 +1390,7 @@ s32 main(s32 argc, const char* argv[])
 	menu_options[8].options = get_logged_users();
  
 	// Setup font
-	SetExtraSpace(5);
+	SetExtraSpace(-15);
 	SetCurrentFont(0);
 
 	registerSpecialChars();
@@ -1453,14 +1453,14 @@ s32 main(s32 argc, const char* argv[])
 			SetCurrentFont(0);
 			SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 			SetFontColor(APP_FONT_COLOR | alpha, 0);
-			DrawString(0, SCREEN_HEIGHT - 64, (char *)menu_pad_help[menu_id]);
+			DrawString(0, SCREEN_HEIGHT - 94, (char *)menu_pad_help[menu_id]);
 			SetFontAlign(FONT_ALIGN_LEFT);
 		}
 
 #ifdef APOLLO_ENABLE_LOGGING
 		// Calculate FPS and ms/frame
 		SetFontColor(APP_FONT_COLOR | 0xFF, 0);
-		DrawFormatString(30, 660, "FPS: %d", (1000 / deltaFrameTicks));
+		DrawFormatString(50, 960, "FPS: %d", (1000 / deltaFrameTicks));
 #endif
 		// Propagate the updated window to the screen
 		SDL_RenderPresent(renderer);

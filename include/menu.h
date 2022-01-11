@@ -106,77 +106,75 @@ enum texture_index
 #define APP_FONT_TAG_COLOR					0xFFFFFF00
 #define APP_FONT_MENU_COLOR					0x00000000
 #define APP_FONT_TITLE_COLOR				0xFFFFFF00
-#define APP_FONT_SIZE_TITLE					42, 36
-#define APP_FONT_SIZE_SUBTITLE				34, 30
-#define APP_FONT_SIZE_SUBTEXT				18, 18
-#define APP_FONT_SIZE_ABOUT					28, 25
-#define APP_FONT_SIZE_SELECTION				28, 24
-#define APP_FONT_SIZE_DESCRIPTION			27, 24
-#define APP_FONT_SIZE_MENU					28, 27
+#define APP_FONT_SIZE_TITLE					84, 72
+#define APP_FONT_SIZE_SUBTITLE				68, 60
+#define APP_FONT_SIZE_SUBTEXT				36, 36
+#define APP_FONT_SIZE_ABOUT					56, 50
+#define APP_FONT_SIZE_SELECTION				56, 48
+#define APP_FONT_SIZE_DESCRIPTION			54, 48
+#define APP_FONT_SIZE_MENU					56, 54
+#define APP_FONT_SIZE_JARS					46, 44
+#define APP_LINE_OFFSET						40
 
-#define SCREEN_WIDTH						1280
-#define SCREEN_HEIGHT						720
-
-//Screen adjustment (SDL2/Assets)
-#define SCREEN_W_ADJ 						SCREEN_WIDTH/1920
-#define SCREEN_H_ADJ 						SCREEN_HEIGHT/1080
+#define SCREEN_WIDTH						1920
+#define SCREEN_HEIGHT						1080
 
 //Asset sizes
-#define	logo_png_w							478 * SCREEN_W_ADJ
-#define	logo_png_h							468 * SCREEN_H_ADJ
-#define bg_water_png_w						1920 * SCREEN_W_ADJ
-#define bg_water_png_h						230 * SCREEN_H_ADJ
+#define	logo_png_w							478
+#define	logo_png_h							468
+#define bg_water_png_w						1920
+#define bg_water_png_h						230
 
 
-#define scroll_bg_png_x						1810 * SCREEN_W_ADJ
-#define scroll_bg_png_y						169 * SCREEN_H_ADJ
+#define scroll_bg_png_x						1810
+#define scroll_bg_png_y						169
 
 
 #define help_png_x							80
-#define help_png_y							150 * SCREEN_H_ADJ
-#define help_png_w							1730 * SCREEN_W_ADJ
-#define help_png_h							800 * SCREEN_H_ADJ
+#define help_png_y							150
+#define help_png_w							1730
+#define help_png_h							800
 
 
 //Asset positions
 #define bg_water_png_x						0
-#define bg_water_png_y						851 * SCREEN_H_ADJ
+#define bg_water_png_y						851
 #define list_bg_png_x						0
-#define list_bg_png_y						169 * SCREEN_H_ADJ
-#define logo_png_x							722 * SCREEN_W_ADJ
-#define logo_png_y							45 * SCREEN_H_ADJ
-#define column_1_png_x						131 * SCREEN_W_ADJ
-#define column_1_png_y						908 * SCREEN_H_ADJ
-#define column_2_png_x						401 * SCREEN_W_ADJ
-#define column_2_png_y						831 * SCREEN_H_ADJ
-#define column_3_png_x						638 * SCREEN_W_ADJ
-#define column_3_png_y						871 * SCREEN_H_ADJ
-#define column_4_png_x						870 * SCREEN_W_ADJ
-#define column_4_png_y						831 * SCREEN_H_ADJ
-#define column_5_png_x						1094 * SCREEN_W_ADJ
-#define column_5_png_y						942 * SCREEN_H_ADJ
-#define column_6_png_x						1313 * SCREEN_W_ADJ
-#define column_6_png_y						828 * SCREEN_H_ADJ
-#define column_7_png_x						1665 * SCREEN_W_ADJ
-#define column_7_png_y						955 * SCREEN_H_ADJ
-#define jar_empty_png_x						159 * SCREEN_W_ADJ
-#define jar_empty_png_y						777 * SCREEN_H_ADJ
-#define jar_usb_png_x						441 * SCREEN_W_ADJ
-#define jar_usb_png_y						699 * SCREEN_H_ADJ
-#define jar_hdd_png_x						669 * SCREEN_W_ADJ
-#define jar_hdd_png_y						739 * SCREEN_H_ADJ
-#define jar_db_png_x						898 * SCREEN_W_ADJ
-#define jar_db_png_y						700 * SCREEN_H_ADJ
-#define jar_bup_png_x						1125 * SCREEN_W_ADJ
-#define jar_bup_png_y						810 * SCREEN_H_ADJ
-#define jar_opt_png_x						1353 * SCREEN_W_ADJ
-#define jar_opt_png_y						696 * SCREEN_H_ADJ
-#define jar_about_png_x						1698 * SCREEN_W_ADJ
-#define jar_about_png_y						782 * SCREEN_H_ADJ
-#define cat_any_png_x						40 * SCREEN_W_ADJ
-#define cat_any_png_y						45 * SCREEN_H_ADJ
-#define app_ver_png_x						1828 * SCREEN_W_ADJ
-#define app_ver_png_y						67 * SCREEN_H_ADJ
+#define list_bg_png_y						169
+#define logo_png_x							722
+#define logo_png_y							45
+#define column_1_png_x						131
+#define column_1_png_y						908
+#define column_2_png_x						401
+#define column_2_png_y						831
+#define column_3_png_x						638
+#define column_3_png_y						871
+#define column_4_png_x						870
+#define column_4_png_y						831
+#define column_5_png_x						1094
+#define column_5_png_y						942
+#define column_6_png_x						1313
+#define column_6_png_y						828
+#define column_7_png_x						1665
+#define column_7_png_y						955
+#define jar_empty_png_x						159
+#define jar_empty_png_y						777
+#define jar_usb_png_x						441
+#define jar_usb_png_y						699
+#define jar_hdd_png_x						669
+#define jar_hdd_png_y						739
+#define jar_db_png_x						898
+#define jar_db_png_y						700
+#define jar_bup_png_x						1125
+#define jar_bup_png_y						810
+#define jar_opt_png_x						1353
+#define jar_opt_png_y						696
+#define jar_about_png_x						1698
+#define jar_about_png_y						782
+#define cat_any_png_x						40
+#define cat_any_png_y						45
+#define app_ver_png_x						1828
+#define app_ver_png_y						67
 
 
 typedef struct pad_input
@@ -222,7 +220,6 @@ extern void DrawTexture(png_texture* tex, int x, int y, int z, int w, int h, u32
 extern void DrawTextureCentered(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba);
 extern void DrawTextureCenteredX(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba);
 extern void DrawTextureCenteredY(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba);
-extern void DrawSelector(int x, int y, int w, int h, int hDif, u8 alpha);
 extern void DrawHeader(int icon, int xOff, const char * headerTitle, const char * headerSubTitle, u32 rgba, u32 bgrgba, int mode);
 extern void DrawHeader_Ani(int icon, const char * headerTitle, const char * headerSubTitle, u32 rgba, u32 bgrgba, int ani, int div);
 extern void DrawBackgroundTexture(int x, u8 alpha);
@@ -231,8 +228,6 @@ extern void Draw_MainMenu();
 extern void Draw_MainMenu_Ani();
 int LoadMenuTexture(const char* path, int idx);
 
-void drawJars(uint8_t alpha);
-void drawColumns(uint8_t alpha);
 void drawSplashLogo(int m);
 
 int load_app_settings(app_config_t* config);

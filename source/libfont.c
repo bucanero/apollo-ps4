@@ -358,7 +358,7 @@ int WidthFromStrMono(u8 * str)
     int w = 0;
 
     while(*str) {
-		w += (font_datas.sx * font_datas.mono) / font_datas.fonts[font_datas.current_font].w;
+		w += (font_datas.sx * font_datas.mono) / font_datas.fonts[font_datas.current_font].w + font_datas.extra;
 		str++;
     }
 
@@ -384,28 +384,7 @@ int DrawCharSpecial(float x, float y, float z, const special_char* schr, uint8_t
 	
 	// Load sprite texture
     DrawTexture(schr->image, x, y, z, dx, dy, 0xFFFFFF00 | RGBA_A(font_datas.color));
-/*
-	tiny3d_SetTexture(0, schr->image->texture_off, schr->image->texture.width,
-		schr->image->texture.height, schr->image->texture.pitch,
-		TINY3D_TEX_FORMAT_A8R8G8B8, 1);
 
-	tiny3d_SetPolygon(TINY3D_QUADS);
-
-	tiny3d_VertexPos(x, y, z);
-	tiny3d_VertexColor(font_datas.color);
-	tiny3d_VertexTexture(0.0f, 0.0f);
-
-	tiny3d_VertexPos(x + dx, y, z);
-	tiny3d_VertexTexture(0.999f, 0.0f);
-
-	tiny3d_VertexPos(x + dx, y + dy + 1, z);
-	tiny3d_VertexTexture(0.999f, 0.999f);
-
-	tiny3d_VertexPos(x, y + dy + 1, z);
-	tiny3d_VertexTexture(0.0f, 0.999f);
-
-	tiny3d_End();
-*/
     return (int)dx;
 }
 
@@ -460,20 +439,6 @@ void DrawCharMono(float x, float y, float z, u8 chr)
 
         SDL_SetRenderDrawColor(renderer, RGBA_R(font_datas.bkcolor), RGBA_G(font_datas.bkcolor), RGBA_B(font_datas.bkcolor), RGBA_A(font_datas.bkcolor));
         SDL_RenderFillRectF(renderer, &rect);
-/*
-		tiny3d_SetPolygon(TINY3D_QUADS);
-
-		tiny3d_VertexPos(x, y, z);
-		tiny3d_VertexColor(font_datas.bkcolor);
-
-		tiny3d_VertexPos(x + dx2, y, z);
-
-		tiny3d_VertexPos(x + dx2, y + dy2, z);
-
-		tiny3d_VertexPos(x, y + dy2, z);
-
-		tiny3d_End();
-*/
 	}
 
 	y += (float)(font_datas.fonts[font_datas.current_font].fy[chr] * font_datas.sy) / (float)(font_datas.fonts[font_datas.current_font].h);
@@ -484,30 +449,6 @@ void DrawCharMono(float x, float y, float z, u8 chr)
     orbis2dDrawChar(x, y, font_datas.fonts[font_datas.current_font].rsx_text_offset + font_datas.fonts[font_datas.current_font].rsx_bytes_per_char
 		* (chr - font_datas.fonts[font_datas.current_font].first_char), font_datas.fonts[font_datas.current_font].w,
 		font_datas.fonts[font_datas.current_font].h, dx, dy, font_datas.color);
-/*
-	tiny3d_SetTexture(0, font_datas.fonts[font_datas.current_font].rsx_text_offset + font_datas.fonts[font_datas.current_font].rsx_bytes_per_char
-		* (chr - font_datas.fonts[font_datas.current_font].first_char), font_datas.fonts[font_datas.current_font].w,
-		font_datas.fonts[font_datas.current_font].h, font_datas.fonts[font_datas.current_font].w *
-		((font_datas.fonts[font_datas.current_font].color_format == TINY3D_TEX_FORMAT_A8R8G8B8) ? 4 : 2),
-		font_datas.fonts[font_datas.current_font].color_format, 1);
-
-	tiny3d_SetPolygon(TINY3D_QUADS);
-
-	tiny3d_VertexPos(x, y, z);
-	tiny3d_VertexColor(font_datas.color);
-	tiny3d_VertexTexture(0.0f, 0.0f);
-
-	tiny3d_VertexPos(x + dx, y, z);
-	tiny3d_VertexTexture(0.95f, 0.0f);
-
-	tiny3d_VertexPos(x + dx, y + dy, z);
-	tiny3d_VertexTexture(0.95f, 0.95f);
-
-	tiny3d_VertexPos(x, y + dy, z);
-	tiny3d_VertexTexture(0.0f, 0.95f);
-
-	tiny3d_End();
-*/
 }
 
 void DrawChar(float x, float y, float z, u8 chr)
@@ -537,20 +478,6 @@ void DrawChar(float x, float y, float z, u8 chr)
 
         SDL_SetRenderDrawColor(renderer, RGBA_R(font_datas.bkcolor), RGBA_G(font_datas.bkcolor), RGBA_B(font_datas.bkcolor), RGBA_A(font_datas.bkcolor));
         SDL_RenderFillRectF(renderer, &rect);
-/*
-		tiny3d_SetPolygon(TINY3D_QUADS);
-
-		tiny3d_VertexPos(x, y, z);
-		tiny3d_VertexColor(font_datas.bkcolor);
-
-		tiny3d_VertexPos(x + dx2, y, z);
-
-		tiny3d_VertexPos(x + dx2, y + dy2, z);
-
-		tiny3d_VertexPos(x, y + dy2, z);
-
-		tiny3d_End();
-*/
 	}
 
 	y += (float)(font_datas.fonts[font_datas.current_font].fy[chr] * font_datas.sy) / (float)(font_datas.fonts[font_datas.current_font].h);
@@ -561,30 +488,6 @@ void DrawChar(float x, float y, float z, u8 chr)
     orbis2dDrawChar(x, y, font_datas.fonts[font_datas.current_font].rsx_text_offset + font_datas.fonts[font_datas.current_font].rsx_bytes_per_char
 		* (chr - font_datas.fonts[font_datas.current_font].first_char), font_datas.fonts[font_datas.current_font].w,
 		font_datas.fonts[font_datas.current_font].h, dx, dy, font_datas.color);
-/*
-	tiny3d_SetTexture(0, font_datas.fonts[font_datas.current_font].rsx_text_offset + font_datas.fonts[font_datas.current_font].rsx_bytes_per_char
-		* (chr - font_datas.fonts[font_datas.current_font].first_char), font_datas.fonts[font_datas.current_font].w,
-		font_datas.fonts[font_datas.current_font].h, font_datas.fonts[font_datas.current_font].w *
-		((font_datas.fonts[font_datas.current_font].color_format == TINY3D_TEX_FORMAT_A8R8G8B8) ? 4 : 2),
-		font_datas.fonts[font_datas.current_font].color_format, 1);
-
-	tiny3d_SetPolygon(TINY3D_QUADS);
-
-	tiny3d_VertexPos(x, y, z);
-	tiny3d_VertexColor(font_datas.color);
-	tiny3d_VertexTexture(0.0f, 0.0f);
-
-	tiny3d_VertexPos(x + dx, y, z);
-	tiny3d_VertexTexture(0.95f, 0.0f);
-
-	tiny3d_VertexPos(x + dx, y + dy, z);
-	tiny3d_VertexTexture(0.95f, 0.95f);
-
-	tiny3d_VertexPos(x, y + dy, z);
-	tiny3d_VertexTexture(0.0f, 0.95f);
-
-	tiny3d_End();
-*/
 }
 
 static int i_must_break_line(const char *str, float x)
@@ -598,7 +501,6 @@ static int i_must_break_line(const char *str, float x)
         str++;
     }
 
-    
     if(*str && (x+xx) >= font_datas.autonewline) return 1;
 
     return 0;
@@ -608,7 +510,7 @@ float DrawStringMono(float x, float y, const char *str)
 {
 	float initX = x;
 	int dx = font_datas.sx;
-    font_datas.mono = font_datas.sx;
+    font_datas.mono = font_datas.fonts[font_datas.current_font].w;
 	
     switch (font_datas.align)
     {
@@ -643,7 +545,7 @@ float DrawStringMono(float x, float y, const char *str)
         }
 
         DrawChar(x, y, font_datas.Z, (u8) *str);
-		x += (dx * font_datas.mono) / font_datas.fonts[font_datas.current_font].w;
+		x += (dx * font_datas.mono) / font_datas.fonts[font_datas.current_font].w + font_datas.extra;
         str++; 
     }
 
@@ -690,7 +592,7 @@ float DrawString(float x, float y, const char *str)
         break;
     }
 
-	display_ttf_string((int)x +1, (int)y +1, str, 0x00000000 | (font_datas.color & 0x000000ff), 0, font_datas.sx, font_datas.sy+4, &skip_icon);
+	display_ttf_string((int)x +2, (int)y +2, str, 0x00000000 | (font_datas.color & 0x000000ff), 0, font_datas.sx, font_datas.sy+4, &skip_icon);
 
 	return display_ttf_string((int)x, (int)y, str, font_datas.color, font_datas.bkcolor, font_datas.sx, font_datas.sy+4, &draw_icon);
 }

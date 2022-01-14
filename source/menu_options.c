@@ -59,7 +59,6 @@ static void _draw_OptionsMenu(u8 alpha)
 
 void Draw_OptionsMenu_Ani()
 {
-/*
     int ani = 0;
     for (ani = 0; ani < MENU_ANI_MAX; ani++)
     {
@@ -80,7 +79,6 @@ void Draw_OptionsMenu_Ani()
         if (game_a == 0xFF)
             return;
     }
-*/
 }
 
 void Draw_OptionsMenu()

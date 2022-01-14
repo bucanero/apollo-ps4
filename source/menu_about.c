@@ -28,7 +28,7 @@ static void _draw_AboutMenu(u8 alpha)
 		DrawStringMono((SCREEN_WIDTH / 2) + 20, 280 + (cnt * 20), menu_about_strings[cnt + 1]);
     }
 
-	DrawTexture(&menu_textures[help_png_index], help_png_x, 300 + (cnt * 22), 0, help_png_w, 220, 0xFFFFFF00 | 0xFF);
+	DrawTexture(&menu_textures[help_png_index], help_png_x, 300 + (cnt * 22), 0, help_png_w, 220, 0xFFFFFF00 | alpha);
 
 	SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 	SetFontColor(APP_FONT_COLOR | alpha, 0);
@@ -56,7 +56,6 @@ static void _draw_AboutMenu(u8 alpha)
 
 void Draw_AboutMenu_Ani()
 {
-/*
 	int ani = 0;
 	for (ani = 0; ani < MENU_ANI_MAX; ani++)
 	{
@@ -79,7 +78,6 @@ void Draw_AboutMenu_Ani()
 		if (about_a == 0xFF)
 			return;
 	}
-*/
 }
 
 void Draw_AboutMenu()

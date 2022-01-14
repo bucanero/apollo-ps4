@@ -102,28 +102,28 @@ void DrawHeader_Ani(int icon, const char * hdrTitle, const char * headerSubTitle
 
 	_drawListBackground(0, icon);
 	//------------- Menu Bar
-
+/*
 	int cnt, cntMax = ((ani * div) > (SCREEN_WIDTH - 75)) ? (SCREEN_WIDTH - 75) : (ani * div);
 	for (cnt = MENU_ICON_OFF; cnt < cntMax; cnt++)
 		DrawTexture(&menu_textures[header_line_png_index], cnt, 40, 0, menu_textures[header_line_png_index].width, menu_textures[header_line_png_index].height / 2, 0xffffffff);
 
 	DrawTexture(&menu_textures[header_dot_png_index], cnt - 4, 40, 0, menu_textures[header_dot_png_index].width / 2, menu_textures[header_dot_png_index].height / 2, 0xffffff00 | icon_a);
+*/
 
 	//header mini icon
-	DrawTextureCenteredX(&menu_textures[icon], MENU_ICON_OFF - 20, 32, 0, 48, 48, 0xffffff00 | icon_a);
+	DrawTextureCenteredX(&menu_textures[icon], MENU_ICON_OFF - 20, 32, 0, 96, 96, 0xffffff00 | icon_a);
 
 	//header title string
 	SetFontColor(rgba | icon_a, 0);
 	SetFontSize(APP_FONT_SIZE_TITLE);
-	DrawString(MENU_ICON_OFF + 10, 31, headerTitle);
+	DrawString(MENU_ICON_OFF + 40, 31, headerTitle);
 
 	//header sub title string
 	if (headerSubTitle)
 	{
 		int width = (SCREEN_WIDTH - 75) - (MENU_ICON_OFF + MENU_TITLE_OFF + WidthFromStr(headerTitle)) - 30;
 		SetFontSize(APP_FONT_SIZE_SUBTITLE);
-		char * tName = malloc(strlen(headerSubTitle) + 1);
-		strcpy(tName, headerSubTitle);
+		char * tName = strdup(headerSubTitle);
 		while (WidthFromStr(tName) > width)
 		{
 			tName[strlen(tName) - 1] = 0;
@@ -174,8 +174,7 @@ void DrawHeader(int icon, int xOff, const char * hdrTitle, const char * headerSu
 	{
 		int width = (SCREEN_WIDTH - 75) - (MENU_ICON_OFF + MENU_TITLE_OFF + WidthFromStr(headerTitle)) - 30;
 		SetFontSize(APP_FONT_SIZE_SUBTITLE);
-		char * tName = malloc(strlen(headerSubTitle) + 1);
-		strcpy(tName, headerSubTitle);
+		char * tName = strdup(headerSubTitle);
 		while (WidthFromStr(tName) > width)
 		{
 			tName[strlen(tName) - 1] = 0;

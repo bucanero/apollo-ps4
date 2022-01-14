@@ -408,17 +408,16 @@ void DrawCheatsList(int selIndex, save_entry_t* game, u8 alpha)
                 goto skip_code;
 
             SetFontColor(APP_FONT_COLOR | a, 0);
-            //printf ("Drawing code name %d\n", x);
             float dx = DrawString(MENU_ICON_OFF + (MENU_TITLE_OFF * 3) - xo, game_y, code->name);
             
             if (code->activated)
             {
 				DrawTexture(&menu_textures[cheat_png_index], MENU_ICON_OFF, game_y, 0, (MENU_TITLE_OFF * 3) - 15, y_inc + 2, 0xFFFFFF00 | a);
 
-				SetFontSize((int)(y_inc * 0.6), (int)(y_inc * 0.6));
+                SetFontSize((int)(y_inc * 1.0), (int)(y_inc * 0.6));
                 SetFontAlign(FONT_ALIGN_CENTER);
 				SetFontColor(APP_FONT_TAG_COLOR | a, 0);
-				DrawString(MENU_ICON_OFF + ((MENU_TITLE_OFF * 3) - 15) / 2, game_y + 2, "select");
+                DrawString(MENU_ICON_OFF + ((MENU_TITLE_OFF * 3) - 15) / 2, game_y + 5, "select");
                 SetFontAlign(FONT_ALIGN_LEFT);
                 SetFontSize(APP_FONT_SIZE_SELECTION);
                 
@@ -466,7 +465,6 @@ skip_code:
 
 void Draw_CheatsMenu_Selection_Ani()
 {
-    /*
     int ani = 0;
     for (ani = 0; ani < MENU_ANI_MAX; ani++)
     {
@@ -488,7 +486,6 @@ void Draw_CheatsMenu_Selection_Ani()
         if (_game_a == 0xFF)
             return;
     }
-    */
 }
 
 void Draw_CheatsMenu_Selection(int menuSel, u32 rgba)
@@ -503,7 +500,6 @@ void Draw_CheatsMenu_Selection(int menuSel, u32 rgba)
  */
 void Draw_UserCheatsMenu_Ani(save_list_t * list)
 {
-    /*
     int ani = 0;
     for (ani = 0; ani < MENU_ANI_MAX; ani++)
     {
@@ -525,7 +521,6 @@ void Draw_UserCheatsMenu_Ani(save_list_t * list)
         if (_game_a == 0xFF)
             return;
     }
-*/
 }
 
 void Draw_UserCheatsMenu(save_list_t * list, int menuSel, u8 alpha)

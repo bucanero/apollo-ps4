@@ -137,7 +137,7 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 		goto close_http;
 	}
 
-	uint8_t dl_buf[8 * 1024];
+	uint8_t dl_buf[64 * 1024];
 	uint64_t total_read = 0;
 	FILE* fd = fopen(local_dst, "wb");
 

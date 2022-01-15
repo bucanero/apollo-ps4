@@ -201,7 +201,7 @@ int DrawCodes(code_entry_t* code, u8 alpha, int y_inc, int xOff, int selIndex)
     //SetCurrentFont(font_comfortaa_regular);
 
     if (code->file && (code->type == PATCH_BSD || code->type == PATCH_GAMEGENIE))
-        DrawFormatString(xOff + MENU_ICON_OFF + 20, 585, "Target File: %s", code->file);
+        DrawFormatString(xOff + MENU_ICON_OFF + 20, 880, "Target File: %s", code->file);
 
     for (c = startDrawX; c < max; c++)
     {

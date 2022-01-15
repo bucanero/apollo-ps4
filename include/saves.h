@@ -92,14 +92,14 @@ enum cmd_code_enum
     CMD_DUMP_FINGERPRINTS,
 
 // Export commands
-    CMD_EXP_EXDATA_USB,
+    CMD_EXP_KEYSTONE,
     CMD_EXP_LICS_RAPS,
     CMD_EXP_FLASH2_USB,
     CMD_EXP_PSV_MCS,
     CMD_EXP_PSV_PSU,
 
 // Import commands
-    CMD_IMP_EXDATA_USB,
+    CMD_IMP_KEYSTONE,
     CMD_CREATE_ACT_DAT,
 
 // SFO patches

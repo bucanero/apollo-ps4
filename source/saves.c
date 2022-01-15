@@ -30,7 +30,7 @@
 const void* sqlite3_get_sqlite3Apis();
 int sqlite3_memvfs_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi);
 
-sqlite3* open_sqlite_db(const char* db_path)
+static sqlite3* open_sqlite_db(const char* db_path)
 {
 	uint8_t* db_buf;
 	size_t db_size;
@@ -193,7 +193,7 @@ int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char*
  *	b:				Potential end
  * Return:			pointer if true, NULL if false
  */
-char* endsWith(const char * a, const char * b)
+static char* endsWith(const char * a, const char * b)
 {
 	int al = strlen(a), bl = strlen(b);
     
@@ -241,7 +241,7 @@ char * readTextFile(const char * path, long* size)
 	return string;
 }
 
-code_entry_t* _createCmdCode(uint8_t type, const char* name, char code)
+static code_entry_t* _createCmdCode(uint8_t type, const char* name, char code)
 {
 	code_entry_t* entry = (code_entry_t *)calloc(1, sizeof(code_entry_t));
 	entry->type = type;
@@ -251,7 +251,7 @@ code_entry_t* _createCmdCode(uint8_t type, const char* name, char code)
 	return entry;
 }
 
-option_entry_t* _initOptions(int count)
+static option_entry_t* _initOptions(int count)
 {
 	option_entry_t* options = (option_entry_t*)malloc(sizeof(option_entry_t));
 
@@ -265,7 +265,7 @@ option_entry_t* _initOptions(int count)
 	return options;
 }
 
-option_entry_t* _createOptions(int count, const char* name, char value)
+static option_entry_t* _createOptions(int count, const char* name, char value)
 {
 	option_entry_t* options = _initOptions(count);
 
@@ -277,7 +277,7 @@ option_entry_t* _createOptions(int count, const char* name, char value)
 	return options;
 }
 
-save_entry_t* _createSaveEntry(uint16_t flag, const char* name)
+static save_entry_t* _createSaveEntry(uint16_t flag, const char* name)
 {
 	save_entry_t* entry = (save_entry_t *)calloc(1, sizeof(save_entry_t));
 	entry->flags = flag;
@@ -286,7 +286,7 @@ save_entry_t* _createSaveEntry(uint16_t flag, const char* name)
 	return entry;
 }
 
-option_entry_t* _getFileOptions(const char* save_path, const char* mask, uint8_t is_cmd)
+static option_entry_t* _getFileOptions(const char* save_path, const char* mask, uint8_t is_cmd)
 {
 	DIR *d;
 	struct dirent *dir;
@@ -338,7 +338,7 @@ option_entry_t* _getFileOptions(const char* save_path, const char* mask, uint8_t
 	return opt;
 }
 
-void _addBackupCommands(save_entry_t* item)
+static void _addBackupCommands(save_entry_t* item)
 {
 	code_entry_t* cmd;
 
@@ -365,9 +365,6 @@ void _addBackupCommands(save_entry_t* item)
 	asprintf(&cmd->options->value[2], "%c", CMD_EXPORT_ZIP_HDD);
 	list_append(item->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump save Fingerprint", CMD_EXP_FINGERPRINT);
-	list_append(item->codes, cmd);
-
 	if(!(item->flags & SAVE_FLAG_HDD))
 		return;
 
@@ -382,7 +379,7 @@ void _addBackupCommands(save_entry_t* item)
 	list_append(item->codes, cmd);
 }
 
-option_entry_t* _getSaveTitleIDs(const char* title_id)
+static option_entry_t* _getSaveTitleIDs(const char* title_id)
 {
 	int count = 1;
 	option_entry_t* opt;
@@ -419,9 +416,23 @@ option_entry_t* _getSaveTitleIDs(const char* title_id)
 	return opt;
 }
 
-void _addSfoCommands(save_entry_t* save)
+static void _addSfoCommands(save_entry_t* save)
 {
 	code_entry_t* cmd;
+
+	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Keystone Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Export Keystone", CMD_EXP_KEYSTONE);
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Import Keystone", CMD_IMP_KEYSTONE);
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump save Fingerprint", CMD_EXP_FINGERPRINT);
+	list_append(save->codes, cmd);
+
+	return;
 
 	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " SFO Patches " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(save->codes, cmd);
@@ -570,7 +581,7 @@ int ReadCodes(save_entry_t * save)
 	}
 
 	_addBackupCommands(save);
-//	_addSfoCommands(save);
+	_addSfoCommands(save);
 
 	snprintf(filePath, sizeof(filePath), APOLLO_DATA_PATH "%s.savepatch", save->title_id);
 	if (file_exists(filePath) != SUCCESS)
@@ -884,7 +895,7 @@ int ReadBackupCodes(save_entry_t * bup)
 	bup->codes = list_alloc();
 
 	LOG("Loading %s files from '%s'...", fext, bup->path);
-
+/*
 	if (bup->type == FILE_TYPE_RIF)
 	{
 		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " Backup All Licenses to .Zip", CMD_CODE_NULL);
@@ -940,7 +951,7 @@ int ReadBackupCodes(save_entry_t * bup)
 		}
 		closedir(d);
 	}
-
+*/
 	LOG("%d items loaded", list_count(bup->codes));
 
 	return list_count(bup->codes);
@@ -1048,7 +1059,7 @@ int sortSaveList_Compare(const void* a, const void* b)
 	return strcasecmp(((save_entry_t*) a)->name, ((save_entry_t*) b)->name);
 }
 
-void read_usb_savegames(const char* userPath, list_t *list, uint32_t flag)
+static void read_usb_savegames(const char* userPath, list_t *list, uint32_t flag)
 {
 	DIR *d;
 	struct dirent *dir;
@@ -1108,7 +1119,7 @@ void read_usb_savegames(const char* userPath, list_t *list, uint32_t flag)
 	closedir(d);
 }
 
-void read_hdd_savegames(const char* userPath, list_t *list, uint32_t flag)
+static void read_hdd_savegames(const char* userPath, list_t *list, uint32_t flag)
 {
 	save_entry_t *item;
 	sqlite3_stmt *res;
@@ -1367,7 +1378,7 @@ list_t * ReadUserList(const char* userPath)
  *	gmc:			Set as the number of games read
  * Return:			Pointer to array of game_entry, null if failed
  */
-void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
+static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 {
 	save_entry_t *item;
 	char path[256];

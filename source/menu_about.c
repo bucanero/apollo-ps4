@@ -9,9 +9,10 @@
 static void _draw_AboutMenu(u8 alpha)
 {
 	int cnt = 0;
+	u8 alp2 = ((alpha*2) > 0xFF) ? 0xFF : (alpha * 2); 
     
     //------------- About Menu Contents
-	DrawTextureCenteredX(&menu_textures[logo_text_png_index], SCREEN_WIDTH/2, 110, 0, menu_textures[logo_text_png_index].width * 3/2, menu_textures[logo_text_png_index].height * 3/2, 0xFFFFFF00 | alpha);
+	DrawTextureCenteredX(&menu_textures[logo_text_png_index], SCREEN_WIDTH/2, 110, 0, menu_textures[logo_text_png_index].width * 3/2, menu_textures[logo_text_png_index].height * 3/2, 0xFFFFFF00 | alp2);
 
     SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 	SetCurrentFont(font_adonais_regular);
@@ -28,7 +29,7 @@ static void _draw_AboutMenu(u8 alpha)
 		DrawStringMono((SCREEN_WIDTH / 2) + 20, 280 + (cnt * 20), menu_about_strings[cnt + 1]);
     }
 
-	DrawTexture(&menu_textures[help_png_index], help_png_x, 300 + (cnt * 22), 0, help_png_w, 220, 0xFFFFFF00 | alpha);
+	DrawTexture(&menu_textures[help_png_index], help_png_x, 300 + (cnt * 22), 0, help_png_w, 220, 0xFFFFFF00 | alp2);
 
 	SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 	SetFontColor(APP_FONT_COLOR | alpha, 0);
@@ -48,7 +49,7 @@ static void _draw_AboutMenu(u8 alpha)
 
 	SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 	SetCurrentFont(font_adonais_regular);
-	SetFontColor(APP_FONT_MENU_COLOR | 0xFF, 0);
+	SetFontColor(APP_FONT_MENU_COLOR | alp2, 0);
 	SetFontSize(APP_FONT_SIZE_JARS);
 	DrawStringMono(0, 890, "www.bucanero.com.ar");
 	SetFontAlign(FONT_ALIGN_LEFT);

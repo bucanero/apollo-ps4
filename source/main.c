@@ -74,6 +74,7 @@ pad_input_t pad_data;
 OrbisPadData padA[MAX_PADS];
 
 
+void drawScene();
 void update_usb_path(char *p);
 void update_hdd_path(char *p);
 void update_trophy_path(char *p);
@@ -470,8 +471,8 @@ int LoadSounds(void* data)
 		/* Output audio */
 		sceAudioOutOutput(audio, NULL);	// NULL: wait for completion
 
-		if (sceAudioOutOutput(audio, pSampleData + sOffs) < 0) {
-
+		if (sceAudioOutOutput(audio, pSampleData + sOffs) < 0)
+		{
 			LOG("Failed to output audio");
 			return -1;
 		}
@@ -850,7 +851,11 @@ void doMainMenu()
 			move_selection_fwd(MENU_CREDITS, 1);
 
 		else if (pad_check_button(ORBIS_PAD_BUTTON_CROSS))
+		{
 		    SetMenu(menu_sel+1);
+			drawScene();
+			return;
+		}
 
 		else if(pad_check_button(ORBIS_PAD_BUTTON_CIRCLE) && show_dialog(1, "Exit to XMB?"))
 			close_app = 1;

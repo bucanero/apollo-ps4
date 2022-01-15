@@ -920,6 +920,23 @@ static int _copy_save_file(const char* src_path, const char* dst_path, const cha
 	return (copy_file(src, dst) == SUCCESS);
 }
 
+static void copyKeystone(int import)
+{
+	char path_data[256];
+	char path_save[256];
+
+	snprintf(path_save, sizeof(path_save), "%ssce_sys/", selected_entry->path);
+	snprintf(path_data, sizeof(path_data), APOLLO_USER_PATH "%s/", apollo_config.user_id, selected_entry->title_id);
+	mkdirs(path_data);
+
+	LOG("Copy '%skeystone' <-> '%s'...", path_save, path_data);
+
+	if (_copy_save_file(import ? path_data : path_save, import ? path_save : path_data, "keystone"))
+		show_message("Keystone successfully copied to:\n%skeystone", import ? path_save : path_data);
+	else
+		show_message("Error! Keystone couldn't be copied");
+}
+
 static void decryptSaveFile(const char* filename)
 {
 	char path[256];
@@ -1007,17 +1024,17 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			copySaveHDD(selected_entry);
 			code->activated = 0;
 			break;
-/*
-		case CMD_EXP_EXDATA_USB:
-			exportLicensesZip(codecmd[1] ? EXPORT_PATH_USB1 : EXPORT_PATH_USB0);
+
+		case CMD_EXP_KEYSTONE:
+			copyKeystone(0);
 			code->activated = 0;
 			break;
 
-		case CMD_EXP_LICS_RAPS:
-			exportLicensesRap(code->file, codecmd[1]);
+		case CMD_IMP_KEYSTONE:
+			copyKeystone(1);
 			code->activated = 0;
 			break;
-*/
+
 		case CMD_CREATE_ACT_DAT:
 			activateAccount(code->file[0]);
 			code->activated = 0;

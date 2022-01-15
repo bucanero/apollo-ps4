@@ -4,6 +4,23 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v0.8.0](https://github.com/bucanero/apollo-ps4/releases/tag/v0.8.0) - 2022-01-15
+
+### Added
+
+* Full-HD 1920x1080 UI rendering
+* Enabled animations and screen transitions
+* Import/export Keystone files
+
+### Fixed
+
+* Fixed file attributes when creating .Zips
+* Fixed Online DB links
+
+### Misc
+
+* Project updated to Open Orbis SDK v0.5.2
+
 ## [v0.7.0](https://github.com/bucanero/apollo-ps4/releases/tag/v0.7.0) - 2022-01-05
 
 ### Added

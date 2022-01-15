@@ -805,6 +805,7 @@ static void resignAllSaves(const char* path)
 	closedir(d);
 
 	stop_loading_screen();
+    show_message("All saves successfully resigned!");
 }
 /*
 int apply_trophy_account()

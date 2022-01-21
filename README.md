@@ -105,6 +105,8 @@ You need to have installed:
 - [Open Orbis SDK](https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/)
 - [Apollo](https://github.com/bucanero/apollo-lib) library
 - [Zip](https://github.com/bucanero/zip) library
+- [SDL2](https://github.com/PacBrew/SDL/tree/ps4) library
+- [libJbc](https://github.com/Al-Azif/ps4-skeleton/tree/main/libs) library
 - [polarSSL](https://github.com/bucanero/oosdk_libraries/tree/master/polarssl-1.3.9) library
 - [dbglogger](https://github.com/bucanero/psl1ght-libs/tree/master/dbglogger) library (required for debug logging)
 

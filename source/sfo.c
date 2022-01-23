@@ -283,6 +283,7 @@ void sfo_grab(sfo_context_t *inout, sfo_context_t *tpl, int num_keys, const sfo_
 	}
 }
 
+/*
 void sfo_patch_lock(sfo_context_t *inout, unsigned int flags) {
 	sfo_context_param_t *p;
 
@@ -294,8 +295,9 @@ void sfo_patch_lock(sfo_context_t *inout, unsigned int flags) {
 		}
 	}
 }
+*/
 
-void sfo_patch_account(sfo_context_t *inout, u64 account) {
+static void sfo_patch_account(sfo_context_t *inout, u64 account) {
 	sfo_context_param_t *p;
 
 	if (!account)
@@ -314,7 +316,7 @@ void sfo_patch_account(sfo_context_t *inout, u64 account) {
 */
 }
 
-void sfo_patch_user_id(sfo_context_t *inout, u32 userid) {
+static void sfo_patch_user_id(sfo_context_t *inout, u32 userid) {
 	sfo_context_param_t *p;
 
 	if (userid == 0)
@@ -327,8 +329,8 @@ void sfo_patch_user_id(sfo_context_t *inout, u32 userid) {
 	}
 }
 
-void sfo_patch_psid(sfo_context_t *inout, u8* psid) {
 /*
+void sfo_patch_psid(sfo_context_t *inout, u8* psid) {
 	sfo_context_param_t *p;
 
 	if (!psid)
@@ -339,7 +341,6 @@ void sfo_patch_psid(sfo_context_t *inout, u8* psid) {
 		sfo_param_params_t *params = (sfo_param_params_t *)p->value;
 		memcpy(params->psid, psid, SFO_PSID_SIZE);
 	}
-*/
 }
 
 void sfo_patch_directory(sfo_context_t *inout, const char* save_dir) {
@@ -354,6 +355,7 @@ void sfo_patch_directory(sfo_context_t *inout, const char* save_dir) {
 		memcpy(p->value, save_dir, strlen(save_dir));
 	}
 }
+*/
 
 u8* sfo_get_param_value(sfo_context_t *in, const char* param) {
 	sfo_context_param_t *p;
@@ -378,8 +380,8 @@ int patch_sfo(const char *in_file_path, sfo_patch_t* patches) {
 //	sfo_patch_lock(sfo, patches->flags);
 	sfo_patch_account(sfo, patches->account_id);
 	sfo_patch_user_id(sfo, patches->user_id);
-	sfo_patch_psid(sfo, patches->psid);
-	sfo_patch_directory(sfo, patches->directory);
+//	sfo_patch_psid(sfo, patches->psid);
+//	sfo_patch_directory(sfo, patches->directory);
 
 	if (sfo_write(sfo, in_file_path) < 0) {
 		LOG("Unable to write to '%s'", in_file_path);
@@ -424,6 +426,7 @@ int build_sfo(const char *in_file_path, const char *out_file_path, const char *t
 	return 0;
 }
 
+/*
 int patch_sfo_trophy(const char *in_file_path, const char* account) {
 	sfo_context_t *sfo;
 	sfo_context_param_t *p;
@@ -453,3 +456,4 @@ int patch_sfo_trophy(const char *in_file_path, const char* account) {
 	LOG("PARAM.SFO was patched successfully");
 	return 0;
 }
+*/

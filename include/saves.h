@@ -82,7 +82,7 @@ enum cmd_code_enum
     CMD_RESIGN_PSV,
     CMD_EXP_FINGERPRINT,
     CMD_CONVERT_TO_PSV,
-    CMD_COPY_DUMMY_PSV,
+    CMD_COPY_PFS,
     CMD_IMPORT_DATA_FILE,
 
 // Bulk commands

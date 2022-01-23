@@ -523,13 +523,13 @@ int set_ps2_codes(save_entry_t* item)
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
 	list_append(item->codes, cmd);
-
+/*
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy dummy .PSV Save", CMD_CODE_NULL);
 	asprintf(&cmd->file, "APOLLO-99PS2.PSV");
 	cmd->options_count = 1;
 	cmd->options = _createOptions(2, "Copy APOLLO-99PS2.PSV to USB", CMD_COPY_DUMMY_PSV);
 	list_append(item->codes, cmd);
-
+*/
 	return list_count(item->codes);
 }
 
@@ -1059,7 +1059,93 @@ int sortSaveList_Compare(const void* a, const void* b)
 	return strcasecmp(((save_entry_t*) a)->name, ((save_entry_t*) b)->name);
 }
 
-static void read_usb_savegames(const char* userPath, list_t *list, uint32_t flag)
+static void read_usb_encrypted_saves(const char* userPath, list_t *list, uint64_t account)
+{
+	DIR *d, *d2;
+	struct dirent *dir, *dir2;
+	save_entry_t *item;
+	char savePath[256];
+
+	d = opendir(userPath);
+
+	if (!d)
+		return;
+
+	while ((dir = readdir(d)) != NULL)
+	{
+		if (dir->d_type != DT_DIR || strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
+			continue;
+
+		snprintf(savePath, sizeof(savePath), "%s%s", userPath, dir->d_name);
+		d2 = opendir(savePath);
+
+		if (!d2)
+			continue;
+
+		LOG("Reading %s...", savePath);
+
+		while ((dir2 = readdir(d2)) != NULL)
+		{
+			if (dir2->d_type != DT_REG || endsWith(dir2->d_name, ".bin"))
+				continue;
+
+			snprintf(savePath, sizeof(savePath), "%s%s/%s.bin", userPath, dir->d_name, dir2->d_name);
+			if (file_exists(savePath) != SUCCESS)
+				continue;
+
+			snprintf(savePath, sizeof(savePath), "(Encrypted) %s/%s", dir->d_name, dir2->d_name);
+			item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_LOCKED, savePath);
+			item->type = FILE_TYPE_PS4;
+
+			asprintf(&item->path, "%s%s/", userPath, dir->d_name);
+			asprintf(&item->title_id, "%.9s", dir->d_name);
+			item->dir_name = strdup(dir2->d_name);
+
+			if (apollo_config.account_id == account)
+				item->flags |= SAVE_FLAG_OWNER;
+
+			snprintf(savePath, sizeof(savePath), "%s%s/%s", userPath, dir->d_name, dir2->d_name);
+			
+			uint64_t size = 0;
+			get_file_size(savePath, &size);
+			item->blocks = size / ORBIS_SAVE_DATA_BLOCK_SIZE;
+
+			LOG("[%s] F(%d) name '%s'", item->title_id, item->flags, item->name);
+			list_append(list, item);
+
+		}
+		closedir(d2);
+	}
+
+	closedir(d);
+}
+
+static void read_usb_encrypted_savegames(const char* userPath, list_t *list)
+{
+	DIR *d;
+	struct dirent *dir;
+	char accPath[256];
+	uint64_t acc_id;
+
+	d = opendir(userPath);
+
+	if (!d)
+		return;
+
+	while ((dir = readdir(d)) != NULL)
+	{
+		if (dir->d_type != DT_DIR || strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
+			continue;
+
+		sscanf(dir->d_name, "%lx", &acc_id);
+		snprintf(accPath, sizeof(accPath), "%s%s/", userPath, dir->d_name);
+		read_usb_encrypted_saves(accPath, list, acc_id);
+	}
+
+	closedir(d);
+}
+
+static void read_usb_savegames(const char* userPath, list_t *list)
 {
 	DIR *d;
 	struct dirent *dir;
@@ -1090,7 +1176,7 @@ static void read_usb_savegames(const char* userPath, list_t *list, uint32_t flag
 		}
 
 		char *sfo_data = (char*) sfo_get_param_value(sfo, "MAINTITLE");
-		item = _createSaveEntry(flag, sfo_data);
+		item = _createSaveEntry(SAVE_FLAG_PS4, sfo_data);
 		item->type = FILE_TYPE_PS4;
 
 		sfo_data = (char*) sfo_get_param_value(sfo, "TITLE_ID");
@@ -1099,9 +1185,6 @@ static void read_usb_savegames(const char* userPath, list_t *list, uint32_t flag
 
 		sfo_data = (char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY");
 		item->dir_name = strdup(sfo_data);
-
-//		sfo_data = (char*) sfo_get_param_value(sfo, "ATTRIBUTE");
-//		item->flags |= (sfo_data[0] ? SAVE_FLAG_LOCKED : 0);
 
 		uint64_t* int_data = (uint64_t*) sfo_get_param_value(sfo, "ACCOUNT_ID");
 		if (int_data && (apollo_config.account_id == *int_data))
@@ -1119,7 +1202,7 @@ static void read_usb_savegames(const char* userPath, list_t *list, uint32_t flag
 	closedir(d);
 }
 
-static void read_hdd_savegames(const char* userPath, list_t *list, uint32_t flag)
+static void read_hdd_savegames(const char* userPath, list_t *list)
 {
 	save_entry_t *item;
 	sqlite3_stmt *res;
@@ -1138,7 +1221,7 @@ static void read_hdd_savegames(const char* userPath, list_t *list, uint32_t flag
 
 	while (sqlite3_step(res) == SQLITE_ROW)
 	{
-		item = _createSaveEntry(flag, (const char*) sqlite3_column_text(res, 2));
+		item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_HDD, (const char*) sqlite3_column_text(res, 2));
 		item->type = FILE_TYPE_PS4;
 		item->path = strdup(userPath);
 		item->dir_name = strdup((const char*) sqlite3_column_text(res, 1));
@@ -1310,8 +1393,11 @@ list_t * ReadUsbList(const char* userPath)
 	save_entry_t *item;
 	code_entry_t *cmd;
 	list_t *list;
+	char pathEnc[64], pathDec[64];
 
-	if (dir_exists(userPath) != SUCCESS)
+	snprintf(pathDec, sizeof(pathDec), "%sAPOLLO/", userPath);
+	snprintf(pathEnc, sizeof(pathEnc), "%sSAVEDATA/", userPath);
+	if (dir_exists(pathDec) != SUCCESS && dir_exists(pathEnc) != SUCCESS)
 		return NULL;
 
 	list = list_alloc();
@@ -1319,7 +1405,7 @@ list_t * ReadUsbList(const char* userPath)
 	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_COPY " Bulk Save Management");
 	item->type = FILE_TYPE_MENU;
 	item->codes = list_alloc();
-	item->path = strdup(userPath);
+	item->path = strdup(pathDec);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign all Saves", CMD_RESIGN_ALL_SAVES);
 	list_append(item->codes, cmd);
@@ -1331,7 +1417,8 @@ list_t * ReadUsbList(const char* userPath)
 	list_append(item->codes, cmd);
 	list_append(list, item);
 
-	read_usb_savegames(userPath, list, SAVE_FLAG_PS4);
+	read_usb_savegames(pathDec, list);
+	read_usb_encrypted_savegames(pathEnc, list);
 
 	return list;
 }
@@ -1364,7 +1451,7 @@ list_t * ReadUserList(const char* userPath)
 	list_append(item->codes, cmd);
 	list_append(list, item);
 
-	read_hdd_savegames(userPath, list, SAVE_FLAG_PS4 | SAVE_FLAG_HDD);
+	read_hdd_savegames(userPath, list);
 
 	return list;
 }

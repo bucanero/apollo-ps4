@@ -268,8 +268,7 @@ int pad_input_update(void *data)
 
 	while (!close_app)
 	{
-//		scePadReadState(padhandle, &padA[0]);
-		scePadRead(padhandle, padA, 1);
+		scePadReadState(padhandle, &padA[0]);
 
 		if(padA[0].connected && g_padSync)
 		{

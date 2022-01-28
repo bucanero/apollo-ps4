@@ -118,36 +118,28 @@ static void copySave(const save_entry_t* save, const char* exp_path)
 	show_message("Files successfully copied to:\n%s", exp_path);
 }
 
-static int _copy_save_hdd(const save_entry_t* save)
+static int _update_save_details(const char* sys_path, const char* mount)
 {
-	char copy_path[256];
-	char mount[32];
+	char file_path[256];
 	uint8_t* iconBuf;
 	size_t iconSize;
 
-	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
-		return 0;
-
-	snprintf(copy_path, sizeof(copy_path), APOLLO_SANDBOX_PATH, mount);
-
-	LOG("Copying <%s> to %s...", save->path, copy_path);
-	copy_directory(save->path, save->path, copy_path);
-
-	snprintf(copy_path, sizeof(copy_path), "%s" "sce_sys/param.sfo", save->path);
-	LOG("Save Details :: Reading %s...", copy_path);
+	snprintf(file_path, sizeof(file_path), "%s" "param.sfo", sys_path);
+	LOG("Update Save Details :: Reading %s...", file_path);
 
 	sfo_context_t* sfo = sfo_alloc();
-	if (sfo_read(sfo, copy_path) == SUCCESS)
+	if (sfo_read(sfo, file_path) == SUCCESS)
 	{
+		char* title = (char*) sfo_get_param_value(sfo, "MAINTITLE");
 		char* subtitle = (char*) sfo_get_param_value(sfo, "SUBTITLE");
 		char* detail = (char*) sfo_get_param_value(sfo, "DETAIL");
 
-		orbis_UpdateSaveParams(mount, save->name, subtitle, detail);
+		orbis_UpdateSaveParams(mount, title, subtitle, detail);
 	}
 	sfo_free(sfo);
 
-	snprintf(copy_path, sizeof(copy_path), "%s" "sce_sys/icon0.png", save->path);
-	if (read_buffer(copy_path, &iconBuf, &iconSize) == SUCCESS)
+	snprintf(file_path, sizeof(file_path), "%s" "icon0.png", sys_path);
+	if (read_buffer(file_path, &iconBuf, &iconSize) == SUCCESS)
 	{
 		OrbisSaveDataMountPoint mp;
 		OrbisSaveDataIcon icon;
@@ -165,6 +157,25 @@ static int _copy_save_hdd(const save_entry_t* save)
 
 		free(iconBuf);
 	}
+
+	return 1;
+}
+
+static int _copy_save_hdd(const save_entry_t* save)
+{
+	char copy_path[256];
+	char mount[32];
+
+	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
+		return 0;
+
+	snprintf(copy_path, sizeof(copy_path), APOLLO_SANDBOX_PATH, mount);
+
+	LOG("Copying <%s> to %s...", save->path, copy_path);
+	copy_directory(save->path, save->path, copy_path);
+
+	snprintf(copy_path, sizeof(copy_path), "%s" "sce_sys/", save->path);
+	_update_save_details(copy_path, mount);
 
 	orbis_SaveUmount(mount);
 	return 1;
@@ -381,9 +392,13 @@ static void dumpAllFingerprints(const char* path)
 	show_message("All fingerprints dumped to:\n%s", APOLLO_PATH);
 }
 
-static void activateAccount(int user)
+static void activateAccount(int user, const char* value)
 {
-	uint64_t account = (0x6F6C6C6F70610000 + ((user & 0xFFFF) ^ 0xFFFF));
+	uint64_t account = 0;
+
+	sscanf(value, "%lx", &account);
+	if (!account)
+		account = (0x6F6C6C6F70610000 + ((user & 0xFFFF) ^ 0xFFFF));
 
 	LOG("Activating user=%d (%lx)...", user, account);
 	if (regMgr_SetAccountId(user, &account) != SUCCESS)
@@ -394,30 +409,79 @@ static void activateAccount(int user)
 
 	show_message("Account successfully activated!\nA system reboot might be required");
 }
-/*
-void copyDummyPSV(const char* psv_file, const char* out_path)
-{
-	char *in, *out;
 
-	if (mkdirs(out_path) != SUCCESS)
+static void copySavePFS(const save_entry_t* save)
+{
+	char src_path[256];
+	char hdd_path[256];
+	char mount[32];
+	sfo_patch_t patch = {
+		.user_id = apollo_config.user_id,
+		.account_id = apollo_config.account_id,
+	};
+
+	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
 	{
-		show_message("Error! Export folder is not available:\n%s", out_path);
+		LOG("[!] Error: can't create/mount save!");
+		return;
+	}
+	orbis_SaveUmount(mount);
+
+	snprintf(src_path, sizeof(src_path), "%s%s", save->path, save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path), "/user/home/%08x/savedata/%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
+	LOG("Copying <%s> to %s...", src_path, hdd_path);
+	if (copy_file(src_path, hdd_path) != SUCCESS)
+	{
+		LOG("[!] Error: can't copy %s", hdd_path);
 		return;
 	}
 
-	asprintf(&in, APOLLO_DATA_PATH "%s", psv_file);
-	asprintf(&out, "%s%s", out_path, psv_file);
+	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path), "/user/home/%08x/savedata/%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
+	LOG("Copying <%s> to %s...", src_path, hdd_path);
+	if (copy_file(src_path, hdd_path) != SUCCESS)
+	{
+		LOG("[!] Error: can't copy %s", hdd_path);
+		return;
+	}
 
-	init_loading_screen("Copying PSV file...");
-	copy_file(in, out);
-	stop_loading_screen();
+	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
+	{
+		LOG("[!] Error: can't remount save");
+		show_message("Error! Can't mount encrypted save.\n(incompatible save-game firmware version)");
+		return;
+	}
 
-	free(in);
-	free(out);
+	snprintf(hdd_path, sizeof(hdd_path), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
+	if (show_dialog(1, "Resign save %s/%s?", save->title_id, save->dir_name))
+		patch_sfo(hdd_path, &patch);
 
-	show_message("File successfully saved to:\n%s%s", out_path, psv_file);
+	*strrchr(hdd_path, 'p') = 0;
+	_update_save_details(hdd_path, mount);
+	orbis_SaveUmount(mount);
+
+	show_message("Encrypted save copied successfully!\n%s/%s", save->title_id, save->dir_name);
+	return;
 }
 
+static void copyKeystone(int import)
+{
+	char path_data[256];
+	char path_save[256];
+
+	snprintf(path_save, sizeof(path_save), "%ssce_sys/keystone", selected_entry->path);
+	snprintf(path_data, sizeof(path_data), APOLLO_USER_PATH "%s/keystone", apollo_config.user_id, selected_entry->title_id);
+	mkdirs(path_data);
+
+	LOG("Copy '%s' <-> '%s'...", path_save, path_data);
+
+	if (copy_file(import ? path_data : path_save, import ? path_save : path_data) == SUCCESS)
+		show_message("Keystone successfully copied to:\n%s", import ? path_save : path_data);
+	else
+		show_message("Error! Keystone couldn't be copied");
+}
+
+/*
 void exportPSVfile(const char* in_file, const char* out_path)
 {
 	if (mkdirs(out_path) != SUCCESS)
@@ -910,23 +974,6 @@ static int _copy_save_file(const char* src_path, const char* dst_path, const cha
 	return (copy_file(src, dst) == SUCCESS);
 }
 
-static void copyKeystone(int import)
-{
-	char path_data[256];
-	char path_save[256];
-
-	snprintf(path_save, sizeof(path_save), "%ssce_sys/", selected_entry->path);
-	snprintf(path_data, sizeof(path_data), APOLLO_USER_PATH "%s/", apollo_config.user_id, selected_entry->title_id);
-	mkdirs(path_data);
-
-	LOG("Copy '%skeystone' <-> '%s'...", path_save, path_data);
-
-	if (_copy_save_file(import ? path_data : path_save, import ? path_save : path_data, "keystone"))
-		show_message("Keystone successfully copied to:\n%skeystone", import ? path_save : path_data);
-	else
-		show_message("Error! Keystone couldn't be copied");
-}
-
 static void decryptSaveFile(const char* filename)
 {
 	char path[256];
@@ -953,7 +1000,7 @@ static void encryptSaveFile(const char* filename)
 		show_message("Error! Can't find decrypted save-game file:\n%s", path);
 		return;
 	}
-	*(strrchr(path, '/')+1) = 0;
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/", apollo_config.user_id, selected_entry->title_id);
 
 	LOG("Encrypt '%s%s' to '%s'...", path, filename, selected_entry->path);
 
@@ -1026,7 +1073,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_CREATE_ACT_DAT:
-			activateAccount(code->file[0]);
+			activateAccount(code->file[0], code->options->value[code->options->sel] + 1);
 			code->activated = 0;
 			break;
 /*
@@ -1107,6 +1154,11 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 */
 		case CMD_IMPORT_DATA_FILE:
 			encryptSaveFile(code->options[0].name[code->options[0].sel]);
+			code->activated = 0;
+			break;
+
+		case CMD_COPY_PFS:
+			copySavePFS(selected_entry);
 			code->activated = 0;
 			break;
 /*

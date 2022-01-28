@@ -475,12 +475,14 @@ int set_psx_import_codes(save_entry_t* item)
 	return list_count(item->codes);
 }
 
-int set_psp_codes(save_entry_t* item)
+int set_pfs_codes(save_entry_t* item)
 {
 	code_entry_t* cmd;
 	item->codes = list_alloc();
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
+	list_append(item->codes, cmd);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy Save game to HDD", CMD_COPY_PFS);
 	list_append(item->codes, cmd);
 
 	return list_count(item->codes);
@@ -561,8 +563,8 @@ int ReadCodes(save_entry_t * save)
 	if (save->flags & SAVE_FLAG_PS2)
 		return set_ps2_codes(save);
 
-	if (save->flags & SAVE_FLAG_PSP)
-		return set_psp_codes(save);
+	if (save->flags & SAVE_FLAG_LOCKED)
+		return set_pfs_codes(save);
 
 	save->codes = list_alloc();
 
@@ -1654,6 +1656,22 @@ int get_save_details(const save_entry_t* save, char **details)
 		sqlite3_free(query);
 		sqlite3_finalize(res);
 		sqlite3_close(db);
+
+		return 1;
+	}
+
+	if(save->flags & SAVE_FLAG_LOCKED)
+	{
+		asprintf(details, "%s\n\n"
+			"Title ID: %s\n"
+			"Dir Name: %s\n"
+			"Blocks: %d\n"
+			"Account ID: %.16s\n",
+			save->path,
+			save->title_id,
+			save->dir_name,
+			save->blocks,
+			save->path + 23);
 
 		return 1;
 	}

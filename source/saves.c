@@ -284,54 +284,70 @@ static save_entry_t* _createSaveEntry(uint16_t flag, const char* name)
 	return entry;
 }
 
+static void _walk_dir_list(const char* startdir, const char* inputdir, const char* mask, list_t* list)
+{
+	char fullname[256];	
+	struct dirent *dirp;
+	int len = strlen(startdir);
+	DIR *dp = opendir(inputdir);
+
+	if (!dp) {
+		LOG("Failed to open input directory: '%s'", inputdir);
+		return;
+	}
+
+	while ((dirp = readdir(dp)) != NULL)
+	{
+		if ((strcmp(dirp->d_name, ".")  == 0) || (strcmp(dirp->d_name, "..") == 0) || (strcmp(dirp->d_name, "sce_sys") == 0))
+			continue;
+
+		snprintf(fullname, sizeof(fullname), "%s%s", inputdir, dirp->d_name);
+
+		if (dirp->d_type == DT_DIR)
+		{
+			strcat(fullname, "/");
+			_walk_dir_list(startdir, fullname, mask, list);
+		}
+		else if (wildcard_match_icase(dirp->d_name, mask))
+		{
+			//LOG("Adding file '%s'", fullname+len);
+			list_append(list, strdup(fullname+len));
+		}
+	}
+	closedir(dp);
+}
+
 static option_entry_t* _getFileOptions(const char* save_path, const char* mask, uint8_t is_cmd)
 {
-	DIR *d;
-	struct dirent *dir;
+	char *filename;
+	list_t* file_list;
+	list_node_t* node;
 	int i = 0;
 	option_entry_t* opt;
 
-	d = opendir(save_path);
-	if (!d)
+	if (dir_exists(save_path) != SUCCESS)
 		return NULL;
 
 	LOG("Loading filenames {%s} from '%s'...", mask, save_path);
 
-	while ((dir = readdir(d)) != NULL)
+	file_list = list_alloc();
+	_walk_dir_list(save_path, save_path, mask, file_list);
+	opt = _initOptions(list_count(file_list));
+
+	for (node = list_head(file_list); (filename = list_get(node)); node = list_next(node))
 	{
-		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0 && dir->d_type == DT_REG &&
-			wildcard_match_icase(dir->d_name, mask))
-		{
-			i++;
-		}
-	}
-	closedir(d);
+		LOG("Adding '%s' (%s)", filename, mask);
+		opt->name[i] = filename;
 
-	if (i == 0)
-		return NULL;
+		if (is_cmd)
+			asprintf(&opt->value[i], "%c", is_cmd);
+		else
+			asprintf(&opt->value[i], "%s", mask);
 
-	opt = _initOptions(i);
-	i = 0;
-
-	d = opendir(save_path);
-	while ((dir = readdir(d)) != NULL)
-	{
-		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0 && dir->d_type == DT_REG &&
-			wildcard_match_icase(dir->d_name, mask))
-		{
-			LOG("Adding '%s' (%s)", dir->d_name, mask);
-
-			opt->name[i] = strdup(dir->d_name);
-			if (is_cmd)
-				asprintf(&opt->value[i], "%c", is_cmd);
-			else
-				asprintf(&opt->value[i], "%s", mask);
-
-			i++;
-		}
+		i++;
 	}
 
-	closedir(d);
+	list_free(file_list);
 
 	return opt;
 }
@@ -870,20 +886,28 @@ int ReadBackupCodes(save_entry_t * bup)
 		{
 			uint64_t account;
 			char userName[0x20];
-			regMgr_GetUserName(i, userName);
-			if (userName[0])
-			{
-				char tmp[0x80];
+			char tmp[0x80];
 
-				regMgr_GetAccountId(i, &account);
-				snprintf(tmp, sizeof(tmp), "%c Activate Offline Account %s (%016lx)", account ? CHAR_TAG_LOCKED : CHAR_TAG_OWNER, userName, account);
-				cmd = _createCmdCode(account ? PATCH_NULL : PATCH_COMMAND, tmp, CMD_CREATE_ACT_DAT);
+			regMgr_GetUserName(i, userName);
+			if (!userName[0])
+				continue;
+
+			regMgr_GetAccountId(i, &account);
+			snprintf(tmp, sizeof(tmp), "%c Activate Offline Account %s (%016lx)", account ? CHAR_TAG_LOCKED : CHAR_TAG_OWNER, userName, account);
+			cmd = _createCmdCode(account ? PATCH_NULL : PATCH_COMMAND, tmp, CMD_CODE_NULL); //CMD_CREATE_ACT_DAT
+
+			if (!account)
+			{
+				cmd->options_count = 1;
+				cmd->options = calloc(1, sizeof(option_entry_t));
+				cmd->options->sel = -1;
+				cmd->options->size = get_xml_owners(APOLLO_PATH OWNER_XML_FILE, CMD_CREATE_ACT_DAT, &cmd->options->name, &cmd->options->value);
 				cmd->file = malloc(1);
 				cmd->file[0] = i;
-				list_append(bup->codes, cmd);
-
-				LOG("ID %d = '%s' (%lx)", i, userName, account);
 			}
+			list_append(bup->codes, cmd);
+
+			LOG("ID %d = '%s' (%lx)", i, userName, account);
 		}
 
 		return list_count(bup->codes);

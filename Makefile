@@ -7,7 +7,7 @@ CONTENT_ID  := IV0000-APOL00004_00-APOLLO0000000PS4
 # Libraries linked into the ELF.
 LIBS        := -lc -lkernel -lc++ -lSceAudioOut -lSceUserService -lScePigletv2VSH -lSceSysmodule -lSceFreeType \
                -lScePad -lSceSystemService -lSceSaveData -lSceCommonDialog -lSceMsgDialog -lSceNet -lSceSsl -lSceHttp \
-               -lSceRegMgr -lSDL2 -lapollo -ldbglogger -lpolarssl -lz -lzip -ljbc
+               -lSceRegMgr -lSDL2 -lapollo -ldbglogger -lpolarssl -lz -lzip -ljbc -lmxml
 
 # Additional compile flags.
 EXTRAFLAGS  := -fcolor-diagnostics -Wall -D__PS4__

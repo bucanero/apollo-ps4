@@ -33,17 +33,6 @@ static void downloadSave(const char* file, const char* path)
 	unlink_secure(APOLLO_LOCAL_CACHE "tmpsave.zip");
 }
 
-void _saveOwnerData(const char* path)
-{
-	/*
-	char buff[SYSUTIL_SYSTEMPARAM_CURRENT_USERNAME_SIZE+1];
-
-	sysUtilGetSystemParamString(SYSUTIL_SYSTEMPARAM_ID_CURRENT_USERNAME, buff, SYSUTIL_SYSTEMPARAM_CURRENT_USERNAME_SIZE);
-	LOG("Saving User '%s'...", buff);
-	save_xml_owner(path, buff);
-	*/
-}
-
 static uint32_t get_filename_id(const char* dir)
 {
 	char path[128];
@@ -90,8 +79,8 @@ static void zipSave(const char* exp_path)
 		fclose(f);
 	}
 
-	sprintf(export_file, "%s" OWNER_XML_FILE, exp_path);
-	_saveOwnerData(export_file);
+	sprintf(export_file, "%s%08x.xml", exp_path, apollo_config.user_id);
+	save_xml_owner(export_file);
 
 	free(export_file);
 	free(tmp);
@@ -1103,11 +1092,6 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_CONVERT_TO_PSV:
 			convertSavePSV(selected_entry->path, codecmd[1] ? EXP_PSV_PATH_USB1 : EXP_PSV_PATH_USB0, selected_entry->type);
-			code->activated = 0;
-			break;
-
-		case CMD_COPY_DUMMY_PSV:
-			copyDummyPSV(code->file, codecmd[1] ? EXP_PSV_PATH_USB1 : EXP_PSV_PATH_USB0);
 			code->activated = 0;
 			break;
 

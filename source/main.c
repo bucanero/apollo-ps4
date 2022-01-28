@@ -493,7 +493,7 @@ void update_usb_path(char* path)
 {
 	for (int i = 0; i <= MAX_USB_DEVICES; i++)
 	{
-		sprintf(path, USB_PATH PS4_SAVES_PATH_USB, i);
+		sprintf(path, USB_PATH "PS4/", i);
 
 		if (dir_exists(path) == SUCCESS)
 			return;

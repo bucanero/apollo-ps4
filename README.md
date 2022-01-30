@@ -53,8 +53,40 @@ On first run, the application will detect and setup the required user settings.
 
 | PS4 | Folder |
 |-----|--------|
-| **USB saves** | your files must be placed on `/mnt/usbX/PS4/APOLLO/`. |
+| **USB saves** | your saves must be placed on `/mnt/usbX/PS4/APOLLO/`. |
+| **USB saves** | encrypted saves must be placed on `/mnt/usbX/PS4/SAVEDATA/<account-id>/`. |
 | **HDD saves** | files will be scanned from the hard disk, based on the current `User ID`. |
+
+## Offline Account activation
+
+### Custom account-id settings
+
+For the offline account activation, if you want to override the auto-generated ID used by Apollo, you can define your own `account-id` values using the `owners.xml` file.
+For example:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<apollo platform="PS4" version="1.0.0">
+  <owner name="Some User">
+    <console idps="" psid="FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF"/>
+    <user id="10000002" account_id="0123456789abcdef"/>
+  </owner>
+  <owner name="Other User">
+    <console idps="" psid="FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF"/>
+    <user id="10000008" account_id="abcdef0123456789"/>
+  </owner>
+</apollo>
+```
+
+The file must be saved to `/data/apollo/owners.xml`. Apollo will load the user-defined `account-id` values, and you should 
+select the desired Owner when activating an account from the **User tools** menu.
+
+In the `owners.xml` you need to define:
+- Owner name
+- User ID (e.g.: `10000123`)
+- Account ID (e.g.: `0123456789abcdef`)
+- Console PSID (optional)
+- Console IDPS (optional)
 
 # Usage
 
@@ -104,10 +136,11 @@ You need to have installed:
 
 - [Open Orbis SDK](https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/)
 - [Apollo](https://github.com/bucanero/apollo-lib) library
+- [polarSSL](https://github.com/bucanero/oosdk_libraries/tree/master/polarssl-1.3.9) library
 - [Zip](https://github.com/bucanero/zip) library
 - [SDL2](https://github.com/PacBrew/SDL/tree/ps4) library
 - [libJbc](https://github.com/Al-Azif/ps4-skeleton/tree/main/libs) library
-- [polarSSL](https://github.com/bucanero/oosdk_libraries/tree/master/polarssl-1.3.9) library
+- [Mini-XML](https://github.com/bucanero/mxml) library
 - [dbglogger](https://github.com/bucanero/psl1ght-libs/tree/master/dbglogger) library (required for debug logging)
 
 Run `make` to create a release build. If you want to include the latest save patches in your `.pkg` file, run `make createzip`.

@@ -323,7 +323,7 @@
 ;10 = Pugilist Increases ATK + HIT 50000
 ;11 = Sniper Increases HIT + SPD 50000
 
-;-=-Status Ailments & Resistances & Others-=-
+;--Status Ailments & Resistances & Others--
 ;15 = Alchemist Add Poison to attack. 100 100
 ;16 = Hypnotist Add Sleep to attack. 100 100
 ;17 = Witch Doctor Add Paralysis to attack. 100 100
@@ -356,7 +356,7 @@
 ;4A = Instructor Increases Weapon Mastery experience. 1900 1900
 ;4B = Mentor Gain more Skill Exp upon defeating enemy. 1900 1900
 
-;-=-Unique Innocents-=-
+;--Unique Innocents--
 ;CA = Watermelon Smasher When attacking, +50% to damage and -50% to accuracy.
 ;CB = Ambusher Target of attack will not counter attack.
 ;CC = Town Crier Increase counter attacks by 5.

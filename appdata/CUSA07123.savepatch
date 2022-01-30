@@ -309,7 +309,7 @@ B2650000 00000000
 9DB30000 00000000
 18000008 0000270F
 
-[-=-Agyo Bonuses-=-]
+[--Agyo Bonuses--]
 
 [Amrita Earned (+15%)]
 0015C2C4 0000001E
@@ -335,7 +335,7 @@ B2650000 00000000
 [Omnyo Magic Power (+60)]
 0015C2CB 0000001E
 
-[-=-Ungyo Bonuses-=-]
+[--Ungyo Bonuses--]
 
 [Gold Earned (+15.0%)]
 0015C2CC 0000001E

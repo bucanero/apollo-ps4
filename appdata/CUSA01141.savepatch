@@ -80,7 +80,7 @@
 4000E8AC 000000ZZ
 40180038 00000000
 
-;-=-Tag Modifier-=-
+;--Tag Modifier--
 ;ZZ
 ;01= Short Range
 ;02= Long Range
@@ -93,7 +93,7 @@
 ;09= Long Range+
 ;0A= Unique Named
 
-[-=-Campaign Mode Codes-=-]
+[--Campaign Mode Codes--]
 
 [AutoSave - Claire's Weapon Slot (UP) Mod (Replace xxxx)]
 1002CA44 0000xxxx
@@ -199,7 +199,7 @@
 1002CD68 00000106
 1002CD6A 00000106
 
-[-=-Countdown Mode Code-=-]
+[--Countdown Mode Code--]
 [AutoSave - Claire's Weapon Slot (UP) Mod (Replace xxxx)]
 10061664 0000xxxx
 10061666 0000FFFF
@@ -304,7 +304,7 @@
 10061988 00000106
 1006198A 00000106
 
-[-=-Invisible Mode Code-=-]
+[--Invisible Mode Code--]
 [AutoSave - Claire's Weapon Slot (UP) Mod (Replace xxxx)]
 10047054 0000xxxx
 10047056 0000FFFF
@@ -413,7 +413,7 @@
 ;xxxx
 ;0000= Empty
 
-;-=-Handguns-=-
+;--Handguns--
 ;0102= Bubble Gun (Natalia's Weapon)
 ;0105= Handgun MPM
 ;0106= Handgun P10
@@ -421,37 +421,37 @@
 ;0108= Handgun MPM/S
 ;0109= Handgun Triple Shot
 
-;-=-Shotguns-=-
+;--Shotguns--
 ;010C= Shotgun M147s
 ;010D= Shotgun TAP194
 ;010F= Shotgun Hydra
 ;0110= Shotgun Drake
 
-;-=-Machine Pistol-=-
+;--Machine Pistol--
 ;0115= MP-AB50
 ;0116= MP-AF
 ;0117= Chicago Typerwriter
 ;0118= MP-AB50G
 
-;-=-Assault Rifle-=-
+;--Assault Rifle--
 ;011C= Assault Rifle AK-7
 ;011D= Assault Rifle NSR47
 ;011E= AR High Roller
 
-;-=-Sniper Rifle-=-
+;--Sniper Rifle--
 ;0125= Rifle M1891/30
 ;0126= Rifle SVD
 ;0127= Anti-Material Rifle
 ;0128= Rifle Marumasa
 
-;-=-Magnums-=-
+;--Magnums--
 ;012C= Magnum Model 329
 ;012D= Magnum 2005M
 ;012E= Magnum Python
 ;012F= Magnum Anaconda
 ;0130= Magnum Pale Rider
 
-;-=-Specials-=-
+;--Specials--
 ;0135= Bow and Arrow(Bugged/Don't Use)
 ;0136= Bowgun
 ;013A= Rocket Launcher

@@ -4,6 +4,19 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v1.0.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.0.0) - 2022-01-30
+
+### Added
+
+* Encrypted save-games support
+* Offline Activation with user-defined account IDs (`owners.xml`)
+* Export ownership data to `.xml`
+
+### Fixed
+
+* Fixed inner file handling when save has sub-folders
+* Fixed SaveWizard write codes
+
 ## [v0.8.0](https://github.com/bucanero/apollo-ps4/releases/tag/v0.8.0) - 2022-01-15
 
 ### Added

@@ -379,10 +379,7 @@ static void _addBackupCommands(save_entry_t* item)
 	asprintf(&cmd->options->value[2], "%c", CMD_EXPORT_ZIP_HDD);
 	list_append(item->codes, cmd);
 
-	if(!(item->flags & SAVE_FLAG_HDD))
-		return;
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export save-game files", CMD_CODE_NULL);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export decrypted save files", CMD_CODE_NULL);
 	cmd->options_count = 1;
 	cmd->options = _getFileOptions(item->path, "*", CMD_DECRYPT_FILE);
 	list_append(item->codes, cmd);

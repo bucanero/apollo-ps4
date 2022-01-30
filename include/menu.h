@@ -229,6 +229,7 @@ extern void Draw_MainMenu_Ani();
 int LoadMenuTexture(const char* path, int idx);
 
 void drawSplashLogo(int m);
+void drawEndLogo();
 
 int load_app_settings(app_config_t* config);
 int save_app_settings(app_config_t* config);

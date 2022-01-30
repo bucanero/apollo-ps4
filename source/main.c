@@ -1470,6 +1470,8 @@ s32 main(s32 argc, const char* argv[])
 		SDL_RenderPresent(renderer);
 	}
 
+	drawEndLogo();
+
     // Cleanup resources
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

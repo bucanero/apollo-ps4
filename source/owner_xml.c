@@ -31,7 +31,7 @@ int get_xml_owners(const char *xmlfile, int cmd, char*** nam, char*** val)
         *nam = malloc(sizeof(char*) * 1);
         *val = malloc(sizeof(char*) * 1);
         (*nam)[0] = strdup("Auto-generated Account ID");
-        (*val)[0] = strdup("0");
+        asprintf(&(*val)[0], "%c0", cmd);
 
         return 1;
     }
@@ -47,7 +47,7 @@ int get_xml_owners(const char *xmlfile, int cmd, char*** nam, char*** val)
     *nam = malloc(sizeof(char*) * count);
     *val = malloc(sizeof(char*) * count);
     (*nam)[0] = strdup("Auto-generated Account ID");
-    (*val)[0] = strdup("0");
+    asprintf(&(*val)[0], "%c0", cmd);
     count = 1;
 
     /* Get the user element nodes */

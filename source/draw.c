@@ -400,6 +400,34 @@ void drawSplashLogo(int mode)
 	}
 }
 
+void drawEndLogo()
+{
+	SDL_Rect rect = {
+		.x = 0,
+		.w = SCREEN_WIDTH,
+	};
+
+	for (rect.h = 0; rect.h <= SCREEN_HEIGHT/2; rect.h += 3)
+	{
+		// clear the current display buffer
+		SDL_RenderClear(renderer);
+		DrawBackground2D(0xFFFFFFFF);
+
+		//App description
+		DrawTextureCentered(&menu_textures[logo_png_index], SCREEN_WIDTH/2, SCREEN_HEIGHT /2, 0, menu_textures[logo_png_index].width *3/4, menu_textures[logo_png_index].height *3/4, 0xFFFFFF00 | 0xFF);
+
+		rect.y = 0;
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+		SDL_RenderFillRect(renderer, &rect);
+
+		rect.y = SCREEN_HEIGHT - rect.h;
+		SDL_RenderFillRect(renderer, &rect);
+
+		//flush and flip
+		SDL_RenderPresent(renderer);
+	}
+}
+
 static void _draw_MainMenu(uint8_t alpha)
 {
 	//------------ Backgrounds

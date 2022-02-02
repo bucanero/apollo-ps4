@@ -220,7 +220,7 @@ static void copyAllSavesHDD(const char* path)
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (item->type == FILE_TYPE_PS4)
+		if (item->type == FILE_TYPE_PS4 && !(item->flags & SAVE_FLAG_LOCKED))
 			err_count += ! _copy_save_hdd(item);
 	}
 
@@ -359,7 +359,7 @@ static void dumpAllFingerprints(const char* path)
 
 	if (!list)
 	{
-		show_message("Error! Folder is not available:\n%s", APOLLO_PATH);
+		show_message("Error! Folder is not available:\n%s", path);
 		return;
 	}
 
@@ -369,7 +369,7 @@ static void dumpAllFingerprints(const char* path)
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (item->type != FILE_TYPE_PS4)
+		if (item->type != FILE_TYPE_PS4 || (item->flags & SAVE_FLAG_LOCKED))
 			continue;
 
 		if (item->flags & SAVE_FLAG_HDD)
@@ -389,7 +389,7 @@ static void dumpAllFingerprints(const char* path)
 
 	end_progress_bar();
 	UnloadGameList(list);
-	show_message("All fingerprints dumped to:\n%s", APOLLO_PATH);
+	show_message("All fingerprints dumped to:\n%sfingerprints.txt", APOLLO_PATH);
 }
 
 static void activateAccount(int user, const char* value)
@@ -809,56 +809,48 @@ static void resignSave(sfo_patch_t* patch)
 
 static void resignAllSaves(const char* path)
 {
-	DIR *d;
-	struct dirent *dir;
 	char sfoPath[256];
-	char titleid[10];
-	char message[128] = "Resigning all saves...";
+	int err_count = 0;
+	list_node_t *node;
+	save_entry_t *item;
+	uint64_t progress = 0;
+	list_t *list = ReadUsbList(path);
+	sfo_patch_t patch = {
+		.user_id = apollo_config.user_id,
+		.psid = (u8*) apollo_config.psid,
+		.account_id = apollo_config.account_id,
+	};
 
-	if (dir_exists(path) != SUCCESS)
+	if (!list)
 	{
 		show_message("Error! Folder is not available:\n%s", path);
 		return;
 	}
 
-	d = opendir(path);
-	if (!d)
-		return;
+	init_progress_bar("Resigning all saves...");
 
-    init_loading_screen(message);
-
-	sfo_patch_t patch = {
-		.flags = SFO_PATCH_FLAG_REMOVE_COPY_PROTECTION,
-		.user_id = apollo_config.user_id,
-		.psid = (u8*) apollo_config.psid,
-		.account_id = apollo_config.account_id,
-		.directory = NULL,
-	};
-
-	LOG("Resigning saves from '%s'...", path);
-	while ((dir = readdir(d)) != NULL)
+	LOG("Resigning all saves from '%s'...", path);
+	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
-		if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0)
-		{
-			snprintf(sfoPath, sizeof(sfoPath), "%s%s/sce_sys/param.sfo", path, dir->d_name);
-			if (file_exists(sfoPath) == SUCCESS)
-			{
-				LOG("Patching SFO '%s'...", sfoPath);
-				if (patch_sfo(sfoPath, &patch) != SUCCESS)
-					continue;
+		update_progress_bar(progress++, list_count(list), item->name);
+		if (item->type != FILE_TYPE_PS4 || (item->flags & SAVE_FLAG_LOCKED))
+			continue;
 
-				snprintf(titleid, sizeof(titleid), "%.9s", dir->d_name);
-				snprintf(sfoPath, sizeof(sfoPath), "%s%s/", path, dir->d_name);
-				snprintf(message, sizeof(message), "Resigning %s...", dir->d_name);
+		snprintf(sfoPath, sizeof(sfoPath), "%s" "sce_sys/param.sfo", item->path);
+		if (file_exists(sfoPath) != SUCCESS)
+			continue;
 
-				LOG("Resigning save '%s'...", sfoPath);
-			}
-		}
+		LOG("Patching SFO '%s'...", sfoPath);
+		err_count += patch_sfo(sfoPath, &patch);
 	}
-	closedir(d);
 
-	stop_loading_screen();
-    show_message("All saves successfully resigned!");
+	end_progress_bar();
+	UnloadGameList(list);
+
+	if (err_count)
+		show_message("Error: %d Saves couldn't be resigned", err_count);
+	else
+		show_message("All saves successfully resigned!");
 }
 /*
 int apply_trophy_account()

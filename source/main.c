@@ -1374,7 +1374,7 @@ s32 main(s32 argc, const char* argv[])
 	// Unpack application data on first run
 	if (appdata_check(APOLLO_DATA_PATH "version.dat"))
 	{
-		clean_directory(APOLLO_DATA_PATH);
+//		clean_directory(APOLLO_DATA_PATH);
 		if (extract_zip(APOLLO_APP_PATH "misc/appdata.zip", APOLLO_DATA_PATH))
 			show_message("Successfully installed local application data");
 	}
@@ -1387,9 +1387,6 @@ s32 main(s32 argc, const char* argv[])
 
 	// Load application settings
 	load_app_settings(&apollo_config);
-
-//	if (file_exists(APOLLO_PATH OWNER_XML_FILE) == SUCCESS)
-//		save_xml_owner(APOLLO_PATH OWNER_XML_FILE, NULL);
 
 	menu_options[8].options = get_logged_users();
  

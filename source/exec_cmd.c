@@ -200,23 +200,17 @@ static void copySaveHDD(const save_entry_t* save)
 		show_message("Error! Can't copy Save-game folder:\n%s/%s", save->title_id, save->dir_name);
 }
 
-static void copyAllSavesHDD(const char* path)
+static void copyAllSavesHDD(const save_entry_t* save)
 {
 	int err_count = 0;
 	list_node_t *node;
 	save_entry_t *item;
 	uint64_t progress = 0;
-	list_t *list = ReadUsbList(path);
-
-	if (!list)
-	{
-		show_message("Error! Folder is not available:\n%s", path);
-		return;
-	}
+	list_t *list = ((void**)save->dir_name)[0];
 
 	init_progress_bar("Copying all saves...");
 
-	LOG("Copying all saves from '%s'...", path);
+	LOG("Copying all saves from '%s' to HDD...", save->path);
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
@@ -225,7 +219,6 @@ static void copyAllSavesHDD(const char* path)
 	}
 
 	end_progress_bar();
-	UnloadGameList(list);
 
 	if (err_count)
 		show_message("Error: %d Saves couldn't be copied to HDD", err_count);
@@ -344,28 +337,17 @@ void resignPSVfile(const char* psv_path)
 }
 */
 
-static void dumpAllFingerprints(const char* path)
+static void dumpAllFingerprints(const save_entry_t* save)
 {
 	char mount[32];
 	uint64_t progress = 0;
 	list_node_t *node;
 	save_entry_t *item;
-	list_t *list;
-
-	if (strncmp(path, USB_PATH, 8) == 0)
-		list = ReadUsbList(path);
-	else
-		list = ReadUserList(path);
-
-	if (!list)
-	{
-		show_message("Error! Folder is not available:\n%s", path);
-		return;
-	}
+	list_t *list = ((void**)save->dir_name)[0];
 
 	init_progress_bar("Dumping all fingerprints...");
 
-	LOG("Copying all saves from '%s'...", path);
+	LOG("Dumping all fingerprints from '%s'...", save->path);
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
@@ -388,7 +370,6 @@ static void dumpAllFingerprints(const char* path)
 	}
 
 	end_progress_bar();
-	UnloadGameList(list);
 	show_message("All fingerprints dumped to:\n%sfingerprints.txt", APOLLO_PATH);
 }
 
@@ -545,7 +526,7 @@ void convertSavePSV(const char* save_path, const char* out_path, uint16_t type)
 	show_message("File successfully saved to:\n%s", out_path);
 }
 */
-static void copyAllSavesUSB(const char* path, const char* dst_path)
+static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path)
 {
 	char copy_path[256];
 	char save_path[256];
@@ -553,7 +534,7 @@ static void copyAllSavesUSB(const char* path, const char* dst_path)
 	uint64_t progress = 0;
 	list_node_t *node;
 	save_entry_t *item;
-	list_t *list = ReadUserList(path);
+	list_t *list = ((void**)save->dir_name)[0];
 
 	if (!list || mkdirs(dst_path) != SUCCESS)
 	{
@@ -563,7 +544,7 @@ static void copyAllSavesUSB(const char* path, const char* dst_path)
 
 	init_progress_bar("Copying all saves...");
 
-	LOG("Copying all saves from '%s'...", path);
+	LOG("Copying all saves to '%s'...", dst_path);
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
@@ -583,7 +564,6 @@ static void copyAllSavesUSB(const char* path, const char* dst_path)
 	}
 
 	end_progress_bar();
-	UnloadGameList(list);
 	show_message("All Saves copied to:\n%s", dst_path);
 }
 
@@ -807,29 +787,23 @@ static void resignSave(sfo_patch_t* patch)
     show_message("Save %s successfully modified!", selected_entry->title_id);
 }
 
-static void resignAllSaves(const char* path)
+static void resignAllSaves(const save_entry_t* save)
 {
 	char sfoPath[256];
 	int err_count = 0;
 	list_node_t *node;
 	save_entry_t *item;
 	uint64_t progress = 0;
-	list_t *list = ReadUsbList(path);
+	list_t *list = ((void**)save->dir_name)[0];
 	sfo_patch_t patch = {
 		.user_id = apollo_config.user_id,
 		.psid = (u8*) apollo_config.psid,
 		.account_id = apollo_config.account_id,
 	};
 
-	if (!list)
-	{
-		show_message("Error! Folder is not available:\n%s", path);
-		return;
-	}
-
 	init_progress_bar("Resigning all saves...");
 
-	LOG("Resigning all saves from '%s'...", path);
+	LOG("Resigning all saves from '%s'...", save->path);
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
@@ -845,7 +819,6 @@ static void resignAllSaves(const char* path)
 	}
 
 	end_progress_bar();
-	UnloadGameList(list);
 
 	if (err_count)
 		show_message("Error: %d Saves couldn't be resigned", err_count);
@@ -1085,7 +1058,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 */
 		case CMD_COPY_SAVES_USB:
-			copyAllSavesUSB(selected_entry->path, codecmd[1] ? SAVES_PATH_USB1 : SAVES_PATH_USB0);
+			copyAllSavesUSB(selected_entry, codecmd[1] ? SAVES_PATH_USB1 : SAVES_PATH_USB0);
 			code->activated = 0;
 			break;
 
@@ -1095,7 +1068,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_DUMP_FINGERPRINTS:
-			dumpAllFingerprints(selected_entry->path);
+			dumpAllFingerprints(selected_entry);
 			code->activated = 0;
 			break;
 
@@ -1115,12 +1088,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_RESIGN_ALL_SAVES:
-			resignAllSaves(selected_entry->path);
+			resignAllSaves(selected_entry);
 			code->activated = 0;
 			break;
 
 		case CMD_COPY_SAVES_HDD:
-			copyAllSavesHDD(selected_entry->path);
+			copyAllSavesHDD(selected_entry);
 			code->activated = 0;
 			break;
 /*

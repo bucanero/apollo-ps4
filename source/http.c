@@ -83,7 +83,7 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 
 	tpl = sceHttpCreateTemplate(libhttpCtxId, HTTP_USER_AGENT, ORBIS_HTTP_VERSION_1_1, 1);
 	if (tpl < 0) {
-		LOG("sceHttpCreateConnectionWithURL() error: 0x%08X\n", tpl);
+		LOG("sceHttpCreateTemplate() error: 0x%08X\n", tpl);
 		return HTTP_FAILED;
 	}
 
@@ -107,7 +107,7 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 	LOG("Sending Request to '%s'\n", full_url);
 	ret = sceHttpSendRequest(req, NULL, 0);
 	if (ret < 0) {
-		LOG("sceHttpCreateRequestWithURL (%X)", ret);
+		LOG("sceHttpSendRequest (%X)", ret);
 		goto close_http;
 	}
 
@@ -125,16 +125,23 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 	else if (contentLengthType == ORBIS_HTTP_CONTENTLEN_EXIST) {
 		LOG("Content-Length = %lu\n", contentLength);
 	}
+	else LOG("Unknown Content-Length");
 
-	if (statusCode != 200)
+	switch (statusCode)
 	{
-		if (statusCode == 404)
-			LOG("404 Download Not Found");
-
-		else if (statusCode == 408)
-			LOG("Request Timed Out - Check your Connection");
-
-		goto close_http;
+		case 200:	// OK
+		case 203:	// Non-Authoritative Information
+		case 206:	// Partial Content
+		case 301:	// Moved Permanently
+		case 302:	// Found
+		case 307:	// Temporary Redirect
+		case 308:	// Permanent Redirect
+			LOG("HTTP Response (%d)", statusCode);
+			break;
+		
+		default:
+			LOG("HTTP Error (%d)", statusCode);
+			goto close_http;
 	}
 
 	uint8_t dl_buf[64 * 1024];
@@ -152,7 +159,10 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 	while (1) {
 		int read = sceHttpReadData(req, dl_buf, sizeof(dl_buf));
 		if (read < 0)
+		{
+			LOG("HTTP read error! (0x%08X)", read);
 			break;
+		}
 
 		if (read == 0)
 		{
@@ -162,7 +172,10 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 
 		ret = fwrite(dl_buf, 1, read, fd);
 		if (ret < 0 || ret != read)
+		{
+			LOG("File write error! (%d)", ret);
 			break;
+		}
 
 		total_read += read;
 

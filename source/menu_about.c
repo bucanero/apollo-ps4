@@ -3,7 +3,7 @@
 
 #include "saves.h"
 #include "menu.h"
-#include "menu_about.h"
+#include "menu_gui.h"
 #include "libfont.h"
 
 static void _draw_AboutMenu(u8 alpha)

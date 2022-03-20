@@ -24,9 +24,7 @@
 
 //Menus
 #include "menu.h"
-#include "menu_about.h"
-#include "menu_options.h"
-#include "menu_cheats.h"
+#include "menu_gui.h"
 
 enum menu_screen_ids
 {

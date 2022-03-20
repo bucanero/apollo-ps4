@@ -4,7 +4,7 @@
 
 #include "saves.h"
 #include "menu.h"
-#include "menu_cheats.h"
+#include "menu_gui.h"
 #include "libfont.h"
 
 void DrawScrollBar(int selIndex, int max, int y_inc, int xOff, u8 alpha)

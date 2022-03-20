@@ -1602,7 +1602,7 @@ list_t * ReadTrophyList(const char* userPath)
 	list_append(item->codes, cmd);
 	list_append(list, item);
 */
-	int rc = sqlite3_prepare_v2(db, "SELECT id, trophy_title_id, title FROM tbl_trophy_title", -1, &res, NULL);
+	int rc = sqlite3_prepare_v2(db, "SELECT id, trophy_title_id, title FROM tbl_trophy_title WHERE status = 0", -1, &res, NULL);
 	if (rc != SQLITE_OK)
 	{
 		LOG("Failed to fetch data: %s", sqlite3_errmsg(db));

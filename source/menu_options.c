@@ -4,7 +4,7 @@
 
 #include "saves.h"
 #include "menu.h"
-#include "menu_options.h"
+#include "menu_gui.h"
 #include "libfont.h"
 
 static void _draw_OptionsMenu(u8 alpha)

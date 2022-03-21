@@ -398,6 +398,7 @@ int patch_save_libraries()
         break;
 
     case 0x750:
+    case 0x751:
     case 0x755:
         savedata_patch = scesavedata_patches_75x;
         shellcore_patch = shellcore_patches_75x;

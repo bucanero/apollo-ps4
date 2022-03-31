@@ -223,8 +223,8 @@ void owner_callback(int sel)
 
 void log_callback(int sel)
 {
-	dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 0);
-	show_message("Debug Logging Enabled!\n\n" APOLLO_PATH "apollo.log");
+	/* dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 0);
+	show_message("Debug Logging Enabled!\n\n" APOLLO_PATH "apollo.log"); */
 }
 
 char** get_logged_users()

@@ -1,6 +1,6 @@
 #include <apollo.h>
-#include <dbglogger.h>
-#define LOG dbglogger_log
+//#include <dbglogger.h>
+#define LOG printf
 
 #define APOLLO_PATH				"/data/apollo/"
 #define APOLLO_APP_PATH			"/mnt/sandbox/APOL00004_000/app0/assets/"

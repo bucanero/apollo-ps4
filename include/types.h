@@ -15,8 +15,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-#include <dbglogger.h>
-#define LOG dbglogger_log
+//#include <dbglogger.h>
+#define LOG printf
+#define dbglogger_printf printf
 
 #include <sys/stat.h>
 

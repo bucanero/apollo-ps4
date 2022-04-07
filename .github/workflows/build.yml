@@ -14,7 +14,8 @@ jobs:
 
     - name: Checkout Dependecies
       run: |
-        git clone https://github.com/illusion0001/apollo-lib.git  --depth 1 -b no-dbglgr
+        git clone https://github.com/bucanero/dbglogger.git  --depth 1
+        git clone https://github.com/bucanero/apollo-lib.git  --depth 1
         git clone https://github.com/bucanero/zip.git             --depth 1
         git clone https://github.com/bucanero/oosdk_libraries.git --depth 1
         git clone https://github.com/bucanero/mxml                --depth 1
@@ -66,6 +67,12 @@ jobs:
       run: |
         make
         make install
+
+    - name: Install dbglogger
+      working-directory: dbglogger
+      run: |
+        make -f Makefile.PS4
+        make -f Makefile.PS4 install
 
     - name: Install apollo-lib
       working-directory: apollo-lib

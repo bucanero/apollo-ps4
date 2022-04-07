@@ -141,7 +141,7 @@ You need to have installed:
 - [SDL2](https://github.com/PacBrew/SDL/tree/ps4) library
 - [libJbc](https://github.com/Al-Azif/ps4-skeleton/tree/main/libs) library
 - [Mini-XML](https://github.com/bucanero/mxml) library
-- [dbglogger](https://github.com/bucanero/psl1ght-libs/tree/master/dbglogger) library (required for debug logging)
+- [dbglogger](https://github.com/bucanero/dbglogger) library (required for debug logging)
 
 Run `make` to create a release build. If you want to include the latest save patches in your `.pkg` file, run `make createzip`.
 

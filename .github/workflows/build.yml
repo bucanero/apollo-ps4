@@ -22,9 +22,11 @@ jobs:
 
     - name: Set env vars
       run: |
-        echo "commit_ver=1.0$(git rev-list HEAD --count)" >> $GITHUB_ENV
+        ver="1.$(git rev-list HEAD --count)"
+        echo "commit_ver=$ver" >> $GITHUB_ENV
         echo "pkg_file=IV0000-APOL00004_00-APOLLO0000000PS4.pkg" >> $GITHUB_ENV
         echo "llvm_ver=10.0" >> $GITHUB_ENV
+        echo "#define APOLLO_VERSION \"$ver\"" > include/app_version.h
 
       # temporary release until 0.53 is released
     - name: Download OpenOrbis Toolchain

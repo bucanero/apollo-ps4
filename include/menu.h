@@ -5,6 +5,7 @@
 
 #include "types.h"
 #include "settings.h"
+#include "app_version.h"
 
 // SDL window and software renderer
 SDL_Window* window;

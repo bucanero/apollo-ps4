@@ -11,8 +11,8 @@
 #include "libfont.h"
 #include "menu.h"
 
-//#include <dbglogger.h>
-#define LOG printf
+#include <dbglogger.h>
+#define LOG dbglogger_log
 
 #define JAR_COLUMNS 7
 

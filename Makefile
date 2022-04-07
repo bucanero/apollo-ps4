@@ -1,7 +1,6 @@
 # Package metadata.
-commit_ver  ?= 1.00 # for local build
 TITLE       := Apollo Save Tool
-VERSION     := $(commit_ver)
+VERSION     := 1.01
 TITLE_ID    := APOL00004
 CONTENT_ID  := IV0000-APOL00004_00-APOLLO0000000PS4
 

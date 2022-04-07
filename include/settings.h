@@ -1,3 +1,4 @@
+#define APOLLO_VERSION          "1.0.1"     //Apollo PS4 version (about menu)
 #define APOLLO_DATA_VERSION     5
 
 #define MENU_TITLE_OFF			45			//Offset of menu title text from menu mini icon

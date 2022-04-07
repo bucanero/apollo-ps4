@@ -26,6 +26,7 @@ jobs:
         ver="1.$(git rev-list HEAD --count)"
         echo "commit_ver=$ver" >> $GITHUB_ENV
         echo "pkg_file=IV0000-APOL00004_00-APOLLO0000000PS4.pkg" >> $GITHUB_ENV
+        echo "llvm_ver=10.0" >> $GITHUB_ENV
 
       # temporary release until 0.53 is released
     - name: Download OpenOrbis Toolchain
@@ -41,6 +42,12 @@ jobs:
       with:
         path: ./llvm
         key: llvm-${{ env.llvm_ver }}
+
+    - name: Install LLVM and Clang
+      uses: KyleMayes/install-llvm-action@v1
+      with:
+        version: ${{ env.llvm_ver }}
+        cached: ${{ steps.cache-llvm.outputs.cache-hit }}
 
     - name: Install zlib
       working-directory: oosdk_libraries/zlib_partial
@@ -93,6 +100,7 @@ jobs:
     - name: Push package artifact
       uses: actions/upload-artifact@v3
       with:
+        name: apollo-ps4-build_${{ env.commit_ver }}
         path: ${{ env.pkg_file }}
         if-no-files-found: error
         retention-days: 7 # don't keep artifacts for too long

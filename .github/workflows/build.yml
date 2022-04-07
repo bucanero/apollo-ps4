@@ -14,8 +14,8 @@ jobs:
 
     - name: Checkout Dependecies
       run: |
-        git clone https://github.com/bucanero/dbglogger.git  --depth 1
-        git clone https://github.com/bucanero/apollo-lib.git  --depth 1
+        git clone https://github.com/bucanero/dbglogger.git       --depth 1
+        git clone https://github.com/bucanero/apollo-lib.git      --depth 1
         git clone https://github.com/bucanero/zip.git             --depth 1
         git clone https://github.com/bucanero/oosdk_libraries.git --depth 1
         git clone https://github.com/bucanero/mxml                --depth 1

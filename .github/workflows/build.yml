@@ -1,0 +1,106 @@
+name: Build app package
+
+on: [ push, pull_request, workflow_dispatch ]
+
+jobs:
+  build_pkg:
+    runs-on: ubuntu-20.04
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Checkout Dependecies
+      run: |
+        git clone https://github.com/bucanero/dbglogger.git       --depth 1
+        git clone https://github.com/bucanero/apollo-lib.git      --depth 1
+        git clone https://github.com/bucanero/zip.git             --depth 1
+        git clone https://github.com/bucanero/oosdk_libraries.git --depth 1
+        git clone https://github.com/bucanero/mxml                --depth 1
+        git clone https://github.com/Al-Azif/ps4-skeleton.git     --depth 1
+
+    - name: Set env vars
+      run: |
+        ver="1.$(git rev-list HEAD --count)"
+        echo "commit_ver=$ver" >> $GITHUB_ENV
+        echo "pkg_file=IV0000-APOL00004_00-APOLLO0000000PS4.pkg" >> $GITHUB_ENV
+        echo "llvm_ver=10.0" >> $GITHUB_ENV
+
+      # temporary release until 0.53 is released
+    - name: Download OpenOrbis Toolchain
+      run: |
+        curl -fLO https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/download/0.0.1.416/toolchain.tar.gz
+        tar xf toolchain.tar.gz
+        echo "OO_PS4_TOOLCHAIN=${GITHUB_WORKSPACE}/OpenOrbis/PS4Toolchain" >> $GITHUB_ENV
+        cp oosdk_libraries/build_rules.mk OpenOrbis/PS4Toolchain/build_rules.mk
+
+    - name: Cache LLVM and Clang
+      id: cache-llvm
+      uses: actions/cache@v3
+      with:
+        path: ./llvm
+        key: llvm-${{ env.llvm_ver }}
+
+    - name: Install LLVM and Clang
+      uses: KyleMayes/install-llvm-action@v1
+      with:
+        version: ${{ env.llvm_ver }}
+        cached: ${{ steps.cache-llvm.outputs.cache-hit }}
+
+    - name: Install zlib
+      working-directory: oosdk_libraries/zlib_partial
+      run: |
+        make
+        make install
+
+    - name: Install polarssl
+      working-directory: oosdk_libraries/polarssl-1.3.9
+      run: |
+        make
+        make install
+
+    - name: Install zip
+      working-directory: zip
+      run: |
+        make
+        make install
+
+    - name: Install dbglogger
+      working-directory: dbglogger
+      run: |
+        make -f Makefile.PS4
+        make -f Makefile.PS4 install
+
+    - name: Install apollo-lib
+      working-directory: apollo-lib
+      run: |
+        make -f Makefile.PS4
+        make -f Makefile.PS4 install
+
+    - name: Install mini xml
+      working-directory: mxml/ps4
+      run: |
+        make
+        make install
+
+    - name: Install libjbc
+      run: cp -rf ps4-skeleton/libs/* "${OO_PS4_TOOLCHAIN}/lib"
+
+    # temporary until sdl2 can installed
+    - name: copy SDL2 bin to SDK dir
+      run: curl -fL "https://cdn.discordapp.com/attachments/470415443115376643/959988630812762152/libSDL2.a" -o "${OO_PS4_TOOLCHAIN}/lib/libSDL2.a"
+
+    - name: Build Apollo App Package
+      run: |
+        make createzip
+        make
+
+    - name: Push package artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: apollo-ps4-build_${{ env.commit_ver }}
+        path: ${{ env.pkg_file }}
+        if-no-files-found: error
+        retention-days: 7 # don't keep artifacts for too long

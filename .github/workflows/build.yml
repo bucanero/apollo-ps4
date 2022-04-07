@@ -1,4 +1,4 @@
-name: Build app package
+name: Build package
 
 on: [ push, pull_request, workflow_dispatch ]
 
@@ -10,7 +10,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0
+        fetch-depth: 1
 
     - name: Checkout Dependecies
       run: |
@@ -22,17 +22,16 @@ jobs:
         git clone https://github.com/Al-Azif/ps4-skeleton.git     --depth 1
 
     - name: Set env vars
+      id: slug
       run: |
-        ver="1.$(git rev-list HEAD --count)"
-        echo "commit_ver=$ver" >> $GITHUB_ENV
+        echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
         echo "pkg_file=IV0000-APOL00004_00-APOLLO0000000PS4.pkg" >> $GITHUB_ENV
         echo "llvm_ver=10.0" >> $GITHUB_ENV
 
       # temporary release until 0.53 is released
     - name: Download OpenOrbis Toolchain
       run: |
-        curl -fLO https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/download/0.0.1.416/toolchain.tar.gz
-        tar xf toolchain.tar.gz
+        curl -sL https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/download/0.0.1.416/toolchain.tar.gz | tar xvz -C ./
         echo "OO_PS4_TOOLCHAIN=${GITHUB_WORKSPACE}/OpenOrbis/PS4Toolchain" >> $GITHUB_ENV
         cp oosdk_libraries/build_rules.mk OpenOrbis/PS4Toolchain/build_rules.mk
 
@@ -100,7 +99,7 @@ jobs:
     - name: Push package artifact
       uses: actions/upload-artifact@v3
       with:
-        name: apollo-ps4-build_${{ env.commit_ver }}
+        name: apollo-ps4-build_${{ steps.slug.outputs.sha8 }}
         path: ${{ env.pkg_file }}
         if-no-files-found: error
         retention-days: 7 # don't keep artifacts for too long

@@ -1,6 +1,7 @@
 # Apollo Save Tool (PS4)
 
 [![Downloads][img_downloads]][app_downloads] [![Release][img_latest]][app_latest] [![License][img_license]][app_license]
+[![Build app package](https://github.com/bucanero/apollo-ps4/actions/workflows/build.yml/badge.svg)](https://github.com/bucanero/apollo-ps4/actions/workflows/build.yml)
 
 **Apollo Save Tool** is an application to manage save-game files on the PlayStation 4.
 

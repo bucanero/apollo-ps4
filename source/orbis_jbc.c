@@ -383,6 +383,7 @@ int patch_save_libraries()
         return 0;
 
     case 0x505:
+    case 0x507:
         savedata_patch = scesavedata_patches_505;
         shellcore_patch = shellcore_patches_505;
         break;

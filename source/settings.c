@@ -159,7 +159,7 @@ void update_callback(int sel)
 	if (!buffer)
 		return;
 
-	LOG("received %u bytes", size);
+	LOG("received %ld bytes", size);
 
 	static const char find[] = "\"name\":\"Apollo Save Tool v";
 	const char* start = strstr(buffer, find);

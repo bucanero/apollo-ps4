@@ -14,7 +14,7 @@
 ** a chunk of memory to hold the database file.
 **
 ** Because there is place to store a rollback or wal journal, the database
-** must use one of journal_mode=MEMORY or journal_mode=NONE.
+** must use one of journal_mode=MEMORY or journal_mode=OFF.
 **
 ** USAGE:
 **
@@ -28,7 +28,7 @@
 **
 **    sz=           The current size the database file
 **
-**    maxsz=        The maximum size of the database.  In other words, the
+**    max=          The maximum size of the database.  In other words, the
 **                  amount of space allocated for the ptr= buffer.
 **
 **    freeonclose=  If true, then sqlite3_free() is called on the ptr=
@@ -43,6 +43,7 @@ SQLITE_EXTENSION_INIT1
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /*
 ** Forward declaration of objects used by this utility
@@ -573,4 +574,27 @@ int sqlite3_memvfs_init(
 #endif
   if( rc==SQLITE_OK ) rc = SQLITE_OK_LOAD_PERMANENTLY;
   return rc;
+}
+
+int sqlite3_memvfs_dump(
+  sqlite3 *db,
+  const char *zSchema,
+  const char *zFilename
+){
+  MemFile *p = 0;
+  FILE *out;
+  int rc;
+  sqlite3_vfs *pVfs = 0;
+
+  if( zFilename==0 ) return SQLITE_ERROR;
+  out = fopen(zFilename, "wb");
+  if( out==0 ) return SQLITE_ERROR;
+  rc = sqlite3_file_control(db, zSchema, SQLITE_FCNTL_VFS_POINTER, &pVfs);
+  if( rc || pVfs==0 ) return SQLITE_ERROR;
+  if( strcmp(pVfs->zName,"memvfs")!=0 ) return SQLITE_ERROR;
+  rc = sqlite3_file_control(db, zSchema, SQLITE_FCNTL_FILE_POINTER, &p);
+  if( rc ) return SQLITE_ERROR;
+  fwrite(p->aData, 1, (size_t)p->sz, out);
+  fclose(out);
+  return SQLITE_OK;
 }

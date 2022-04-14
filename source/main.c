@@ -20,7 +20,6 @@
 #include "sfo.h"
 #include "util.h"
 #include "common.h"
-#include "notifi.h"
 
 //Menus
 #include "menu.h"

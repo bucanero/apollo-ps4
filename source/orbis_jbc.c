@@ -7,7 +7,6 @@
 #include "libjbc.h"
 #include "orbis_patches.h"
 #include "util.h"
-#include "notifi.h"
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(ar) (sizeof(ar) / sizeof((ar)[0]))
@@ -421,8 +420,12 @@ int patch_save_libraries()
         return 0;
     }
 
-    if (patch_SceShellCore(shellcore_patch) && patch_SceSaveData(savedata_patch))
-        notifi(NULL, "PS4 %X.%02X Save patches applied", version >> 8, version & 0xFF);
+    if (!patch_SceShellCore(shellcore_patch) || !patch_SceSaveData(savedata_patch))
+    {
+        notifi(NULL, "Error: Failed to apply %X.%02X Save patches!", version >> 8, version & 0xFF);
+        return 0;
+    }
+    notifi(NULL, "PS4 %X.%02X Save patches applied", version >> 8, version & 0xFF);
 
     return 1;
 }
@@ -458,15 +461,6 @@ static int jailbreak()
     return (is_jailbroken());
 }
 
-// Restores original creds
-static void unjailbreak()
-{
-    if (!is_jailbroken())
-        return;
-
-    jbc_set_cred(&g_Cred);
-}
-
 // Initialize jailbreak
 int initialize_jbc()
 {
@@ -485,7 +479,11 @@ int initialize_jbc()
 // Unload libjbc libraries
 void terminate_jbc()
 {
-	unjailbreak();
+    if (!is_jailbroken())
+        return;
+
+    // Restores original creds
+    jbc_set_cred(&g_Cred);
     LOG("Jailbreak removed!");
 }
 

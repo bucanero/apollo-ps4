@@ -93,7 +93,7 @@ int extract_zip(const char* zip_file, const char* dest_path)
 	progress[1] = zip_entries_total(archive);
 	zip_close(archive);
 
-	LOG("Extracting ZIP (%d) to <%s>...", progress[1], dest_path);
+	LOG("Extracting ZIP (%lu) to <%s>...", progress[1], dest_path);
 
 	init_progress_bar("Extracting files...");
 	ret = zip_extract(zip_file, dest_path, on_extract_entry, progress);

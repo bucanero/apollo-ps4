@@ -27,6 +27,7 @@
 
 const void* sqlite3_get_sqlite3Apis();
 int sqlite3_memvfs_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi);
+int sqlite3_memvfs_dump(sqlite3 *db, const char *zSchema, const char *zFilename);
 
 static sqlite3* open_sqlite_db(const char* db_path)
 {
@@ -70,6 +71,28 @@ static sqlite3* open_sqlite_db(const char* db_path)
 	sqlite3_free(memuri);
 
 	return db;
+}
+
+static int get_appdb_title(sqlite3* db, const char* titleid, char* name)
+{
+	sqlite3_stmt* res;
+
+	if (!db)
+		return 0;
+
+	char* query = sqlite3_mprintf("SELECT titleId, val FROM tbl_appinfo WHERE key='TITLE' AND (titleId = %Q "
+		"OR titleId = (SELECT titleId FROM tbl_appinfo WHERE key='INSTALL_DIR_SAVEDATA' AND val = %Q))", titleid, titleid);
+
+	if (sqlite3_prepare_v2(db, query, -1, &res, NULL) != SQLITE_OK || sqlite3_step(res) != SQLITE_ROW)
+	{
+		LOG("Failed to fetch data: %s", sqlite3_errmsg(db));
+		sqlite3_free(query);
+		return 0;
+	}
+
+	strncpy(name, (const char*) sqlite3_column_text(res, 1), ORBIS_SAVE_DATA_DETAIL_MAXSIZE);
+	sqlite3_free(query);
+	return 1;
 }
 
 int orbis_SaveDelete(const save_entry_t *save)
@@ -1223,16 +1246,17 @@ static void read_usb_savegames(const char* userPath, list_t *list)
 	closedir(d);
 }
 
-static void read_hdd_savegames(const char* userPath, list_t *list)
+static void read_hdd_savegames(const char* userPath, list_t *list, sqlite3 *appdb)
 {
 	save_entry_t *item;
 	sqlite3_stmt *res;
+	char name[ORBIS_SAVE_DATA_DETAIL_MAXSIZE];
 	sqlite3 *db = open_sqlite_db(userPath);
 
 	if (!db)
 		return;
 
-	int rc = sqlite3_prepare_v2(db, "SELECT title_id, dir_name, main_title, blocks, account_id, user_id FROM savedata", -1, &res, NULL);
+	int rc = sqlite3_prepare_v2(db, "SELECT title_id, dir_name, main_title, blocks, account_id, sub_title FROM savedata", -1, &res, NULL);
 	if (rc != SQLITE_OK)
 	{
 		LOG("Failed to fetch data: %s", sqlite3_errmsg(db));
@@ -1242,7 +1266,13 @@ static void read_hdd_savegames(const char* userPath, list_t *list)
 
 	while (sqlite3_step(res) == SQLITE_ROW)
 	{
-		item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_HDD, (const char*) sqlite3_column_text(res, 2));
+		const char* subtitle = (const char*) sqlite3_column_text(res, 5);
+		strncpy(name, (const char*) sqlite3_column_text(res, 2), ORBIS_SAVE_DATA_DETAIL_MAXSIZE);
+		get_appdb_title(appdb, (const char*) sqlite3_column_text(res, 0), name);
+		strcat(name, " - ");
+		strcat(name, subtitle[0] ? subtitle : (const char*) sqlite3_column_text(res, 1));
+
+		item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_HDD, name);
 		item->type = FILE_TYPE_PS4;
 		item->path = strdup(userPath);
 		item->dir_name = strdup((const char*) sqlite3_column_text(res, 1));
@@ -1452,6 +1482,7 @@ list_t * ReadUserList(const char* userPath)
 	save_entry_t *item;
 	code_entry_t *cmd;
 	list_t *list;
+	sqlite3* appdb;
 
 	if (file_exists(userPath) != SUCCESS)
 		return NULL;
@@ -1478,7 +1509,9 @@ list_t * ReadUserList(const char* userPath)
 	list_append(item->codes, cmd);
 	list_append(list, item);
 
-	read_hdd_savegames(userPath, list);
+	appdb = open_sqlite_db("/system_data/priv/mms/app.db");
+	read_hdd_savegames(userPath, list, appdb);
+	sqlite3_close(appdb);
 
 	return list;
 }
@@ -1708,7 +1741,7 @@ int get_save_details(const save_entry_t* save, char **details)
 		if ((db = open_sqlite_db(save->path)) == NULL)
 			return 0;
 
-		char* query = sqlite3_mprintf("SELECT sub_title, detail, free_blocks, size_kib, user_id, account_id FROM savedata "
+		char* query = sqlite3_mprintf("SELECT sub_title, detail, free_blocks, size_kib, user_id, account_id, main_title FROM savedata "
 			" WHERE title_id = %Q AND dir_name = %Q", save->title_id, save->dir_name);
 
 		if (sqlite3_prepare_v2(db, query, -1, &res, NULL) != SQLITE_OK || sqlite3_step(res) != SQLITE_ROW)
@@ -1728,7 +1761,8 @@ int get_save_details(const save_entry_t* save, char **details)
 			"Size: %d Kb\n"
 			"User ID: %08x\n"
 			"Account ID: %016llx\n",
-			save->path, save->name, 
+			save->path,
+			sqlite3_column_text(res, 6),
 			sqlite3_column_text(res, 0),
 			sqlite3_column_text(res, 1),
 			save->dir_name,

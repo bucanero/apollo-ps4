@@ -500,15 +500,17 @@ void Draw_CheatsMenu_Selection(int menuSel, u32 rgba)
  */
 void Draw_UserCheatsMenu_Ani(save_list_t * list)
 {
-    int ani = 0;
-    for (ani = 0; ani < MENU_ANI_MAX; ani++)
+    char subtitle[0x40];
+
+    for (int ani = 0; ani < MENU_ANI_MAX; ani++)
     {
         SDL_RenderClear(renderer);
         DrawBackground2D(0xFFFFFFFF);
         
         u8 icon_a = (u8)(((ani * 2) > 0xFF) ? 0xFF : (ani * 2));
         
-		DrawHeader_Ani(list->icon_id, list->title, "Save Game List", APP_FONT_TITLE_COLOR, 0xffffffff, ani, 12);
+        snprintf(subtitle, sizeof(subtitle), "%zu Save Games", list_count(list->list));
+        DrawHeader_Ani(list->icon_id, list->title, subtitle, APP_FONT_TITLE_COLOR, 0xffffffff, ani, 12);
         
         int _game_a = (int)(icon_a - (MENU_ANI_MAX / 2)) * 2;
         if (_game_a > 0xFF)
@@ -525,6 +527,9 @@ void Draw_UserCheatsMenu_Ani(save_list_t * list)
 
 void Draw_UserCheatsMenu(save_list_t * list, int menuSel, u8 alpha)
 {
-	DrawHeader(list->icon_id, 0, list->title, "Save Game List", APP_FONT_TITLE_COLOR | 0xFF, 0xffffff00 | alpha, 0);
-	DrawGameList(menuSel, list->list, alpha);
+    char subtitle[0x40];
+
+    snprintf(subtitle, sizeof(subtitle), "%zu Save Games", list_count(list->list));
+    DrawHeader(list->icon_id, 0, list->title, subtitle, APP_FONT_TITLE_COLOR | 0xFF, 0xffffff00 | alpha, 0);
+    DrawGameList(menuSel, list->list, alpha);
 }

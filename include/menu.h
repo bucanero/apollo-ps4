@@ -7,8 +7,8 @@
 #include "settings.h"
 
 // SDL window and software renderer
-SDL_Window* window;
-SDL_Renderer* renderer;
+extern SDL_Window* window;
+extern SDL_Renderer* renderer;
 
 //Textures
 enum texture_index
@@ -194,8 +194,8 @@ typedef struct t_png_texture
 	SDL_Texture *texture;
 } png_texture;
 
-u32 * texture_mem;      // Pointers to texture memory
-u32 * free_mem;         // Pointer after last texture
+extern u32 * texture_mem;      // Pointers to texture memory
+extern u32 * free_mem;         // Pointer after last texture
 
 extern png_texture * menu_textures;				// png_texture array for main menu, initialized in LoadTexture
 

@@ -245,6 +245,7 @@ void end_progress_bar(void);
 
 int init_loading_screen(const char* msg);
 void stop_loading_screen();
+void disable_unpatch();
 
 void execCodeCommand(code_entry_t* code, const char* codecmd);
 

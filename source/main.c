@@ -84,7 +84,7 @@ app_config_t apollo_config = {
     .marginH = 0,
     .marginV = 0,
     .user_id = 0,
-    .idps = {0, 0},
+    .packver = 0,
     .psid = {0, 0},
     .account_id = 0,
 };
@@ -96,6 +96,10 @@ int close_app = 0;
 int idle_time = 0;                          // Set by readPad
 
 png_texture * menu_textures;                // png_texture array for main menu, initialized in LoadTexture
+SDL_Window* window;                         // SDL window
+SDL_Renderer* renderer;                     // SDL software renderer
+uint32_t* texture_mem;                      // Pointers to texture memory
+uint32_t* free_mem;                         // Pointer after last texture
 
 
 const char * menu_about_strings[] = { "Bucanero", "Developer",
@@ -1239,13 +1243,6 @@ void terminate()
 	sceSystemServiceLoadExec("exit", NULL);
 }
 
-int appdata_check(const char* vfile)
-{
-	uint32_t version = 0;
-
-	return (read_file(vfile, (uint8_t*) &version, sizeof(uint32_t)) != SUCCESS ||  version < APOLLO_DATA_VERSION);
-}
-
 static int initInternal()
 {
     // load common modules
@@ -1368,12 +1365,18 @@ s32 main(s32 argc, const char* argv[])
 		return (-1);
 	}
 
+	// Load application settings
+	load_app_settings(&apollo_config);
+
 	// Unpack application data on first run
-	if (appdata_check(APOLLO_DATA_PATH "version.dat"))
+	if (apollo_config.packver < APOLLO_DATA_VERSION)
 	{
 //		clean_directory(APOLLO_DATA_PATH);
 		if (extract_zip(APOLLO_APP_PATH "misc/appdata.zip", APOLLO_DATA_PATH))
 			show_message("Successfully installed local application data");
+
+		apollo_config.packver = APOLLO_DATA_VERSION;
+		save_app_settings(&apollo_config);
 	}
 
 	// Splash screen logo (fade-in)
@@ -1381,9 +1384,6 @@ s32 main(s32 argc, const char* argv[])
 
 	// Apply save-mounter patches
 	patch_save_libraries();
-
-	// Load application settings
-	load_app_settings(&apollo_config);
 
 	menu_options[8].options = get_logged_users();
  
@@ -1439,9 +1439,9 @@ s32 main(s32 argc, const char* argv[])
 		if (menu_pad_help[menu_id])
 		{
 			u8 alpha = 0xFF;
-			if (pad_data.idle > 80)
+			if (pad_data.idle > 0x800)
 			{
-				int dec = (pad_data.idle - 80) * 4;
+				int dec = (pad_data.idle - 0x800) * 4;
 				if (dec > alpha)
 					dec = alpha;
 				alpha -= dec;

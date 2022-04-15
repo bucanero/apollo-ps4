@@ -1465,10 +1465,16 @@ list_t * ReadUsbList(const char* userPath)
 	item->dir_name = malloc(sizeof(void**));
 	((void**)item->dir_name)[0] = list;
 
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign selected Saves", CMD_RESIGN_SAVES);
+	list_append(item->codes, cmd);
+
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign all decrypted Saves", CMD_RESIGN_ALL_SAVES);
 	list_append(item->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all decrypted Saves to HDD", CMD_COPY_SAVES_HDD);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy selected Saves to HDD", CMD_COPY_SAVES_HDD);
+	list_append(item->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all decrypted Saves to HDD", CMD_COPY_ALL_SAVES_HDD);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump all decrypted Save Fingerprints", CMD_DUMP_FINGERPRINTS);
@@ -1500,13 +1506,15 @@ list_t * ReadUserList(const char* userPath)
 	//bulk management hack
 	item->dir_name = malloc(sizeof(void**));
 	((void**)item->dir_name)[0] = list;
-/*
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign & Unlock all Saves", CMD_RESIGN_ALL_SAVES);
-	list_append(item->codes, cmd);
-*/
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all Saves to USB", CMD_CODE_NULL);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy selected Saves to USB", CMD_CODE_NULL);
 	cmd->options_count = 1;
 	cmd->options = _createOptions(2, "Copy Saves to USB", CMD_COPY_SAVES_USB);
+	list_append(item->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all Saves to USB", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(2, "Copy Saves to USB", CMD_COPY_ALL_SAVES_USB);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump all Save Fingerprints", CMD_DUMP_FINGERPRINTS);

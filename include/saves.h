@@ -86,9 +86,12 @@ enum cmd_code_enum
     CMD_IMPORT_DATA_FILE,
 
 // Bulk commands
+    CMD_RESIGN_SAVES,
     CMD_RESIGN_ALL_SAVES,
     CMD_COPY_SAVES_USB,
+    CMD_COPY_ALL_SAVES_USB,
     CMD_COPY_SAVES_HDD,
+    CMD_COPY_ALL_SAVES_HDD,
     CMD_DUMP_FINGERPRINTS,
 
 // Export commands
@@ -112,7 +115,7 @@ enum cmd_code_enum
 // Save flags
 #define SAVE_FLAG_LOCKED        1
 #define SAVE_FLAG_OWNER         2
-#define SAVE_FLAG_PS3           4
+#define SAVE_FLAG_SELECTED      4
 #define SAVE_FLAG_PS1           8
 #define SAVE_FLAG_PS2           16
 #define SAVE_FLAG_PSP           32

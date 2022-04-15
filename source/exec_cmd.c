@@ -200,7 +200,7 @@ static void copySaveHDD(const save_entry_t* save)
 		show_message("Error! Can't copy Save-game folder:\n%s/%s", save->title_id, save->dir_name);
 }
 
-static void copyAllSavesHDD(const save_entry_t* save)
+static void copyAllSavesHDD(const save_entry_t* save, int all)
 {
 	int err_count = 0;
 	list_node_t *node;
@@ -214,7 +214,7 @@ static void copyAllSavesHDD(const save_entry_t* save)
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (item->type == FILE_TYPE_PS4 && !(item->flags & SAVE_FLAG_LOCKED))
+		if (item->type == FILE_TYPE_PS4 && !(item->flags & SAVE_FLAG_LOCKED) && (all || item->flags & SAVE_FLAG_SELECTED))
 			err_count += ! _copy_save_hdd(item);
 	}
 
@@ -526,7 +526,7 @@ void convertSavePSV(const char* save_path, const char* out_path, uint16_t type)
 	show_message("File successfully saved to:\n%s", out_path);
 }
 */
-static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path)
+static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int all)
 {
 	char copy_path[256];
 	char save_path[256];
@@ -548,19 +548,16 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path)
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (item->type == FILE_TYPE_PS4)
-		{
-			if (!orbis_SaveMount(item, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
-				continue;
+		if (item->type != FILE_TYPE_PS4 || !(all || item->flags & SAVE_FLAG_SELECTED) || !orbis_SaveMount(item, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
+			continue;
 
-			snprintf(save_path, sizeof(save_path), APOLLO_SANDBOX_PATH, mount);
-			snprintf(copy_path, sizeof(copy_path), "%s%08x_%s_%s/", dst_path, apollo_config.user_id, item->title_id, item->dir_name);
+		snprintf(save_path, sizeof(save_path), APOLLO_SANDBOX_PATH, mount);
+		snprintf(copy_path, sizeof(copy_path), "%s%08x_%s_%s/", dst_path, apollo_config.user_id, item->title_id, item->dir_name);
 
-			LOG("Copying <%s> to %s...", save_path, copy_path);
-			copy_directory(save_path, save_path, copy_path);
+		LOG("Copying <%s> to %s...", save_path, copy_path);
+		copy_directory(save_path, save_path, copy_path);
 
-			orbis_SaveUmount(mount);
-		}
+		orbis_SaveUmount(mount);
 	}
 
 	end_progress_bar();
@@ -787,7 +784,7 @@ static void resignSave(sfo_patch_t* patch)
     show_message("Save %s successfully modified!", selected_entry->title_id);
 }
 
-static void resignAllSaves(const save_entry_t* save)
+static void resignAllSaves(const save_entry_t* save, int all)
 {
 	char sfoPath[256];
 	int err_count = 0;
@@ -807,7 +804,7 @@ static void resignAllSaves(const save_entry_t* save)
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (item->type != FILE_TYPE_PS4 || (item->flags & SAVE_FLAG_LOCKED))
+		if (item->type != FILE_TYPE_PS4 || (item->flags & SAVE_FLAG_LOCKED) || !(all || item->flags & SAVE_FLAG_SELECTED))
 			continue;
 
 		snprintf(sfoPath, sizeof(sfoPath), "%s" "sce_sys/param.sfo", item->path);
@@ -1058,7 +1055,8 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 */
 		case CMD_COPY_SAVES_USB:
-			copyAllSavesUSB(selected_entry, codecmd[1] ? SAVES_PATH_USB1 : SAVES_PATH_USB0);
+		case CMD_COPY_ALL_SAVES_USB:
+			copyAllSavesUSB(selected_entry, codecmd[1] ? SAVES_PATH_USB1 : SAVES_PATH_USB0, codecmd[0] == CMD_COPY_ALL_SAVES_USB);
 			code->activated = 0;
 			break;
 
@@ -1087,13 +1085,15 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			code->activated = 0;
 			break;
 
+		case CMD_RESIGN_SAVES:
 		case CMD_RESIGN_ALL_SAVES:
-			resignAllSaves(selected_entry);
+			resignAllSaves(selected_entry, codecmd[0] == CMD_RESIGN_ALL_SAVES);
 			code->activated = 0;
 			break;
 
 		case CMD_COPY_SAVES_HDD:
-			copyAllSavesHDD(selected_entry);
+		case CMD_COPY_ALL_SAVES_HDD:
+			copyAllSavesHDD(selected_entry, codecmd[0] == CMD_COPY_ALL_SAVES_HDD);
 			code->activated = 0;
 			break;
 /*

@@ -830,6 +830,13 @@ void doSaveMenu(save_list_t * save_list)
 				return;
 			}
 		}
+		else if (pad_check_button(ORBIS_PAD_BUTTON_TOUCH_PAD) && 
+			(save_list->icon_id == cat_hdd_png_index || save_list->icon_id == cat_usb_png_index))
+		{
+			selected_entry = list_get_item(save_list->list, menu_sel);
+			if (selected_entry->type != FILE_TYPE_MENU)
+				selected_entry->flags ^= SAVE_FLAG_SELECTED;
+		}
 		else if (pad_check_button(ORBIS_PAD_BUTTON_SQUARE))
 		{
 			ReloadUserSaves(save_list);

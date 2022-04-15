@@ -348,11 +348,13 @@ void DrawGameList(int selIndex, list_t * games, u8 alpha)
 			if (item->title_id)
 				DrawString((SCREEN_WIDTH - 40) - (MENU_ICON_OFF * 5), game_y, item->title_id);
 
+			if (item->flags & SAVE_FLAG_SELECTED)
+                DrawString(MENU_ICON_OFF + MENU_TITLE_OFF - 50, game_y, "\xE2\x98\x85");
+
 			tmp[0] = ' ';
 			if (item->flags & SAVE_FLAG_PS1) tmp[0] = CHAR_TAG_PS1;
 			if (item->flags & SAVE_FLAG_PS2) tmp[0] = CHAR_TAG_PS2;
 			if (item->flags & SAVE_FLAG_PSP) tmp[0] = CHAR_TAG_PSP;
-			if (item->flags & SAVE_FLAG_PS3) tmp[0] = CHAR_TAG_PS3;
 			if (item->flags & SAVE_FLAG_PS4) tmp[0] = CHAR_TAG_PS4;
 			tmp[1] = (item->flags & SAVE_FLAG_OWNER) ? CHAR_TAG_OWNER : ' ';
 			tmp[2] = (item->flags & SAVE_FLAG_LOCKED) ? CHAR_TAG_LOCKED : ' ';

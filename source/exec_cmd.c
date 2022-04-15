@@ -940,7 +940,7 @@ static void decryptSaveFile(const char* filename)
 {
 	char path[256];
 
-	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/", apollo_config.user_id, selected_entry->title_id);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s_%s/", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
 	mkdirs(path);
 
 	LOG("Decrypt '%s%s' to '%s'...", selected_entry->path, filename, path);
@@ -955,14 +955,14 @@ static void encryptSaveFile(const char* filename)
 {
 	char path[256];
 
-	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/%s", apollo_config.user_id, selected_entry->title_id, filename);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s_%s/%s", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name, filename);
 
 	if (file_exists(path) != SUCCESS)
 	{
 		show_message("Error! Can't find decrypted save-game file:\n%s", path);
 		return;
 	}
-	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/", apollo_config.user_id, selected_entry->title_id);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s_%s/", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
 
 	LOG("Encrypt '%s%s' to '%s'...", path, filename, selected_entry->path);
 

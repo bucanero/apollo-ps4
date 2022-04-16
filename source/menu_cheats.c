@@ -496,6 +496,29 @@ void Draw_CheatsMenu_Selection(int menuSel, u32 rgba)
     DrawCheatsList(menuSel, selected_entry, (u8)rgba);
 }
 
+static void get_subtitle(int type, size_t count, char* sub)
+{
+    switch (type)
+    {
+        case cat_usb_png_index:
+        case cat_hdd_png_index:
+            sprintf(sub, "%zu Saves", count -1);
+            break;
+
+        case cat_db_png_index:
+        case cat_warning_png_index:
+            sprintf(sub, "%zu Games", count);
+            break;
+
+        case cat_bup_png_index:
+            sprintf(sub, "Tools");
+            break;
+
+        default:
+            sub[0] = 0;
+            break;
+    }
+}
 
 /*
  * User Cheats Game Selection Menu
@@ -511,7 +534,7 @@ void Draw_UserCheatsMenu_Ani(save_list_t * list)
         
         u8 icon_a = (u8)(((ani * 2) > 0xFF) ? 0xFF : (ani * 2));
         
-        snprintf(subtitle, sizeof(subtitle), "%zu Save Games", list_count(list->list));
+        get_subtitle(list->icon_id, list_count(list->list), subtitle);
         DrawHeader_Ani(list->icon_id, list->title, subtitle, APP_FONT_TITLE_COLOR, 0xffffffff, ani, 12);
         
         int _game_a = (int)(icon_a - (MENU_ANI_MAX / 2)) * 2;
@@ -531,7 +554,7 @@ void Draw_UserCheatsMenu(save_list_t * list, int menuSel, u8 alpha)
 {
     char subtitle[0x40];
 
-    snprintf(subtitle, sizeof(subtitle), "%zu Save Games", list_count(list->list));
+    get_subtitle(list->icon_id, list_count(list->list), subtitle);
     DrawHeader(list->icon_id, 0, list->title, subtitle, APP_FONT_TITLE_COLOR | 0xFF, 0xffffff00 | alpha, 0);
     DrawGameList(menuSel, list->list, alpha);
 }

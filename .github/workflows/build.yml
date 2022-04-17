@@ -87,7 +87,7 @@ jobs:
       run: |
         mkdir orbis && cd orbis
         cmake --toolchain ../cmake/openorbis.cmake ..
-        make
+        make install
         cp libSDL2.a "${OO_PS4_TOOLCHAIN}/lib"
 
     - name: Build Apollo App Package

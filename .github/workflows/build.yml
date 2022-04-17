@@ -82,8 +82,7 @@ jobs:
     - name: Install libjbc
       run: cp -rf ps4-skeleton/libs/* "${OO_PS4_TOOLCHAIN}/lib"
 
-    # temporary until sdl2 can installed
-    - name: copy SDL2 bin to SDK dir
+    - name: Install SDL2 library
       working-directory: SDL-PS4
       run: |
         mkdir orbis && cd orbis

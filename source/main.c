@@ -1289,6 +1289,14 @@ s32 main(s32 argc, const char* argv[])
 	dbglogger_init();
 #endif
 
+	// Initialize SDL functions
+	LOG("Initializing SDL");
+	if (SDL_Init(SDL_INIT_VIDEO) != SUCCESS)
+	{
+		LOG("Failed to initialize SDL: %s", SDL_GetError());
+		return (-1);
+	}
+
 	initInternal();
 	http_init();
 	initPad();
@@ -1308,15 +1316,6 @@ s32 main(s32 argc, const char* argv[])
 	{
 		LOG("[ERROR] Failed to open audio on main port");
 		return audio;
-	}
-
-	// Initialize SDL functions
-	LOG("Initializing SDL");
-
-	if (SDL_Init(SDL_INIT_VIDEO) != SUCCESS)
-	{
-		LOG("Failed to initialize SDL: %s", SDL_GetError());
-		return (-1);
 	}
 
 	// Create a window context

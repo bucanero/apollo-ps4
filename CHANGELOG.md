@@ -4,6 +4,21 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v1.1.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.1.0) - 2022-04-17
+
+### Added
+
+* New firmware support: 5.07, 7.51
+* Improved save-game listing (game name, saves count)
+* Save-game selection (`Touchpad` to select)
+  * Copy/Resign selected saves (Bulk Management)
+* Detect if a save couldn't be unmounted
+
+### Fixed
+
+* Fixed Trophy-set listing bug
+* Avoid issue when removing mount patches on exit
+
 ## [v1.0.1](https://github.com/bucanero/apollo-ps4/releases/tag/v1.0.1) - 2022-02-02
 
 ### Fixed

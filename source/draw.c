@@ -49,9 +49,10 @@ int LoadMenuTexture(const char* path, int idx)
 // draw one background color in virtual 2D coordinates
 void DrawBackground2D(u32 rgba)
 {
-	SDL_SetRenderDrawColor(renderer, RGBA_R(rgba), RGBA_G(rgba), RGBA_B(rgba), RGBA_A(rgba));
+	SDL_Rect rect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 
-	SDL_RenderClear(renderer);
+	SDL_SetRenderDrawColor(renderer, RGBA_R(rgba), RGBA_G(rgba), RGBA_B(rgba), RGBA_A(rgba));
+	SDL_RenderFillRect(renderer, &rect);
 }
 
 void _drawListBackground(int off, int icon)
@@ -411,10 +412,6 @@ void drawEndLogo()
 	{
 		// clear the current display buffer
 		SDL_RenderClear(renderer);
-		DrawBackground2D(0xFFFFFFFF);
-
-		//App description
-		DrawTextureCentered(&menu_textures[logo_png_index], SCREEN_WIDTH/2, SCREEN_HEIGHT /2, 0, menu_textures[logo_png_index].width *3/4, menu_textures[logo_png_index].height *3/4, 0xFFFFFF00 | 0xFF);
 
 		rect.y = 0;
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);

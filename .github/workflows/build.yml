@@ -19,6 +19,7 @@ jobs:
         git clone https://github.com/bucanero/zip.git             --depth 1
         git clone https://github.com/bucanero/oosdk_libraries.git --depth 1
         git clone https://github.com/bucanero/mxml                --depth 1
+        git clone https://github.com/bucanero/SDL-PS4 -b ps4      --depth 1
         git clone https://github.com/Al-Azif/ps4-skeleton.git     --depth 1
 
     - name: Set env vars
@@ -83,7 +84,11 @@ jobs:
 
     # temporary until sdl2 can installed
     - name: copy SDL2 bin to SDK dir
-      run: curl -fL "https://cdn.discordapp.com/attachments/470415443115376643/959988630812762152/libSDL2.a" -o "${OO_PS4_TOOLCHAIN}/lib/libSDL2.a"
+      working-directory: SDL-PS4
+      run: |
+        mkdir orbis && cd orbis
+        cmake --toolchain ../cmake/openorbis.cmake ..
+        make
 
     - name: Build Apollo App Package
       run: |

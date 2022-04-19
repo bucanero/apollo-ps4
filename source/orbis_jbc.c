@@ -3,8 +3,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <orbis/libkernel.h>
+#include <libjbc.h>
 
-#include "libjbc.h"
 #include "orbis_patches.h"
 #include "util.h"
 

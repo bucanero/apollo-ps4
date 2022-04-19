@@ -283,19 +283,15 @@ void sfo_grab(sfo_context_t *inout, sfo_context_t *tpl, int num_keys, const sfo_
 	}
 }
 
-/*
-void sfo_patch_lock(sfo_context_t *inout, unsigned int flags) {
+void sfo_patch_titleid(sfo_context_t *inout) {
 	sfo_context_param_t *p;
 
-	if ((flags & SFO_PATCH_FLAG_REMOVE_COPY_PROTECTION) != 0) {
-		p = sfo_context_get_param(inout, "ATTRIBUTE");
-		if (p != NULL && p->actual_length == 4) {
-			u32 *flag = (u32 *)p->value;
-			*flag = 0;
-		}
+	p = sfo_context_get_param(inout, "PARAMS");
+	if (p != NULL) {
+		sfo_param_params_t *params = (sfo_param_params_t *)p->value;
+		memcpy(params->title_id_2, params->title_id_1, sizeof(params->title_id_1));
 	}
 }
-*/
 
 static void sfo_patch_account(sfo_context_t *inout, u64 account) {
 	sfo_context_param_t *p;

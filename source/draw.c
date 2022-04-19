@@ -412,6 +412,10 @@ void drawEndLogo()
 	{
 		// clear the current display buffer
 		SDL_RenderClear(renderer);
+		DrawBackground2D(0xFFFFFFFF);
+
+		//App description
+		DrawTextureCentered(&menu_textures[logo_png_index], SCREEN_WIDTH/2, SCREEN_HEIGHT /2, 0, menu_textures[logo_png_index].width *3/4, menu_textures[logo_png_index].height *3/4, 0xFFFFFF00 | 0xFF);
 
 		rect.y = 0;
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);

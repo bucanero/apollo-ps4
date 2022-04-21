@@ -1,0 +1,848 @@
+;CUSA11456
+;PS4 Ghost of Tsushima
+;source: xdgmods
+;Automated & simplified file by @officialahmed0
+
+:*
+
+[Max Rank]
+80010009 FFFFFFFF
+000A0000 00000000
+28000009 000186A0
+80020009 FFFFFFFF
+000A0000 00000000
+28000009 000186A0
+
+[Unlock Stances]
+80010009 FFFFFFFF
+000A0000 00000000
+28000025 00000064
+80020009 FFFFFFFF
+000A0000 00000000
+28000025 00000064
+
+[No Fog of War (If not visited it will be marked as ?)]
+80010008 88130000
+00A00000 00000000
+4C000008 00000000
+A0000001 00000000
+
+;Refill Ammo Codes
+
+[Arrow Normal]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+8801000F 0B000000
+4172726F 774E6F72
+6D616C00 00000000
+92000000 0000000F
+28000004 00007FFF
+28000008 00007FFF
+
+[Arrow Fire]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+8801000D 09000000
+4172726F 77466972
+65000000 00000000
+92000000 0000000D
+28000004 00007FFF
+28000008 00007FFF
+
+[Arrow Heavy]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+8801000E 0A000000
+4172726F 77486561
+76790000 00000000
+92000000 0000000E
+28000004 00007FFF
+28000008 00007FFF
+
+[Arrow Piercing]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010011 0D000000
+4172726F 77506965
+7263696E 67000000
+92000000 00000011
+28000004 00007FFF
+28000008 00007FFF
+
+[Arrow Explosive]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010012 0E000000
+4172726F 77457870
+6C6F7369 76650000
+92000000 00000012
+28000004 00007FFF
+28000008 00007FFF
+
+[Arrow Spirit]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+8801000F 0B000000
+4172726F 77537069
+72697400 00000000
+92000000 0000000F
+28000004 00007FFF
+28000008 00007FFF
+
+[Dart Normal]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+8801000E 0A000000
+44617274 4E6F726D
+616C0000 00000000
+92000000 0000000E
+28000004 00007FFF
+28000008 00007FFF
+
+[Dart Hallucination]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010015 11000000
+44617274 48616C6C
+7563696E 6174696F
+6E000000 00000000
+92000000 00000015
+28000004 00007FFF
+28000008 00007FFF
+
+[Dart Weakening]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010011 0D000000
+44617274 5765616B
+656E696E 67000000
+92000000 00000011
+28000004 00007FFF
+28000008 00007FFF
+
+[Dart Instant Poison]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010015 11000000
+44617274 496E7374
+616E7450 6F69736F
+6E000000 00000000
+92000000 00000015
+28000004 00007FFF
+28000008 00007FFF
+
+[Ammo Flash Bomb]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010011 0D000000
+416D6D6F 466C6173
+68426F6D 62000000
+92000000 00000011
+28000004 00007FFF
+28000008 00007FFF
+
+[Ammo Noise maker]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010012 0E000000
+416D6D6F 4E6F6973
+656D616B 65720000
+92000000 00000012
+28000004 00007FFF
+28000008 00007FFF
+
+[Ammo Bell]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+8801000C 08000000
+416D6D6F 42656C6C
+92000000 0000000C
+28000004 00007FFF
+28000008 00007FFF
+
+[Ammo Fire Bomb]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010010 0C000000
+416D6D6F 46697265
+426F6D62 00000000
+92000000 00000010
+28000004 00007FFF
+28000008 00007FFF
+
+[Ammo Concussion Bomb]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010016 12000000
+416D6D6F 436F6E63
+75737369 6F6E426F
+6D620000 00000000
+92000000 00000016
+28000004 00007FFF
+28000008 00007FFF
+
+[Ammo Throwing Dagger]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010016 12000000
+416D6D6F 5468726F
+77696E67 44616767
+65720000 00000000
+92000000 00000016
+28000004 00007FFF
+28000008 00007FFF
+
+[Ammo Smoke Bomb]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010011 0D000000
+416D6D6F 536D6F6B
+65426F6D 62000000
+92000000 00000011
+28000004 00007FFF
+28000008 00007FFF
+
+[Ammo Sticky Bomb]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010012 0E000000
+416D6D6F 53746963
+6B79426F 6D620000
+92000000 00000012
+28000004 00007FFF
+28000008 00007FFF
+
+[Ammo Fire Blade]
+80010015 11000000
+4C656765 6E647349
+6E766573 746D656E
+74000000 00000000
+88010011 0D000000
+416D6D6F 46697265
+426C6164 65000000
+92000000 00000011
+28000004 00007FFF
+28000008 00007FFF
+
+[Max Ghost Flowers]
+8001000E 0A000000
+4E475046 6C6F7765
+72730000 00000000
+2800000E 00000001
+28000012 05F5E0FF
+
+;Below codes only for (V1.00-1.04)
+[Activator (Must Be On) V1.00 to 1.04]
+
+80010006 5F502EE2
+4A200000 00000000
+93000000 0000000C
+
+[Have All Banners]
+4A001098 00000002
+4050000B 00000000
+
+[Have All Mongol Artifacts]
+4A00148F 00000002
+4032000B 00000000
+
+[Have All Records]
+4A0016C7 00000002
+4028000B 00000000
+
+[Have All Singing Crickets]
+4A0018B5 00000002
+4014000B 00000000
+
+[All Fast Travel]
+4A005D03 00000002
+40870007 00000000
+
+[The Ken Invasion Armor Add Armors]
+28007775 00000002
+
+[Fundoshi Armor Add Armors]
+280001A2 00000002
+
+[Kensai Armor Add Armors]
+28000AA9 00000002
+
+[Ghost Armor Add Armors]
+28000AB2 00000002
+
+[Prologue Invasion Armour (not broken) Add Armors]
+28000E5A 00000002
+
+[Traveller’s Attire Add Armors]
+2800995F 00000002
+
+[Traveler’s Attire Level 1 Add Armors/Upgrades]
+2800022C 00000002
+
+[Traveler’s Attire Level 2 Add Armors/Upgrades]
+28000235 00000002
+
+[Traveler’s Attire Level 3 Add Armors/Upgrades]
+2800023E 00000002
+
+[Traveler’s Attire Level 4 Add Armors/Upgrades]
+28000247 00000002
+
+[Samurai Clan Armor Level 1 Add Armors/Upgrades]
+28000250 00000002
+
+[Samurai Clan Armor Level 2 Add Armors/Upgrades]
+28000259 00000002
+
+[Samurai Clan Armor Level 3 Add Armors/Upgrades]
+28000262 00000002
+
+[Samurai Clan Armor Level 4 Add Armors/Upgrades]
+2800026B 00000002
+
+[Tadayori’s Armor Level 1 Add Armors/Upgrades]
+28000274 00000002
+
+[Tadayori’s Armor Level 2 Add Armors/Upgrades]
+2800027D 00000002
+
+[Tadayori’s Armor Level 3 Add Armors/Upgrades]
+28000286 00000002
+
+[Tadayori’s Armor Level 4 Add Armors/Upgrades]
+2800028F 00000002
+
+[Kensei’s Armor Level 1 Add Armors/Upgrades]
+28000298 00000002
+
+[Kensei’s Armor Level 2 Add Armors/Upgrades]
+280002A1 00000002
+
+[Kensei’s Armor Level 3 Add Armors/Upgrades]
+280002AA 00000002
+
+[Kensei’s Armor Level 4 Add Armors/Upgrades]
+280002B3 00000002
+
+[Gosaku’s Armor Level 1 Add Armors/Upgrades]
+280002BC 00000002
+
+[Gosaku’s Armor Level 2 Add Armors/Upgrades]
+280002C5 00000002
+
+[Gosaku’s Armor Level 3 Add Armors/Upgrades]
+280002CE 00000002
+
+[Gosaku’s Armor Level 4 Add Armors/Upgrades]
+280002D7 00000002
+
+[Sakai Clan Armor Level 1 Add Armors/Upgrades]
+280002E0 00000002
+
+[Sakai Clan Armor Level 2 Add Armors/Upgrades]
+280002E9 00000002
+
+[Sakai Clan Armor Level 3 Add Armors/Upgrades]
+280002F2 00000002
+
+[Sakai Clan Armor Level 4 Add Armors/Upgrades]
+280002FB 00000002
+
+[Ronin Attire Level 1 Add Armors/Upgrades]
+28000304 00000002
+
+[Ronin Attire Level 2 Add Armors/Upgrades]
+2800030D 00000002
+
+[Ronin Attire Level 3 Add Armors/Upgrades]
+28000316 00000002
+
+[Ronin Attire Level 4 Add Armors/Upgrades]
+2800031F 00000002
+
+[Ghost Armor Level 1 Add Armors/Upgrades]
+28000328 00000002
+
+[Ghost Armor Level 2 Add Armors/Upgrades]
+28000331 00000002
+
+[Ghost Armor Level 3 Add Armors/Upgrades]
+2800033A 00000002
+
+[Ghost Armor Level 4 Add Armors/Upgrades]
+28000343 00000002
+
+[Charms Of Inari’s Might Add Charms]
+280008BF 00000002
+
+[Charms Of Inari’s Might,Charm Of Silence A]dd Charms
+280008F5 00000002
+
+[Patchwork Straw Hat Add HeadGear]
+28000ABB 00000002
+
+[Farmer’s Straw Hat Add HeadGear]
+28000AC4 00000002
+
+[Northern Farmer’s Hat Add HeadGear]
+28000ACD 00000002
+
+[Deep Night Straw Hat Add HeadGear]
+28000AD6 00000002
+
+[Fierce Warrior’s Headband Add HeadGear]
+28000ADF 00000002
+
+[Pure Intent Headband Add HeadGear]
+28000AE8 00000002
+
+[Hinode Headband Add HeadGear]
+28000AF1 00000002
+
+[Tora Headband Add HeadGear]
+28000AFA 00000002
+
+[Serpent Strike Headband Add HeadGear]
+28000B03 00000002
+
+[Kyoto Twilight Headband Add HeadGear]
+28000B0C 00000002
+
+[Night Ocean Headband Add HeadGear]
+28000B15 00000002
+
+[Headband Of Refuge Add HeadGear]
+2800917C 00000002
+
+[Headband Of Invasion Add HeadGear]
+28009185 00000002
+
+[Headband Of Peace Add HeadGear]
+2800918E 00000002
+
+[Headband Of Fear Add HeadGear]
+28009197 00000002
+
+[Headband Of Strife Add HeadGear]
+280091A0 00000002
+
+[Headband Of Defeat Add HeadGear]
+280091A9 00000002
+
+[Headband Of Death Add HeadGear]
+280091B2 00000002
+
+[Headband Of Serenity Add HeadGear]
+280091BB 00000002
+
+[Oni’s Blade Straw Helmet Add HeadGear]
+28009539 00000002
+
+[Azozora Headband Add HeadGear]
+28009566 00000002
+
+[Forgemaster’s Headband Add HeadGear]
+28009578 00000002
+
+[Chikurin Headband Add HeadGear]
+2800958A 00000002
+
+[Wanderer’s Straw Hat Add HeadGear]
+28009593 00000002
+
+[Wood Spirit Straw Hat Add HeadGear]
+280095B7 00000002
+
+[Gyozen’s Blindfold Add HeadGear]
+280095C9 00000002
+
+[Plum Blossom Headband Add HeadGear]
+280095DB 00000002
+
+[Riverbed Straw Hat Add HeadGear]
+280095FF 00000002
+
+[Band Of The Second Son Add HeadGear]
+28009608 00000002
+
+[Toyotama Straw Hat Add HeadGear]
+2800961A 00000002
+
+[Crooked Kama Headband Add HeadGear]
+28009635 00000002
+
+[Tengai-Helmet Add HeadGear]
+28009659 00000002
+
+[Sago Blue Headband Add HeadGear]
+28009686 00000002
+
+[Wolf Of Tsushima Add Masks]
+28007901 00000002
+
+[Sacred Mountain Add Masks]
+28007908 00000002
+
+[Ivory Of Woe Add Masks]
+280095C0 00000002
+
+[Skeletal Vengeance Add Masks]
+28009662 00000002
+
+[Seiryuu’s Glare Add Masks]
+2800968F 00000002
+
+[Warrior’s Brush-Sword Kit Add Swords]
+28009530 00000002
+
+[Fuujin’s Secret-Sword Kit Add Swords]
+28009554 00000002
+
+[Yasha’s Embers-Sword Kit Add Swords]
+2800955D 00000002
+
+[Spring Bamboo-Sword Kit Add Swords]
+2800956F 00000002
+
+[Genbu’s Darkness-Sword Kit Add Swords]
+28009581 00000002
+
+[Dueling Festival-Sword Kit Add Swords]
+280095A5 00000002
+
+[Moon Bear’s Paw-Sword Kit, Yuzu Peel-Sword Kit Add Swords]
+280095D2 00000002
+
+[Hijiki in Sunlight-Sword Kit Add Swords]
+280095E4 00000002
+
+[Bishamon’s Fortune-Sword Kit Add Swords]
+280095ED 00000002
+
+[Gold Koi River-Sword Kit Add Swords]
+280095F6 00000002
+
+[Hunting Bear-Sword Kit Add Swords]
+28009611 00000002
+
+[Breath of Hachiman-Sword Kit Add Swords]
+28009623 00000002
+
+[Warrior’s Faith-Sword Kit Add Swords]
+2800962C 00000002
+
+[Island’s Keeper-Sword Kit Add Swords]
+2800963E 00000002
+
+[Tanukis-brush-Sword Kit Add Swords]
+28009647 00000002
+
+[Hidden Forest-Sword Kit Add Swords]
+28009650 00000002
+
+[Azure Dragon-Sword Kit Add Swords]
+2800966B 00000002
+
+[Midnight Hanabi-Sword Kit Add Swords]
+28009674 00000002
+
+[Sly Tanuki-Sword Kit Add Swords]
+2800967D 00000002
+
+[Shogun’s Storm-Sword Kit Add Swords]
+28009698 00000002
+
+[Sakai Katana Level 1 Add Weapon/Upgrades]
+28000367 00000002
+
+[Sakai Katana Level 2 Add Weapon/Upgrades]
+28000370 00000002
+
+[Sakai Katana Level 3 Add Weapon/Upgrades]
+28000379 00000002
+
+[Sakai Katana Level 4 Add Weapon/Upgrades]
+28000382 00000002
+
+[Sakai Katana Level 5 Add Weapon/Upgrades]
+2800038B 00000002
+
+[Sakai Katana Level 6 Add Weapon/Upgrades]
+28000394 00000002
+
+[Sakai Katana Level 7 Add Weapon/Upgrades]
+2800039D 00000002
+
+[Sakai Tanto Level 1 Add Weapon/Upgrades]
+280003A6 00000002
+
+[Sakai Tanto Level 2 Add Weapon/Upgrades]
+280003AF 00000002
+
+[Sakai Tanto Level 3 Add Weapon/Upgrades]
+280003B8 00000002
+
+[Half Bow Level 1 Add Weapon/Upgrades]
+280003C1 00000002
+
+[Half Bow Level 2 Add Weapon/Upgrades]
+280003CA 00000002
+
+[Half Bow Level 3 Add Weapon/Upgrades]
+280003D3 00000002
+
+[Half Bow Level 4 Add Weapon/Upgrades]
+280003DC 00000002
+
+[Half Bow Level 5 Add Weapon/Upgrades]
+280003E5 00000002
+
+[Longbow Level 1 Add Weapon/Upgrades]
+280003EE 00000002
+
+[Longbow Level 2 Add Weapon/Upgrades]
+280003F7 00000002
+
+[Longbow Level 3 Add Weapon/Upgrades]
+28000400 00000002
+
+[Longbow Level 4 Add Weapon/Upgrades]
+28000409 00000002
+
+[Longbow Level 5 Add Weapon/Upgrades]
+28000412 00000002
+
+[Explosive Arrow Capacity Level 1 Add Weapon/Upgrades]
+28000436 00000002
+
+[Explosive Arrow Capacity Level 2 Add Weapon/Upgrades]
+2800043F 00000002
+
+[Explosive Arrow Capacity Level 3 Add Weapon/Upgrades]
+28000448 00000002
+
+[Flaming Arrow Capacity Level 1 Add Weapon/Upgrades]
+28000451 00000002
+
+[Flaming Arrow Capacity Level 2 Add Weapon/Upgrades]
+2800045A 00000002
+
+[Flaming Arrow Capacity Level 3 Add Weapon/Upgrades]
+28000463 00000002
+
+[Heavy Arrow Capacity Level 1 Add Weapon/Upgrades]
+2800046C 00000002
+
+[Heavy Arrow Capacity Level 2 Add Weapon/Upgrades]
+28000475 00000002
+
+[Heavy Arrow Capacity Level 3 Add Weapon/Upgrades]
+2800047E 00000002
+
+[Arrow Capacity Level 1 Add Weapon/Upgrades]
+28000487 00000002
+
+[Arrow Capacity Level 2 Add Weapon/Upgrades]
+28000490 00000002
+
+[Arrow Capacity Level 3 Add Weapon/Upgrades]
+28000499 00000002
+
+[Wind Chime Capacity Level 1 Add Weapon/Upgrades]
+280004A2 00000002
+
+[Wind Chime Capacity Level 2 Add Weapon/Upgrades]
+280004AB 00000002
+
+[Wind Chime Capacity Level 3 Add Weapon/Upgrades]
+280004B4 00000002
+
+[Hallucination Dart Capacity Level 1 Add Weapon/Upgrades]
+280004BD 00000002
+
+[Hallucination Dart Capacity Level 2 Add Weapon/Upgrades]
+280004C6 00000002
+
+[Hallucination Dart Capacity Level 3 Add Weapon/Upgrades]
+280004CF 00000002
+
+[Poison Dart Capacity Level 1 Add Weapon/Upgrades]
+280004D8 00000002
+
+[Poison Dart Capacity Level 2 Add Weapon/Upgrades]
+280004E1 00000002
+
+[Poison Dart Capacity Level 3 Add Weapon/Upgrades]
+280004EA 00000002
+
+[Incendiary Oil Capacity Level 1 Add Weapon/Upgrades]
+280004F3 00000002
+
+[Incendiary Oil Capacity Level 2 Add Weapon/Upgrades]
+280004FC 00000002
+
+[Incendiary Oil Capacity Level 3 Add Weapon/Upgrades]
+28000505 00000002
+
+[Black Powder Bomb Capacity Level 1 Add Weapon/Upgrades]
+2800050E 00000002
+
+[Black Powder Bomb Capacity Level 2 Add Weapon/Upgrades]
+28000517 00000002
+
+[Black Powder Bomb Capacity Level 3 Add Weapon/Upgrades]
+28000520 00000002
+
+[Firecracker Capaacity Level 1 Add Weapon/Upgrades]
+28000529 00000002
+
+[Firecracker Capaacity Level 2 Add Weapon/Upgrades]
+28000532 00000002
+
+[Firecracker Capaacity Level 3 Add Weapon/Upgrades]
+2800053B 00000002
+
+[Smoke Bomb Capacity Level 1 Add Weapon/Upgrades]
+28000544 00000002
+
+[Smoke Bomb Capacity Level 2 Add Weapon/Upgrades]
+2800054D 00000002
+
+[Smoke Bomb Capacity Level 3 Add Weapon/Upgrades]
+28000556 00000002
+
+[Sticky Bomb Capacity Level 1 Add Weapon/Upgrades]
+2800055F 00000002
+
+[Sticky Bomb Capacity Level 2 Add Weapon/Upgrades]
+28000568 00000002
+
+[Sticky Bomb Capacity Level 3 Add Weapon/Upgrades]
+28000571 00000002
+
+[Kunai Capacity Level 1 Add Weapon/Upgrades]
+2800057A 00000002
+
+[Kunai Capacity Level 2 Add Weapon/Upgrades]
+28000583 00000002
+
+[Kunai Capacity Level 3 Add Weapon/Upgrades]
+2800058C 00000002
+
+[Resolve + 1 (3-4) Misc]
+280001AB 00000002
+
+[Infinite Resolve (GOD MOD) Misc]
+280001B4 00000002
+
+[Resolve + 1 (4-5) Misc]
+280001BD 00000002
+
+[Resolve + 1 (5-6) Misc]
+280001C6 00000002
+
+[Resolve + 1 (6-7) Misc]
+280001CF 00000002
+
+;Below codes only for (V1.12)
+[Activator(Must Be On) V1.12]
+
+[80010006 5F502EE2]
+03010000 00000000
+93000000 0000000B
+
+[Have All Banners]
+4A0015E6 00000002
+4050000D 00000000
+
+[Have All Mongol Artifacts]
+[4A001A9B 00000002]
+4032000D 00000000
+
+[Have All Horse Saddles]
+4A0019F6 00000002
+400F000B 00000000
+
+[Have All Records]
+4A001D3B 00000002
+4028000D 00000000
+
+[Have All Singing Crickets]
+4A001F85 00000002
+4014000D 00000000
+
+[All Fast Travel]
+4A00707B 00000002
+40880009 00000000
+
+;Below codes only for (V1.13)
+[Activator (v1.13)]
+80010006 5F502EE2
+03020000 00000000
+93000000 0000000B
+
+[Have All Banners]
+
+4A0015EF 00000002
+4050000D 00000000
+
+[Have All Mongol Artifacts]
+
+4A001AA4 00000002
+4032000D 00000000
+
+[Have All Horse Saddles]
+
+4A0019FF 00000002
+400F000B 00000000
+
+[Have All Records]
+
+4A001D44 00000002
+4028000D 00000000
+
+[Have All Singing Crickets]
+
+4A001F8E 00000002
+4014000D 00000000
+
+[All Fast Travel]
+
+4A007084 00000002
+40880009 00000000

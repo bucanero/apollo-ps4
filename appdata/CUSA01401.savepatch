@@ -1,0 +1,28 @@
+;CUSA01401
+;PS4 Borderlands 2
+;source: xdgmods
+;Automated & simplified file by @officialahmed0
+
+:*
+
+;requires character level 5+
+
+[+Max Money]
+
+80010003 28003200
+28000004 2FD7C1FF
+
+[+Max Eridium]
+
+80010003 28003200
+08000008 00000063
+
+[+Max Seraph Crystals]
+
+80010003 28003200
+08000009 0000007F
+
+[Level 80]
+
+80010001 10000000
+08000001 00000080

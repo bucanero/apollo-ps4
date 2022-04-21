@@ -1,0 +1,52 @@
+;CUSA08956
+;PS4 Attack On Titan 2
+;source: xdgmods
+;Automated & simplified file by @officialahmed0
+
+:*
+
+[All Gifts x99]
+
+42036F58 00010063
+40320030 00000000
+
+[Max Skillpoints] 
+;(200 is the max. Will reset to the normal value if you level up.)
+
+000213DD 000000C8
+
+[Max 10 of your Blades, Scabbards, Omni]
+
+400A0040 00000000
+41023559 000001C6
+400A0040 00000000
+41024E19 000001C6
+400A0040 00000000
+
+[Max enhance 20 of your Blades, Scabbards, Omni Equip] 
+
+41021C99 000001C6
+40140040 00000000
+41023559 000001C6
+40140040 00000000
+41024E19 000001C6
+40140040 00000000
+
+[All Titan’s Captured]
+
+420714B8 00010001
+41700050 00000000
+
+[Created Character Stats = 85]
+
+420213C8 00550055
+40030004 00000000
+
+[All Characters Stats = 85]
+
+4201F368 00550055
+402D00E0 00000000
+4201F36C 00550055
+402D00E0 00000000
+4201F370 00550055
+402D00E0 00000000

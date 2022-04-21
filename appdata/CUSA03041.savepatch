@@ -1,0 +1,149 @@
+;CUSA03041
+;PS4 Red dead redemption 2
+;source: xdgmods
+;Automated & simplified file by @Officialahmed0
+
+:*
+
+[Add $1,000.00 (1k) Money]
+80010004 CE548CF5
+28000010 A0860100
+
+[Add $10,000.00 (10k) Money]
+80010004 CE548CF5
+28000010 40420F00
+
+[Add $50,000.00 (50k) Money]
+80010004 CE548CF5
+28000010 404B4C00
+
+[Add $100,000.00 (100k) Money]
+80010004 CE548CF5
+28000010 80969800
+
+[Incredibly High Health (Code will reset after Death or Save reloading.)]
+80010004 53303030
+28015AF0 7E96184B
+28015B10 7E96184B
+28015B18 7E96184B
+
+[Incredibly High Stamina]
+80010004 53303030
+28015AF8 7E96184B
+28015B20 7E96184B
+28015B28 7E96184B
+
+[Incredibly High Dead Eye]
+80010004 53303030
+28015B00 7E96184B
+28015B30 7E96184B
+28015B38 7E96184B
+
+[Invisible Player:On (This will make you invisible.)]
+8001000C 35338566
+0C000008 702A612C
+2800000C 00000000
+
+[Invisible Player:Off (This will make you visible.)]
+8001000C 35338566
+0C000008 702A612C
+2800000C 27000000
+
+[Max Good Honor]
+80010004 53303030
+28015C00 40010000
+
+[Max Bad Honor]
+80010004 53303030
+28015C00 C0FEFFFF
+
+[999 Stats (Unlocks 100% completion trophy.)]
+80010004 00C6B33D
+4A000004 FFC99A3B
+49D1000C 00000000
+
+;NOTE: Make a back up of the save. These can be unstable and/or contain bugs.
+
+[Manual change read comments below: Weapon Swap (Current Weapon for New Weapon) - Attention: Make a back up of the save]
+80010008 AAAAAAAA
+670506DD 00000000
+A8000000 00000004
+BBBBBBBB 00000000
+28000014 63000000
+
+;change these codes from weapons ID's list
+;AAAAAAAA = Weapon you want to Swap
+;BBBBBBBB = Weapon you want to Have
+
+;Weapon ID’s 1:
+;169F59F7 – Cattleman Revolver
+;F5E4207F – Granger’s Revolver
+;16D655F7 – Flaco’s Revolver
+;C9622757 – John’s Cattleman Revolver
+;0797FBF5 – Double-Action Revolver
+;23C706CD – Algernon’s Revolver
+;02300C65 – Micah’s Revolver
+;7BBD1FF6 – Schofield Revolver
+;0247E783 – Calloway’s Revolver
+;E195D259 – Otis Miller’s Revolver
+;020D13FF – Volcanic Pistol
+;657065D6 – Semi-Automatic Pistol
+;8580C63E – Mauser Pistol
+;4AAE5FFA – Midnight’s Pistol
+;F5175BA1 – Carbine Repeater
+;BE76397C – John’s Lancaster Repeater
+;A84762EC – Lancaster Repeater
+;95B24592 – Litchfield Repeater
+
+;Weapon ID’s 2:
+;DDF7BC1E – Varmint Rifle
+;63F46DE6 – Springfield Rifle
+;772C8DD6 – Bolt Action Rifle
+;E1D2B317 – Rolling Block Rifle
+;4E328256 – Rare Rolling Block Rifle
+;53944780 – Carcano Rifle
+;1765A8F8 – Sawed-Off Shotgun
+;6DFA071B – Double-Barreled Shotgun
+;2250E150 – Rare Shotgun
+;31B7B9FE – Pump-Action Shotgun
+;6D9BB970 – Semi-Auto Shotgun
+;63CA782A – Repeating Shotgun
+;7F23B6C7 – Ancient Tomahawk
+;F79190B4 – Broken Pirate Sword
+;0C45B2DE – Wide-Blade Knife
+;E470B7AD – Rusted Hunter Hatchet
+;BCC63763 – Double Bit Hatchet
+;8F0FDE0E – Rusted Double Bit Hatchet
+
+[Satchel Legendary (must have Tender Pork Loin)]
+80010004 B39E0D3C
+08000004 00000001
+80010008 8CB7C555
+409F50CB 00000000
+A8000000 00000004
+B39E0D3C 00000000
+28000014 01000000
+
+;Item Swap
+;80010008 XXXXXXXX
+;YYYYYYYY 00000000
+;A8000000 00000004
+;SSSSSSSS 00000000
+;28000014 63000000
+
+;XXXXXXXX = Item you want to Swap
+;YYYYYYYY = Satchel or place
+;YYYYYYYY is Any Storage below. These are storage ID’s not Item ID’s.
+;SSSSSSSS = Item u want to have
+
+;409F50CB = Satchel
+;BE85CADE = Provisions Satchel
+;12D8F0EC = Tonics Satchel
+;D5C803CE = Ingredients Satchel
+;9F4FFF58 = Kit Satchel
+;0D7CB5AE = Materials Satchel
+;7E2B5AFD = Valuables Satchel
+;04718245 = Legend of the East Satchel
+;550898DE = Pearson
+;AEEE1782 = Trapper Give
+;D56F3216 = Trapper Buy

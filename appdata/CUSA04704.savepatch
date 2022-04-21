@@ -1,0 +1,113 @@
+;CUSA04704 
+;PS4 Resident Evil 4
+;source: hackinformer forum 
+;Automated file by @Officialahmed0
+
+:*
+
+;Max HP [the max amount the game will allow] - [will have to re-apply, after so many hits]
+
+[Code Type 0: Standard 1 Byte Write]
+
+00001F40 000000FF
+00001F41 0000007F
+00001F42 000000FF
+00001F43 0000007F
+00001F44 000000FF
+00001F45 0000007F
+00001F46 000000FF
+00001F47 0000007F
+
+
+[Code Type 1: Standard 2 Byte Write]
+
+10001F40 00007FFF
+10001F42 00007FFF
+10001F44 00007FFF
+10001F46 00007FFF
+
+
+[Code Type 2: Standard 4 Byte Write]
+
+20001F40 7FFF7F77
+20001F44 7FFF7F77
+
+
+[Code Type 9: Pointer Manipulator: (Set/Move Pointer) + Code Type A: Mass Write]
+
+
+95000000 00001F40
+A8000000 00000008
+FF7FFF7F FF7FFF7F
+
+
+[Code Type A: Mass Write]
+
+
+A0001F40 00000008
+FF7FFF7F FF7FFF7F
+
+
+;save-slots in order
+;MAX HP
+
+
+
+[save-slot-1]
+
+A0001F40 00000008
+FF7FFF7F FF7FFF7F
+
+
+[save-slot-2
+
+A000EA3C 00000008
+FF7FFF7F FF7FFF7F
+
+
+[save-slot-3]
+
+A001B538 00000008
+FF7FFF7F FF7FFF7F
+
+
+[save-slot-4]
+
+A0028034 00000008
+FF7FFF7F FF7FFF7F
+
+
+[save-slot-5]
+
+A0034B30 00000008
+FF7FFF7F FF7FFF7F
+
+
+[save-slot-6]
+
+A004162C 00000008
+FF7FFF7F FF7FFF7F
+
+
+[save-slot-7]
+
+A004E128 00000008
+FF7FFF7F FF7FFF7F
+
+
+[save-slot-8]
+
+A005AC24 00000008
+FF7FFF7F FF7FFF7F
+
+
+[save-slot-9]
+
+A0067720 00000008
+FF7FFF7F FF7FFF7F
+
+
+[save-slot-10]
+
+A007421C 00000008
+FF7FFF7F FF7FFF7F

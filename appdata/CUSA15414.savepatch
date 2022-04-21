@@ -1,0 +1,12 @@
+;CUSA15414
+;PS4 Doom Eternal
+;source: xdgmods
+;Automated & simplified file by @officialahmed0
+
+:*
+
+[Extra Lives (127 lives, resets to 99 after death)]
+8001000C 6974656D
+436F756E 745F3701
+92000000 0000000C
+08000000 0000007F

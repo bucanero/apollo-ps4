@@ -1,0 +1,32 @@
+;CUSA12031
+;PS4 Kingdom Hearts III
+;source: themaximum.com.b
+;Automated & simplified file by @officialahmed0
+
+:*
+
+[Sinalizadores de item. (Define como se você os tivesse antes)]
+4000086F 0000000D
+42A40002 00000000
+
+[Teste de seção Gummie]
+41000E58 00000001
+447C0002 00000001
+40000E59 0000000D
+447C0002 00000000
+
+[99 todos os blocos Gummi corrigidos]
+41000EEE 00000163
+40300002 00000000
+41000F82 00000163
+40530002 00000000
+4100102A 00000D63
+400E0002 00000000
+
+
+[Atalho 2 Editar]
+0000BEA8 00000096
+0000BEAC 00000097
+0000BEB0 00000098
+0000BEB4 0000008B
+

@@ -71,4 +71,33 @@ topics = (
 
 for p in topics:
     browser.get(p)  # to be changed for var p
+=======
+# start with page 5 on the forum
+topics = (
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+)
+
+for p in topics:
+    browser.get(main_page)  # to be changed for var p
     fetch_post()

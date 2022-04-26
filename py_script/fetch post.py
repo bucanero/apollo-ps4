@@ -16,7 +16,7 @@ def fetch_post():
         + content
     )
 
-    with open(game + ".savepatch", "w+") as file:
+    with open("py_script\\" + game + ".savepatch", "w+") as file:
         for line in tmp.split("\n"):
             cmnt = ";" + line
             if "CODE: SELECT ALL" not in line:
@@ -44,6 +44,34 @@ def fetch_post():
                 file.write("\n")
 
 
+# start with page 7 on the forum
+topics = (
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=4689",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=3400",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=4816",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=1293",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=1126",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=2304",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=1217",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=4716",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=2263",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=1485",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=4813",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=982",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=1466",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=2526",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=4812",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=1558",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=4825",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=4822",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=4828",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=1747",
+    "https://forum.hackinformer.com/viewtopic.php?f=115&t=4618",
+)
+
+for p in topics:
+    browser.get(p)  # to be changed for var p
+=======
 # start with page 5 on the forum
 topics = (
     "",

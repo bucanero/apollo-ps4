@@ -1,12 +1,22 @@
 ;CUSA09193
 ;PS4 Resident evil 2 remake
-;source: xdgmods
+;source: various forums (xdgmods & dazhuanlan.com)
 ;Automated & simplified file by @officialahmed0
 
 :*
 
-[GOD MODE (INFINITE HEALTH)]
+;Only these will get you killed with GOD MODE
+;Eat your face: by Ivy
+;Hunted: by Giant Alligator
+;Burned: by the bitch knowing what she’s doing
+;Head crushed: by Mr. X
+;Skewered: by Super Tyrant
+;Smashed: by the container in G (Stage 2) fight
+;Captured: by the police chief
+;Blown up: if lab’s self-destruct timer runs out
+;Human Mincemeat: eaten by G (Stage 5)
 
+[GOD MODE (INFINITE HEALTH)]
 80010008 D3A8A66D
 633EECF7 00000000
 28000010 7FFFFFFF
@@ -16,4 +26,47 @@
 80010004 6D8DAA27
 2800000C 00000014
 80010004 4CF1FCEF
+2800000C 00000014
+
+;This cheat will replace the Matilda Handgun / SLS 60 Handgun with the Infinite Anti-Tank Rocket (4 rounds ver.)
+;Use this on your Autosave file as soon as you start the game and trigger auto saving
+;Works on all difficulties, both Leon and Claire
+;Can get S+, as long as meeting the number of saves / total play time requirements.
+
+[Leon - AutoSave - ATM-4]
+80020024 2D727526
+F5C58BAA 01000000
+04000000 00000000
+9DB32976 01000000
+04000000 01000000
+08000020 000000F2
+08000030 00000000
+08000040 0000001C
+08000050 00000004
+
+[Change Difficulty to ASSISTED]
+8001000C 8C26C0AA
+01000000 04000000
+2800000C 00000000
+
+[Change Difficulty to STANDARD]
+8001000C 8C26C0AA
+01000000 04000000
+2800000C 00000001
+
+[Change Difficulty to HARDCORE]
+8001000C 8C26C0AA
+01000000 04000000
+2800000C 00000002
+
+[Claire - AutoSave - ATM-4]
+80020024 2D727526
+F5C58BAA 01000000
+04000000 00000000
+9DB32976 01000000
+04000000 09000000
+08000020 000000F2
+08000030 00000000
+08000040 0000001C
+08000050 00000004
 2800000C 00000014

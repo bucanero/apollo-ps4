@@ -1,0 +1,16 @@
+;CUSA15101
+;PS4 Castlevania Anniversary Collection
+;source: playersquared.com forums
+;Automated & simplified file by @officialahmed0
+
+:*
+
+;Super Castlevania IV
+
+[Super HP]
+2028A02C FFFFFFFF
+
+;Castlevania III: Dracula's Curse
+
+[Super HP]
+20000269 FFFFFF7F

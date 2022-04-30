@@ -93,6 +93,7 @@ enum cmd_code_enum
     CMD_COPY_SAVES_HDD,
     CMD_COPY_ALL_SAVES_HDD,
     CMD_DUMP_FINGERPRINTS,
+    CMD_RUN_WEBSERVER,
 
 // Export commands
     CMD_EXP_KEYSTONE,
@@ -104,6 +105,7 @@ enum cmd_code_enum
 // Import commands
     CMD_IMP_KEYSTONE,
     CMD_CREATE_ACT_DAT,
+    CMD_EXTRACT_ARCHIVE,
 
 // SFO patches
     SFO_UNLOCK_COPY,
@@ -116,7 +118,7 @@ enum cmd_code_enum
 #define SAVE_FLAG_LOCKED        1
 #define SAVE_FLAG_OWNER         2
 #define SAVE_FLAG_SELECTED      4
-#define SAVE_FLAG_PS1           8
+#define SAVE_FLAG_ZIP           8
 #define SAVE_FLAG_PS2           16
 #define SAVE_FLAG_PSP           32
 #define SAVE_FLAG_PSV           64
@@ -134,16 +136,7 @@ enum save_type_enum
     FILE_TYPE_PS4,
 
     // PS1 File Types
-    FILE_TYPE_PSX,
-    FILE_TYPE_MCS,
-
-    // PS2 File Types
-    FILE_TYPE_PSU,
-    FILE_TYPE_MAX,
-    FILE_TYPE_CBS,
-    FILE_TYPE_XPS,
-    FILE_TYPE_VM2,
-    FILE_TYPE_PS2RAW,
+    FILE_TYPE_ZIP,
 
     // License Files
     FILE_TYPE_RIF,
@@ -237,6 +230,8 @@ int http_init(void);
 void http_end(void);
 int http_download(const char* url, const char* filename, const char* local_dst, int show_progress);
 
+int extract_7zip(const char* zip_file, const char* dest_path);
+int extract_rar(const char* rar_file, const char* dest_path);
 int extract_zip(const char* zip_file, const char* dest_path);
 int zip_directory(const char* basedir, const char* inputdir, const char* output_zipfile);
 

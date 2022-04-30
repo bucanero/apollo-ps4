@@ -1096,27 +1096,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			copyAllSavesHDD(selected_entry, codecmd[0] == CMD_COPY_ALL_SAVES_HDD);
 			code->activated = 0;
 			break;
-/*
-		case CMD_RESIGN_PSV:
-			resignPSVfile(selected_entry->path);
+
+		case CMD_RUN_WEBSERVER:
+			enableWebServer(selected_entry, 8080);
 			code->activated = 0;
 			break;
 
-		case CMD_CONVERT_TO_PSV:
-			convertSavePSV(selected_entry->path, codecmd[1] ? EXP_PSV_PATH_USB1 : EXP_PSV_PATH_USB0, selected_entry->type);
-			code->activated = 0;
-			break;
-
-		case CMD_EXP_PSV_MCS:
-			exportPSVfile(selected_entry->path, codecmd[1] ? USB1_PATH PS1_IMP_PATH_USB : USB0_PATH PS1_IMP_PATH_USB);
-			code->activated = 0;
-			break;
-
-		case CMD_EXP_PSV_PSU:
-			exportPSVfile(selected_entry->path, codecmd[1] ? USB1_PATH PS2_IMP_PATH_USB : USB0_PATH PS2_IMP_PATH_USB);
-			code->activated = 0;
-			break;
-*/
 		case CMD_IMPORT_DATA_FILE:
 			encryptSaveFile(code->options[0].name[code->options[0].sel]);
 			code->activated = 0;

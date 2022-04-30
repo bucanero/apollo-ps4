@@ -1,13 +1,13 @@
 # Package metadata.
 TITLE       := Apollo Save Tool
-VERSION     := 01.10
+VERSION     := 01.20
 TITLE_ID    := APOL00004
 CONTENT_ID  := IV0000-APOL00004_00-APOLLO0000000PS4
 
 # Libraries linked into the ELF.
 LIBS        := -lc -lkernel -lc++ -lSceAudioOut -lSceUserService -lScePigletv2VSH -lSceSysmodule -lSceFreeType \
                -lScePad -lSceSystemService -lSceSaveData -lSceCommonDialog -lSceMsgDialog -lSceNet -lSceSsl -lSceHttp \
-               -lSceRegMgr -lSDL2 -lapollo -ldbglogger -lpolarssl -lz -lzip -ljbc -lmxml
+               -lSceRegMgr -lSDL2 -lapollo -ldbglogger -lpolarssl -lz -lzip -ljbc -lmxml -lunrar -lun7zip
 
 # Additional compile flags.
 EXTRAFLAGS  := -fcolor-diagnostics -Wall -D__PS4__

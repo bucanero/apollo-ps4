@@ -1,0 +1,17 @@
+; CUSA00362
+; PS4 Alien: Isolation
+; by bucanero
+
+:THEFILE
+
+; cheat codes go here
+
+[Update SHA1 XOR64 for THEFILE (Required)]
+set [off1]:read(0x18, 4)
+set [off1]:endian_swap
+set [off2]:read(0x1C, 4)
+set [off2]:endian_swap
+set pointer:[off1]+[off2]-1
+set range:0x20,pointer
+set [csum]:sha1_xor64
+write at 0x08:[csum]

@@ -1,0 +1,49 @@
+; CUSA07823
+; PS4 Borderlands 3
+; by bucanero
+
+:profile
+
+[Decrypt profile (Required)]
+search "BP_DefaultOakProfile_C"
+set [size]:read(pointer+0x17,4)
+set [size]:endian_swap
+set [size]:[size]+0x1A
+set range:pointer+0x1B,pointer+[size]
+;use profile xor keys
+DECRYPT borderlands3(0)
+
+:*
+
+[Decrypt save-game]
+search "OakSaveGame"
+set [size]:read(pointer+0x0C,4)
+set [size]:endian_swap
+set [size]:[size]+0x0F
+set range:pointer+0x10,pointer+[size]
+;use save-game xor keys
+DECRYPT borderlands3(1)
+
+;
+; cheat codes go here
+;
+
+:profile
+
+[Encrypt profile (Required)]
+search "BP_DefaultOakProfile_C"
+set [size]:read(pointer+0x17,4)
+set [size]:endian_swap
+set [size]:[size]+0x1A
+set range:pointer+0x1B,pointer+[size]
+ENCRYPT borderlands3(0)
+
+:*
+
+[Encrypt save-game]
+search "OakSaveGame"
+set [size]:read(pointer+0x0C,4)
+set [size]:endian_swap
+set [size]:[size]+0x0F
+set range:pointer+0x10,pointer+[size]
+ENCRYPT borderlands3(1)

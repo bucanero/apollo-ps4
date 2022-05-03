@@ -869,6 +869,13 @@ int ReadBackupCodes(save_entry_t * bup)
 		closedir(d);
 	}
 
+	if (!list_count(bup->codes))
+	{
+		list_free(bup->codes);
+		bup->codes = NULL;
+		return 0;
+	}
+
 	LOG("%zu items loaded", list_count(bup->codes));
 
 	return list_count(bup->codes);

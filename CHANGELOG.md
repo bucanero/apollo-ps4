@@ -4,6 +4,25 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v1.2.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.2.0) - 2022-05-05
+
+### Added
+
+* Local Web server (Download saves as .Zip)
+* RAR, Zip, 7-Zip archive extraction (place files on `/data/`)
+* 50+ Save Wizard cheat-code files (collected by @OfficialAhmed)
+* Custom decryption support
+  * Borderlands 3
+  * Grand Theft Auto 5 (AES)
+  * Resident Evil Revelations 2 (Blowfish)
+* Custom checksum support
+  * Alien: Isolation
+  * Resident Evil Revelations 2 (SHA1)
+
+### Fixed
+
+* Fixed issue when cheat patch couldn't be applied
+
 ## [v1.1.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.1.0) - 2022-04-17
 
 ### Added

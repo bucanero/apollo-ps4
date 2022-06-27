@@ -1,0 +1,19 @@
+;CUSA16120
+;PS4 Langrisser I & II
+;source: 
+;Credits: Pj1980
+;Automated & simplified file by @officialahmed0
+
+:*
+
+;Untested, make sure to backup your save data first
+
+[Unlock all Skills for all characters (Inc hidden)]
+41003C9C 000001C0
+401100FA 00000000
+
+[4000 Number of Kills]
+41003BFD 00001000
+401100FA 00000000
+
+

@@ -5,7 +5,6 @@
 
 :*
 
-
 ;-=-Campaign Mode Codes-=-
 
 [AutoSave - Claire's Shotgun Drake Weapon Slot (UP) ]
@@ -217,3 +216,17 @@
 [Raid Mode - Long Range+ (Slot1-24)]
 4000E8AC 00000009
 40180038 00000000
+
+;[Update SHA1 Hash (Required)]
+;set pointer:eof-0x1F
+;set range:0x0020,pointer
+;set [hash]:SHA1
+;write next (0):[hash]
+;set range:pointer,pointer+0x14
+;endian_swap(32)
+;
+;[Encrypt DATA0.DAT (Required)]
+;set range:0x0020,eof+1
+;endian_swap(32)
+;ENCRYPT blowfish_ecb("zW$2eWaHNdT~6j86T_&j")
+;endian_swap(32)

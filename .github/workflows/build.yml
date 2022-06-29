@@ -19,6 +19,8 @@ jobs:
         git clone https://github.com/bucanero/zip.git             --depth 1
         git clone https://github.com/bucanero/oosdk_libraries.git --depth 1
         git clone https://github.com/bucanero/mxml                --depth 1
+        git clone https://github.com/bucanero/libunrar-ps3        --depth 1
+        git clone https://github.com/bucanero/libun7zip           --depth 1
         git clone https://github.com/bucanero/SDL-PS4 -b ps4      --depth 1
         git clone https://github.com/bucanero/ps4-libjbc          --depth 1
 
@@ -71,6 +73,16 @@ jobs:
 
     - name: Install apollo-lib
       working-directory: apollo-lib
+      run: |
+        make -f Makefile.PS4 install
+
+    - name: Install libun7zip
+      working-directory: libun7zip
+      run: |
+        make -f Makefile.PS4 install
+
+    - name: Install libunrar-ps3
+      working-directory: libunrar-ps3
       run: |
         make -f Makefile.PS4 install
 

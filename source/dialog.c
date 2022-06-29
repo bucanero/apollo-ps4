@@ -7,11 +7,8 @@
 #include <orbis/CommonDialog.h>
 #include <orbis/MsgDialog.h>
 
-#define MDIALOG_OK		0
-#define MDIALOG_YESNO	1
 
 void drawDialogBackground();
-
 
 static inline void _orbisCommonDialogSetMagicNumber(uint32_t* magic, const OrbisCommonDialogBaseParam* param)
 {

@@ -8,10 +8,6 @@
 #include "orbis_patches.h"
 #include "util.h"
 
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE(ar) (sizeof(ar) / sizeof((ar)[0]))
-#endif
-
 #define sys_proc_read_mem(p, a, d, l)       sys_proc_rw(p, a, d, l, 0)
 #define sys_proc_write_mem(p, a, d, l)      sys_proc_rw(p, a, d, l, 1)
 
@@ -75,7 +71,7 @@ int sceKernelGetModuleInfoByName(const char* name, OrbisKernelModuleInfo* info)
 
     memset(handles, 0, sizeof(handles));
 
-    ret = sceKernelGetModuleList(handles, ARRAY_SIZE(handles), &numModules);
+    ret = sceKernelGetModuleList(handles, countof(handles), &numModules);
     if (ret) {
         LOG("sceKernelGetModuleList (%X)", ret);
         return ret;

@@ -1,0 +1,20 @@
+;CUSA00411
+;PS4 Grand Theft Auto V
+; by bucanero, ChendoChap
+
+:memory.dat
+
+[AES Decrypt memory.dat (Required)]
+;BSD reads in big endian
+set [end]:read(0x108,4)
+set range:0x000114,[end]+0x0113
+DECRYPT aes_ecb(0x1685FFA38D010F0DFE661CF9B5572C500D802648DB37B9ED0F48C57342C022F5)
+
+;
+; cheat codes go here
+;
+
+[AES Encrypt memory.dat (Required)]
+set [end]:read(0x108,4)
+set range:0x000114,[end]+0x0113
+ENCRYPT aes_ecb(0x1685FFA38D010F0DFE661CF9B5572C500D802648DB37B9ED0F48C57342C022F5)

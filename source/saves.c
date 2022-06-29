@@ -499,23 +499,7 @@ static void _addSfoCommands(save_entry_t* save)
 	list_append(save->codes, cmd);
 }
 
-int set_psx_import_codes(save_entry_t* item)
-{
-	code_entry_t* cmd;
-	item->codes = list_alloc();
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
-	list_append(item->codes, cmd);
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Convert to .PSV", CMD_CODE_NULL);
-	cmd->options_count = 1;
-	cmd->options = _createOptions(2, "Save .PSV file to USB", CMD_CONVERT_TO_PSV);
-	list_append(item->codes, cmd);
-
-	return list_count(item->codes);
-}
-
-int set_pfs_codes(save_entry_t* item)
+static int set_pfs_codes(save_entry_t* item)
 {
 	code_entry_t* cmd;
 	item->codes = list_alloc();
@@ -525,51 +509,6 @@ int set_pfs_codes(save_entry_t* item)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy Save game to HDD", CMD_COPY_PFS);
 	list_append(item->codes, cmd);
 
-	return list_count(item->codes);
-}
-
-int set_psv_codes(save_entry_t* item)
-{
-	code_entry_t* cmd;
-	item->codes = list_alloc();
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
-	list_append(item->codes, cmd);
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign .PSV file", CMD_RESIGN_PSV);
-	list_append(item->codes, cmd);
-
-	if (item->flags & SAVE_FLAG_PS1)
-	{
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export PS1 save to .MCS", CMD_CODE_NULL);
-		cmd->options_count = 1;
-		cmd->options = _createOptions(2, "Save .MCS file to USB", CMD_EXP_PSV_MCS);
-	}
-	else
-	{
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export PS2 save to .PSU", CMD_CODE_NULL);
-		cmd->options_count = 1;
-		cmd->options = _createOptions(2, "Save .PSU file to USB", CMD_EXP_PSV_PSU);
-	}
-	list_append(item->codes, cmd);
-
-	return list_count(item->codes);
-}
-
-int set_ps2_codes(save_entry_t* item)
-{
-	code_entry_t* cmd;
-	item->codes = list_alloc();
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
-	list_append(item->codes, cmd);
-/*
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy dummy .PSV Save", CMD_CODE_NULL);
-	asprintf(&cmd->file, "APOLLO-99PS2.PSV");
-	cmd->options_count = 1;
-	cmd->options = _createOptions(2, "Copy APOLLO-99PS2.PSV to USB", CMD_COPY_DUMMY_PSV);
-	list_append(item->codes, cmd);
-*/
 	return list_count(item->codes);
 }
 
@@ -596,12 +535,6 @@ int ReadCodes(save_entry_t * save)
 	char * buffer = NULL;
 	char mount[32];
 	char *tmp;
-
-	if (save->flags & SAVE_FLAG_PSV)
-		return set_psv_codes(save);
-
-	if (save->flags & SAVE_FLAG_PS2)
-		return set_ps2_codes(save);
 
 	if (save->flags & SAVE_FLAG_LOCKED)
 		return set_pfs_codes(save);
@@ -650,28 +583,6 @@ skip_end:
 
 	return list_count(save->codes);
 }
-
-/*
-char* _get_xml_node_value(xmlNode * a_node, const xmlChar* node_name)
-{
-	xmlNode *cur_node = NULL;
-	char *value = NULL;
-
-	for (cur_node = a_node; cur_node && !value; cur_node = cur_node->next)
-	{
-		if (cur_node->type != XML_ELEMENT_NODE)
-			continue;
-
-		if (xmlStrcasecmp(cur_node->name, node_name) == 0)
-		{
-			value = (char*) xmlNodeGetContent(cur_node);
-//			LOG("xml value=%s", value);
-		}
-	}
-
-	return value;
-}
-*/
 
 int ReadTrophies(save_entry_t * game)
 {
@@ -848,12 +759,10 @@ list_t * ReadBackupList(const char* userPath)
 	code_entry_t * cmd;
 	list_t *list = list_alloc();
 
-/*
-	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_COPY " Export Licenses");
-	asprintf(&item->path, EXDATA_PATH_HDD, apollo_config.user_id);
-	item->type = FILE_TYPE_RIF;
+	item = _createSaveEntry(SAVE_FLAG_ZIP, CHAR_ICON_ZIP " Extract Archives (RAR, Zip, 7z)");
+	item->path = strdup("/data/");
+	item->type = FILE_TYPE_ZIP;
 	list_append(list, item);
-*/
 
 	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_USER " Activate PS4 Accounts");
 	asprintf(&item->path, EXDATA_PATH_HDD, apollo_config.user_id);
@@ -890,16 +799,11 @@ list_t * ReadBackupList(const char* userPath)
 int ReadBackupCodes(save_entry_t * bup)
 {
 	code_entry_t * cmd;
-	char fext[5] = "";
+	char tmp[256];
 
 	switch(bup->type)
 	{
-	case FILE_TYPE_RIF:
-		sprintf(fext, ".rif");
-		break;
-
-	case FILE_TYPE_RAP:
-		sprintf(fext, ".rap");
+	case FILE_TYPE_ZIP:
 		break;
 
 	case FILE_TYPE_ACT:
@@ -910,7 +814,6 @@ int ReadBackupCodes(save_entry_t * bup)
 		{
 			uint64_t account;
 			char userName[0x20];
-			char tmp[0x80];
 
 			regMgr_GetUserName(i, userName);
 			if (!userName[0])
@@ -942,28 +845,7 @@ int ReadBackupCodes(save_entry_t * bup)
 
 	bup->codes = list_alloc();
 
-	LOG("Loading %s files from '%s'...", fext, bup->path);
-/*
-	if (bup->type == FILE_TYPE_RIF)
-	{
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " Backup All Licenses to .Zip", CMD_CODE_NULL);
-		cmd->options_count = 1;
-		cmd->options = _createOptions(2, "Save .Zip to USB", CMD_EXP_EXDATA_USB);
-		list_append(bup->codes, cmd);
-
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export All Licenses as .RAPs", CMD_CODE_NULL);
-		cmd->options_count = 1;
-		cmd->options = _createOptions(3, "Save .RAPs to USB", CMD_EXP_LICS_RAPS);
-		asprintf(&cmd->options->name[2], "Save .RAPs to HDD");
-		asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_LICS_RAPS, 0x10);
-		list_append(bup->codes, cmd);
-	}
-
-	if (bup->type == FILE_TYPE_RAP)
-	{
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Import All .RAPs as .RIF Licenses", CMD_IMP_EXDATA_USB);
-		list_append(bup->codes, cmd);
-	}
+	LOG("Loading files from '%s'...", bup->path);
 
 	DIR *d;
 	struct dirent *dir;
@@ -973,33 +855,27 @@ int ReadBackupCodes(save_entry_t * bup)
 	{
 		while ((dir = readdir(d)) != NULL)
 		{
-			if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0  &&
-				endsWith(dir->d_name, fext))
-			{
-				cmd = _createCmdCode(PATCH_COMMAND, dir->d_name, CMD_CODE_NULL);
-				*strrchr(cmd->name, '.') = 0;
+			if ((dir->d_type != DT_REG) ||
+				(!endsWith(dir->d_name, ".RAR") && !endsWith(dir->d_name, ".ZIP") && !endsWith(dir->d_name, ".7Z")))
+				continue;
 
-				if (bup->type == FILE_TYPE_RIF)
-				{
-					cmd->options_count = 1;
-					cmd->options = _createOptions(3, "Save .RAP to USB", CMD_EXP_LICS_RAPS);
-					asprintf(&cmd->options->name[2], "Save .RAP to HDD");
-					asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_LICS_RAPS, 0x10);
-				}
-				else if (bup->type == FILE_TYPE_RAP)
-				{
-					sprintf(cmd->codes, "%c", CMD_IMP_EXDATA_USB);
-				}
+			snprintf(tmp, sizeof(tmp), CHAR_ICON_ZIP " Extract %s", dir->d_name);
+			cmd = _createCmdCode(PATCH_COMMAND, tmp, CMD_EXTRACT_ARCHIVE);
+			asprintf(&cmd->file, "%s%s", bup->path, dir->d_name);
 
-				cmd->file = strdup(dir->d_name);
-				list_append(bup->codes, cmd);
-
-				LOG("Added File '%s'", cmd->file);
-			}
+			LOG("[%s] name '%s'", cmd->file, cmd->name);
+			list_append(bup->codes, cmd);
 		}
 		closedir(d);
 	}
-*/
+
+	if (!list_count(bup->codes))
+	{
+		list_free(bup->codes);
+		bup->codes = NULL;
+		return 0;
+	}
+
 	LOG("%zu items loaded", list_count(bup->codes));
 
 	return list_count(bup->codes);
@@ -1292,148 +1168,6 @@ static void read_hdd_savegames(const char* userPath, list_t *list, sqlite3 *appd
 	sqlite3_close(db);
 }
 
-void read_psv_savegames(const char* userPath, list_t *list)
-{
-	DIR *d;
-	struct dirent *dir;
-	save_entry_t *item;
-	char psvPath[256];
-	char data[0x100];
-
-	d = opendir(userPath);
-
-	if (!d)
-		return;
-
-	while ((dir = readdir(d)) != NULL)
-	{
-		if (dir->d_type != DT_REG || !endsWith(dir->d_name, ".PSV"))
-			continue;
-
-		snprintf(psvPath, sizeof(psvPath), "%s%s", userPath, dir->d_name);
-		LOG("Reading %s...", psvPath);
-
-		FILE *psvf = fopen(psvPath, "rb");
-		if (!psvf) {
-			LOG("Unable to open '%s'", psvPath);
-			continue;
-		}
-
-		fread(data, 1, sizeof(data), psvf);
-		if (memcmp(data, "\x00VSP", 4) != 0)
-		{
-			LOG("Not a PSV file");
-			fclose(psvf);
-			continue;
-		}
-
-		uint8_t type = data[0x3C];
-		uint32_t pos = ES32(*(uint32_t*)(data + 0x44));
-
-		fseek(psvf, pos, SEEK_SET);
-		fread(data, 1, sizeof(data), psvf);
-		fclose(psvf);
-
-		item = (save_entry_t *)malloc(sizeof(save_entry_t));
-		item->codes = NULL;
-		item->flags = SAVE_FLAG_PSV | (type == 1 ? SAVE_FLAG_PS1 : SAVE_FLAG_PS2);
-
-		asprintf(&item->path, "%s%s", userPath, dir->d_name);
-		asprintf(&item->title_id, "%.12s", dir->d_name);
-
-		//PS2 Title offset 0xC0
-		//PS1 Title offset 0x04
-		item->name = sjis2utf8(data + (type == 1 ? 0x04 : 0xC0));
-			
-		LOG("[%s] F(%d) name '%s'", item->title_id, item->flags, item->name);
-		list_append(list, item);
-	}
-
-	closedir(d);
-}
-
-void read_psx_savegames(const char* userPath, list_t *list)
-{
-	DIR *d;
-	struct dirent *dir;
-	save_entry_t *item;
-	char psvPath[256];
-	char data[64];
-	int type, toff;
-
-	d = opendir(userPath);
-
-	if (!d)
-		return;
-
-	while ((dir = readdir(d)) != NULL)
-	{
-		if (dir->d_type != DT_REG)
-			continue;
-
-		if (endsWith(dir->d_name, ".PSX"))
-		{
-			toff = 0;
-			type = FILE_TYPE_PSX;
-		}
-		else if (endsWith(dir->d_name, ".MCS"))
-		{
-			toff = 0x0A;
-			type = FILE_TYPE_MCS;
-		}
-		else if (endsWith(dir->d_name, ".MAX"))
-		{
-			toff = 0x10;
-			type = FILE_TYPE_MAX;
-		}
-		else if (endsWith(dir->d_name, ".CBS"))
-		{
-			toff = 0x14;
-			type = FILE_TYPE_CBS;
-		}
-		else if (endsWith(dir->d_name, ".PSU"))
-		{
-			toff = 0x40;
-			type = FILE_TYPE_PSU;
-		}
-		else if (endsWith(dir->d_name, ".XPS") || endsWith(dir->d_name, ".SPS"))
-		{
-			toff = 0x04;
-			type = FILE_TYPE_XPS;
-		}
-		else
-			continue;
-
-		snprintf(psvPath, sizeof(psvPath), "%s%s", userPath, dir->d_name);
-		LOG("Reading %s...", psvPath);
-
-		FILE *fp = fopen(psvPath, "rb");
-		if (!fp) {
-			LOG("Unable to open '%s'", psvPath);
-			continue;
-		}
-
-		fseek(fp, toff, SEEK_SET);
-		fread(data, 1, sizeof(data), fp);
-		fclose(fp);
-
-		item = _createSaveEntry(SAVE_FLAG_PS2, dir->d_name);
-		set_psx_import_codes(item);
-
-		if (type == FILE_TYPE_PSX || type == FILE_TYPE_MCS)
-			item->flags = SAVE_FLAG_PS1;
-
-		item->type = type;
-		asprintf(&item->path, "%s%s", userPath, dir->d_name);
-		asprintf(&item->title_id, "%.12s", data);
-			
-		LOG("[%s] F(%d) name '%s'", item->title_id, item->flags, item->name);
-		list_append(list, item);
-	}
-
-	closedir(d);
-}
-
 /*
  * Function:		ReadUserList()
  * File:			saves.c
@@ -1477,6 +1211,9 @@ list_t * ReadUsbList(const char* userPath)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all decrypted Saves to HDD", CMD_COPY_ALL_SAVES_HDD);
 	list_append(item->codes, cmd);
 
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Start local Web Server", CMD_RUN_WEBSERVER);
+	list_append(item->codes, cmd);
+
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump all decrypted Save Fingerprints", CMD_DUMP_FINGERPRINTS);
 	list_append(item->codes, cmd);
 	list_append(list, item);
@@ -1515,6 +1252,9 @@ list_t * ReadUserList(const char* userPath)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all Saves to USB", CMD_CODE_NULL);
 	cmd->options_count = 1;
 	cmd->options = _createOptions(2, "Copy Saves to USB", CMD_COPY_ALL_SAVES_USB);
+	list_append(item->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Start local Web Server", CMD_RUN_WEBSERVER);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump all Save Fingerprints", CMD_DUMP_FINGERPRINTS);

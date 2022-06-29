@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <unrar.h>
+#include <un7zip.h>
 
 #include "saves.h"
 #include "common.h"
@@ -101,3 +103,72 @@ int extract_zip(const char* zip_file, const char* dest_path)
 
 	return (ret == SUCCESS);
 }
+
+void callback_7z(const char* fileName, unsigned long fileSize, unsigned fileNum, unsigned numFiles)
+{
+    LOG("Extracted: %s (%ld bytes)", fileName, fileSize);
+    update_progress_bar(fileNum, numFiles, fileName);
+}
+
+int extract_7zip(const char* fpath, const char* dest_path)
+{
+	int ret;
+
+	LOG("Extracting 7-Zip (%s) to <%s>...", fpath, dest_path);
+	init_progress_bar("Extracting files...");
+
+	// Extract 7-Zip archive contents
+	ret = Extract7zFileEx(fpath, dest_path, &callback_7z, 0x10000);
+	end_progress_bar();
+
+	return (ret == SUCCESS);
+}
+
+int extract_rar(const char* rarFilePath, const char* dstPath)
+{
+	int err = 0;
+	HANDLE hArcData; //Archive Handle
+	struct RAROpenArchiveDataEx rarOpenArchiveData;
+	struct RARHeaderDataEx rarHeaderData;
+
+	memset(&rarOpenArchiveData, 0, sizeof(rarOpenArchiveData));
+	memset(&rarHeaderData, 0, sizeof(rarHeaderData));
+	rarOpenArchiveData.ArcName = (char*) rarFilePath;
+	rarOpenArchiveData.OpenMode = RAR_OM_EXTRACT;
+
+	hArcData = RAROpenArchiveEx(&rarOpenArchiveData);
+	if (rarOpenArchiveData.OpenResult != ERAR_SUCCESS)
+	{
+		LOG("OpenArchive '%s' Failed!", rarOpenArchiveData.ArcName);
+		return 0;
+	}
+
+	LOG("UnRAR Extract %s to '%s'...", rarFilePath, dstPath);
+	init_progress_bar("Extracting files...");
+
+	while (RARReadHeaderEx(hArcData, &rarHeaderData) == ERAR_SUCCESS)
+	{
+		LOG("Extracting '%s' (%ld bytes)", rarHeaderData.FileName, rarHeaderData.UnpSize + (((uint64_t)rarHeaderData.UnpSizeHigh) << 32));
+		update_progress_bar(0, 1, rarHeaderData.FileName);
+
+		if (RARProcessFile(hArcData, RAR_EXTRACT, (char*) dstPath, NULL) != ERAR_SUCCESS)
+		{
+			err++;
+			LOG("ERROR: UnRAR Extract Failed!");
+			continue;
+		}
+		update_progress_bar(1, 1, rarHeaderData.FileName);
+	}
+	end_progress_bar();
+
+	RARCloseArchive(hArcData);
+	return (err == 0);
+}
+
+// --- workaround to fix an Open Orbis SDK linking issue with __clock_gettime()
+#include <time.h>
+int __clock_gettime(clockid_t clock_id, struct timespec *tp)
+{
+	return clock_gettime(clock_id, tp);
+}
+// --- to be removed

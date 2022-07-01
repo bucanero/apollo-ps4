@@ -1,0 +1,43 @@
+;CUSA29833
+;PS4 Dandy Ace
+;source: Discord
+;Credits: Zeraf3000#8256 
+;Automated & simplified file by @officialahmed0
+
+:*
+
+;Untested, make sure to backup your save data first
+
+[Current Equipped Cards Tier Modifier]
+;This will affect both your MAIN cards and your UPGRADE (Secondary) cards. 
+;Level XV seems to be the highest level you can go before the game glitching or crashing.
+;You'll have to reapply the code each time you change your set up of cards"		
+
+8001004E 47616D65
+53746174 65506C61
+79657253 6B696C6C
+536C6F74 05000000
+09736C6F 74496E64
+65780773 6B696C6C
+49640973 6B696C6C
+54696572 09757067
+72616465 49640B75
+70677261 64655469
+65720000 00000000
+18000064 0000000E
+18000081 0000000E
+1800009E 0000000E
+180000BB 0000000E
+1800006C 0000000E
+18000089 0000000E
+180000A6 0000000E
+180000C3 0000000E
+
+[Negative Health (Infinite)]
+;"Your health will display as negative but it'll be infinite.
+;Equipping a trinket that affects health, or using the ""refill"" 
+;option at the start of each level will reset it to normal.
+;Also, health will reset to normal no matter what at the 
+;beginning of each NEW run so you'll have to reapply the code"			
+
+20000402 5368D4A5

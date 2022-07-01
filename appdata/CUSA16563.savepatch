@@ -1,0 +1,19 @@
+;CUSA16563
+;PS4 Dusk diver
+;source: Discord
+;Credits: Zeraf3000#8256 
+;Automated & simplified file by @officialahmed0
+
+:*
+
+;Untested, make sure to backup your save data first
+
+[Infinite Health]
+;Need to unlock all the upgrades in the skill menu first. 
+;Also, Health bar will dissapear if this works	
+
+80010012 436F6E76
+656E696E 63654275
+79546F74 616C0000
+88010002 48500000
+28000003 000003E7

@@ -3,7 +3,13 @@
 ;source: forum hackinformer.com 
 ;file simplified by @officialahmed0
 
-:*
+:DATA0.DAT
+
+[Decrypt DATA0.DAT (Required)]
+set range:0x0020,eof+1
+endian_swap(32)
+DECRYPT blowfish_ecb("zW$2eWaHNdT~6j86T_&j")
+endian_swap(32)
 
 ;-=-Campaign Mode Codes-=-
 

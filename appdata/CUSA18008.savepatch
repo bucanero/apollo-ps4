@@ -8,14 +8,14 @@
 
 ;Untested, make sure to backup your save data first
 
-Lemi to Stake Magnum
+;Lemi to Stake Magnum
 
-Item Locate
+[Item Locate]
 80010010 C718E6CC
 08000000 04000000
 0584CA05 00000000
 
-Add-on must be add in this order to Item Swap
+;Add-on must be add in this order to Item Swap
 
 [Item Swap]
 A800000C 00000004

@@ -1,0 +1,23 @@
+;CUSA10036
+;PS4 Monkey King: Hero is Back  
+;source: discord
+;Credits: Zeraf3000
+;Automated & simplified file by @officialahmed0
+
+:*
+
+;Untested, make sure to backup your save data first
+
+[Vitality Pill (X large) Max]
+80010019 45436F6E
+73756D65 4974656D
+49443A3A 50696C6C
+48505F58 4C000000
+08000064 000000FF
+
+[Magic Medicine (X Large) Max]
+80010019 45436F6E
+73756D65 4974656D
+49443A3A 50696C6C
+4D505F58 4C000000
+08000064 000000FF

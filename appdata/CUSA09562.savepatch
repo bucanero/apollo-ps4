@@ -1,0 +1,20 @@
+;CUSA09562
+;PS4 Hidden Dragon: Legend
+;source: discord
+;Credits: 
+;Automated & simplified file by @officialahmed0
+
+:*
+
+;Untested, make sure to backup your save data first
+
+[Super MAX Health Potions]	
+8002000C 4865616C
+7468506F 74696F6E
+2800000D 00FFFFFF
+	
+[Super MAX Reborn Potions]	
+;You have to buy one of each first for the code to work
+8002000C 5265626F	
+726E506F 74696F6E	
+2800000D 00FFFFFF	

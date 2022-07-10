@@ -1,0 +1,21 @@
+;CUSA13830
+;PS4 Remnant: From the Ashes
+;source: discord
+;Credits: ༼༻_Almighty_༺༽
+;Automated & simplified file by @officialahmed0
+
+:*
+
+;Untested, make sure to backup your save data first
+
+[Max Glowing Fragments (9999)]
+80010005 0F000100
+04616C6D 00000000
+1800000D 0000270F
+
+
+[HARDCORE MODE]
+800D0005 2B000100
+04000000 616C6D00
+1800000D 0000270F
+

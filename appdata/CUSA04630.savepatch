@@ -1,0 +1,22 @@
+;CUSA04630
+;PS4 Grand Kingdom Limited Edition
+;source: discord
+;Credits: sean lee
+;Automated & simplified file by @officialahmed0
+
+:*
+
+;Untested, make sure to backup your save data first
+
+[Max Items (Needs Testing)]
+4003B454 00000064
+400E0001 00000000
+
+[Max Tome]
+40038E1C 00000063
+40130001 00000000
+
+[Max Coin Item]
+40038E08 00000063
+40140001 00000000
+

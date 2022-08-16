@@ -51,7 +51,7 @@ int http_init()
 		libnetMemId = ret;
 
 		LOG("sceSsl init");
-		ret = sceSslInit(SSL_POOLSIZE);
+		ret = sceSslInit(4 * SSL_POOLSIZE);
 		if (ret < 0) {
 			LOG("sceSslInit() error: 0x%08X\n", ret);
 			return HTTP_FAILED;

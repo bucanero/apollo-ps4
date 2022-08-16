@@ -1,0 +1,23 @@
+;CUSA28183
+;lost judgement
+;source: save wizard discord
+:*
+
+[Yen 99999999]
+search 0x766572223A302C226D5F706F696E74
+search next 0x2C:2
+set pointer:pointer+1
+delete next (0):until 0x2C
+insert next (0):3939393939393939
+
+[SP 99999999]
+search 0x766572223A302C226D5F706F696E74
+search next 0x2C:104
+set pointer:pointer+1
+delete next (0):until 0x2C
+insert next (0):3939393939393939
+search 0x766572223A302C226D5F706F696E74
+search next 0x2C:121
+set pointer:pointer+1
+delete next (0):until 0x2C
+insert next (0):3939393939393939

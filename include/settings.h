@@ -30,8 +30,6 @@ typedef struct
     uint8_t music;
     uint8_t doSort;
     uint8_t doAni;
-    uint8_t marginH;
-    uint8_t marginV;
     uint8_t update;
     uint32_t user_id;
     uint32_t packver;
@@ -48,8 +46,6 @@ void owner_callback(int sel);
 void music_callback(int sel);
 void sort_callback(int sel);
 void ani_callback(int sel);
-void horm_callback(int sel);
-void verm_callback(int sel);
 void update_callback(int sel);
 void redetect_callback(int sel);
 void clearcache_callback(int sel);

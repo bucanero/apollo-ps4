@@ -189,10 +189,7 @@ void DrawHeader(int icon, int xOff, const char * hdrTitle, const char * headerSu
 
 void DrawBackgroundTexture(int x, u8 alpha)
 {
-	if (x == 0)
-		DrawTexture(&menu_textures[bgimg_jpg_index], x - apollo_config.marginH, -apollo_config.marginV, 0, SCREEN_WIDTH - x + (apollo_config.marginH * 2), SCREEN_HEIGHT + (apollo_config.marginV * 2), 0xFFFFFF00 | alpha);
-	else
-		DrawTexture(&menu_textures[bgimg_jpg_index], x, -apollo_config.marginV, 0, SCREEN_WIDTH - x + apollo_config.marginH, SCREEN_HEIGHT + (apollo_config.marginV * 2), 0xFFFFFF00 | alpha);
+	DrawTexture(&menu_textures[bgimg_jpg_index], x, 0, 0, SCREEN_WIDTH - x, SCREEN_HEIGHT, 0xFFFFFF00 | alpha);
 }
 
 void DrawTexture(png_texture* tex, int x, int y, int z, int w, int h, u32 rgba)
@@ -305,19 +302,19 @@ void stop_loading_screen()
 static void drawJar(uint8_t idx, int pos_x, int pos_y, const char* text, uint8_t alpha)
 {
 	uint8_t active = (menu_sel + jar_trophy_png_index == idx);
-	DrawTexture(&menu_textures[idx], pos_x, apollo_config.marginV + pos_y, 0, menu_textures[idx].width, menu_textures[idx].height, 0xffffff00 | alpha);
+	DrawTexture(&menu_textures[idx], pos_x, pos_y, 0, menu_textures[idx].width, menu_textures[idx].height, 0xffffff00 | alpha);
 
 	//Selected
 	if (active)
-		DrawTexture(&menu_textures[idx + JAR_COLUMNS], pos_x, apollo_config.marginV + pos_y, 0, menu_textures[idx + JAR_COLUMNS].width, menu_textures[idx + JAR_COLUMNS].height, 0xffffff00 | alpha);
+		DrawTexture(&menu_textures[idx + JAR_COLUMNS], pos_x, pos_y, 0, menu_textures[idx + JAR_COLUMNS].width, menu_textures[idx + JAR_COLUMNS].height, 0xffffff00 | alpha);
 
 	SetFontColor(APP_FONT_MENU_COLOR | (alpha == 0xFF ? (active ? 0xFF : 0x20) : alpha), 0);
-	DrawStringMono(pos_x + (menu_textures[idx].width / 2), apollo_config.marginV + pos_y - 50, text);
+	DrawStringMono(pos_x + (menu_textures[idx].width / 2), pos_y - 50, text);
 }
 
 static void _drawColumn(uint8_t idx, int pos_x, int pos_y, uint8_t alpha)
 {
-	DrawTexture(&menu_textures[idx], pos_x, apollo_config.marginV + pos_y, 0, menu_textures[idx].width, menu_textures[idx].height, 0xffffff00 | alpha);
+	DrawTexture(&menu_textures[idx], pos_x, pos_y, 0, menu_textures[idx].width, menu_textures[idx].height, 0xffffff00 | alpha);
 }
 
 static void drawColumns(uint8_t alpha)

@@ -576,10 +576,10 @@ static void enableWebServer(const save_entry_t* save, int port)
 {
 	LOG("Starting local web server for '%s'...", save->path);
 
-	if (web_start(port, webReqHandler))
+	if (dbg_webserver_start(port, webReqHandler))
 	{
 		show_message("Web Server listening on port %d.\nPress OK to stop the Server.", port);
-		web_stop();
+		dbg_webserver_stop();
 	}
 	else show_message("Error starting Web Server!");
 }

@@ -48,6 +48,8 @@ enum menu_screen_ids
 #include "font_adonais.h"
 
 //Sound
+#define SAMPLING_FREQ          48000 /* 48khz. */
+#define AUDIO_SAMPLES          256   /* audio samples */
 #define DR_MP3_IMPLEMENTATION
 #include "dr_mp3.h"
 
@@ -81,8 +83,6 @@ app_config_t apollo_config = {
     .doSort = 1,
     .doAni = 1,
     .update = 1,
-    .marginH = 0,
-    .marginV = 0,
     .user_id = 0,
     .packver = 0,
     .psid = {0, 0},
@@ -354,7 +354,7 @@ int LoadTextures_Menu()
 		return 0;
 	free_mem = (u32*) init_ttf_table((u8*) free_mem);
 
-	set_ttf_window(0, 0, SCREEN_WIDTH + apollo_config.marginH, SCREEN_HEIGHT + apollo_config.marginV, WIN_SKIP_LF);
+	set_ttf_window(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WIN_SKIP_LF);
 	
 	if (!menu_textures)
 		menu_textures = (png_texture *)malloc(sizeof(png_texture) * TOTAL_MENU_TEXTURES);
@@ -445,7 +445,6 @@ int LoadTextures_Menu()
 int LoadSounds(void* data)
 {
 	uint8_t* play_audio = data;
-	int32_t sOffs = 0;
 	drmp3 wav;
 
 	// Decode a mp3 file to play
@@ -456,31 +455,33 @@ int LoadSounds(void* data)
 	}
 
 	// Calculate the sample count and allocate a buffer for the sample data accordingly
-	size_t sampleCount = drmp3_get_pcm_frame_count(&wav) * wav.channels;
-	drmp3_int16 *pSampleData = (drmp3_int16 *)malloc(sampleCount * sizeof(uint16_t));
-
-	// Decode the wav into pSampleData  wav.totalPCMFrameCount
-	drmp3_read_pcm_frames_s16(&wav, drmp3_get_pcm_frame_count(&wav), pSampleData);
+	drmp3_int16 *pSampleData = (drmp3_int16 *)malloc(AUDIO_SAMPLES * wav.channels * sizeof(drmp3_int16));
 
 	// Play the song in a loop
 	while (!close_app)
 	{
 		if (*play_audio == 0)
+		{
+			usleep(0x1000);
 			continue;
+		}
+
+		// Decode the wav into pSampleData  wav.totalPCMFrameCount
+		if (!drmp3_read_pcm_frames_s16(&wav, AUDIO_SAMPLES, pSampleData))
+		{
+			// If we reach the end of the file, seek back to the beginning.
+			drmp3_seek_to_pcm_frame(&wav, 0);
+			continue;
+		}
 
 		/* Output audio */
 		sceAudioOutOutput(audio, NULL);	// NULL: wait for completion
 
-		if (sceAudioOutOutput(audio, pSampleData + sOffs) < 0)
+		if (sceAudioOutOutput(audio, pSampleData) < 0)
 		{
 			LOG("Failed to output audio");
 			return -1;
 		}
-
-		sOffs += 256 * 2;
-
-		if (sOffs >= sampleCount)
-			sOffs = 0;
 	}
 
 	free(pSampleData);
@@ -900,7 +901,7 @@ void doOptionsMenu()
 		else if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
 		{
 			save_app_settings(&apollo_config);
-			set_ttf_window(0, 0, SCREEN_WIDTH + apollo_config.marginH, SCREEN_HEIGHT + apollo_config.marginV, WIN_SKIP_LF);
+			set_ttf_window(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WIN_SKIP_LF);
 			SetMenu(MENU_MAIN_SCREEN);
 			return;
 		}
@@ -1310,7 +1311,7 @@ s32 main(s32 argc, const char* argv[])
 	}
 
 	// Open a handle to audio output device
-	audio = sceAudioOutOpen(ORBIS_USER_SERVICE_USER_ID_SYSTEM, ORBIS_AUDIO_OUT_PORT_TYPE_MAIN, 0, 256, 48000, ORBIS_AUDIO_OUT_PARAM_FORMAT_S16_STEREO);
+	audio = sceAudioOutOpen(ORBIS_USER_SERVICE_USER_ID_SYSTEM, ORBIS_AUDIO_OUT_PORT_TYPE_MAIN, 0, AUDIO_SAMPLES, SAMPLING_FREQ, ORBIS_AUDIO_OUT_PARAM_FORMAT_S16_STEREO);
 
 	if (audio <= 0)
 	{
@@ -1391,7 +1392,7 @@ s32 main(s32 argc, const char* argv[])
 	// Apply save-mounter patches
 	patch_save_libraries();
 
-	menu_options[8].options = get_logged_users();
+	menu_options[6].options = get_logged_users();
  
 	// Setup font
 	SetExtraSpace(-15);

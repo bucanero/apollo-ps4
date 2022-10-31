@@ -35,18 +35,6 @@ menu_option_t menu_options[] = {
 		.value = &apollo_config.doAni, 
 		.callback = ani_callback 
 	},
-	{ .name = "Screen Horizontal Margin", 
-		.options = NULL, 
-		.type = APP_OPTION_INC, 
-		.value = &apollo_config.marginH, 
-		.callback = horm_callback 
-	},
-	{ .name = "Screen Vertical Margin", 
-		.options = NULL, 
-		.type = APP_OPTION_INC, 
-		.value = &apollo_config.marginV, 
-		.callback = verm_callback 
-	},
 	{ .name = "\nVersion Update Check", 
 		.options = NULL, 
 		.type = APP_OPTION_BOOL, 
@@ -94,24 +82,6 @@ void sort_callback(int sel)
 void ani_callback(int sel)
 {
 	apollo_config.doAni = !sel;
-}
-
-void horm_callback(int sel)
-{
-	if (sel == 255)
-		sel = 0;
-	if (sel > 100)
-		sel = 100;
-	apollo_config.marginH = sel;
-}
-
-void verm_callback(int sel)
-{
-	if (sel == 255)
-		sel = 0;
-	if (sel > 100)
-		sel = 100;
-	apollo_config.marginV = sel;
 }
 
 void clearcache_callback(int sel)

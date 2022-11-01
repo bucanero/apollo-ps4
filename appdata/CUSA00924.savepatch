@@ -7,9 +7,9 @@
 
 [Decrypt DATA0.DAT (Required)]
 set range:0x0020,eof+1
-endian_swap(32)
+endian_swap(4)
 DECRYPT blowfish_ecb("zW$2eWaHNdT~6j86T_&j")
-endian_swap(32)
+endian_swap(4)
 
 ;-=-Campaign Mode Codes-=-
 
@@ -229,10 +229,10 @@ set range:0x0020,pointer
 set [hash]:SHA1
 write next (0):[hash]
 set range:pointer,pointer+0x14
-endian_swap(32)
+endian_swap(4)
 
 [Encrypt DATA0.DAT (Required)]
 set range:0x0020,eof+1
-endian_swap(32)
+endian_swap(4)
 ENCRYPT blowfish_ecb("zW$2eWaHNdT~6j86T_&j")
-endian_swap(32)
+endian_swap(4)

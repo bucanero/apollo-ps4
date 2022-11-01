@@ -543,14 +543,12 @@ int ReloadUserSaves(save_list_t* save_list)
 
 code_entry_t* LoadRawPatch()
 {
-	size_t len;
 	char patchPath[256];
 	code_entry_t* centry = calloc(1, sizeof(code_entry_t));
 
 	centry->name = strdup(selected_entry->title_id);
 	snprintf(patchPath, sizeof(patchPath), APOLLO_DATA_PATH "%s.savepatch", selected_entry->title_id);
-	read_buffer(patchPath, (u8**) &centry->codes, &len);
-	centry->codes[len] = 0;
+	centry->codes = readTextFile(patchPath, NULL);
 
 	return centry;
 }

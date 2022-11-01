@@ -14,8 +14,6 @@
 #include "util.h"
 #include "sqlite3.h"
 
-#define UTF8_CHAR_GROUP		"\xe2\x97\x86"
-#define UTF8_CHAR_ITEM		"\xe2\x94\x97"
 #define UTF8_CHAR_STAR		"\xE2\x98\x85"
 
 #define CHAR_ICON_ZIP		"\x0C"
@@ -262,7 +260,9 @@ char * readTextFile(const char * path, long* size)
 	fclose(f);
 
 	string[fsize] = 0;
-	*size = fsize;
+	if (size)
+		*size = fsize;
+
 	return string;
 }
 
@@ -531,7 +531,6 @@ int ReadCodes(save_entry_t * save)
 {
 	code_entry_t * code;
 	char filePath[256];
-	long bufferLen;
 	char * buffer = NULL;
 	char mount[32];
 	char *tmp;
@@ -567,7 +566,7 @@ int ReadCodes(save_entry_t * save)
 	list_append(save->codes, code);
 
 	LOG("Loading BSD codes '%s'...", filePath);
-	buffer = readTextFile(filePath, &bufferLen);
+	buffer = readTextFile(filePath, NULL);
 	load_patch_code_list(buffer, save->codes, &get_file_entries, save->path);
 	free (buffer);
 
@@ -710,7 +709,7 @@ int ReadOnlineSaves(save_entry_t * game)
 	char *data = readTextFile(path, &fsize);
 	
 	char *ptr = data;
-	char *end = data + fsize + 1;
+	char *end = data + fsize;
 
 	game->codes = list_alloc();
 
@@ -748,6 +747,7 @@ int ReadOnlineSaves(save_entry_t * game)
 	}
 
 	if (data) free(data);
+	LOG("Loaded %d saves", list_count(game->codes));
 
 	return (list_count(game->codes));
 }
@@ -1302,7 +1302,7 @@ static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 	char *data = readTextFile(path, &fsize);
 	
 	char *ptr = data;
-	char *end = data + fsize + 1;
+	char *end = data + fsize;
 
 	while (ptr < end && *ptr)
 	{

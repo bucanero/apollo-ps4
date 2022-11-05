@@ -121,15 +121,15 @@ Currently, the list of available games and files is limited, but the project aim
 
 # Credits
 
-* [Bucanero](http://www.bucanero.com.ar/): Project developer
+* [Bucanero](http://www.bucanero.com.ar/): [Project developer](https://github.com/bucanero)
 
-### PS3 version credits
+## Acknowledgments
 
 * [Dnawrkshp](https://github.com/Dnawrkshp/): [Artemis PS3](https://github.com/Dnawrkshp/ArtemisPS3)
 * [Berion](https://www.psx-place.com/members/berion.1431/): GUI design
-* [flatz](https://github.com/flatz): [SFO/PFD tools](https://github.com/bucanero/pfd_sfo_tools/)
+* [flatz](https://github.com/flatz): [SFO tools](https://github.com/bucanero/pfd_sfo_tools/)
 * [aldostools](https://aldostools.org/): [Bruteforce Save Data](https://bruteforcesavedata.forumms.net/)
-* [aluigi](http://aluigi.org): [offzip/packzip](http://aluigi.altervista.org/mytoolz.htm)
+* [Nobody/Wild Light](https://github.com/nobodo): [Background music track](https://github.com/bucanero/apollo-vita/blob/main/data/haiku.s3m)
 
 # Building
 
@@ -156,10 +156,10 @@ UDP multicast address `239.255.0.100:30000`. To receive them you can use [socat]
 
 # License
 
-[Apollo Save Tool](https://github.com/bucanero/apollo-ps4/) (PS4) - Copyright (C) 2020-2022  Damian Parrino
+[Apollo Save Tool](https://github.com/bucanero/apollo-ps4/) (PS4) - Copyright (C) 2020-2022  [Damian Parrino](https://twitter.com/dparrino)
 
 This program is free software: you can redistribute it and/or modify
-it under the terms of the [GNU General Public License](LICENSE) as published by
+it under the terms of the [GNU General Public License][app_license] as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 

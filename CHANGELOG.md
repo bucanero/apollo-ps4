@@ -4,6 +4,30 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v1.2.2](https://github.com/bucanero/apollo-ps4/releases/tag/v1.2.2) - 2022-11-05
+
+### Changes
+
+* New Save Wizard codes
+* Custom decryption support
+  * Diablo 3
+* Changed background music
+* Removed unused screen settings
+
+### Patch Engine
+
+* Updated Apollo patch engine v0.3.0
+* Improve patch error handling
+* Save Wizard / Game Genie
+  * Improve SW code types 9, A
+  * Add SW code types 3, 7, B, C, D
+* BSD scripts
+  * New commands: `copy`, `endian_swap`, `msgbox`
+  * New custom hash: `force_crc32`, `mgspw_checksum`
+  * Support initial value for `add/wadd/dwadd/wsub`
+  * Fix `md5_xor`, `sha1_xor64` custom hashing
+  * Fix little-endian support for decrypters/hashes
+
 ## [v1.2.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.2.0) - 2022-05-05
 
 ### Added

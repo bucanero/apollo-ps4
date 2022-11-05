@@ -79,12 +79,13 @@ void update_hdd_path(char *p);
 void update_trophy_path(char *p);
 
 app_config_t apollo_config = {
+    .app_name = "APOLLO",
+    .app_ver = {0},
     .music = 1,
     .doSort = 1,
     .doAni = 1,
     .update = 1,
     .user_id = 0,
-    .packver = 0,
     .psid = {0, 0},
     .account_id = 0,
 };
@@ -1374,13 +1375,14 @@ s32 main(s32 argc, const char* argv[])
 	load_app_settings(&apollo_config);
 
 	// Unpack application data on first run
-	if (apollo_config.packver < APOLLO_DATA_VERSION)
+	if (strncmp(apollo_config.app_ver, APOLLO_VERSION, sizeof(apollo_config.app_ver)) != 0)
 	{
+		LOG("Unpacking application data...");
 //		clean_directory(APOLLO_DATA_PATH);
 		if (extract_zip(APOLLO_APP_PATH "misc/appdata.zip", APOLLO_DATA_PATH))
 			show_message("Successfully installed local application data");
 
-		apollo_config.packver = APOLLO_DATA_VERSION;
+		strncpy(apollo_config.app_ver, APOLLO_VERSION, sizeof(apollo_config.app_ver));
 		save_app_settings(&apollo_config);
 	}
 

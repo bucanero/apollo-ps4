@@ -1,0 +1,17 @@
+; CUSA07823
+; PS4 Diablo III
+; by bucanero
+
+:account.dat
+
+[Decrypt account.dat (Required)]
+set range:0x000000,eof+1
+DECRYPT diablo3
+
+;
+; cheat codes go here
+;
+
+[Encrypt account.dat (Required)]
+set range:0x000000,eof+1
+ENCRYPT diablo3

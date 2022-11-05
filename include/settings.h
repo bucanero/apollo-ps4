@@ -1,5 +1,4 @@
-#define APOLLO_VERSION          "1.2.0"     //Apollo PS4 version (about menu)
-#define APOLLO_DATA_VERSION     2
+#define APOLLO_VERSION          "1.2.2"     //Apollo PS4 version (about menu)
 
 #define MENU_TITLE_OFF			45			//Offset of menu title text from menu mini icon
 #define MENU_ICON_OFF 			105         //X Offset to start printing menu mini icon
@@ -27,12 +26,13 @@ typedef struct
 
 typedef struct
 {
+    char app_name[8];
+    char app_ver[8];
     uint8_t music;
     uint8_t doSort;
     uint8_t doAni;
     uint8_t update;
     uint32_t user_id;
-    uint32_t packver;
     uint64_t psid[2];
     uint64_t account_id;
 } app_config_t;

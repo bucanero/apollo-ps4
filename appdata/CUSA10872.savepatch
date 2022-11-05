@@ -3,6 +3,7 @@
 ;source:pj1980@hackinformer
 
 :*
+[INFO:Untested - Make sure to backup your save data first]
 
 [smg 999]
 80010004 7925525C

@@ -3,6 +3,7 @@
 ;source: hackinformer/web.save-editor & themaximum.com.br
 
 :*
+[INFO:Untested - Make sure to backup your save data first]
 [Add Glaive to the party – does not appear in Lucis past, future untested. No buddy character created)]
 ;Name appears on party screen
 80010007 0BE9F949

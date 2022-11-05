@@ -3,6 +3,7 @@
 ;source: savewizard discord
 
 :*
+[INFO:Untested - Make sure to backup your save data first]
 
 [Max Handgun/Machinegun/Thrown Weapon EXP]
 2003A98C 05F5E0FF

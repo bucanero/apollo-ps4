@@ -3,6 +3,7 @@
 ;source:MealReadytoEat@hackinformer
 
 :*
+[INFO:Untested - Make sure to backup your save data first]
 
 [unlock 4 weapon slots]
 80010004 b15c1d04

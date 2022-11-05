@@ -3,6 +3,7 @@
 ;source:Petterhung+skiller@hackinformer
 
 :*
+[INFO:Untested - Make sure to backup your save data first]
 
 [Max Ap Points]
 8001000D C80A5A6E

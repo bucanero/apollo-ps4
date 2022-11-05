@@ -3,6 +3,7 @@
 ;source: MealReadytoEat@hackinformer
 
 :*
+[INFO:Untested - Make sure to backup your save data first]
 
 [Swap handgun ammo pouch for infinite ammo]
 8001000e 2F706F75

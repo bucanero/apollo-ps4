@@ -3,6 +3,7 @@
 ;source:MealReadytoEat+chris83@hackinformer
 
 :*
+[INFO:Untested - Make sure to backup your save data first]
 
 [Difficulty levels]
 80010004 c8dc7f3e

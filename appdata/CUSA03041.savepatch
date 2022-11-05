@@ -4,6 +4,7 @@
 ;Automated & simplified file by @Officialahmed0
 
 :*
+[INFO:Untested - Make sure to backup your save data first]
 
 [Add $1,000.00 (1k) Money]
 80010004 CE548CF5

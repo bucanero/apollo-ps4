@@ -1,7 +1,8 @@
 ;CUSA28183
 ;lost judgement
 ;source: save wizard discord
-:*
+
+:data.sav
 
 [Yen 99999999]
 search 0x766572223A302C226D5F706F696E74

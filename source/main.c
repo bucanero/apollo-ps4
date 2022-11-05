@@ -1471,6 +1471,7 @@ s32 main(s32 argc, const char* argv[])
 		SDL_RenderPresent(renderer);
 	}
 
+	if (apollo_config.doAni)
 	drawEndLogo();
 
     // Cleanup resources

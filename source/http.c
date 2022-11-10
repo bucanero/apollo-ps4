@@ -3,9 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include <orbis/Http.h>
-#include <orbis/Ssl.h>
-#include <orbis/Net.h>
+#include <curl/curl.h>
 #include <orbis/Sysmodule.h>
 
 #include "common.h"
@@ -15,229 +13,103 @@
 #define HTTP_FAILED	 	0
 #define HTTP_USER_AGENT "Mozilla/5.0 (PLAYSTATION 4; 1.00)"
 
-#define NET_POOLSIZE 	(4 * 1024)
-
-
-static int libnetMemId = 0, libhttpCtxId = 0, libsslCtxId = 0;
-
-static int skipSslCallback(int libsslId, unsigned int verifyErr, void * const sslCert[], int certNum, void *userArg)
-{
-	LOG("sslCtx=%x (%X)", libsslId, verifyErr);
-	return HTTP_SUCCESS;
-}
 
 int http_init()
 {
-	int ret;
-
 	if(sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET) < 0)
 		return HTTP_FAILED;
 
-	if(sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_HTTP) < 0)
+	if(curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK)
 		return HTTP_FAILED;
-
-	if(sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_SSL) < 0)
-		return HTTP_FAILED;
-
-	if (libnetMemId == 0 || libhttpCtxId == 0)
-	{
-		LOG("sceNet init");
-		ret = sceNetInit();
-		ret = sceNetPoolCreate("netPool", NET_POOLSIZE, 0);
-		if (ret < 0) {
-			LOG("sceNetPoolCreate() error: 0x%08X\n", ret);
-			return HTTP_FAILED;
-		}
-		libnetMemId = ret;
-
-		LOG("sceSsl init");
-		ret = sceSslInit(SSL_POOLSIZE);
-		if (ret < 0) {
-			LOG("sceSslInit() error: 0x%08X\n", ret);
-			return HTTP_FAILED;
-		}
-		libsslCtxId = ret;
-
-		LOG("sceHttp init");
-		ret = sceHttpInit(libnetMemId, libsslCtxId, LIBHTTP_POOLSIZE);
-		if (ret < 0) {
-			LOG("sceHttpInit() error: 0x%08X\n", ret);
-			return HTTP_FAILED;
-		}
-		libhttpCtxId = ret;
-	}
 
 	return HTTP_SUCCESS;
+}
+
+/* follow the CURLOPT_XFERINFOFUNCTION callback definition */
+static int update_progress(void *p, int64_t dltotal, int64_t dlnow, int64_t ultotal, int64_t ulnow)
+{
+    dbglogger_log("Download: %lld / %lld", dlnow, dltotal);
+	update_progress_bar(dlnow, dltotal, (const char*) p);
+    return 0;
 }
 
 int http_download(const char* url, const char* filename, const char* local_dst, int show_progress)
 {
-	int ret, tpl = 0, conn = 0, req = 0;
-	int http_res = HTTP_FAILED;
-	int contentLengthType;
-	uint64_t contentLength;
-	int32_t statusCode;
 	char full_url[1024];
+	CURL *curl;
+	CURLcode res;
+	FILE* fd;
 
-	snprintf(full_url, sizeof(full_url), "%s%s", url, filename);
-
-	tpl = sceHttpCreateTemplate(libhttpCtxId, HTTP_USER_AGENT, ORBIS_HTTP_VERSION_1_1, 1);
-	if (tpl < 0) {
-		LOG("sceHttpCreateTemplate() error: 0x%08X\n", tpl);
+	curl = curl_easy_init();
+	if(!curl)
+	{
+		LOG("ERROR: CURL INIT");
 		return HTTP_FAILED;
 	}
 
-	ret = sceHttpsSetSslCallback(tpl, skipSslCallback, NULL);
-	if (ret < 0) {
-		LOG("sceHttpsSetSslCallback() error: 0x%08X\n", ret);
-	}
-
-	conn = sceHttpCreateConnectionWithURL(tpl, full_url, 1);
-	if (conn < 0) {
-		LOG("sceHttpCreateConnectionWithURL() error: 0x%08X\n", conn);
-		goto close_http;
-	}
-
-	req = sceHttpCreateRequestWithURL(conn, ORBIS_METHOD_GET, full_url, 0);
-	if (req < 0) {
-		LOG("sceHttpCreateRequestWithURL() error: 0x%08X\n", req);
-		goto close_http;
-	}
-
-	LOG("Sending Request to '%s'\n", full_url);
-	ret = sceHttpSendRequest(req, NULL, 0);
-	if (ret < 0) {
-		LOG("sceHttpSendRequest (%X)", ret);
-		goto close_http;
-	}
-
-	ret = sceHttpGetStatusCode(req, &statusCode);
-	if (ret < 0) {
-		LOG("sceHttpGetStatusCode (%X)", ret);
-		goto close_http;
-	}
-
-	ret = sceHttpGetResponseContentLength(req, &contentLengthType, &contentLength);
-	if (ret < 0) {
-		LOG("sceHttpGetContentLength() error: 0x%08X\n", ret);
-		//goto close_http;
-	}
-	else if (contentLengthType == ORBIS_HTTP_CONTENTLEN_EXIST) {
-		LOG("Content-Length = %lu\n", contentLength);
-	}
-	else LOG("Unknown Content-Length");
-
-	switch (statusCode)
-	{
-		case 200:	// OK
-		case 203:	// Non-Authoritative Information
-		case 206:	// Partial Content
-		case 301:	// Moved Permanently
-		case 302:	// Found
-		case 307:	// Temporary Redirect
-		case 308:	// Permanent Redirect
-			LOG("HTTP Response (%d)", statusCode);
-			break;
-		
-		default:
-			LOG("HTTP Error (%d)", statusCode);
-			goto close_http;
-	}
-
-	uint8_t dl_buf[64 * 1024];
-	uint64_t total_read = 0;
-	FILE* fd = fopen(local_dst, "wb");
-
+	fd = fopen(local_dst, "wb");
 	if (!fd) {
 		LOG("fopen Error: File path '%s'", local_dst);
-		goto close_http;
+		return HTTP_FAILED;
 	}
+
+	snprintf(full_url, sizeof(full_url), "%s%s", url, filename);
+	LOG("URL: %s >> %s", full_url, local_dst);
+
+	curl_easy_setopt(curl, CURLOPT_URL, full_url);
+	// Set user agent string
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, HTTP_USER_AGENT);
+	// not sure how to use this when enabled
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+	// not sure how to use this when enabled
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+	// Set SSL VERSION to TLS 1.2
+	curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+	// Set timeout for the connection to build
+	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+	// Follow redirects (?)
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+	// The function that will be used to write the data 
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fwrite);
+	// The data filedescriptor which will be written to
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fd);
+	// maximum number of redirects allowed
+	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 20L);
+	// Fail the request if the HTTP code returned is equal to or larger than 400
+	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
+	// request using SSL for the FTP transfer if available
+	curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
 
 	if (show_progress)
+	{
 		init_progress_bar("Downloading...");
-
-	while (1) {
-		int read = sceHttpReadData(req, dl_buf, sizeof(dl_buf));
-		if (read < 0)
-		{
-			LOG("HTTP read error! (0x%08X)", read);
-			break;
-		}
-
-		if (read == 0)
-		{
-			http_res = HTTP_SUCCESS;
-			break;
-		}
-
-		ret = fwrite(dl_buf, 1, read, fd);
-		if (ret < 0 || ret != read)
-		{
-			LOG("File write error! (%d)", ret);
-			break;
-		}
-
-		total_read += read;
-
-		if (show_progress)
-			update_progress_bar(total_read, contentLength, "Downloading...");
-
-		LOG("Downloaded %ld/%ld\n", total_read, contentLength);
+		/* pass the struct pointer into the xferinfo function */
+		curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, &update_progress);
+		curl_easy_setopt(curl, CURLOPT_XFERINFODATA, filename);
+		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
 	}
 
+	// Perform the request
+	res = curl_easy_perform(curl);
+	// close file descriptor
 	fclose(fd);
+	// cleanup
+	curl_easy_cleanup(curl);
 
 	if (show_progress)
 		end_progress_bar();
 
-close_http:
-	if (req > 0) {
-		ret = sceHttpDeleteRequest(req);
-		if (ret < 0) {
-			LOG("sceHttpDeleteRequest() error: 0x%08X\n", ret);
-		}
+	if(res != CURLE_OK)
+	{
+		LOG("curl_easy_perform() failed: %s", curl_easy_strerror(res));
+		unlink_secure(local_dst);
+		return HTTP_FAILED;
 	}
 
-	if (conn > 0) {
-		ret = sceHttpDeleteConnection(conn);
-		if (ret < 0) {
-			LOG("sceHttpDeleteConnection() error: 0x%08X\n", ret);
-		}
-	}
-
-	if (tpl > 0) {
-		ret = sceHttpDeleteTemplate(tpl);
-		if (ret < 0) {
-			LOG("sceHttpDeleteTemplate() error: 0x%08X\n", ret);
-		}
-	}
-
-	return (http_res);
+	return HTTP_SUCCESS;
 }
 
 void http_end(void)
 {
-	sceHttpTerm(libhttpCtxId);
-	sceSslTerm(libsslCtxId);
-	sceNetPoolDestroy(libnetMemId);
+	curl_global_cleanup();
 }
-
-/*
-void uri() {
-	int ret;
-	size_t mallocSize, outSize;
-	uchar8_t *data = "target string";
-	char *out=NULL;
-	ret = sceHttpUriEscape(NULL, &mallocSize, 0, data);
-	if (ret < 0){
-		printf("sceHttpUriEscape() returns %x.\n", ret);
-		goto error;
-	}
-	out = (uchar8_t*)malloc(mallocSize);
-	if (out == NULL){
-		printf("can't allocate memory\n");
-		goto error;
-	}
-	ret = sceHttpUriEscape(out, &outSize, mallocSize, data);
-}
-*/

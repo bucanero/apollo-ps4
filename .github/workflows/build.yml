@@ -9,20 +9,61 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v3
-      with:
-        fetch-depth: 1
 
-    - name: Checkout Dependecies
-      run: |
-        git clone https://github.com/bucanero/dbglogger.git       --depth 1
-        git clone https://github.com/bucanero/apollo-lib.git      --depth 1
-        git clone https://github.com/bucanero/zip.git             --depth 1
-        git clone https://github.com/bucanero/oosdk_libraries.git --depth 1
-        git clone https://github.com/bucanero/mxml                --depth 1
-        git clone https://github.com/bucanero/libunrar-ps3        --depth 1
-        git clone https://github.com/bucanero/libun7zip           --depth 1
-        git clone https://github.com/bucanero/SDL-PS4 -b ps4      --depth 1
-        git clone https://github.com/bucanero/ps4-libjbc          --depth 1
+    - name: Checkout dbglogger
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/dbglogger
+        path: dbglogger
+
+    - name: Checkout apollo-lib
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/apollo-lib
+        path: apollo-lib
+
+    - name: Checkout zip
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/zip
+        path: zip
+
+    - name: Checkout oosdk_libraries
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/oosdk_libraries
+        path: oosdk_libraries
+
+    - name: Checkout SDL-PS4
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/SDL-PS4
+        path: SDL-PS4
+        ref: ps4
+
+    - name: Checkout mxml
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/mxml
+        path: mxml
+
+    - name: Checkout libunrar
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/libunrar-ps3
+        path: libunrar-ps3
+
+    - name: Checkout libun7zip
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/libun7zip
+        path: libun7zip
+
+    - name: Checkout libjbc
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/ps4-libjbc
+        path: ps4-libjbc
 
     - name: Set env vars
       id: slug
@@ -103,6 +144,15 @@ jobs:
         cmake --toolchain ../cmake/openorbis.cmake ..
         make
         cp libSDL2.a "${OO_PS4_TOOLCHAIN}/lib"
+
+    - name: Install libcurl library
+      working-directory: oosdk_libraries/curl-7.64.1
+      run: |
+        mkdir orbis && cd orbis
+        cmake --toolchain ../../../SDL-PS4/cmake/openorbis.cmake .. -DCMAKE_USE_POLARSSL=1 -DUSE_UNIX_SOCKETS=0 -DENABLE_THREADED_RESOLVER=0 -DENABLE_IPV6=0
+        make libcurl
+        cp lib/libcurl.a "${OO_PS4_TOOLCHAIN}/lib"
+        cp -R ../include/curl "${OO_PS4_TOOLCHAIN}/include/"
 
     - name: Build Apollo App Package
       run: |

@@ -188,7 +188,12 @@ static int memWrite(
 ){
   MemFile *p = (MemFile *)pFile;
   if( iOfst+iAmt>p->sz ){
-    if( iOfst+iAmt>p->szMax ) return SQLITE_FULL;
+    if( iOfst+iAmt>p->szMax ){
+      void* ptr = realloc(p->aData, iOfst+iAmt);
+      if( !ptr ) return SQLITE_FULL;
+      p->szMax = iOfst+iAmt;
+      p->aData = ptr;
+    }
     if( iOfst>p->sz ) memset(p->aData+p->sz, 0, iOfst-p->sz);
     p->sz = iOfst+iAmt;
   }

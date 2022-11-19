@@ -8,8 +8,6 @@
 #include <orbis/MsgDialog.h>
 
 
-void drawDialogBackground();
-
 static inline void _orbisCommonDialogSetMagicNumber(uint32_t* magic, const OrbisCommonDialogBaseParam* param)
 {
     *magic = (uint32_t)(ORBIS_COMMON_DIALOG_MAGIC_NUMBER + (uint64_t)param);
@@ -80,8 +78,6 @@ void init_progress_bar(const char* msg)
 
     if (sceMsgDialogOpen(&param) < 0)
         return;
-
-    drawDialogBackground();
 }
 
 void end_progress_bar(void)
@@ -99,8 +95,6 @@ void update_progress_bar(uint64_t progress, const uint64_t total_size, const cha
         sceMsgDialogProgressBarSetMsg(0, msg);
         sceMsgDialogProgressBarSetValue(0, (uint32_t) bar_value);
     }
-
-    drawDialogBackground();
 }
 
 int init_loading_screen(const char* message)

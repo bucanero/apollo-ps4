@@ -10,6 +10,23 @@
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 
+enum menu_screen_ids
+{
+	MENU_MAIN_SCREEN,		/* 0 - Main Menu */
+	MENU_TROPHIES,			/* 1 - Trophy Menu */
+	MENU_USB_SAVES,			/* 2 - USB Menu (User List) */
+	MENU_HDD_SAVES,			/* 3 - HDD Menu (User List) */
+	MENU_ONLINE_DB,			/* 4 - Online Menu (Online List) */
+	MENU_USER_BACKUP,		/* 5 - User Backup */
+	MENU_SETTINGS,			/* 6 - Options Menu */
+	MENU_CREDITS,			/* 7 - About Menu */
+	MENU_PATCHES,			/* 8 - Code Menu (Select Cheats) */
+	MENU_PATCH_VIEW,		/* 9 - Code Menu (View Cheat) */
+	MENU_CODE_OPTIONS,		/* 10 - Code Menu (View Cheat Options) */
+	MENU_SAVE_DETAILS,
+	TOTAL_MENU_IDS
+};
+
 //Textures
 enum texture_index
 {
@@ -202,9 +219,6 @@ extern png_texture * menu_textures;				// png_texture array for main menu, initi
 extern int highlight_alpha;						// Alpha of the selected
 extern int idle_time;							// Set by readPad
 
-extern const char * menu_about_strings[];
-extern const char * menu_about_strings_project[];
-
 extern int menu_id;
 extern int menu_sel;
 extern int menu_old_sel[]; 
@@ -227,7 +241,9 @@ extern void DrawTextureRotated(png_texture* tex, int x, int y, int z, int w, int
 extern void Draw_MainMenu();
 extern void Draw_MainMenu_Ani();
 int LoadMenuTexture(const char* path, int idx);
+void initMenuOptions();
 
+void drawScene();
 void drawSplashLogo(int m);
 void drawEndLogo();
 

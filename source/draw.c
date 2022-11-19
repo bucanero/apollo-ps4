@@ -21,6 +21,12 @@ int LoadMenuTexture(const char* path, int idx)
 {
 	int d;
 
+	LOG("Loading '%s'", path);
+	if (menu_textures[idx].texture)
+		SDL_DestroyTexture(menu_textures[idx].texture);
+
+	menu_textures[idx].size = 0;
+	menu_textures[idx].texture = NULL;
 	menu_textures[idx].buffer = (uint32_t*) stbi_load(path, &menu_textures[idx].width, &menu_textures[idx].height, &d, STBI_rgb_alpha);
 
 	if (!menu_textures[idx].buffer)
@@ -495,22 +501,4 @@ void Draw_MainMenu_Ani()
 void Draw_MainMenu()
 {
 	_draw_MainMenu(0xFF);
-}
-
-void drawDialogBackground()
-{
-	/*
-	tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-	tiny3d_AlphaTest(1, 0x10, TINY3D_ALPHA_FUNC_GEQUAL);
-	tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_ALPHA_SRC_ALPHA,
-		TINY3D_BLEND_FUNC_SRC_ALPHA_ONE_MINUS_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_SRC_ALPHA,
-		TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
-
-	tiny3d_Project2D();
-
-	DrawBackgroundTexture(0, 0xFF);
-	DrawTexture(&menu_textures[help_png_index], help_png_x, help_png_y + 50, 0, help_png_w, help_png_h - 100, 0xFFFFFF00 | 0xFF);
-
-	tiny3d_Flip();
-	*/
 }

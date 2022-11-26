@@ -194,14 +194,6 @@ enum texture_index
 #define app_ver_png_y						67
 
 
-typedef struct pad_input
-{
-    uint32_t idle;    // idle time
-    uint32_t pressed; // button pressed in last frame
-    uint32_t down;    // button is currently down
-    uint32_t active;  // button is pressed in last frame, or held down for a long time (10 frames)
-} pad_input_t;
-
 typedef struct t_png_texture
 {
 	uint32_t *buffer;

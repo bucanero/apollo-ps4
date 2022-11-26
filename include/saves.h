@@ -43,7 +43,7 @@
 #define TROPHY_PATH_USB0        USB0_PATH TROPHIES_PATH_USB
 #define TROPHY_PATH_USB1        USB1_PATH TROPHIES_PATH_USB
 #define TROPHY_PATH_HDD         "/user/home/%08x/trophy/db/trophy_local.db"
-#define EXDATA_PATH_HDD			USER_PATH_HDD PS3_LICENSE_PATH
+#define APP_DB_PATH_HDD         "/system_data/priv/mms/app.db"
 
 #define EXPORT_PATH_USB0        USB0_PATH "PS4/EXPORT/"
 #define EXPORT_PATH_USB1        USB1_PATH "PS4/EXPORT/"
@@ -106,8 +106,8 @@ enum cmd_code_enum
     CMD_EXP_KEYSTONE,
     CMD_EXP_LICS_RAPS,
     CMD_EXP_FLASH2_USB,
-    CMD_EXP_PSV_MCS,
-    CMD_EXP_PSV_PSU,
+    CMD_DB_REBUILD,
+    CMD_DB_DEL_FIX,
 
 // Import commands
     CMD_IMP_KEYSTONE,
@@ -144,6 +144,7 @@ enum save_type_enum
 
     // PS1 File Types
     FILE_TYPE_ZIP,
+    FILE_TYPE_SQL,
 
     // License Files
     FILE_TYPE_RIF,
@@ -152,7 +153,6 @@ enum save_type_enum
 
     // ISO Files
     FILE_TYPE_ISO,
-    FILE_TYPE_BINENC,
 };
 
 enum char_flag_enum

@@ -160,7 +160,7 @@ static int patch_SceSaveData(const orbis_patch_t* savedata_patch)
     return 1;
 }
 
-static int get_firmware_version()
+int get_firmware_version()
 {
     int fw;
 
@@ -306,14 +306,18 @@ int find_map_entry_start(int pid, const char* entry_name, uint64_t* start)
 
 static void write_SceShellCore(int pid, uint64_t start, const orbis_patch_t* patches)
 {
+    void* data = aligned_alloc(0x10, 0x100);
+
     //SHELLCORE PATCHES
     for (const orbis_patch_t *patch = patches; patch->size > 0; patch++)
     {
-        sys_proc_write_mem(pid, start + patch->offset, patch->data, patch->size);
+        memcpy(data, patch->data, patch->size);
+        sys_proc_write_mem(pid, start + patch->offset, data, patch->size);
 
         LOG("(W) %lX : %08X (size %d)", start, patch->offset, patch->size);
         dump_data((uint8_t*) patch->data, patch->size);
     }
+    free(data);
 }
 
 // hack to disable unpatching on exit in case unmount failed (to avoid KP)

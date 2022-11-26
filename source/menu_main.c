@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include <string.h>
-#include <orbis/Pad.h>
 
+#include "orbisPad.h"
 #include "saves.h"
 #include "menu.h"
 #include "menu_gui.h"
@@ -15,12 +15,7 @@ extern save_list_t trophies;
 extern save_list_t online_saves;
 extern save_list_t user_backup;
 
-extern pad_input_t pad_data;
-
 extern int close_app;
-
-int pad_check_button(uint32_t button);
-int pad_sync();
 
 int menu_options_maxopt = 0;
 int * menu_options_maxsel;
@@ -307,38 +302,37 @@ static void move_selection_fwd(int game_count, int steps)
 
 static void doSaveMenu(save_list_t * save_list)
 {
-    if (pad_sync())
     {
-    	if(pad_data.active & ORBIS_PAD_BUTTON_UP)
+    	if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
     		move_selection_back(list_count(save_list->list), 1);
     
-    	else if(pad_data.active & ORBIS_PAD_BUTTON_DOWN)
+    	else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
     		move_selection_fwd(list_count(save_list->list), 1);
     
-    	else if (pad_data.active & ORBIS_PAD_BUTTON_LEFT)
+    	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_LEFT))
     		move_selection_back(list_count(save_list->list), 5);
     
-    	else if (pad_data.active & ORBIS_PAD_BUTTON_L1)
+    	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_L1))
     		move_selection_back(list_count(save_list->list), 25);
     
-    	else if (pad_data.active & ORBIS_PAD_BUTTON_L2)
+    	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_L2))
     		move_letter_back(save_list->list);
     
-    	else if (pad_data.active & ORBIS_PAD_BUTTON_RIGHT)
+    	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_RIGHT))
     		move_selection_fwd(list_count(save_list->list), 5);
     
-    	else if (pad_data.active & ORBIS_PAD_BUTTON_R1)
+    	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_R1))
     		move_selection_fwd(list_count(save_list->list), 25);
     
-    	else if (pad_data.active & ORBIS_PAD_BUTTON_R2)
+    	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_R2))
     		move_letter_fwd(save_list->list);
     
-    	else if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
+    	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
     	{
     		SetMenu(MENU_MAIN_SCREEN);
     		return;
     	}
-    	else if (pad_check_button(ORBIS_PAD_BUTTON_CROSS))
+    	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
     	{
 			selected_entry = list_get_item(save_list->list, menu_sel);
 
@@ -355,7 +349,7 @@ static void doSaveMenu(save_list_t * save_list)
     		SetMenu(MENU_PATCHES);
     		return;
     	}
-    	else if (pad_check_button(ORBIS_PAD_BUTTON_TRIANGLE) && save_list->UpdatePath)
+    	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TRIANGLE) && save_list->UpdatePath)
     	{
 			selected_entry = list_get_item(save_list->list, menu_sel);
 			if (selected_entry->type != FILE_TYPE_MENU)
@@ -365,14 +359,14 @@ static void doSaveMenu(save_list_t * save_list)
 				return;
 			}
 		}
-		else if (pad_check_button(ORBIS_PAD_BUTTON_TOUCH_PAD) && 
+		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TOUCH_PAD) && 
 			(save_list->icon_id == cat_hdd_png_index || save_list->icon_id == cat_usb_png_index))
 		{
 			selected_entry = list_get_item(save_list->list, menu_sel);
 			if (selected_entry->type != FILE_TYPE_MENU)
 				selected_entry->flags ^= SAVE_FLAG_SELECTED;
 		}
-		else if (pad_check_button(ORBIS_PAD_BUTTON_SQUARE))
+		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_SQUARE))
 		{
 			ReloadUserSaves(save_list);
 		}
@@ -384,22 +378,21 @@ static void doSaveMenu(save_list_t * save_list)
 static void doMainMenu()
 {
 	// Check the pads.
-	if (pad_sync())
 	{
-		if(pad_data.active & ORBIS_PAD_BUTTON_LEFT)
+		if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_LEFT))
 			move_selection_back(MENU_CREDITS, 1);
 
-		else if(pad_data.active & ORBIS_PAD_BUTTON_RIGHT)
+		else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_RIGHT))
 			move_selection_fwd(MENU_CREDITS, 1);
 
-		else if (pad_check_button(ORBIS_PAD_BUTTON_CROSS))
+		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
 		{
 		    SetMenu(menu_sel+1);
 			drawScene();
 			return;
 		}
 
-		else if(pad_check_button(ORBIS_PAD_BUTTON_CIRCLE) && show_dialog(1, "Exit to XMB?"))
+		else if(orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE) && show_dialog(1, "Exit to XMB?"))
 			close_app = 1;
 	}
 	
@@ -409,9 +402,8 @@ static void doMainMenu()
 static void doAboutMenu()
 {
 	// Check the pads.
-	if (pad_sync())
 	{
-		if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
+		if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 		{
 			SetMenu(MENU_MAIN_SCREEN);
 			return;
@@ -424,22 +416,21 @@ static void doAboutMenu()
 static void doOptionsMenu()
 {
 	// Check the pads.
-	if (pad_sync())
 	{
-		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
+		if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
 			move_selection_back(menu_options_maxopt, 1);
 
-		else if(pad_data.active & ORBIS_PAD_BUTTON_DOWN)
+		else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
 			move_selection_fwd(menu_options_maxopt, 1);
 
-		else if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
+		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 		{
 			save_app_settings(&apollo_config);
 			set_ttf_window(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WIN_SKIP_LF);
 			SetMenu(MENU_MAIN_SCREEN);
 			return;
 		}
-		else if (pad_data.active & ORBIS_PAD_BUTTON_LEFT)
+		else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_LEFT))
 		{
 			if (menu_options[menu_sel].type == APP_OPTION_LIST)
 			{
@@ -454,7 +445,7 @@ static void doOptionsMenu()
 			if (menu_options[menu_sel].type != APP_OPTION_CALL)
 				menu_options[menu_sel].callback(*menu_options[menu_sel].value);
 		}
-		else if (pad_data.active & ORBIS_PAD_BUTTON_RIGHT)
+		else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_RIGHT))
 		{
 			if (menu_options[menu_sel].type == APP_OPTION_LIST)
 			{
@@ -469,7 +460,7 @@ static void doOptionsMenu()
 			if (menu_options[menu_sel].type != APP_OPTION_CALL)
 				menu_options[menu_sel].callback(*menu_options[menu_sel].value);
 		}
-		else if (pad_check_button(ORBIS_PAD_BUTTON_CROSS))
+		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
 		{
 			if (menu_options[menu_sel].type == APP_OPTION_BOOL)
 				menu_options[menu_sel].callback(*menu_options[menu_sel].value);
@@ -502,15 +493,14 @@ static void doPatchViewMenu()
 	int max = count_code_lines();
 	
 	// Check the pads.
-	if (pad_sync())
 	{
-		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
+		if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
 			move_selection_back(max, 1);
 
-		else if(pad_data.active & ORBIS_PAD_BUTTON_DOWN)
+		else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
 			move_selection_fwd(max, 1);
 
-		else if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
+		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 		{
 			SetMenu(last_menu_id[MENU_PATCH_VIEW]);
 			return;
@@ -523,22 +513,22 @@ static void doPatchViewMenu()
 static void doCodeOptionsMenu()
 {
     code_entry_t* code = list_get_item(selected_entry->codes, menu_old_sel[last_menu_id[MENU_CODE_OPTIONS]]);
+
 	// Check the pads.
-	if (pad_sync())
 	{
-		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
+		if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
 			move_selection_back(selected_centry->options[option_index].size, 1);
 
-		else if(pad_data.active & ORBIS_PAD_BUTTON_DOWN)
+		else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
 			move_selection_fwd(selected_centry->options[option_index].size, 1);
 
-		else if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
+		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 		{
 			code->activated = 0;
 			SetMenu(last_menu_id[MENU_CODE_OPTIONS]);
 			return;
 		}
-		else if (pad_check_button(ORBIS_PAD_BUTTON_CROSS))
+		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
 		{
 			code->options[option_index].sel = menu_sel;
 
@@ -565,15 +555,14 @@ static void doSaveDetailsMenu()
 	int max = count_code_lines();
 
 	// Check the pads.
-	if (pad_sync())
 	{
-		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
+		if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
 			move_selection_back(max, 1);
 
-		else if(pad_data.active & ORBIS_PAD_BUTTON_DOWN)
+		else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
 			move_selection_fwd(max, 1);
 
-		if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
+		if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 		{
 			if (selected_centry->name)
 				free(selected_centry->name);
@@ -592,32 +581,31 @@ static void doSaveDetailsMenu()
 static void doPatchMenu()
 {
 	// Check the pads.
-	if (pad_sync())
 	{
-		if(pad_data.active & ORBIS_PAD_BUTTON_UP)
+		if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
 			move_selection_back(list_count(selected_entry->codes), 1);
 
-		else if(pad_data.active & ORBIS_PAD_BUTTON_DOWN)
+		else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
 			move_selection_fwd(list_count(selected_entry->codes), 1);
 
-		else if (pad_data.active & ORBIS_PAD_BUTTON_LEFT)
+		else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_LEFT))
 			move_selection_back(list_count(selected_entry->codes), 5);
 
-		else if (pad_data.active & ORBIS_PAD_BUTTON_RIGHT)
+		else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_RIGHT))
 			move_selection_fwd(list_count(selected_entry->codes), 5);
 
-		else if (pad_data.active & ORBIS_PAD_BUTTON_L1)
+		else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_L1))
 			move_selection_back(list_count(selected_entry->codes), 25);
 
-		else if (pad_data.active & ORBIS_PAD_BUTTON_R1)
+		else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_R1))
 			move_selection_fwd(list_count(selected_entry->codes), 25);
 
-		else if (pad_check_button(ORBIS_PAD_BUTTON_CIRCLE))
+		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 		{
 			SetMenu(last_menu_id[MENU_PATCHES]);
 			return;
 		}
-		else if (pad_check_button(ORBIS_PAD_BUTTON_CROSS))
+		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
 		{
 			selected_centry = list_get_item(selected_entry->codes, menu_sel);
 
@@ -672,7 +660,7 @@ static void doPatchMenu()
 				}
 			}
 		}
-		else if (pad_check_button(ORBIS_PAD_BUTTON_TRIANGLE))
+		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TRIANGLE))
 		{
 			selected_centry = list_get_item(selected_entry->codes, menu_sel);
 

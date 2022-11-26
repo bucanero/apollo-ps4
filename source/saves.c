@@ -765,8 +765,13 @@ list_t * ReadBackupList(const char* userPath)
 	list_append(list, item);
 
 	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_USER " Activate PS4 Accounts");
-	asprintf(&item->path, EXDATA_PATH_HDD, apollo_config.user_id);
+	asprintf(&item->path, "%s%s", APOLLO_PATH, OWNER_XML_FILE);
 	item->type = FILE_TYPE_ACT;
+	list_append(list, item);
+
+	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_USER " App.db Database Management");
+	item->path = strdup(APP_DB_PATH_HDD);
+	item->type = FILE_TYPE_SQL;
 	list_append(list, item);
 
 	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_LOCK " Show Parental Security Passcode");
@@ -828,7 +833,7 @@ int ReadBackupCodes(save_entry_t * bup)
 				cmd->options_count = 1;
 				cmd->options = calloc(1, sizeof(option_entry_t));
 				cmd->options->sel = -1;
-				cmd->options->size = get_xml_owners(APOLLO_PATH OWNER_XML_FILE, CMD_CREATE_ACT_DAT, &cmd->options->name, &cmd->options->value);
+				cmd->options->size = get_xml_owners(bup->path, CMD_CREATE_ACT_DAT, &cmd->options->name, &cmd->options->value);
 				cmd->file = malloc(1);
 				cmd->file[0] = i;
 			}
@@ -1034,7 +1039,7 @@ static void read_usb_encrypted_saves(const char* userPath, list_t *list, uint64_
 			get_file_size(savePath, &size);
 			item->blocks = size / ORBIS_SAVE_DATA_BLOCK_SIZE;
 
-			LOG("[%s] F(%d) name '%s'", item->title_id, item->flags, item->name);
+			LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
 			list_append(list, item);
 
 		}
@@ -1119,7 +1124,7 @@ static void read_usb_savegames(const char* userPath, list_t *list)
 
 		sfo_free(sfo);
 			
-		LOG("[%s] F(%d) name '%s'", item->title_id, item->flags, item->name);
+		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
 		list_append(list, item);
 	}
 
@@ -1160,7 +1165,7 @@ static void read_hdd_savegames(const char* userPath, list_t *list, sqlite3 *appd
 		item->blocks = sqlite3_column_int(res, 3);
 		item->flags |= (apollo_config.account_id == (uint64_t)sqlite3_column_int64(res, 4) ? SAVE_FLAG_OWNER : 0);
 
-		LOG("[%s] F(%d) {%d} '%s'", item->title_id, item->flags, item->blocks, item->name);
+		LOG("[%s] F(%X) {%d} '%s'", item->title_id, item->flags, item->blocks, item->name);
 		list_append(list, item);
 	}
 
@@ -1261,7 +1266,7 @@ list_t * ReadUserList(const char* userPath)
 	list_append(item->codes, cmd);
 	list_append(list, item);
 
-	appdb = open_sqlite_db("/system_data/priv/mms/app.db");
+	appdb = open_sqlite_db(APP_DB_PATH_HDD);
 	read_hdd_savegames(userPath, list, appdb);
 	sqlite3_close(appdb);
 
@@ -1409,7 +1414,7 @@ list_t * ReadTrophyList(const char* userPath)
 		item->title_id = strdup((const char*) sqlite3_column_text(res, 1));
 		item->type = FILE_TYPE_TRP;
 
-		LOG("[%s] F(%d) name '%s'", item->title_id, item->flags, item->name);
+		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
 		list_append(list, item);
 	}
 

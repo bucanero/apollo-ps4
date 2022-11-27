@@ -63,8 +63,10 @@ static int ReloadUserSaves(save_list_t* save_list)
 		save_list->UpdatePath(save_list->path);
 
 	save_list->list = save_list->ReadList(save_list->path);
-	if (apollo_config.doSort)
+	if (apollo_config.doSort == SORT_BY_NAME)
 		list_bubbleSort(save_list->list, &sortSaveList_Compare);
+	else if (apollo_config.doSort == SORT_BY_TITLE_ID)
+		list_bubbleSort(save_list->list, &sortSaveList_Compare_TitleID);
 
 	stop_loading_screen();
 
@@ -241,47 +243,6 @@ static void SetMenu(int id)
 	menu_sel = menu_old_sel[menu_id];
 }
 
-static void move_letter_back(list_t * games)
-{
-	int i;
-	save_entry_t *game = list_get_item(games, menu_sel);
-	char ch = toupper(game->name[0]);
-
-	if ((ch > '\x29') && (ch < '\x40'))
-	{
-		menu_sel = 0;
-		return;
-	}
-
-	for (i = menu_sel; (i > 0) && (ch == toupper(game->name[0])); i--)
-	{
-		game = list_get_item(games, i-1);
-	}
-
-	menu_sel = i;
-}
-
-static void move_letter_fwd(list_t * games)
-{
-	int i;
-	int game_count = list_count(games) - 1;
-	save_entry_t *game = list_get_item(games, menu_sel);
-	char ch = toupper(game->name[0]);
-
-	if (ch == 'Z')
-	{
-		menu_sel = game_count;
-		return;
-	}
-	
-	for (i = menu_sel; (i < game_count) && (ch == toupper(game->name[0])); i++)
-	{
-		game = list_get_item(games, i+1);
-	}
-
-	menu_sel = i;
-}
-
 static void move_selection_back(int game_count, int steps)
 {
 	menu_sel -= steps;
@@ -300,76 +261,84 @@ static void move_selection_fwd(int game_count, int steps)
 		menu_sel = game_count - 1;
 }
 
+static int updatePadSelection(int total)
+{
+	if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
+		move_selection_back(total, 1);
+
+	else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
+		move_selection_fwd(total, 1);
+
+	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_LEFT))
+		move_selection_back(total, 5);
+
+	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_L1))
+		move_selection_back(total, 25);
+
+	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_L2))
+		menu_sel = 0;
+
+	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_RIGHT))
+		move_selection_fwd(total, 5);
+
+	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_R1))
+		move_selection_fwd(total, 25);
+
+	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_R2))
+		menu_sel = total - 1;
+
+	else return 0;
+
+	return 1;
+}
+
 static void doSaveMenu(save_list_t * save_list)
 {
-    {
-    	if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
-    		move_selection_back(list_count(save_list->list), 1);
-    
-    	else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
-    		move_selection_fwd(list_count(save_list->list), 1);
-    
-    	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_LEFT))
-    		move_selection_back(list_count(save_list->list), 5);
-    
-    	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_L1))
-    		move_selection_back(list_count(save_list->list), 25);
-    
-    	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_L2))
-    		move_letter_back(save_list->list);
-    
-    	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_RIGHT))
-    		move_selection_fwd(list_count(save_list->list), 5);
-    
-    	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_R1))
-    		move_selection_fwd(list_count(save_list->list), 25);
-    
-    	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_R2))
-    		move_letter_fwd(save_list->list);
-    
-    	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
-    	{
-    		SetMenu(MENU_MAIN_SCREEN);
-    		return;
-    	}
-    	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
-    	{
-			selected_entry = list_get_item(save_list->list, menu_sel);
+	if (updatePadSelection(list_count(save_list->list)))
+		(void)0;
 
-    		if (!selected_entry->codes && !save_list->ReadCodes(selected_entry))
-    		{
-    			show_message("No data found in folder:\n%s", selected_entry->path);
-    			return;
-    		}
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
+	{
+		SetMenu(MENU_MAIN_SCREEN);
+		return;
+	}
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
+	{
+		selected_entry = list_get_item(save_list->list, menu_sel);
 
-    		if (apollo_config.doSort && 
-				((save_list->icon_id == cat_bup_png_index) || (save_list->icon_id == cat_db_png_index)))
-    			list_bubbleSort(selected_entry->codes, &sortCodeList_Compare);
-
-    		SetMenu(MENU_PATCHES);
-    		return;
-    	}
-    	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TRIANGLE) && save_list->UpdatePath)
-    	{
-			selected_entry = list_get_item(save_list->list, menu_sel);
-			if (selected_entry->type != FILE_TYPE_MENU)
-			{
-				selected_centry = LoadSaveDetails();
-				SetMenu(MENU_SAVE_DETAILS);
-				return;
-			}
-		}
-		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TOUCH_PAD) && 
-			(save_list->icon_id == cat_hdd_png_index || save_list->icon_id == cat_usb_png_index))
+		if (!selected_entry->codes && !save_list->ReadCodes(selected_entry))
 		{
-			selected_entry = list_get_item(save_list->list, menu_sel);
-			if (selected_entry->type != FILE_TYPE_MENU)
-				selected_entry->flags ^= SAVE_FLAG_SELECTED;
+			show_message("No data found in folder:\n%s", selected_entry->path);
+			return;
 		}
-		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_SQUARE))
+
+		if (apollo_config.doSort && 
+			((save_list->icon_id == cat_bup_png_index) || (save_list->icon_id == cat_db_png_index)))
+			list_bubbleSort(selected_entry->codes, &sortCodeList_Compare);
+
+		SetMenu(MENU_PATCHES);
+		return;
+	}
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TRIANGLE) && save_list->UpdatePath)
+	{
+		selected_entry = list_get_item(save_list->list, menu_sel);
+		if (selected_entry->type != FILE_TYPE_MENU)
 		{
-			ReloadUserSaves(save_list);
+			selected_centry = LoadSaveDetails();
+			SetMenu(MENU_SAVE_DETAILS);
+			return;
 		}
+	}
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TOUCH_PAD) && 
+		(save_list->icon_id == cat_hdd_png_index || save_list->icon_id == cat_usb_png_index))
+	{
+		selected_entry = list_get_item(save_list->list, menu_sel);
+		if (selected_entry->type != FILE_TYPE_MENU)
+			selected_entry->flags ^= SAVE_FLAG_SELECTED;
+	}
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_SQUARE))
+	{
+		ReloadUserSaves(save_list);
 	}
 
 	Draw_UserCheatsMenu(save_list, menu_sel, 0xFF);
@@ -378,23 +347,21 @@ static void doSaveMenu(save_list_t * save_list)
 static void doMainMenu()
 {
 	// Check the pads.
+	if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_LEFT))
+		move_selection_back(MENU_CREDITS, 1);
+
+	else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_RIGHT))
+		move_selection_fwd(MENU_CREDITS, 1);
+
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
 	{
-		if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_LEFT))
-			move_selection_back(MENU_CREDITS, 1);
-
-		else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_RIGHT))
-			move_selection_fwd(MENU_CREDITS, 1);
-
-		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
-		{
-		    SetMenu(menu_sel+1);
-			drawScene();
-			return;
-		}
-
-		else if(orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE) && show_dialog(1, "Exit to XMB?"))
-			close_app = 1;
+		SetMenu(menu_sel+1);
+		drawScene();
+		return;
 	}
+
+	else if(orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE) && show_dialog(1, "Exit to XMB?"))
+		close_app = 1;
 	
 	Draw_MainMenu();
 }
@@ -402,12 +369,10 @@ static void doMainMenu()
 static void doAboutMenu()
 {
 	// Check the pads.
+	if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 	{
-		if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
-		{
-			SetMenu(MENU_MAIN_SCREEN);
-			return;
-		}
+		SetMenu(MENU_MAIN_SCREEN);
+		return;
 	}
 
 	Draw_AboutMenu();
@@ -416,58 +381,56 @@ static void doAboutMenu()
 static void doOptionsMenu()
 {
 	// Check the pads.
+	if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
+		move_selection_back(menu_options_maxopt, 1);
+
+	else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
+		move_selection_fwd(menu_options_maxopt, 1);
+
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 	{
-		if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
-			move_selection_back(menu_options_maxopt, 1);
-
-		else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
-			move_selection_fwd(menu_options_maxopt, 1);
-
-		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
+		save_app_settings(&apollo_config);
+		set_ttf_window(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WIN_SKIP_LF);
+		SetMenu(MENU_MAIN_SCREEN);
+		return;
+	}
+	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_LEFT))
+	{
+		if (menu_options[menu_sel].type == APP_OPTION_LIST)
 		{
-			save_app_settings(&apollo_config);
-			set_ttf_window(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WIN_SKIP_LF);
-			SetMenu(MENU_MAIN_SCREEN);
-			return;
-		}
-		else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_LEFT))
-		{
-			if (menu_options[menu_sel].type == APP_OPTION_LIST)
-			{
-				if (*menu_options[menu_sel].value > 0)
-					(*menu_options[menu_sel].value)--;
-				else
-					*menu_options[menu_sel].value = menu_options_maxsel[menu_sel] - 1;
-			}
-			else if (menu_options[menu_sel].type == APP_OPTION_INC)
+			if (*menu_options[menu_sel].value > 0)
 				(*menu_options[menu_sel].value)--;
-			
-			if (menu_options[menu_sel].type != APP_OPTION_CALL)
-				menu_options[menu_sel].callback(*menu_options[menu_sel].value);
+			else
+				*menu_options[menu_sel].value = menu_options_maxsel[menu_sel] - 1;
 		}
-		else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_RIGHT))
+		else if (menu_options[menu_sel].type == APP_OPTION_INC)
+			(*menu_options[menu_sel].value)--;
+		
+		if (menu_options[menu_sel].type != APP_OPTION_CALL)
+			menu_options[menu_sel].callback(*menu_options[menu_sel].value);
+	}
+	else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_RIGHT))
+	{
+		if (menu_options[menu_sel].type == APP_OPTION_LIST)
 		{
-			if (menu_options[menu_sel].type == APP_OPTION_LIST)
-			{
-				if (*menu_options[menu_sel].value < (menu_options_maxsel[menu_sel] - 1))
-					*menu_options[menu_sel].value += 1;
-				else
-					*menu_options[menu_sel].value = 0;
-			}
-			else if (menu_options[menu_sel].type == APP_OPTION_INC)
+			if (*menu_options[menu_sel].value < (menu_options_maxsel[menu_sel] - 1))
 				*menu_options[menu_sel].value += 1;
-
-			if (menu_options[menu_sel].type != APP_OPTION_CALL)
-				menu_options[menu_sel].callback(*menu_options[menu_sel].value);
+			else
+				*menu_options[menu_sel].value = 0;
 		}
-		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
-		{
-			if (menu_options[menu_sel].type == APP_OPTION_BOOL)
-				menu_options[menu_sel].callback(*menu_options[menu_sel].value);
+		else if (menu_options[menu_sel].type == APP_OPTION_INC)
+			*menu_options[menu_sel].value += 1;
 
-			else if (menu_options[menu_sel].type == APP_OPTION_CALL)
-				menu_options[menu_sel].callback(0);
-		}
+		if (menu_options[menu_sel].type != APP_OPTION_CALL)
+			menu_options[menu_sel].callback(*menu_options[menu_sel].value);
+	}
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
+	{
+		if (menu_options[menu_sel].type == APP_OPTION_BOOL)
+			menu_options[menu_sel].callback(*menu_options[menu_sel].value);
+
+		else if (menu_options[menu_sel].type == APP_OPTION_CALL)
+			menu_options[menu_sel].callback(0);
 	}
 	
 	Draw_OptionsMenu();
@@ -490,21 +453,14 @@ static int count_code_lines()
 
 static void doPatchViewMenu()
 {
-	int max = count_code_lines();
-	
 	// Check the pads.
+	if (updatePadSelection(count_code_lines()))
+		(void)0;
+
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 	{
-		if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
-			move_selection_back(max, 1);
-
-		else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
-			move_selection_fwd(max, 1);
-
-		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
-		{
-			SetMenu(last_menu_id[MENU_PATCH_VIEW]);
-			return;
-		}
+		SetMenu(last_menu_id[MENU_PATCH_VIEW]);
+		return;
 	}
 	
 	Draw_CheatsMenu_View("Patch view");
@@ -515,36 +471,34 @@ static void doCodeOptionsMenu()
     code_entry_t* code = list_get_item(selected_entry->codes, menu_old_sel[last_menu_id[MENU_CODE_OPTIONS]]);
 
 	// Check the pads.
+	if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
+		move_selection_back(selected_centry->options[option_index].size, 1);
+
+	else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
+		move_selection_fwd(selected_centry->options[option_index].size, 1);
+
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 	{
-		if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
-			move_selection_back(selected_centry->options[option_index].size, 1);
+		code->activated = 0;
+		SetMenu(last_menu_id[MENU_CODE_OPTIONS]);
+		return;
+	}
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
+	{
+		code->options[option_index].sel = menu_sel;
 
-		else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
-			move_selection_fwd(selected_centry->options[option_index].size, 1);
+		if (code->type == PATCH_COMMAND)
+			execCodeCommand(code, code->options[option_index].value[menu_sel]);
 
-		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
+		option_index++;
+		
+		if (option_index >= code->options_count)
 		{
-			code->activated = 0;
 			SetMenu(last_menu_id[MENU_CODE_OPTIONS]);
 			return;
 		}
-		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
-		{
-			code->options[option_index].sel = menu_sel;
-
-			if (code->type == PATCH_COMMAND)
-				execCodeCommand(code, code->options[option_index].value[menu_sel]);
-
-			option_index++;
-			
-			if (option_index >= code->options_count)
-			{
-				SetMenu(last_menu_id[MENU_CODE_OPTIONS]);
-				return;
-			}
-			else
-				menu_sel = 0;
-		}
+		else
+			menu_sel = 0;
 	}
 	
 	Draw_CheatsMenu_Options();
@@ -552,27 +506,20 @@ static void doCodeOptionsMenu()
 
 static void doSaveDetailsMenu()
 {
-	int max = count_code_lines();
-
 	// Check the pads.
+	if (updatePadSelection(count_code_lines()))
+		(void)0;
+
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 	{
-		if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
-			move_selection_back(max, 1);
+		if (selected_centry->name)
+			free(selected_centry->name);
+		if (selected_centry->codes)
+			free(selected_centry->codes);
+		free(selected_centry);
 
-		else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
-			move_selection_fwd(max, 1);
-
-		if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
-		{
-			if (selected_centry->name)
-				free(selected_centry->name);
-			if (selected_centry->codes)
-				free(selected_centry->codes);
-			free(selected_centry);
-
-			SetMenu(last_menu_id[MENU_SAVE_DETAILS]);
-			return;
-		}
+		SetMenu(last_menu_id[MENU_SAVE_DETAILS]);
+		return;
 	}
 	
 	Draw_CheatsMenu_View(selected_entry->name);
@@ -581,52 +528,36 @@ static void doSaveDetailsMenu()
 static void doPatchMenu()
 {
 	// Check the pads.
+	if (updatePadSelection(list_count(selected_entry->codes)))
+		(void)0;
+
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 	{
-		if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
-			move_selection_back(list_count(selected_entry->codes), 1);
+		SetMenu(last_menu_id[MENU_PATCHES]);
+		return;
+	}
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
+	{
+		selected_centry = list_get_item(selected_entry->codes, menu_sel);
 
-		else if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_DOWN))
-			move_selection_fwd(list_count(selected_entry->codes), 1);
+		if (selected_centry->type != PATCH_NULL)
+			selected_centry->activated = !selected_centry->activated;
 
-		else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_LEFT))
-			move_selection_back(list_count(selected_entry->codes), 5);
+		if (selected_centry->type == PATCH_COMMAND)
+			execCodeCommand(selected_centry, selected_centry->codes);
 
-		else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_RIGHT))
-			move_selection_fwd(list_count(selected_entry->codes), 5);
-
-		else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_L1))
-			move_selection_back(list_count(selected_entry->codes), 25);
-
-		else if (orbisPadGetButtonHold(ORBIS_PAD_BUTTON_R1))
-			move_selection_fwd(list_count(selected_entry->codes), 25);
-
-		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
+		if (selected_centry->activated)
 		{
-			SetMenu(last_menu_id[MENU_PATCHES]);
-			return;
-		}
-		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CROSS))
-		{
-			selected_centry = list_get_item(selected_entry->codes, menu_sel);
-
-			if (selected_centry->type != PATCH_NULL)
-				selected_centry->activated = !selected_centry->activated;
-
-			if (selected_centry->type == PATCH_COMMAND)
-				execCodeCommand(selected_centry, selected_centry->codes);
-
-			if (selected_centry->activated)
+			// Only activate Required codes if a cheat is selected
+			if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD)
 			{
-				// Only activate Required codes if a cheat is selected
-				if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD)
-				{
-					code_entry_t* code;
-					list_node_t* node;
+				code_entry_t* code;
+				list_node_t* node;
 
-					for (node = list_head(selected_entry->codes); (code = list_get(node)); node = list_next(node))
-						if (wildcard_match_icase(code->name, "*(REQUIRED)*"))
-							code->activated = 1;
-				}
+				for (node = list_head(selected_entry->codes); (code = list_get(node)); node = list_next(node))
+					if (wildcard_match_icase(code->name, "*(REQUIRED)*"))
+						code->activated = 1;
+			}
 				/*
 				if (!selected_centry->options)
 				{
@@ -635,41 +566,40 @@ static void doPatchMenu()
 					selected_entry->codes[menu_sel].options_count = size;
 				}
 				*/
-				
-				if (selected_centry->options)
-				{
-					option_index = 0;
-					SetMenu(MENU_CODE_OPTIONS);
-					return;
-				}
 
-				if (selected_centry->codes[0] == CMD_VIEW_RAW_PATCH)
-				{
-					selected_centry->activated = 0;
-					selected_centry = LoadRawPatch();
-					SetMenu(MENU_SAVE_DETAILS);
-					return;
-				}
-
-				if (selected_centry->codes[0] == CMD_VIEW_DETAILS)
-				{
-					selected_centry->activated = 0;
-					selected_centry = LoadSaveDetails();
-					SetMenu(MENU_SAVE_DETAILS);
-					return;
-				}
-			}
-		}
-		else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TRIANGLE))
-		{
-			selected_centry = list_get_item(selected_entry->codes, menu_sel);
-
-			if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD ||
-				selected_centry->type == PATCH_TROP_LOCK || selected_centry->type == PATCH_TROP_UNLOCK)
+			if (selected_centry->options)
 			{
-				SetMenu(MENU_PATCH_VIEW);
+				option_index = 0;
+				SetMenu(MENU_CODE_OPTIONS);
 				return;
 			}
+
+			if (selected_centry->codes[0] == CMD_VIEW_RAW_PATCH)
+			{
+				selected_centry->activated = 0;
+				selected_centry = LoadRawPatch();
+				SetMenu(MENU_SAVE_DETAILS);
+				return;
+			}
+
+			if (selected_centry->codes[0] == CMD_VIEW_DETAILS)
+			{
+				selected_centry->activated = 0;
+				selected_centry = LoadSaveDetails();
+				SetMenu(MENU_SAVE_DETAILS);
+				return;
+			}
+		}
+	}
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TRIANGLE))
+	{
+		selected_centry = list_get_item(selected_entry->codes, menu_sel);
+
+		if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD ||
+			selected_centry->type == PATCH_TROP_LOCK || selected_centry->type == PATCH_TROP_UNLOCK)
+		{
+			SetMenu(MENU_PATCH_VIEW);
+			return;
 		}
 	}
 	

@@ -83,7 +83,7 @@ static int get_appdb_title(sqlite3* db, const char* titleid, char* name)
 
 	if (sqlite3_prepare_v2(db, query, -1, &res, NULL) != SQLITE_OK || sqlite3_step(res) != SQLITE_ROW)
 	{
-		LOG("Failed to fetch data: %s", sqlite3_errmsg(db));
+		LOG("Failed to fetch details: %s", titleid);
 		sqlite3_free(query);
 		return 0;
 	}
@@ -986,6 +986,20 @@ int sortCodeList_Compare(const void* a, const void* b)
 int sortSaveList_Compare(const void* a, const void* b)
 {
 	return strcasecmp(((save_entry_t*) a)->name, ((save_entry_t*) b)->name);
+}
+
+int sortSaveList_Compare_TitleID(const void* a, const void* b)
+{
+	char* ta = ((save_entry_t*) a)->title_id;
+	char* tb = ((save_entry_t*) b)->title_id;
+
+	if (!ta)
+		return (-1);
+
+	if (!tb)
+		return (1);
+
+	return strcasecmp(ta, tb);
 }
 
 static void read_usb_encrypted_saves(const char* userPath, list_t *list, uint64_t account)

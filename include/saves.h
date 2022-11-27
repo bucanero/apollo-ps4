@@ -196,6 +196,13 @@ enum code_type_enum
     PATCH_TROP_LOCK,
 };
 
+enum save_sort_enum
+{
+    SORT_DISABLED,
+    SORT_BY_NAME,
+    SORT_BY_TITLE_ID,
+};
+
 typedef struct save_entry
 {
     char * name;
@@ -227,6 +234,7 @@ list_t * ReadTrophyList(const char* userPath);
 void UnloadGameList(list_t * list);
 char * readTextFile(const char * path, long* size);
 int sortSaveList_Compare(const void* A, const void* B);
+int sortSaveList_Compare_TitleID(const void* A, const void* B);
 int sortCodeList_Compare(const void* A, const void* B);
 int ReadCodes(save_entry_t * save);
 int ReadTrophies(save_entry_t * game);
@@ -254,8 +262,8 @@ void disable_unpatch();
 
 void execCodeCommand(code_entry_t* code, const char* codecmd);
 
-int patch_trophy_account(const char* trp_path, const char* account_id);
-int apply_trophy_patch(const char* trp_path, uint32_t trophy_id, int unlock);
+int appdb_rebuild(const char* db_path, uint32_t userid);
+int appdb_fix_delete(const char* db_path, uint32_t userid);
 
 int regMgr_GetParentalPasscode(char* passcode);
 int regMgr_GetUserName(int userNumber, char* outString);

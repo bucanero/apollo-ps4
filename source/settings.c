@@ -14,7 +14,7 @@
 
 #define ORBIS_USER_SERVICE_USER_ID_INVALID	-1
 
-uint8_t owner_sel = 0;
+static char * sort_opt[] = {"Disabled", "by Name", "by Title ID", NULL};
 
 menu_option_t menu_options[] = {
 	{ .name = "\nBackground Music", 
@@ -23,17 +23,17 @@ menu_option_t menu_options[] = {
 		.value = &apollo_config.music, 
 		.callback = music_callback 
 	},
-	{ .name = "Sort Saves", 
-		.options = NULL, 
-		.type = APP_OPTION_BOOL, 
-		.value = &apollo_config.doSort, 
-		.callback = sort_callback 
-	},
 	{ .name = "Menu Animations", 
 		.options = NULL, 
 		.type = APP_OPTION_BOOL, 
 		.value = &apollo_config.doAni, 
 		.callback = ani_callback 
+	},
+	{ .name = "Sort Saves",
+		.options = sort_opt,
+		.type = APP_OPTION_LIST,
+		.value = &apollo_config.doSort,
+		.callback = sort_callback
 	},
 	{ .name = "\nVersion Update Check", 
 		.options = NULL, 
@@ -53,13 +53,7 @@ menu_option_t menu_options[] = {
 		.value = NULL, 
 		.callback = upd_appdata_callback 
 	},
-	{ .name = "\nSave Data Owner",
-		.options = NULL,
-		.type = APP_OPTION_LIST,
-		.value = &owner_sel,
-		.callback = owner_callback
-	},
-	{ .name = "Enable Debug Log",
+	{ .name = "\nEnable Debug Log",
 		.options = NULL,
 		.type = APP_OPTION_CALL,
 		.value = NULL,
@@ -76,7 +70,7 @@ void music_callback(int sel)
 
 void sort_callback(int sel)
 {
-	apollo_config.doSort = !sel;
+	apollo_config.doSort = sel;
 }
 
 void ani_callback(int sel)
@@ -185,18 +179,13 @@ end_update:
 	return;
 }
 
-void owner_callback(int sel)
-{
-//	if (file_exists(APOLLO_PATH OWNER_XML_FILE) == SUCCESS)
-//		read_xml_owner(APOLLO_PATH OWNER_XML_FILE, menu_options[8].options[sel]);
-}
-
 void log_callback(int sel)
 {
 	dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 0);
 	show_message("Debug Logging Enabled!\n\n" APOLLO_PATH "apollo.log");
 }
 
+/*
 char** get_logged_users()
 {
 	char buff[ORBIS_USER_SERVICE_MAX_USER_NAME_LENGTH+1];
@@ -222,6 +211,7 @@ char** get_logged_users()
 
 	return users;
 }
+*/
 
 int save_app_settings(app_config_t* config)
 {

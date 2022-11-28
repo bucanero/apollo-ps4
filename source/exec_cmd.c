@@ -1175,6 +1175,24 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			code->activated = 0;
 			break;
 
+		case CMD_DB_REBUILD:
+			if (appdb_rebuild(APP_DB_PATH_HDD, apollo_config.user_id))
+				show_message("Database rebuilt successfully!");
+			else
+				show_message("Database rebuild failed!");
+
+			code->activated = 0;
+			break;
+
+		case CMD_DB_DEL_FIX:
+			if (appdb_fix_delete(APP_DB_PATH_HDD, apollo_config.user_id))
+				show_message("Database fixed successfully!");
+			else
+				show_message("Database fix failed!");
+
+			code->activated = 0;
+			break;
+
 		default:
 			break;
 	}

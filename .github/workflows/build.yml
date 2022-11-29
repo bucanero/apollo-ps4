@@ -66,11 +66,7 @@ jobs:
         path: ps4-libjbc
 
     - name: Set env vars
-      id: slug
-      run: |
-        echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
-        echo "pkg_file=IV0000-APOL00004_00-APOLLO0000000PS4.pkg" >> $GITHUB_ENV
-        echo "llvm_ver=12.0" >> $GITHUB_ENV
+      run: echo "llvm_ver=12.0" >> $GITHUB_ENV
 
       # temporary release until 0.53 is released
     - name: Download OpenOrbis Toolchain
@@ -94,48 +90,39 @@ jobs:
 
     - name: Install zlib
       working-directory: oosdk_libraries/zlib_partial
-      run: |
-        make install
+      run: make install
 
     - name: Install polarssl
       working-directory: oosdk_libraries/polarssl-1.3.9
-      run: |
-        make install
+      run: make install
 
     - name: Install zip
       working-directory: zip
-      run: |
-        make install
+      run: make install
 
     - name: Install dbglogger
       working-directory: dbglogger
-      run: |
-        make -f Makefile.PS4 install
+      run: make -f Makefile.PS4 install
 
     - name: Install apollo-lib
       working-directory: apollo-lib
-      run: |
-        make -f Makefile.PS4 install
+      run: make -f Makefile.PS4 install
 
     - name: Install libun7zip
       working-directory: libun7zip
-      run: |
-        make -f Makefile.PS4 install
+      run: make -f Makefile.PS4 install
 
     - name: Install libunrar-ps3
       working-directory: libunrar-ps3
-      run: |
-        make -f Makefile.PS4 install
+      run: make -f Makefile.PS4 install
 
     - name: Install mini xml
       working-directory: mxml/ps4
-      run: |
-        make install
+      run: make install
 
     - name: Install libjbc
       working-directory: ps4-libjbc
-      run: |
-        make install
+      run: make install
 
     - name: Install SDL2 library
       working-directory: SDL-PS4
@@ -154,15 +141,15 @@ jobs:
         cp lib/libcurl.a "${OO_PS4_TOOLCHAIN}/lib"
         cp -R ../include/curl "${OO_PS4_TOOLCHAIN}/include/"
 
+    - name: Add save patches to Package
+      run: make createzip
+
     - name: Build Apollo App Package
-      run: |
-        make createzip
-        make
+      run: make
 
     - name: Push package artifact
       uses: actions/upload-artifact@v3
       with:
-        name: apollo-ps4-build_${{ steps.slug.outputs.sha8 }}
-        path: ${{ env.pkg_file }}
+        name: apollo-ps4
+        path: IV0000-APOL00004_00-APOLLO0000000PS4.pkg
         if-no-files-found: error
-        retention-days: 7 # don't keep artifacts for too long

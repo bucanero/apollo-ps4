@@ -89,7 +89,10 @@ int mkdirs(const char* dir)
         if (file_exists(path) == FAILED)
         {
             if (mkdir(path, 0777) < 0)
+           {
+                chmod(path, 0777);
                 return FAILED;
+            }
             else
                 chmod(path, 0777);
         }

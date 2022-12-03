@@ -327,6 +327,11 @@ void update_usb_path(char* path)
 			return;
 	}
 
+	if (dir_exists("/data/fakeusb/PS4/") == SUCCESS)
+	{
+		sprintf(path, "/data/fakeusb/PS4/");
+		return;
+	}
 	strcpy(path, "");
 }
 

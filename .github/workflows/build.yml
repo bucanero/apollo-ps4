@@ -16,6 +16,12 @@ jobs:
         repository: bucanero/dbglogger
         path: dbglogger
 
+    - name: Checkout store-api
+      uses: actions/checkout@v3
+      with:
+        repository: LightningMods/store-api
+        path: store-api
+
     - name: Checkout apollo-lib
       uses: actions/checkout@v3
       with:
@@ -75,7 +81,7 @@ jobs:
       # temporary release until 0.53 is released
     - name: Download OpenOrbis Toolchain
       run: |
-        curl -sL https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/download/0.0.1.416/toolchain.tar.gz | tar xvz -C ./
+        curl -sL https://github.com/LightningMods/OpenOrbis-PS4-Toolchain/releases/download/v0.50001/OOSDK.tar.gz | tar xvz -C ./
         echo "OO_PS4_TOOLCHAIN=${GITHUB_WORKSPACE}/OpenOrbis/PS4Toolchain" >> $GITHUB_ENV
         cp oosdk_libraries/build_rules.mk OpenOrbis/PS4Toolchain/build_rules.mk
 
@@ -106,7 +112,7 @@ jobs:
       working-directory: zip
       run: |
         make install
-
+        
     - name: Install dbglogger
       working-directory: dbglogger
       run: |
@@ -153,6 +159,12 @@ jobs:
         make libcurl
         cp lib/libcurl.a "${OO_PS4_TOOLCHAIN}/lib"
         cp -R ../include/curl "${OO_PS4_TOOLCHAIN}/include/"
+        
+    - name: Install store-api
+      working-directory: store-api
+      run: |
+        make 
+        make install
 
     - name: Build Apollo App Package
       run: |

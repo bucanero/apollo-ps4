@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <signal.h>
 #include <stdbool.h>
+#include <store_api.h>
 #include <orbis/libkernel.h>
 #include <orbis/SaveData.h>
 #include <orbis/UserService.h>
@@ -15,6 +17,8 @@
 #define ORBIS_USER_SERVICE_USER_ID_INVALID	-1
 
 static char * sort_opt[] = {"Disabled", "by Name", "by Title ID", NULL};
+#define SCE_SYSMODULE_INTERNAL_BGFT 0x8000002A
+#define SCE_SYSMODULE_INTERNAL_APPINSTUTIL 0x80000014
 
 menu_option_t menu_options[] = {
 	{ .name = "\nBackground Music", 
@@ -103,10 +107,13 @@ void upd_appdata_callback(int sel)
 void update_callback(int sel)
 {
     apollo_config.update = !sel;
+	
+    sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_BGFT);
+    sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_APPINSTUTIL);
 
     if (!apollo_config.update)
         return;
-
+		
 	LOG("checking latest Apollo version at %s", APOLLO_UPDATE_URL);
 
 	if (!http_download(APOLLO_UPDATE_URL, "", APOLLO_LOCAL_CACHE "ver.check", 0))
@@ -168,10 +175,8 @@ void update_callback(int sel)
 
 	if (show_dialog(1, "New version available! Download update?"))
 	{
-		if (http_download(start, "", "/data/apollo-ps4.pkg", 1))
-			show_message("Update downloaded to /data/apollo-ps4.pkg");
-		else
-			show_message("Download error!");
+		if (!sceStoreApiLaunchStore("Apollo"))
+			show_message("An Store API Errror has occurred\ncheck /data/store_api.log for more info");
 	}
 
 end_update:

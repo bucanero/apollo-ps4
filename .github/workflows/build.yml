@@ -175,7 +175,7 @@ jobs:
         cmake --toolchain ../../../SDL-PS4/cmake/openorbis.cmake .. -DCMAKE_USE_POLARSSL=1 -DUSE_UNIX_SOCKETS=0 -DENABLE_THREADED_RESOLVER=0 -DENABLE_IPV6=0
         make libcurl
 
-    - name: Copy lib
+    - name: Copy cached libraries
       run: |
         cp ${sdl_path}/orbis/libSDL2.a "${OO_PS4_TOOLCHAIN}/lib"
         cp ${curl_path}/orbis/lib/libcurl.a "${OO_PS4_TOOLCHAIN}/lib"

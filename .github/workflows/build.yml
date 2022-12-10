@@ -1,6 +1,15 @@
 name: Build package
 
-on: [ push, pull_request, workflow_dispatch ]
+on:
+  push:
+    paths-ignore:
+      - "**/*.md"
+      - '**/*.txt'
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - '**/*.txt'
+  workflow_dispatch:
 
 jobs:
   build_pkg:
@@ -9,6 +18,34 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v3
+
+    - name: Set env vars
+      run: |
+        echo "llvm_ver=12.0" >> $GITHUB_ENV
+        echo "sdl_path=SDL-PS4" >> $GITHUB_ENV
+        echo "curl_path=oosdk_libraries/curl-7.64.1" >> $GITHUB_ENV
+        echo "OO_PS4_TOOLCHAIN=${GITHUB_WORKSPACE}/OpenOrbis/PS4Toolchain" >> $GITHUB_ENV
+
+    - name: Cache OpenOrbis Toolchain
+      id: cache-oosdk
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.OO_PS4_TOOLCHAIN }}
+        key: ${{ runner.os }}-oosdk-llvm-${{ env.llvm_ver }}
+
+    # temporary release until 0.53 is released
+    - name: Download OpenOrbis Toolchain
+      if: steps.cache-oosdk.outputs.cache-hit != 'true'
+      run: curl -sL https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/download/0.0.1.416/toolchain.tar.gz | tar xz -C ./
+
+    - name: Checkout oosdk_libraries
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/oosdk_libraries
+        path: oosdk_libraries
+
+    - name: Copy makerules
+      run: cp oosdk_libraries/build_rules.mk OpenOrbis/PS4Toolchain/build_rules.mk
 
     - name: Checkout dbglogger
       uses: actions/checkout@v3
@@ -34,17 +71,11 @@ jobs:
         repository: bucanero/zip
         path: zip
 
-    - name: Checkout oosdk_libraries
-      uses: actions/checkout@v3
-      with:
-        repository: bucanero/oosdk_libraries
-        path: oosdk_libraries
-
     - name: Checkout SDL-PS4
       uses: actions/checkout@v3
       with:
         repository: bucanero/SDL-PS4
-        path: SDL-PS4
+        path: ${{ env.sdl_path }}
         ref: ps4
 
     - name: Checkout mxml
@@ -100,59 +131,65 @@ jobs:
 
     - name: Install zlib
       working-directory: oosdk_libraries/zlib_partial
-      run: |
-        make install
+      run: make install
 
     - name: Install polarssl
       working-directory: oosdk_libraries/polarssl-1.3.9
-      run: |
-        make install
+      run: make install
 
     - name: Install zip
       working-directory: zip
-      run: |
-        make install
-        
+      run: make install
+
     - name: Install dbglogger
       working-directory: dbglogger
-      run: |
-        make -f Makefile.PS4 install
+      run: make -f Makefile.PS4 install
 
     - name: Install apollo-lib
       working-directory: apollo-lib
-      run: |
-        make -f Makefile.PS4 install
+      run: make -f Makefile.PS4 install
 
     - name: Install libun7zip
       working-directory: libun7zip
-      run: |
-        make -f Makefile.PS4 install
+      run: make -f Makefile.PS4 install
 
     - name: Install libunrar-ps3
       working-directory: libunrar-ps3
-      run: |
-        make -f Makefile.PS4 install
+      run: make -f Makefile.PS4 install
 
     - name: Install mini xml
       working-directory: mxml/ps4
-      run: |
-        make install
+      run: make install
 
     - name: Install libjbc
       working-directory: ps4-libjbc
-      run: |
-        make install
+      run: make install
+
+    - name: Cache SDL2
+      id: cache-sdl2
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.sdl_path }}/orbis/libSDL2.a
+        key: ${{ runner.os }}-sdl2
 
     - name: Install SDL2 library
-      working-directory: SDL-PS4
+      if: steps.cache-sdl2.outputs.cache-hit != 'true'
+      working-directory: ${{ env.sdl_path }}
       run: |
         mkdir orbis && cd orbis
         cmake --toolchain ../cmake/openorbis.cmake ..
         make
-        cp libSDL2.a "${OO_PS4_TOOLCHAIN}/lib"
+
+    - name: Cache curl
+      id: cache-curl
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.curl_path }}/orbis/lib/libcurl.a
+        key: ${{ runner.os }}-curl
 
     - name: Install libcurl library
-      working-directory: oosdk_libraries/curl-7.64.1
+      if: steps.cache-curl.outputs.cache-hit != 'true'
+      working-directory: ${{ env.curl_path }}
       run: |
         mkdir orbis && cd orbis
         cmake --toolchain ../../../SDL-PS4/cmake/openorbis.cmake .. -DCMAKE_USE_POLARSSL=1 -DUSE_UNIX_SOCKETS=0 -DENABLE_THREADED_RESOLVER=0 -DENABLE_IPV6=0
@@ -166,15 +203,21 @@ jobs:
         make 
         make install
 
-    - name: Build Apollo App Package
+    - name: Copy cached libraries
       run: |
-        make createzip
-        make
+        cp ${sdl_path}/orbis/libSDL2.a "${OO_PS4_TOOLCHAIN}/lib"
+        cp ${curl_path}/orbis/lib/libcurl.a "${OO_PS4_TOOLCHAIN}/lib"
+        cp -R ${curl_path}/include/curl "${OO_PS4_TOOLCHAIN}/include/"
+
+    - name: Add save patches to Package
+      run: make createzip
+
+    - name: Build Apollo App Package
+      run: make
 
     - name: Push package artifact
       uses: actions/upload-artifact@v3
       with:
-        name: apollo-ps4-build_${{ steps.slug.outputs.sha8 }}
-        path: ${{ env.pkg_file }}
+        name: apollo-ps4
+        path: IV0000-APOL00004_00-APOLLO0000000PS4.pkg
         if-no-files-found: error
-        retention-days: 7 # don't keep artifacts for too long

@@ -3,6 +3,7 @@
 #include <dirent.h>
 #include <time.h>
 #include <orbis/SaveData.h>
+#include <orbis/UserService.h>
 #include <polarssl/md5.h>
 
 #include "saves.h"
@@ -49,7 +50,7 @@ static uint32_t get_filename_id(const char* dir)
 	return tid;
 }
 
-static void zipSave(const char* exp_path)
+static void zipSave(const save_entry_t* entry, const char* exp_path)
 {
 	char* export_file;
 	char* tmp;
@@ -66,17 +67,17 @@ static void zipSave(const char* exp_path)
 	fid = get_filename_id(exp_path);
 	asprintf(&export_file, "%s%08d.zip", exp_path, fid);
 
-	tmp = strdup(selected_entry->path);
+	tmp = strdup(entry->path);
 	*strrchr(tmp, '/') = 0;
 	*strrchr(tmp, '/') = 0;
 
-	zip_directory(tmp, selected_entry->path, export_file);
+	zip_directory(tmp, entry->path, export_file);
 
 	sprintf(export_file, "%s%08x.txt", exp_path, apollo_config.user_id);
 	FILE* f = fopen(export_file, "a");
 	if (f)
 	{
-		fprintf(f, "%08d.zip=[%s] %s\n", fid, selected_entry->title_id, selected_entry->name);
+		fprintf(f, "%08d.zip=[%s] %s\n", fid, entry->title_id, entry->name);
 		fclose(f);
 	}
 
@@ -327,15 +328,6 @@ void exportTrophiesZip(const char* exp_path)
 
 	stop_loading_screen();
 	show_message("Trophies successfully saved to:\n%strophies_%08d.zip", exp_path, apollo_config.user_id);
-}
-
-void resignPSVfile(const char* psv_path)
-{
-	init_loading_screen("Resigning PSV file...");
-	psv_resign(psv_path);
-	stop_loading_screen();
-
-	show_message("File successfully resigned!");
 }
 */
 
@@ -638,88 +630,34 @@ void exportFolder(const char* src_path, const char* exp_path, const char* msg)
 	stop_loading_screen();
 	show_message("Files successfully copied to:\n%s", exp_path);
 }
-/*
-void exportLicensesRap(const char* fname, uint8_t dest)
+
+static void rebuildAppDB(const char* path)
 {
-	DIR *d;
-	struct dirent *dir;
-	char lic_path[256];
-	char exp_path[256];
-	char msg[128] = "Exporting user licenses...";
+	int error = 0;
+	char name[ORBIS_USER_SERVICE_MAX_USER_NAME_LENGTH+1];
+	OrbisUserServiceRegisteredUserIdList userIdList;
 
-	if (dest <= MAX_USB_DEVICES)
-		snprintf(exp_path, sizeof(exp_path), EXPORT_RAP_PATH_USB, dest);
-	else
-		snprintf(exp_path, sizeof(exp_path), EXPORT_RAP_PATH_HDD);
-
-	if (mkdirs(exp_path) != SUCCESS)
+	memset(&userIdList, 0, sizeof(userIdList));
+	if (sceUserServiceGetRegisteredUserIdList(&userIdList) < 0)
 	{
-		show_message("Error! Export folder is not available:\n%s", exp_path);
+		show_message("Error getting PS4 user list!");
 		return;
 	}
 
-	snprintf(lic_path, sizeof(lic_path), EXDATA_PATH_HDD, apollo_config.user_id);
-	d = opendir(lic_path);
-	if (!d)
-		return;
-
-    init_loading_screen(msg);
-
-	LOG("Exporting RAPs from folder '%s'...", lic_path);
-	while ((dir = readdir(d)) != NULL)
-	{
-		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0 &&
-			(!fname || (strcmp(dir->d_name, fname) == 0)) &&
-			strcmp(strrchr(dir->d_name, '.'), ".rif") == 0)
+	for (int i = 0; i < ORBIS_USER_SERVICE_MAX_REGISTER_USERS; i++)
+		if (userIdList.userId[i] != ORBIS_USER_SERVICE_USER_ID_INVALID && !appdb_rebuild(path, userIdList.userId[i]))
 		{
-			LOG("Exporting %s", dir->d_name);
-			snprintf(msg, sizeof(msg), "Exporting %.36s...", dir->d_name);
-//			rif2rap((u8*) apollo_config.idps, lic_path, dir->d_name, exp_path);
+			memset(name, 0, sizeof(name));
+			sceUserServiceGetUserName(userIdList.userId[i], name, sizeof(name));
+			show_message("Database rebuild for user %s failed!", name);
+			error++;
 		}
-	}
-	closedir(d);
 
-    stop_loading_screen();
-	show_message("Files successfully copied to:\n%s", exp_path);
+	if(!error)
+		show_message("Database rebuilt successfully!");
 }
 
-void importLicenses(const char* fname, const char* exdata_path)
-{
-	DIR *d;
-	struct dirent *dir;
-	char lic_path[256];
-
-	if (dir_exists(exdata_path) != SUCCESS)
-	{
-		show_message("Error! Import folder is not available:\n%s", exdata_path);
-		return;
-	}
-
-	snprintf(lic_path, sizeof(lic_path), EXDATA_PATH_HDD, apollo_config.user_id);
-	d = opendir(exdata_path);
-	if (!d)
-		return;
-
-    init_loading_screen("Importing user licenses...");
-
-	LOG("Importing RAPs from folder '%s'...", exdata_path);
-	while ((dir = readdir(d)) != NULL)
-	{
-		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0 &&
-			(!fname || (strcmp(dir->d_name, fname)) == 0) &&
-			strcasecmp(strrchr(dir->d_name, '.'), ".rap") == 0)
-		{
-			LOG("Importing %s", dir->d_name);
-//			rap2rif((u8*) apollo_config.idps, exdata_path, dir->d_name, lic_path);
-		}
-	}
-	closedir(d);
-
-    stop_loading_screen();
-	show_message("Files successfully copied to:\n%s", lic_path);
-}
-*/
-static int apply_sfo_patches(sfo_patch_t* patch)
+static int apply_sfo_patches(save_entry_t* entry, sfo_patch_t* patch)
 {
     code_entry_t* code;
     char in_file_path[256];
@@ -727,7 +665,7 @@ static int apply_sfo_patches(sfo_patch_t* patch)
     u8 tmp_psid[SFO_PSID_SIZE];
     list_node_t* node;
 
-    for (node = list_head(selected_entry->codes); (code = list_get(node)); node = list_next(node))
+    for (node = list_head(entry->codes); (code = list_get(node)); node = list_next(node))
     {
         if (!code->activated || code->type != PATCH_SFO)
             continue;
@@ -737,15 +675,15 @@ static int apply_sfo_patches(sfo_patch_t* patch)
         switch (code->codes[0])
         {
         case SFO_UNLOCK_COPY:
-            if (selected_entry->flags & SAVE_FLAG_LOCKED)
-                selected_entry->flags ^= SAVE_FLAG_LOCKED;
+            if (entry->flags & SAVE_FLAG_LOCKED)
+                entry->flags ^= SAVE_FLAG_LOCKED;
 
             patch->flags = SFO_PATCH_FLAG_REMOVE_COPY_PROTECTION;
             break;
 
         case SFO_CHANGE_ACCOUNT_ID:
-            if (selected_entry->flags & SAVE_FLAG_OWNER)
-                selected_entry->flags ^= SAVE_FLAG_OWNER;
+            if (entry->flags & SAVE_FLAG_OWNER)
+                entry->flags ^= SAVE_FLAG_OWNER;
 
             sscanf(code->options->value[code->options->sel], "%lx", &patch->account_id);
             break;
@@ -756,18 +694,18 @@ static int apply_sfo_patches(sfo_patch_t* patch)
             break;
 
         case SFO_CHANGE_TITLE_ID:
-            patch->directory = strstr(selected_entry->path, selected_entry->title_id);
-            snprintf(in_file_path, sizeof(in_file_path), "%s", selected_entry->path);
+            patch->directory = strstr(entry->path, entry->title_id);
+            snprintf(in_file_path, sizeof(in_file_path), "%s", entry->path);
             strncpy(tmp_dir, patch->directory, SFO_DIRECTORY_SIZE);
 
-            strncpy(selected_entry->title_id, code->options[0].name[code->options[0].sel], 9);
-            strncpy(patch->directory, selected_entry->title_id, 9);
-            strncpy(tmp_dir, selected_entry->title_id, 9);
+            strncpy(entry->title_id, code->options[0].name[code->options[0].sel], 9);
+            strncpy(patch->directory, entry->title_id, 9);
+            strncpy(tmp_dir, entry->title_id, 9);
             *strrchr(tmp_dir, '/') = 0;
             patch->directory = tmp_dir;
 
-            LOG("Moving (%s) -> (%s)", in_file_path, selected_entry->path);
-            rename(in_file_path, selected_entry->path);
+            LOG("Moving (%s) -> (%s)", in_file_path, entry->path);
+            rename(in_file_path, entry->path);
             break;
 
         default:
@@ -777,13 +715,13 @@ static int apply_sfo_patches(sfo_patch_t* patch)
         code->activated = 0;
     }
 
-	snprintf(in_file_path, sizeof(in_file_path), "%s" "sce_sys/param.sfo", selected_entry->path);
+	snprintf(in_file_path, sizeof(in_file_path), "%s" "sce_sys/param.sfo", entry->path);
 	LOG("Applying SFO patches '%s'...", in_file_path);
 
 	return (patch_sfo(in_file_path, patch) == SUCCESS);
 }
 
-static int apply_cheat_patches()
+static int apply_cheat_patches(const save_entry_t* entry)
 {
 	int ret = 1;
 	char tmpfile[256];
@@ -793,7 +731,7 @@ static int apply_cheat_patches()
 
 	init_loading_screen("Applying changes...");
 
-	for (node = list_head(selected_entry->codes); (code = list_get(node)); node = list_next(node))
+	for (node = list_head(entry->codes); (code = list_get(node)); node = list_next(node))
 	{
 		if (!code->activated || (code->type != PATCH_GAMEGENIE && code->type != PATCH_BSD))
 			continue;
@@ -809,11 +747,11 @@ static int apply_cheat_patches()
 			filename = code->options[0].name[code->options[0].sel];
 
 		if (strstr(code->file, "~extracted\\"))
-			snprintf(tmpfile, sizeof(tmpfile), "%s[%s]%s", APOLLO_LOCAL_CACHE, selected_entry->title_id, filename);
+			snprintf(tmpfile, sizeof(tmpfile), "%s[%s]%s", APOLLO_LOCAL_CACHE, entry->title_id, filename);
 		else
-			snprintf(tmpfile, sizeof(tmpfile), "%s%s", selected_entry->path, filename);
+			snprintf(tmpfile, sizeof(tmpfile), "%s%s", entry->path, filename);
 
-		if (!apply_cheat_patch_code(tmpfile, selected_entry->title_id, code, APOLLO_LOCAL_CACHE))
+		if (!apply_cheat_patch_code(tmpfile, entry->title_id, code, APOLLO_LOCAL_CACHE))
 		{
 			LOG("Error: failed to apply (%s)", code->name);
 			ret = 0;
@@ -828,18 +766,26 @@ static int apply_cheat_patches()
 	return ret;
 }
 
-static void resignSave(sfo_patch_t* patch)
+static void resignSave(save_entry_t* entry)
 {
-    LOG("Resigning save '%s'...", selected_entry->name);
+	sfo_patch_t patch = {
+		.flags = 0,
+		.user_id = apollo_config.user_id,
+		.psid = (u8*) apollo_config.psid,
+		.directory = NULL,
+		.account_id = apollo_config.account_id,
+	};
 
-    if (!apply_sfo_patches(patch))
+    LOG("Resigning save '%s'...", entry->name);
+
+    if (!apply_sfo_patches(entry, &patch))
         show_message("Error! Account changes couldn't be applied");
 
-    LOG("Applying cheats to '%s'...", selected_entry->name);
-    if (!apply_cheat_patches())
+    LOG("Applying cheats to '%s'...", entry->name);
+    if (!apply_cheat_patches(entry))
         show_message("Error! Cheat codes couldn't be applied");
 
-    show_message("Save %s successfully modified!", selected_entry->title_id);
+    show_message("Save %s successfully modified!", entry->title_id);
 }
 
 static void resignAllSaves(const save_entry_t* save, int all)
@@ -870,7 +816,7 @@ static void resignAllSaves(const save_entry_t* save, int all)
 			continue;
 
 		LOG("Patching SFO '%s'...", sfoPath);
-		err_count += patch_sfo(sfoPath, &patch);
+		err_count += (patch_sfo(sfoPath, &patch) != SUCCESS);
 	}
 
 	end_progress_bar();
@@ -994,38 +940,37 @@ static int _copy_save_file(const char* src_path, const char* dst_path, const cha
 	return (copy_file(src, dst) == SUCCESS);
 }
 
-static void decryptSaveFile(const char* filename)
+static void decryptSaveFile(const save_entry_t* entry, const char* filename)
 {
 	char path[256];
 
-	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s_%s/", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s_%s/", apollo_config.user_id, entry->title_id, entry->dir_name);
 	mkdirs(path);
 
-	LOG("Decrypt '%s%s' to '%s'...", selected_entry->path, filename, path);
+	LOG("Decrypt '%s%s' to '%s'...", entry->path, filename, path);
 
-	if (_copy_save_file(selected_entry->path, path, filename))
+	if (_copy_save_file(entry->path, path, filename))
 		show_message("File successfully exported to:\n%s%s", path, filename);
 	else
 		show_message("Error! File %s couldn't be exported", filename);
 }
 
-static void encryptSaveFile(const char* filename)
+static void encryptSaveFile(const save_entry_t* entry, const char* filename)
 {
 	char path[256];
 
-	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s_%s/%s", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name, filename);
-
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s_%s/%s", apollo_config.user_id, entry->title_id, entry->dir_name, filename);
 	if (file_exists(path) != SUCCESS)
 	{
 		show_message("Error! Can't find decrypted save-game file:\n%s", path);
 		return;
 	}
-	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s_%s/", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
 
-	LOG("Encrypt '%s%s' to '%s'...", path, filename, selected_entry->path);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s_%s/", apollo_config.user_id, entry->title_id, entry->dir_name);
+	LOG("Encrypt '%s%s' to '%s'...", path, filename, entry->path);
 
-	if (_copy_save_file(path, selected_entry->path, filename))
-		show_message("File successfully imported to:\n%s%s", selected_entry->path, filename);
+	if (_copy_save_file(path, entry->path, filename))
+		show_message("File successfully imported to:\n%s%s", entry->path, filename);
 	else
 		show_message("Error! File %s couldn't be imported", filename);
 }
@@ -1049,7 +994,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 	switch (codecmd[0])
 	{
 		case CMD_DECRYPT_FILE:
-			decryptSaveFile(code->options[0].name[code->options[0].sel]);
+			decryptSaveFile(selected_entry, code->options[0].name[code->options[0].sel]);
 			code->activated = 0;
 			break;
 
@@ -1063,12 +1008,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_EXPORT_ZIP_USB:
-			zipSave(codecmd[1] ? EXPORT_PATH_USB1 : EXPORT_PATH_USB0);
+			zipSave(selected_entry, codecmd[1] ? EXPORT_PATH_USB1 : EXPORT_PATH_USB0);
 			code->activated = 0;
 			break;
 
 		case CMD_EXPORT_ZIP_HDD:
-			zipSave(APOLLO_PATH);
+			zipSave(selected_entry, APOLLO_PATH);
 			code->activated = 0;
 			break;
 
@@ -1129,17 +1074,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_RESIGN_SAVE:
-			{
-				sfo_patch_t patch = {
-					.flags = 0,
-					.user_id = apollo_config.user_id,
-					.psid = (u8*) apollo_config.psid,
-					.directory = NULL,
-					.account_id = apollo_config.account_id,
-				};
-
-				resignSave(&patch);
-			}
+			resignSave(selected_entry);
 			code->activated = 0;
 			break;
 
@@ -1161,7 +1096,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_IMPORT_DATA_FILE:
-			encryptSaveFile(code->options[0].name[code->options[0].sel]);
+			encryptSaveFile(selected_entry, code->options[0].name[code->options[0].sel]);
 			code->activated = 0;
 			break;
 
@@ -1176,17 +1111,13 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_DB_REBUILD:
-			if (appdb_rebuild(APP_DB_PATH_HDD, apollo_config.user_id))
-				show_message("Database rebuilt successfully!");
-			else
-				show_message("Database rebuild failed!");
-
+			rebuildAppDB(selected_entry->path);
 			code->activated = 0;
 			break;
 
 		case CMD_DB_DEL_FIX:
-			if (appdb_fix_delete(APP_DB_PATH_HDD, apollo_config.user_id))
-				show_message("Database fixed successfully!");
+			if (appdb_fix_delete(selected_entry->path, apollo_config.user_id))
+				show_message("User %x database fixed successfully!", apollo_config.user_id);
 			else
 				show_message("Database fix failed!");
 

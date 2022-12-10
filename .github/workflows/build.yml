@@ -47,6 +47,11 @@ jobs:
     - name: Copy makerules
       run: cp oosdk_libraries/build_rules.mk OpenOrbis/PS4Toolchain/build_rules.mk
 
+    - name: TEMP def update
+      run: |
+        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/ea758f60a724dba922181c6f74f4168b88ca1574/include/orbis/UserService.h > OpenOrbis/PS4Toolchain/include/orbis/UserService.h
+        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/ea758f60a724dba922181c6f74f4168b88ca1574/include/orbis/_types/user.h > OpenOrbis/PS4Toolchain/include/orbis/_types/user.h
+
     - name: Checkout dbglogger
       uses: actions/checkout@v3
       with:

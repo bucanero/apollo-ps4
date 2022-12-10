@@ -185,34 +185,6 @@ void log_callback(int sel)
 	show_message("Debug Logging Enabled!\n\n" APOLLO_PATH "apollo.log");
 }
 
-/*
-char** get_logged_users()
-{
-	char buff[ORBIS_USER_SERVICE_MAX_USER_NAME_LENGTH+1];
-	OrbisUserServiceLoginUserIdList userIdList;
-	char** users;
-
-	owner_sel = 0;
-	users = calloc(1, sizeof(char*) * (ORBIS_USER_SERVICE_MAX_LOGIN_USERS+1));
-
-	if (sceUserServiceGetLoginUserIdList(&userIdList) < 0)
-	{
-		sceUserServiceGetUserName(apollo_config.user_id, buff, sizeof(buff));
-		users[0] = strdup(buff);
-		return users;
-	}
-
-	for (int i = 0; i < ORBIS_USER_SERVICE_MAX_LOGIN_USERS; i++)
-		if (userIdList.userId[i] != ORBIS_USER_SERVICE_USER_ID_INVALID)
-		{
-			sceUserServiceGetUserName(userIdList.userId[i], buff, sizeof(buff));
-			users[i] = strdup(buff);
-		}
-
-	return users;
-}
-*/
-
 int save_app_settings(app_config_t* config)
 {
 	char filePath[256];

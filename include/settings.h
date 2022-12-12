@@ -56,4 +56,3 @@ int get_firmware_version();
 int save_xml_owner(const char *xmlfile);
 int read_xml_owner(const char *xmlfile, const char *owner);
 int get_xml_owners(const char *xmlfile, int cmd, char*** nam, char*** val);
-char** get_logged_users();

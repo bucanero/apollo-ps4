@@ -674,13 +674,6 @@ static int apply_sfo_patches(save_entry_t* entry, sfo_patch_t* patch)
 
         switch (code->codes[0])
         {
-        case SFO_UNLOCK_COPY:
-            if (entry->flags & SAVE_FLAG_LOCKED)
-                entry->flags ^= SAVE_FLAG_LOCKED;
-
-            patch->flags = SFO_PATCH_FLAG_REMOVE_COPY_PROTECTION;
-            break;
-
         case SFO_CHANGE_ACCOUNT_ID:
             if (entry->flags & SAVE_FLAG_OWNER)
                 entry->flags ^= SAVE_FLAG_OWNER;
@@ -843,93 +836,47 @@ int apply_trophy_account()
 
 	return 1;
 }
-
-int apply_trophy_patches()
-{
-	int ret = 1;
-	uint32_t trophy_id;
-	code_entry_t* code;
-	list_node_t* node;
-
-	init_loading_screen("Applying changes...");
-
-	for (node = list_head(selected_entry->codes); (code = list_get(node)); node = list_next(node))
-	{
-		if (!code->activated || (code->type != PATCH_TROP_UNLOCK && code->type != PATCH_TROP_LOCK))
-			continue;
-
-		trophy_id = *(uint32_t*)(code->file);
-    	LOG("Active code: [%d] '%s'", trophy_id, code->name);
-
-if (0)
-//		if (!apply_trophy_patch(selected_entry->path, trophy_id, (code->type == PATCH_TROP_UNLOCK)))
-		{
-			LOG("Error: failed to apply (%s)", code->name);
-			ret = 0;
-		}
-
-		if (code->type == PATCH_TROP_UNLOCK)
-		{
-			code->type = PATCH_TROP_LOCK;
-			code->name[1] = ' ';
-		}
-		else
-		{
-			code->type = PATCH_TROP_UNLOCK;
-			code->name[1] = CHAR_TAG_LOCKED;
-		}
-
-		code->activated = 0;
-	}
-
-	stop_loading_screen();
-
-	return ret;
-}
-
-void resignTrophy()
-{
-	LOG("Decrypting TROPTRNS.DAT ...");
-if (0)
-//	if (!decrypt_trophy_trns(selected_entry->path))
-	{
-		LOG("Error: failed to decrypt TROPTRNS.DAT");
-		return;
-	}
-
-    if (!apply_trophy_account())
-        show_message("Error! Account changes couldn't be applied");
-
-    LOG("Applying trophy changes to '%s'...", selected_entry->name);
-    if (!apply_trophy_patches())
-        show_message("Error! Trophy changes couldn't be applied");
-
-	LOG("Encrypting TROPTRNS.DAT ...");
-if (0)
-//	if (!encrypt_trophy_trns(selected_entry->path))
-	{
-		LOG("Error: failed to encrypt TROPTRNS.DAT");
-		return;
-	}
-
-    LOG("Resigning trophy '%s'...", selected_entry->name);
-
-if (0)
-//    if (!pfd_util_init((u8*) apollo_config.idps, apollo_config.user_id, selected_entry->title_id, selected_entry->path) ||
-//        (pfd_util_process(PFD_CMD_UPDATE, 0) != SUCCESS))
-        show_message("Error! Trophy %s couldn't be resigned", selected_entry->title_id);
-    else
-        show_message("Trophy %s successfully modified!", selected_entry->title_id);
-
-//    pfd_util_end();
-
-	if ((file_exists("/dev_hdd0/mms/db.err") != SUCCESS) && show_dialog(1, "Schedule Database rebuild on next boot?"))
-	{
-		LOG("Creating db.err file for database rebuild...");
-		write_buffer("/dev_hdd0/mms/db.err", (u8*) "\x00\x00\x03\xE9", 4);
-	}
-}
 */
+
+void exportZipDB(const char* path)
+{
+	char *tmp;
+	char zipfile[256];
+	struct tm t;
+
+	if (mkdirs(EXPORT_DB_PATH) != SUCCESS)
+	{
+		show_message("Error! Export folder is not available:\n%s", EXPORT_DB_PATH);
+		return;
+	}
+
+	// build file path
+	t  = *gmtime(&(time_t){time(NULL)});
+	snprintf(zipfile, sizeof(zipfile), "%sdb_%d-%02d-%02d_%02d%02d%02d.zip", EXPORT_DB_PATH, t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+	tmp = strdup(path);
+	*strrchr(tmp, '/') = 0;
+
+	init_loading_screen("Exporting system database...");
+	zip_directory(tmp, path, zipfile);
+	stop_loading_screen();
+	free(tmp);
+
+	show_message("Zip file successfully saved to:\n%s", zipfile);
+}
+
+void importZipDB(const char* dst_path, const char* zipfile)
+{
+	char path[256];
+
+	snprintf(path, sizeof(path), "%s%s", EXPORT_DB_PATH, zipfile);
+	LOG("Importing Backup %s ...", path);
+
+	if (extract_zip(path, dst_path))
+        show_message("DB Backup %s successfully restored!", zipfile);
+    else
+        show_message("Error! Backup %s couldn't be restored", zipfile);
+}
+
 static int _copy_save_file(const char* src_path, const char* dst_path, const char* filename)
 {
 	char src[256], dst[256];
@@ -1013,7 +960,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_EXPORT_ZIP_HDD:
-			zipSave(selected_entry, APOLLO_PATH);
+			zipSave(selected_entry, APOLLO_PATH "export/");
 			code->activated = 0;
 			break;
 
@@ -1110,13 +1057,23 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			code->activated = 0;
 			break;
 
+		case CMD_EXP_DATABASE:
+			exportZipDB(selected_entry->path);
+			code->activated = 0;
+			break;
+
+		case CMD_IMP_DATABASE:
+			importZipDB(selected_entry->path, code->options[0].name[code->options[0].sel]);
+			code->activated = 0;
+			break;
+
 		case CMD_DB_REBUILD:
-			rebuildAppDB(selected_entry->path);
+			rebuildAppDB(code->file);
 			code->activated = 0;
 			break;
 
 		case CMD_DB_DEL_FIX:
-			if (appdb_fix_delete(selected_entry->path, apollo_config.user_id))
+			if (appdb_fix_delete(code->file, apollo_config.user_id))
 				show_message("User %x database fixed successfully!", apollo_config.user_id);
 			else
 				show_message("Database fix failed!");

@@ -69,9 +69,7 @@ static sqlite3* open_sqlite_db(const char* db_path)
 	sqlite3_free(memuri);
 
 	if (sqlite3_exec(db, "PRAGMA journal_mode = OFF;", NULL, NULL, NULL) != SQLITE_OK)
-	{
 		LOG("Error set pragma: %s", sqlite3_errmsg(db));
-	}
 
 	return db;
 }
@@ -134,9 +132,7 @@ static void insert_appinfo_row(sqlite3* db, const char* titleId, const char* key
 	char* query = sqlite3_mprintf("INSERT OR IGNORE INTO tbl_appinfo(titleId, key, val) VALUES(%Q, %Q, %Q)", titleId, key, value);
 
 	if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
-	{
 		LOG("tbl_appinfo insert failed: %s", sqlite3_errmsg(db));
-	}
 
 	sqlite3_free(query);
 }
@@ -146,9 +142,7 @@ static void insert_appinfo_row_int(sqlite3* db, const char* titleId, const char*
 	char* query = sqlite3_mprintf("INSERT OR IGNORE INTO tbl_appinfo(titleId, key, val) VALUES(%Q, %Q, %ld)", titleId, key, value);
 
 	if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
-	{
 		LOG("tbl_appinfo insert failed: %s", sqlite3_errmsg(db));
-	}
 
 	sqlite3_free(query);
 }
@@ -233,9 +227,10 @@ int appdb_rebuild(const char* db_path, uint32_t userid)
 		LOG("Adding (%s) %s '%s' to tbl_appbrowse_%010d...", sfo_titleid, sfo_content, sfo_title, userid);
 		char* query = sqlite3_mprintf("INSERT INTO tbl_appbrowse_%010d VALUES (%Q, %Q, %Q, '/user/appmeta/%s',"
 			"'2020-01-01 20:20:03.000', 0, 0, 5, 1, 100, 0, 1, 5, 1, %Q, 0, 0, 0, 0, NULL, NULL, NULL, %ld,"
-			"'2020-01-01 20:20:01.000', 0, 'game', NULL, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,"
+			"'2020-01-01 20:20:01.000', 0, %Q, NULL, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,"
 			"0, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2020-01-01 20:20:02.000'%s)",
 			userid, sfo_titleid, sfo_content, sfo_title, dirp->d_name, sfo_category, pkg_size,
+			(strcmp(sfo_category, "gde") == 0) ? "app" : "game",
 			(fw <= 0x555) ? "" : ",0,0,0,0,0,NULL");
 
 		if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
@@ -593,6 +588,13 @@ static option_entry_t* _getFileOptions(const char* save_path, const char* mask, 
 
 	file_list = list_alloc();
 	_walk_dir_list(save_path, save_path, mask, file_list);
+
+	if (!list_count(file_list))
+	{
+		is_cmd = 0;
+		asprintf(&filename, CHAR_ICON_WARN " --- %s%s --- " CHAR_ICON_WARN, save_path, mask);
+		list_append(file_list, filename);
+	}
 	opt = _initOptions(list_count(file_list));
 
 	for (node = list_head(file_list); (filename = list_get(node)); node = list_next(node))
@@ -650,7 +652,7 @@ static void _addBackupCommands(save_entry_t* item)
 	cmd->options = _getFileOptions(item->path, "*", CMD_IMPORT_DATA_FILE);
 	list_append(item->codes, cmd);
 }
-
+/*
 static option_entry_t* _getSaveTitleIDs(const char* title_id)
 {
 	int count = 1;
@@ -687,7 +689,7 @@ static option_entry_t* _getSaveTitleIDs(const char* title_id)
 
 	return opt;
 }
-
+*/
 static void _addSfoCommands(save_entry_t* save)
 {
 	code_entry_t* cmd;
@@ -705,7 +707,7 @@ static void _addSfoCommands(save_entry_t* save)
 	list_append(save->codes, cmd);
 
 	return;
-
+/*
 	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " SFO Patches " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(save->codes, cmd);
 
@@ -731,6 +733,7 @@ static void _addSfoCommands(save_entry_t* save)
 	cmd->options_count = 1;
 	cmd->options = _getSaveTitleIDs(save->title_id);
 	list_append(save->codes, cmd);
+*/
 }
 
 static int set_pfs_codes(save_entry_t* item)
@@ -1005,6 +1008,7 @@ list_t * ReadBackupList(const char* userPath)
 
 	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_USER " App.db Database Management");
 	item->path = strdup(APP_DB_PATH_HDD);
+	strrchr(item->path, '/')[1] = 0;
 	item->type = FILE_TYPE_SQL;
 	list_append(list, item);
 
@@ -1048,10 +1052,20 @@ int ReadBackupCodes(save_entry_t * bup)
 	case FILE_TYPE_SQL:
 		bup->codes = list_alloc();
 
-		cmd = _createCmdCode(PATCH_COMMAND, "\x18 App.db Rebuild (Restore missing XMB items)", CMD_DB_REBUILD);
+		cmd = _createCmdCode(PATCH_COMMAND, "\x18 Rebuild App.db Database (Restore missing XMB items)", CMD_DB_REBUILD);
+		asprintf(&cmd->file, "%sapp.db", bup->path);
 		list_append(bup->codes, cmd);
 
-		cmd = _createCmdCode(PATCH_COMMAND, "\x18 Restore Delete option to items (App.db fix)", CMD_DB_DEL_FIX);
+		cmd = _createCmdCode(PATCH_COMMAND, "\x18 Restore Delete option to XMB items (app.db fix)", CMD_DB_DEL_FIX);
+		asprintf(&cmd->file, "%sapp.db", bup->path);
+		list_append(bup->codes, cmd);
+
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup System Database Folder", CMD_EXP_DATABASE);
+		list_append(bup->codes, cmd);
+
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Restore System Database Backup", CMD_CODE_NULL);
+		cmd->options_count = 1;
+		cmd->options = _getFileOptions(EXPORT_DB_PATH, "*.zip", CMD_IMP_DATABASE);
 		list_append(bup->codes, cmd);
 
 		return list_count(bup->codes);

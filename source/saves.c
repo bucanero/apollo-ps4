@@ -524,9 +524,9 @@ static option_entry_t* _createOptions(int count, const char* name, char value)
 	option_entry_t* options = _initOptions(count);
 
 	asprintf(&options->name[0], "%s %d", name, 0);
-	asprintf(&options->value[0], "%c%c", value, 0);
+	asprintf(&options->value[0], "%c%c", value, STORAGE_USB0);
 	asprintf(&options->name[1], "%s %d", name, 1);
-	asprintf(&options->value[1], "%c%c", value, 1);
+	asprintf(&options->value[1], "%c%c", value, STORAGE_USB1);
 
 	return options;
 }
@@ -967,7 +967,9 @@ int ReadOnlineSaves(save_entry_t * game)
 			asprintf(&item->file, "%.12s", content);
 
 			item->options_count = 1;
-			item->options = _createOptions(2, "Download to USB", CMD_DOWNLOAD_USB);
+			item->options = _createOptions(3, "Download to USB", CMD_DOWNLOAD_USB);
+			asprintf(&item->options->name[2], "Download to HDD");
+			asprintf(&item->options->value[2], "%c%c", CMD_DOWNLOAD_USB, STORAGE_HDD);
 			list_append(game->codes, item);
 
 			LOG("[%s%s] %s", game->path, item->file, item->name + 1);

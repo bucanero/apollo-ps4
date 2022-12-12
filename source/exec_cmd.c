@@ -13,17 +13,41 @@
 #include "sfo.h"
 
 
-static void downloadSave(const char* file, const char* path)
+static void _set_dest_path(char* path, int dest, const char* folder)
 {
+	switch (dest)
+	{
+	case STORAGE_USB0:
+		sprintf(path, "%s%s", USB0_PATH, folder);
+		break;
+
+	case STORAGE_USB1:
+		sprintf(path, "%s%s", USB1_PATH, folder);
+		break;
+
+	case STORAGE_HDD:
+		sprintf(path, "%s%s", FAKE_USB_PATH, folder);
+		break;
+
+	default:
+		path[0] = 0;
+	}
+}
+
+static void downloadSave(const save_entry_t* entry, const char* file, int dst)
+{
+	char path[256];
+
+	_set_dest_path(path, dst, PS4_SAVES_PATH_USB);
 	if (mkdirs(path) != SUCCESS)
 	{
 		show_message("Error! Export folder is not available:\n%s", path);
 		return;
 	}
 
-	if (!http_download(selected_entry->path, file, APOLLO_LOCAL_CACHE "tmpsave.zip", 1))
+	if (!http_download(entry->path, file, APOLLO_LOCAL_CACHE "tmpsave.zip", 1))
 	{
-		show_message("Error downloading save game from:\n%s%s", selected_entry->path, file);
+		show_message("Error downloading save game from:\n%s%s", entry->path, file);
 		return;
 	}
 
@@ -838,7 +862,7 @@ int apply_trophy_account()
 }
 */
 
-void exportZipDB(const char* path)
+static void exportZipDB(const char* path)
 {
 	char *tmp;
 	char zipfile[256];
@@ -864,7 +888,7 @@ void exportZipDB(const char* path)
 	show_message("Zip file successfully saved to:\n%s", zipfile);
 }
 
-void importZipDB(const char* dst_path, const char* zipfile)
+static void importZipDB(const char* dst_path, const char* zipfile)
 {
 	char path[256];
 
@@ -947,9 +971,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_DOWNLOAD_USB:
 			if (selected_entry->flags & SAVE_FLAG_PS4)
-				downloadSave(code->file, codecmd[1] ? SAVES_PATH_USB1 : SAVES_PATH_USB0);
-			else
-				downloadSave(code->file, codecmd[1] ? EXP_PSV_PATH_USB1 : EXP_PSV_PATH_USB0);
+				downloadSave(selected_entry, code->file, codecmd[1]);
 			
 			code->activated = 0;
 			break;

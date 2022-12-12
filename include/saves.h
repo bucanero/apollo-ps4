@@ -65,6 +65,13 @@
 
 #define OWNER_XML_FILE          "owners.xml"
 
+enum storage_enum
+{
+    STORAGE_USB0,
+    STORAGE_USB1,
+    STORAGE_HDD,
+};
+
 enum cmd_code_enum
 {
     CMD_CODE_NULL,

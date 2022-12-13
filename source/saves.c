@@ -96,6 +96,66 @@ static int get_appdb_title(sqlite3* db, const char* titleid, char* name)
 	return 1;
 }
 
+int addcont_dlc_rebuild(const char* db_path)
+{
+	char path[256];
+	uint8_t hdr[0x80];
+	DIR *dp, *dp2;
+	struct dirent *dirp, *dirp2;
+	sqlite3* db;
+	char* query;
+
+	dp = opendir("/user/addcont");
+	if (!dp)
+	{
+		LOG("Failed to open /user/addcont/");
+		return 0;
+	}
+
+	db = open_sqlite_db(db_path);
+	if (!db)
+		return 0;
+
+	while ((dirp = readdir(dp)) != NULL)
+	{
+		if (dirp->d_type != DT_DIR || dirp->d_namlen != 9)
+			continue;
+
+		snprintf(path, sizeof(path), "/user/addcont/%s", dirp->d_name);
+		dp2 = opendir(path);
+		if (!dp2)
+			continue;
+
+		while ((dirp2 = readdir(dp2)) != NULL)
+		{
+			if (dirp2->d_type != DT_DIR || dirp2->d_namlen != 16)
+				continue;
+
+			snprintf(path, sizeof(path), "/user/addcont/%s/%s/ac.pkg", dirp->d_name, dirp2->d_name);
+			if (read_file(path, hdr, sizeof(hdr)) != SUCCESS)
+				continue;
+
+			LOG("Adding %s to addcont...", dirp2->d_name);
+			query = sqlite3_mprintf("INSERT OR IGNORE INTO addcont(title_id, dir_name, content_id, title, version, attribute, status) "
+				"VALUES(%Q, %Q, %Q, 'DLC %s (Restored by Apollo)', 536870912, '01.00', 0)",
+				dirp->d_name, dirp2->d_name, hdr + 0x40, dirp2->d_name);
+
+			if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
+				LOG("addcont insert failed: %s", sqlite3_errmsg(db));
+
+			sqlite3_free(query);
+		}
+		closedir(dp2);
+	}
+	closedir(dp);
+
+	LOG("Saving database to %s", db_path);
+	sqlite3_memvfs_dump(db, NULL, db_path);
+	sqlite3_close(db);
+
+	return 1;
+}
+
 int appdb_fix_delete(const char* db_path, uint32_t userid)
 {
 	sqlite3* db;
@@ -1056,6 +1116,10 @@ int ReadBackupCodes(save_entry_t * bup)
 
 		cmd = _createCmdCode(PATCH_COMMAND, "\x18 Rebuild App.db Database (Restore missing XMB items)", CMD_DB_REBUILD);
 		asprintf(&cmd->file, "%sapp.db", bup->path);
+		list_append(bup->codes, cmd);
+
+		cmd = _createCmdCode(PATCH_COMMAND, "\x18 Rebuild DLC Database (addcont.db)", CMD_DB_DLC_REBUILD);
+		asprintf(&cmd->file, "%saddcont.db", bup->path);
 		list_append(bup->codes, cmd);
 
 		cmd = _createCmdCode(PATCH_COMMAND, "\x18 Restore Delete option to XMB items (app.db fix)", CMD_DB_DEL_FIX);

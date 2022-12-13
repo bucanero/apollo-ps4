@@ -678,7 +678,7 @@ static void rebuildAppDB(const char* path)
 		}
 
 	if(!error)
-		show_message("Database rebuilt successfully!");
+		show_message("Database rebuilt successfully!\nLog out for changes to take effect");
 }
 
 static int apply_sfo_patches(save_entry_t* entry, sfo_patch_t* patch)
@@ -1096,9 +1096,18 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_DB_DEL_FIX:
 			if (appdb_fix_delete(code->file, apollo_config.user_id))
-				show_message("User %x database fixed successfully!", apollo_config.user_id);
+				show_message("User %x database fixed successfully!\nLog out for changes to take effect", apollo_config.user_id);
 			else
 				show_message("Database fix failed!");
+
+			code->activated = 0;
+			break;
+
+		case CMD_DB_DLC_REBUILD:
+			if (addcont_dlc_rebuild(code->file))
+				show_message("DLC database fixed successfully!\nLog out for changes to take effect");
+			else
+				show_message("DLC Database rebuild failed!");
 
 			code->activated = 0;
 			break;

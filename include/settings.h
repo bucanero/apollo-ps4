@@ -50,7 +50,6 @@ void update_callback(int sel);
 void redetect_callback(int sel);
 void clearcache_callback(int sel);
 void upd_appdata_callback(int sel);
-void unzip_app_data(const char* zip_file);
 
 int get_firmware_version();
 int save_xml_owner(const char *xmlfile);

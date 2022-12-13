@@ -61,6 +61,7 @@
 #define IMPORT_RAP_PATH_USB     USB_PATH PS3_LICENSE_PATH
 
 #define ONLINE_URL				"https://bucanero.github.io/apollo-saves/"
+#define ONLINE_PATCH_URL		"https://github.com/bucanero/apollo-patches/"
 #define ONLINE_CACHE_TIMEOUT    24*3600     // 1-day local cache
 
 #define OWNER_XML_FILE          "owners.xml"
@@ -115,6 +116,7 @@ enum cmd_code_enum
     CMD_EXP_DATABASE,
     CMD_DB_REBUILD,
     CMD_DB_DEL_FIX,
+    CMD_DB_DLC_REBUILD,
 
 // Import commands
     CMD_IMP_KEYSTONE,
@@ -257,6 +259,7 @@ int extract_7zip(const char* zip_file, const char* dest_path);
 int extract_rar(const char* rar_file, const char* dest_path);
 int extract_zip(const char* zip_file, const char* dest_path);
 int zip_directory(const char* basedir, const char* inputdir, const char* output_zipfile);
+int extract_update_zip(const char* zip_file, const char* dest_path);
 
 int show_dialog(int dialog_type, const char * format, ...);
 void init_progress_bar(const char* msg);
@@ -272,6 +275,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd);
 
 int appdb_rebuild(const char* db_path, uint32_t userid);
 int appdb_fix_delete(const char* db_path, uint32_t userid);
+int addcont_dlc_rebuild(const char* db_path);
 
 int regMgr_GetParentalPasscode(char* passcode);
 int regMgr_GetUserName(int userNumber, char* outString);

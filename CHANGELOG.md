@@ -4,6 +4,25 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v1.3.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.3.0) - 2022-12-14
+
+### Added
+
+* New Save Wizard codes
+* Add save-game sorting options
+* Add database rebuild tools
+  * Rebuild `app.db`
+  * Rebuild DLC database `addcont.db`
+  * Fix missing "Delete" option in XMB
+* Add database backup/restore
+* Download Online DB save-games to HDD
+* Load external saves from HDD (`/data/fakeusb/`)
+
+### Changes
+
+* Updated networking code to `libcurl`+`polarssl` (TLS 1.2)
+* Improved Pad control handling
+
 ## [v1.2.2](https://github.com/bucanero/apollo-ps4/releases/tag/v1.2.2) - 2022-11-05
 
 ### Changes

@@ -86,18 +86,19 @@ void clearcache_callback(int sel)
 	show_message("Local cache folder cleaned:\n" APOLLO_LOCAL_CACHE);
 }
 
-void unzip_app_data(const char* zip_file)
-{
-	if (extract_zip(zip_file, APOLLO_DATA_PATH))
-		show_message("Successfully installed local application data");
-
-	unlink_secure(zip_file);
-}
-
 void upd_appdata_callback(int sel)
 {
-	if (http_download(ONLINE_URL, "PS4/ps4appdata.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
-		unzip_app_data(APOLLO_LOCAL_CACHE "appdata.zip");
+	int i;
+
+	if (!http_download(ONLINE_PATCH_URL, "archive/refs/heads/main.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
+		show_message("Error! Can't download data update file!");
+
+	if ((i = extract_update_zip(APOLLO_LOCAL_CACHE "appdata.zip", APOLLO_DATA_PATH)) > 0)
+		show_message("Successfully updated %d save patch files!", i);
+	else
+		show_message("Error! Can't extract data update file!");
+
+	unlink_secure(APOLLO_LOCAL_CACHE "appdata.zip");
 }
 
 void update_callback(int sel)

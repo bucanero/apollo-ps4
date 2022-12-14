@@ -95,13 +95,47 @@ int extract_zip(const char* zip_file, const char* dest_path)
 	progress[1] = zip_entries_total(archive);
 	zip_close(archive);
 
-	LOG("Extracting ZIP (%lu) to <%s>...", progress[1], dest_path);
+	LOG("Extracting %s (%lu) to <%s>...", zip_file, progress[1], dest_path);
 
 	init_progress_bar("Extracting files...");
 	ret = zip_extract(zip_file, dest_path, on_extract_entry, progress);
 	end_progress_bar();
 
 	return (ret == SUCCESS);
+}
+
+int extract_update_zip(const char* zip_file, const char* dest_path)
+{
+	int n, ret = 0;
+	char fpath[256];
+	const char *name;
+	struct zip_t *zip = zip_open(zip_file, ZIP_DEFAULT_COMPRESSION_LEVEL, 'r');
+
+	if (!zip)
+		return 0;
+
+	n = zip_entries_total(zip);
+	init_progress_bar("Extracting files...");
+
+	for (int i = 0; i < n; ++i)
+	{
+		zip_entry_openbyindex(zip, i);
+		name = strchr(zip_entry_name(zip), '/');
+
+		if (!zip_entry_isdir(zip) && name && (strncmp(name, "/PS4/", 5) == 0))
+		{
+			snprintf(fpath, sizeof(fpath), "%s%s", dest_path, name + 5);
+			LOG("Extracting %s", fpath);
+			update_progress_bar(i, n, "Extracting files...");
+			ret += (zip_entry_fread(zip, fpath) == SUCCESS);
+		}
+		zip_entry_close(zip);
+	}
+
+	end_progress_bar();
+	zip_close(zip);
+
+	return (ret);
 }
 
 void callback_7z(const char* fileName, unsigned long fileSize, unsigned fileNum, unsigned numFiles)
@@ -164,11 +198,3 @@ int extract_rar(const char* rarFilePath, const char* dstPath)
 	RARCloseArchive(hArcData);
 	return (err == 0);
 }
-
-// --- workaround to fix an Open Orbis SDK linking issue with __clock_gettime()
-#include <time.h>
-int __clock_gettime(clockid_t clock_id, struct timespec *tp)
-{
-	return clock_gettime(clock_id, tp);
-}
-// --- to be removed

@@ -90,10 +90,10 @@ void upd_appdata_callback(int sel)
 {
 	int i;
 
-	if (!http_download(ONLINE_PATCH_URL, "archive/refs/heads/main.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
+	if (!http_download(ONLINE_PATCH_URL, "apollo-ps4-update.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
 		show_message("Error! Can't download data update file!");
 
-	if ((i = extract_update_zip(APOLLO_LOCAL_CACHE "appdata.zip", APOLLO_DATA_PATH)) > 0)
+	if ((i = extract_zip(APOLLO_LOCAL_CACHE "appdata.zip", APOLLO_DATA_PATH)) > 0)
 		show_message("Successfully updated %d save patch files!", i);
 	else
 		show_message("Error! Can't extract data update file!");

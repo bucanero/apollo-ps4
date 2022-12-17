@@ -95,7 +95,7 @@ clean:
 
 #---------------------------------------------------------------------------------
 createzip:
-	@echo "creating appdata.zip ..."
+	@echo "Downloading appdata.zip ..."
 	@[ -d assets/misc ] || mkdir -p assets/misc
 	@rm -fr assets/misc/appdata.zip
-	@cd appdata && zip ../assets/misc/appdata.zip *.* && cd ..
+	@curl -L "https://bucanero.github.io/apollo-patches/PS4/apollo-ps4-update.zip" > assets/misc/appdata.zip

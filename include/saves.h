@@ -61,7 +61,7 @@
 #define IMPORT_RAP_PATH_USB     USB_PATH PS3_LICENSE_PATH
 
 #define ONLINE_URL				"https://bucanero.github.io/apollo-saves/"
-#define ONLINE_PATCH_URL		"https://github.com/bucanero/apollo-patches/"
+#define ONLINE_PATCH_URL		"https://bucanero.github.io/apollo-patches/PS4/"
 #define ONLINE_CACHE_TIMEOUT    24*3600     // 1-day local cache
 
 #define OWNER_XML_FILE          "owners.xml"
@@ -259,7 +259,6 @@ int extract_7zip(const char* zip_file, const char* dest_path);
 int extract_rar(const char* rar_file, const char* dest_path);
 int extract_zip(const char* zip_file, const char* dest_path);
 int zip_directory(const char* basedir, const char* inputdir, const char* output_zipfile);
-int extract_update_zip(const char* zip_file, const char* dest_path);
 
 int show_dialog(int dialog_type, const char * format, ...);
 void init_progress_bar(const char* msg);

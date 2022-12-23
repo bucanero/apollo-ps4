@@ -66,6 +66,9 @@
 
 #define OWNER_XML_FILE          "owners.xml"
 
+#define LOCAL_PKG_PATH "/data/pkg/"
+#define APOLLO_PKG LOCAL_PKG_PATH "apollo-ps4.pkg"
+
 enum storage_enum
 {
     STORAGE_USB0,

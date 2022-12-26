@@ -2,6 +2,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <time.h>
+#include <orbis/NetCtl.h>
 #include <orbis/SaveData.h>
 #include <orbis/UserService.h>
 #include <polarssl/md5.h>
@@ -590,11 +591,15 @@ static int webReqHandler(const dWebRequest_t* req, char* outfile)
 
 static void enableWebServer(const save_entry_t* save, int port)
 {
-	LOG("Starting local web server for '%s'...", save->path);
+	OrbisNetCtlInfo info;
+
+	memset(&info, 0, sizeof(info));
+	sceNetCtlGetInfo(ORBIS_NET_CTL_INFO_IP_ADDRESS, &info);
+	LOG("Starting local web server %s:%d for '%s'...", info.ip_address, port, save->path);
 
 	if (dbg_webserver_start(port, webReqHandler))
 	{
-		show_message("Web Server listening on port %d.\nPress OK to stop the Server.", port);
+		show_message("Web Server listening on http://%s:%d\nPress OK to stop the Server.", info.ip_address, port);
 		dbg_webserver_stop();
 	}
 	else show_message("Error starting Web Server!");

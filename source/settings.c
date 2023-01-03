@@ -211,7 +211,7 @@ int save_app_settings(app_config_t* config)
 	snprintf(filePath, sizeof(filePath), APOLLO_SANDBOX_PATH "settings.bin", mountResult.mountPathName);
 	write_buffer(filePath, (uint8_t*) config, sizeof(app_config_t));
 
-	orbis_UpdateSaveParams(mountResult.mountPathName, "Apollo Save Tool", "User Settings", "www.bucanero.com.ar");
+	orbis_UpdateSaveParams(mountResult.mountPathName, "Apollo Save Tool", "User Settings", "www.bucanero.com.ar", 0);
 	orbis_SaveUmount(mountResult.mountPathName);
 
 	return 1;

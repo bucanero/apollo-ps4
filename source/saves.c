@@ -472,7 +472,7 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 	return 1;
 }
 
-int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details)
+int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details, uint32_t userParam)
 {
 	OrbisSaveDataParam saveParams;
 	OrbisSaveDataMountPoint mount;
@@ -480,10 +480,11 @@ int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char*
 	memset(&saveParams, 0, sizeof(OrbisSaveDataParam));
 	memset(&mount, 0, sizeof(OrbisSaveDataMountPoint));
 
-	strncpy(mount.data, mountPath, sizeof(mount.data));
-	strncpy(saveParams.title, title, ORBIS_SAVE_DATA_TITLE_MAXSIZE);
-	strncpy(saveParams.subtitle, subtitle, ORBIS_SAVE_DATA_SUBTITLE_MAXSIZE);
-	strncpy(saveParams.details, details, ORBIS_SAVE_DATA_DETAIL_MAXSIZE);
+	strlcpy(mount.data, mountPath, sizeof(mount.data));
+	strlcpy(saveParams.title, title, ORBIS_SAVE_DATA_TITLE_MAXSIZE);
+	strlcpy(saveParams.subtitle, subtitle, ORBIS_SAVE_DATA_SUBTITLE_MAXSIZE);
+	strlcpy(saveParams.details, details, ORBIS_SAVE_DATA_DETAIL_MAXSIZE);
+	saveParams.userParam = userParam;
 	saveParams.mtime = time(NULL);
 
 	int32_t setParamResult = sceSaveDataSetParam(&mount, ORBIS_SAVE_DATA_PARAM_TYPE_ALL, &saveParams, sizeof(OrbisSaveDataParam));

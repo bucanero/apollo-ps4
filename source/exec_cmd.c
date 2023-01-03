@@ -157,11 +157,11 @@ static int _update_save_details(const char* sys_path, const char* mount)
 	sfo_context_t* sfo = sfo_alloc();
 	if (sfo_read(sfo, file_path) == SUCCESS)
 	{
-		char* title = (char*) sfo_get_param_value(sfo, "MAINTITLE");
-		char* subtitle = (char*) sfo_get_param_value(sfo, "SUBTITLE");
-		char* detail = (char*) sfo_get_param_value(sfo, "DETAIL");
-
-		orbis_UpdateSaveParams(mount, title, subtitle, detail);
+		orbis_UpdateSaveParams(mount,
+			(char*) sfo_get_param_value(sfo, "MAINTITLE"),
+			(char*) sfo_get_param_value(sfo, "SUBTITLE"),
+			(char*) sfo_get_param_value(sfo, "DETAIL"),
+			*(uint32_t*) sfo_get_param_value(sfo, "SAVEDATA_LIST_PARAM"));
 	}
 	sfo_free(sfo);
 

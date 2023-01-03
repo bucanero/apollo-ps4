@@ -285,4 +285,4 @@ int create_savegame_folder(const char* folder);
 int get_save_details(const save_entry_t *save, char** details);
 int orbis_SaveUmount(const char* mountPath);
 int orbis_SaveMount(const save_entry_t *save, uint32_t mode, char* mountPath);
-int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details);
+int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details, uint32_t up);

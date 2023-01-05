@@ -1,4 +1,4 @@
-#define APOLLO_VERSION          "1.2.2"     //Apollo PS4 version (about menu)
+#define APOLLO_VERSION          "1.3.0"     //Apollo PS4 version (about menu)
 
 #define MENU_TITLE_OFF			45			//Offset of menu title text from menu mini icon
 #define MENU_ICON_OFF 			105         //X Offset to start printing menu mini icon
@@ -50,10 +50,8 @@ void update_callback(int sel);
 void redetect_callback(int sel);
 void clearcache_callback(int sel);
 void upd_appdata_callback(int sel);
-void unzip_app_data(const char* zip_file);
 
 int get_firmware_version();
 int save_xml_owner(const char *xmlfile);
 int read_xml_owner(const char *xmlfile, const char *owner);
 int get_xml_owners(const char *xmlfile, int cmd, char*** nam, char*** val);
-char** get_logged_users();

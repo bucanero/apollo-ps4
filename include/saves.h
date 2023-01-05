@@ -21,6 +21,7 @@
 #define USB0_PATH               "/mnt/usb0/"
 #define USB1_PATH               "/mnt/usb1/"
 #define USB_PATH                "/mnt/usb%d/"
+#define FAKE_USB_PATH           "/data/fakeusb/"
 #define USER_PATH_HDD           "/system_data/savedata/%08x/db/user/savedata.db"
 
 #define PS4_SAVES_PATH_USB      "PS4/APOLLO/"
@@ -47,8 +48,7 @@
 
 #define EXPORT_PATH_USB0        USB0_PATH "PS4/EXPORT/"
 #define EXPORT_PATH_USB1        USB1_PATH "PS4/EXPORT/"
-#define EXPORT_RAP_PATH_USB     USB_PATH PS3_LICENSE_PATH
-#define EXPORT_RAP_PATH_HDD     "/dev_hdd0/" PS3_LICENSE_PATH
+#define EXPORT_DB_PATH          APOLLO_PATH "export/db/"
 
 #define EXP_PSV_PATH_USB0       USB0_PATH PSV_SAVES_PATH_USB
 #define EXP_PSV_PATH_USB1       USB1_PATH PSV_SAVES_PATH_USB
@@ -61,9 +61,17 @@
 #define IMPORT_RAP_PATH_USB     USB_PATH PS3_LICENSE_PATH
 
 #define ONLINE_URL				"https://bucanero.github.io/apollo-saves/"
+#define ONLINE_PATCH_URL		"https://bucanero.github.io/apollo-patches/PS4/"
 #define ONLINE_CACHE_TIMEOUT    24*3600     // 1-day local cache
 
 #define OWNER_XML_FILE          "owners.xml"
+
+enum storage_enum
+{
+    STORAGE_USB0,
+    STORAGE_USB1,
+    STORAGE_HDD,
+};
 
 enum cmd_code_enum
 {
@@ -105,12 +113,14 @@ enum cmd_code_enum
 // Export commands
     CMD_EXP_KEYSTONE,
     CMD_EXP_LICS_RAPS,
-    CMD_EXP_FLASH2_USB,
+    CMD_EXP_DATABASE,
     CMD_DB_REBUILD,
     CMD_DB_DEL_FIX,
+    CMD_DB_DLC_REBUILD,
 
 // Import commands
     CMD_IMP_KEYSTONE,
+    CMD_IMP_DATABASE,
     CMD_CREATE_ACT_DAT,
     CMD_EXTRACT_ARCHIVE,
 
@@ -264,6 +274,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd);
 
 int appdb_rebuild(const char* db_path, uint32_t userid);
 int appdb_fix_delete(const char* db_path, uint32_t userid);
+int addcont_dlc_rebuild(const char* db_path);
 
 int regMgr_GetParentalPasscode(char* passcode);
 int regMgr_GetUserName(int userNumber, char* outString);
@@ -274,4 +285,4 @@ int create_savegame_folder(const char* folder);
 int get_save_details(const save_entry_t *save, char** details);
 int orbis_SaveUmount(const char* mountPath);
 int orbis_SaveMount(const save_entry_t *save, uint32_t mode, char* mountPath);
-int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details);
+int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details, uint32_t up);

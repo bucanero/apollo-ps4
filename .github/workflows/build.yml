@@ -22,6 +22,7 @@ jobs:
     - name: Set env vars
       run: |
         echo "llvm_ver=12.0" >> $GITHUB_ENV
+        echo "sha_name=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
         echo "sdl_path=SDL-PS4" >> $GITHUB_ENV
         echo "curl_path=oosdk_libraries/curl-7.64.1" >> $GITHUB_ENV
         echo "OO_PS4_TOOLCHAIN=${GITHUB_WORKSPACE}/OpenOrbis/PS4Toolchain" >> $GITHUB_ENV
@@ -46,6 +47,11 @@ jobs:
 
     - name: Copy makerules
       run: cp oosdk_libraries/build_rules.mk OpenOrbis/PS4Toolchain/build_rules.mk
+
+    - name: TEMP def update
+      run: |
+        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/UserService.h > OpenOrbis/PS4Toolchain/include/orbis/UserService.h
+        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/_types/user.h > OpenOrbis/PS4Toolchain/include/orbis/_types/user.h
 
     - name: Checkout dbglogger
       uses: actions/checkout@v3
@@ -202,6 +208,6 @@ jobs:
     - name: Push package artifact
       uses: actions/upload-artifact@v3
       with:
-        name: apollo-ps4
+        name: apollo-ps4-build_${{ env.sha_name }}
         path: IV0000-APOL00004_00-APOLLO0000000PS4.pkg
         if-no-files-found: error

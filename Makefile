@@ -1,17 +1,21 @@
 # Package metadata.
 TITLE       := Apollo Save Tool
-VERSION     := 01.22
+VERSION     := 01.30
 TITLE_ID    := APOL00004
 CONTENT_ID  := IV0000-APOL00004_00-APOLLO0000000PS4
 
 # Libraries linked into the ELF.
 LIBS        := -lc -lkernel -lc++ -lSceAudioOut -lSceUserService -lScePigletv2VSH -lSceSysmodule -lSceFreeType \
-               -lScePad -lSceSystemService -lSceSaveData -lSceCommonDialog -lSceMsgDialog -lSceNet -lcurl \
+               -lScePad -lSceSystemService -lSceSaveData -lSceCommonDialog -lSceMsgDialog -lSceNet -lSceNetCtl -lcurl \
                -lSceRegMgr -lSDL2 -lapollo -ldbglogger -lpolarssl -lz -lzip -ljbc -lmxml -lunrar -lun7zip -lstore_api \
-	        -lSceBgft -lSceAppInstUtil 
+               -lSceBgft -lSceAppInstUtil
 
 # Additional compile flags.
 EXTRAFLAGS  := -fcolor-diagnostics -Wall -D__PS4__
+
+ifeq ($(DEBUGLOG),1)
+    EXTRAFLAGS += -DAPOLLO_ENABLE_LOGGING
+endif
 
 # Asset and module directories.
 ASSETS 		:= $(wildcard assets/**/*)
@@ -92,7 +96,7 @@ clean:
 
 #---------------------------------------------------------------------------------
 createzip:
-	@echo "creating appdata.zip ..."
+	@echo "Downloading appdata.zip ..."
 	@[ -d assets/misc ] || mkdir -p assets/misc
 	@rm -fr assets/misc/appdata.zip
-	@cd appdata && zip ../assets/misc/appdata.zip *.* && cd ..
+	@curl -L "https://bucanero.github.io/apollo-patches/PS4/apollo-ps4-update.zip" > assets/misc/appdata.zip

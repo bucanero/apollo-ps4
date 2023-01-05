@@ -54,11 +54,16 @@ On first run, the application will detect and setup the required user settings.
 
 | PS4 | Folder |
 |-----|--------|
-| **USB saves** | your saves must be placed on `/mnt/usbX/PS4/APOLLO/`. |
+| **USB saves** | your decrypted saves must be placed on `/mnt/usbX/PS4/APOLLO/`. |
 | **USB saves** | encrypted saves must be placed on `/mnt/usbX/PS4/SAVEDATA/<account-id>/`. |
+| **External saves (HDD)** | your decrypted saves must be placed on `/data/fakeusb/PS4/APOLLO/`. |
+| **External saves (HDD)** | encrypted saves must be placed on `/data/fakeusb/PS4/SAVEDATA/<account-id>/`. |
 | **HDD saves** | files will be scanned from the hard disk, based on the current `User ID`. |
 
 ## Offline Account activation
+
+To activate an account offline, go to the `User Tools` menu, and select `Activate PS4 Accounts`.
+By default the local account will be activated with an auto-generated `account-id` value.
 
 ### Custom account-id settings
 
@@ -138,11 +143,12 @@ You need to have installed:
 - [Open Orbis SDK](https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/)
 - [Apollo](https://github.com/bucanero/apollo-lib) library
 - [polarSSL](https://github.com/bucanero/oosdk_libraries/tree/master/polarssl-1.3.9) library
+- [libcurl](https://github.com/bucanero/oosdk_libraries/tree/master/curl-7.64.1) library
 - [Zip](https://github.com/bucanero/zip) library
 - [SDL2](https://github.com/PacBrew/SDL/tree/ps4) library
 - [libJbc](https://github.com/bucanero/ps4-libjbc) library
 - [Mini-XML](https://github.com/bucanero/mxml) library
-- [dbglogger](https://github.com/bucanero/dbglogger) library (required for debug logging)
+- [dbglogger](https://github.com/bucanero/dbglogger) library
 
 Run `make` to create a release build. If you want to include the latest save patches in your `.pkg` file, run `make createzip`.
 

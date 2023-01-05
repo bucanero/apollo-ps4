@@ -90,18 +90,19 @@ void clearcache_callback(int sel)
 	show_message("Local cache folder cleaned:\n" APOLLO_LOCAL_CACHE);
 }
 
-void unzip_app_data(const char* zip_file)
-{
-	if (extract_zip(zip_file, APOLLO_DATA_PATH))
-		show_message("Successfully installed local application data");
-
-	unlink_secure(zip_file);
-}
-
 void upd_appdata_callback(int sel)
 {
-	if (http_download(ONLINE_URL, "PS4/ps4appdata.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
-		unzip_app_data(APOLLO_LOCAL_CACHE "appdata.zip");
+	int i;
+
+	if (!http_download(ONLINE_PATCH_URL, "apollo-ps4-update.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
+		show_message("Error! Can't download data update file!");
+
+	if ((i = extract_zip(APOLLO_LOCAL_CACHE "appdata.zip", APOLLO_DATA_PATH)) > 0)
+		show_message("Successfully updated %d save patch files!", i);
+	else
+		show_message("Error! Can't extract data update file!");
+
+	unlink_secure(APOLLO_LOCAL_CACHE "appdata.zip");
 }
 
 void update_callback(int sel)
@@ -190,34 +191,6 @@ void log_callback(int sel)
 	show_message("Debug Logging Enabled!\n\n" APOLLO_PATH "apollo.log");
 }
 
-/*
-char** get_logged_users()
-{
-	char buff[ORBIS_USER_SERVICE_MAX_USER_NAME_LENGTH+1];
-	OrbisUserServiceLoginUserIdList userIdList;
-	char** users;
-
-	owner_sel = 0;
-	users = calloc(1, sizeof(char*) * (ORBIS_USER_SERVICE_MAX_LOGIN_USERS+1));
-
-	if (sceUserServiceGetLoginUserIdList(&userIdList) < 0)
-	{
-		sceUserServiceGetUserName(apollo_config.user_id, buff, sizeof(buff));
-		users[0] = strdup(buff);
-		return users;
-	}
-
-	for (int i = 0; i < ORBIS_USER_SERVICE_MAX_LOGIN_USERS; i++)
-		if (userIdList.userId[i] != ORBIS_USER_SERVICE_USER_ID_INVALID)
-		{
-			sceUserServiceGetUserName(userIdList.userId[i], buff, sizeof(buff));
-			users[i] = strdup(buff);
-		}
-
-	return users;
-}
-*/
-
 int save_app_settings(app_config_t* config)
 {
 	char filePath[256];
@@ -243,7 +216,7 @@ int save_app_settings(app_config_t* config)
 	snprintf(filePath, sizeof(filePath), APOLLO_SANDBOX_PATH "settings.bin", mountResult.mountPathName);
 	write_buffer(filePath, (uint8_t*) config, sizeof(app_config_t));
 
-	orbis_UpdateSaveParams(mountResult.mountPathName, "Apollo Save Tool", "User Settings", "www.bucanero.com.ar");
+	orbis_UpdateSaveParams(mountResult.mountPathName, "Apollo Save Tool", "User Settings", "www.bucanero.com.ar", 0);
 	orbis_SaveUmount(mountResult.mountPathName);
 
 	return 1;

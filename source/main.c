@@ -327,12 +327,11 @@ void update_usb_path(char* path)
 			return;
 	}
 
-	if (dir_exists("/data/fakeusb/PS4/") == SUCCESS)
-	{
-		sprintf(path, "/data/fakeusb/PS4/");
+	sprintf(path, FAKE_USB_PATH "PS4/");
+	if (dir_exists(path) == SUCCESS)
 		return;
-	}
-	strcpy(path, "");
+
+	path[0] = 0;
 }
 
 void update_hdd_path(char* path)
@@ -381,7 +380,7 @@ static void terminate()
 	LOG("Exiting...");
 	// Unload loaded libraries
 	if (unpatch_SceShellCore())
-		notifi(NULL, "PS4 Save patches removed from memory");
+		notifi("cxml://psnotification/tex_default_icon_notification", "PS4 Save patches removed from memory");
 
 	terminate_jbc();
 	sceSystemServiceLoadExec("exit", NULL);

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include <curl/curl.h>
+#include <orbis/NetCtl.h>
 #include <orbis/Sysmodule.h>
 
 #include "common.h"
@@ -19,7 +20,13 @@ int http_init()
 	if(sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET) < 0)
 		return HTTP_FAILED;
 
+	if(sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NETCTL) < 0)
+		return HTTP_FAILED;
+
 	if(curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK)
+		return HTTP_FAILED;
+
+	if(sceNetCtlInit() < 0)
 		return HTTP_FAILED;
 
 	return HTTP_SUCCESS;
@@ -112,4 +119,8 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 void http_end(void)
 {
 	curl_global_cleanup();
+	sceNetCtlTerm();
+
+	sceSysmoduleUnloadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NETCTL);
+	sceSysmoduleUnloadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET);
 }

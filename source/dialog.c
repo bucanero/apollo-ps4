@@ -116,14 +116,13 @@ void notifi(const char *p_Uri, const char *p_Format, ...)
 
     s_Request.reqId = NotificationRequest;
     s_Request.unk3 = 0;
-    s_Request.useIconImageUri = 1;
+    s_Request.useIconImageUri = 0;
     s_Request.targetId = -1;
 
     // Maximum size to move is destination size - 1 to allow for null terminator
-    if (p_Uri != NULL && strnlen(p_Uri, sizeof(s_Request.iconUri)) + 1 > sizeof(s_Request.iconUri)) {
-        strncpy(s_Request.iconUri, p_Uri, strnlen(p_Uri, sizeof(s_Request.iconUri) - 1));
-    } else {
-        s_Request.useIconImageUri = 0;
+    if (p_Uri != NULL) {
+        s_Request.useIconImageUri = 1;
+        strlcpy(s_Request.iconUri, p_Uri, sizeof(s_Request.iconUri));
     }
 
     va_list p_Args;

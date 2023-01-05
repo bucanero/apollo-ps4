@@ -373,7 +373,7 @@ int patch_sfo(const char *in_file_path, sfo_patch_t* patches) {
 		return -1;
 	}
 
-//	sfo_patch_lock(sfo, patches->flags);
+	sfo_patch_titleid(sfo);
 	sfo_patch_account(sfo, patches->account_id);
 	sfo_patch_user_id(sfo, patches->user_id);
 //	sfo_patch_psid(sfo, patches->psid);

@@ -59,7 +59,7 @@ static sqlite3* open_sqlite_db(const char* db_path)
 
 	// And open that memory with memvfs now that it holds a valid database
 	char *memuri = sqlite3_mprintf("file:memdb?ptr=0x%p&sz=%lld&freeonclose=1", db_buf, db_size);
-	LOG("Opening '%s'...", memuri);
+	LOG("Opening '%s' (%ld bytes)...", db_path, db_size);
 
 	if (sqlite3_open_v2(memuri, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_URI, "memvfs") != SQLITE_OK)
 	{
@@ -69,9 +69,7 @@ static sqlite3* open_sqlite_db(const char* db_path)
 	sqlite3_free(memuri);
 
 	if (sqlite3_exec(db, "PRAGMA journal_mode = OFF;", NULL, NULL, NULL) != SQLITE_OK)
-	{
 		LOG("Error set pragma: %s", sqlite3_errmsg(db));
-	}
 
 	return db;
 }
@@ -98,26 +96,92 @@ static int get_appdb_title(sqlite3* db, const char* titleid, char* name)
 	return 1;
 }
 
-int appdb_fix_delete(const char* db_path, uint32_t userid)
+int addcont_dlc_rebuild(const char* db_path)
 {
+	char path[256];
+	uint8_t hdr[0x80];
+	DIR *dp, *dp2;
+	struct dirent *dirp, *dirp2;
 	sqlite3* db;
-	char query[256];
+	char* query;
+
+	dp = opendir("/user/addcont");
+	if (!dp)
+	{
+		LOG("Failed to open /user/addcont/");
+		return 0;
+	}
 
 	db = open_sqlite_db(db_path);
 	if (!db)
 		return 0;
 
-	LOG("Fixing %s (tbl_appbrowse_%010d) canRemove='1'...", db_path, userid);
-	snprintf(query, sizeof(query), "UPDATE tbl_appbrowse_%010d SET canRemove='1' WHERE titleId != 'CUSA00001' AND metaDataPath LIKE '/user/appmeta/_________'", userid);
+	while ((dirp = readdir(dp)) != NULL)
+	{
+		if (dirp->d_type != DT_DIR || dirp->d_namlen != 9)
+			continue;
+
+		snprintf(path, sizeof(path), "/user/addcont/%s", dirp->d_name);
+		dp2 = opendir(path);
+		if (!dp2)
+			continue;
+
+		while ((dirp2 = readdir(dp2)) != NULL)
+		{
+			if (dirp2->d_type != DT_DIR || dirp2->d_namlen != 16)
+				continue;
+
+			snprintf(path, sizeof(path), "/user/addcont/%s/%s/ac.pkg", dirp->d_name, dirp2->d_name);
+			if (read_file(path, hdr, sizeof(hdr)) != SUCCESS)
+				continue;
+
+			LOG("Adding %s to addcont...", dirp2->d_name);
+			query = sqlite3_mprintf("INSERT OR IGNORE INTO addcont(title_id, dir_name, content_id, title, version, attribute, status) "
+				"VALUES(%Q, %Q, %Q, 'DLC %s (Restored by Apollo)', 536870912, '01.00', 0)",
+				dirp->d_name, dirp2->d_name, hdr + 0x40, dirp2->d_name);
+
+			if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
+				LOG("addcont insert failed: %s", sqlite3_errmsg(db));
+
+			sqlite3_free(query);
+		}
+		closedir(dp2);
+	}
+	closedir(dp);
+
+	LOG("Saving database to %s", db_path);
+	sqlite3_memvfs_dump(db, NULL, db_path);
+	sqlite3_close(db);
+
+	return 1;
+}
+
+int appdb_fix_delete(const char* db_path, uint32_t userid)
+{
+	sqlite3* db;
+	char* query;
+	char where[] = "WHERE titleId != 'CUSA00001' AND metaDataPath LIKE '/user/appmeta/_________'";
+
+	db = open_sqlite_db(db_path);
+	if (!db)
+		return 0;
+
+	LOG("Fixing %s (tbl_appbrowse_%010d) delete...", db_path, userid);
+	query = sqlite3_mprintf("UPDATE tbl_appbrowse_%010d SET canRemove=1 %s;"
+		"UPDATE tbl_appinfo SET val=1 WHERE key='_uninstallable' AND titleId IN (SELECT titleId FROM tbl_appbrowse_%010d %s);"
+		"UPDATE tbl_appinfo SET val=100 WHERE key='_sort_priority' AND titleId IN (SELECT titleId FROM tbl_appbrowse_%010d %s);",
+		userid, where, userid, where, userid, where);
 
 	if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
 	{
 		LOG("Failed to execute query: %s", sqlite3_errmsg(db));
+		sqlite3_free(query);
 		return 0;
 	}
 
 	LOG("Saving database to %s", db_path);
 	sqlite3_memvfs_dump(db, NULL, db_path);
+	sqlite3_free(query);
 	sqlite3_close(db);
 
 	return 1;
@@ -128,27 +192,41 @@ static void insert_appinfo_row(sqlite3* db, const char* titleId, const char* key
 	char* query = sqlite3_mprintf("INSERT OR IGNORE INTO tbl_appinfo(titleId, key, val) VALUES(%Q, %Q, %Q)", titleId, key, value);
 
 	if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
-	{
 		LOG("tbl_appinfo insert failed: %s", sqlite3_errmsg(db));
-	}
 
 	sqlite3_free(query);
 }
 
-static void insert_appinfo_row_int(sqlite3* db, const char* titleId, const char* key, sfo_context_t* sfo)
+static void insert_appinfo_row_int(sqlite3* db, const char* titleId, const char* key, uint64_t value)
 {
-	char tmp[256] = "0";
-	void* value = sfo_get_param_value(sfo, key);
+	char* query = sqlite3_mprintf("INSERT OR IGNORE INTO tbl_appinfo(titleId, key, val) VALUES(%Q, %Q, %ld)", titleId, key, value);
+
+	if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
+		LOG("tbl_appinfo insert failed: %s", sqlite3_errmsg(db));
+
+	sqlite3_free(query);
+}
+
+static void insert_appinfo_sfo_value(sqlite3* db, const char* titleId, const char* key, sfo_context_t* sfo)
+{
+	char* value = (char*) sfo_get_param_value(sfo, key);
 
 	if (value)
-		snprintf(tmp, sizeof(tmp), "%d", *(uint32_t*)value);
+		insert_appinfo_row(db, titleId, key, value);
+}
 
-	insert_appinfo_row(db, titleId, key, tmp);
+static void insert_appinfo_sfo_value_int(sqlite3* db, const char* titleId, const char* key, sfo_context_t* sfo)
+{
+	uint64_t tmp;
+	void* value = sfo_get_param_value(sfo, key);
+
+	tmp = (value ? *(uint32_t*) value : 0);
+	insert_appinfo_row_int(db, titleId, key, tmp);
 }
 
 int appdb_rebuild(const char* db_path, uint32_t userid)
 {
-	int fw;
+	int fw, i;
 	DIR *dp;
 	struct dirent *dirp;
 	char path[256];
@@ -203,13 +281,16 @@ int appdb_rebuild(const char* db_path, uint32_t userid)
 		char *sfo_titleid = (char*) sfo_get_param_value(sfo, "TITLE_ID");
 		char *sfo_content = (char*) sfo_get_param_value(sfo, "CONTENT_ID");
 		char *sfo_category = (char*) sfo_get_param_value(sfo, "CATEGORY");
+		if (strcmp(sfo_category, "gp") == 0)
+			sfo_category = "gd";
 
-		LOG("Adding (%s) %s '%s' to %s...", sfo_titleid, sfo_content, sfo_title, db_path);
+		LOG("Adding (%s) %s '%s' to tbl_appbrowse_%010d...", sfo_titleid, sfo_content, sfo_title, userid);
 		char* query = sqlite3_mprintf("INSERT INTO tbl_appbrowse_%010d VALUES (%Q, %Q, %Q, '/user/appmeta/%s',"
-			"'2020-01-01 20:20:03.000', 0, 0, 5, 1, 100, 0, 151, 5, 1, %Q, 0, 0, 0, 0, NULL, NULL, NULL, %ld,"
-			"'2020-01-01 20:20:01.000', 0, 'game', NULL, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,"
+			"'2020-01-01 20:20:03.000', 0, 0, 5, 1, 100, 0, 1, 5, 1, %Q, 0, 0, 0, 0, NULL, NULL, NULL, %ld,"
+			"'2020-01-01 20:20:01.000', 0, %Q, NULL, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,"
 			"0, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2020-01-01 20:20:02.000'%s)",
 			userid, sfo_titleid, sfo_content, sfo_title, dirp->d_name, sfo_category, pkg_size,
+			(strcmp(sfo_category, "gde") == 0) ? "app" : "game",
 			(fw <= 0x555) ? "" : ",0,0,0,0,0,NULL");
 
 		if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
@@ -225,23 +306,41 @@ int appdb_rebuild(const char* db_path, uint32_t userid)
 		insert_appinfo_row(db, sfo_titleid, "TITLE_ID", sfo_titleid);
 		insert_appinfo_row(db, sfo_titleid, "CATEGORY", sfo_category);
 		insert_appinfo_row(db, sfo_titleid, "CONTENT_ID", sfo_content);
-		insert_appinfo_row(db, sfo_titleid, "APP_VER", (char*) sfo_get_param_value(sfo, "APP_VER"));
-		insert_appinfo_row(db, sfo_titleid, "VERSION", (char*) sfo_get_param_value(sfo, "VERSION"));
-		insert_appinfo_row(db, sfo_titleid, "FORMAT", (char*) sfo_get_param_value(sfo, "FORMAT"));
 
-		insert_appinfo_row_int(db, sfo_titleid, "APP_TYPE", sfo);
-		insert_appinfo_row_int(db, sfo_titleid, "ATTRIBUTE", sfo);
-		insert_appinfo_row_int(db, sfo_titleid, "PARENTAL_LEVEL", sfo);
-		insert_appinfo_row_int(db, sfo_titleid, "SYSTEM_VER", sfo);
-		insert_appinfo_row_int(db, sfo_titleid, "DOWNLOAD_DATA_SIZE", sfo);
-		insert_appinfo_row_int(db, sfo_titleid, "REMOTE_PLAY_KEY_ASSIGN", sfo);
-		insert_appinfo_row_int(db, sfo_titleid, "SERVICE_ID_ADDCONT_ADD_1", sfo);
-		insert_appinfo_row_int(db, sfo_titleid, "SERVICE_ID_ADDCONT_ADD_2", sfo);
-		insert_appinfo_row_int(db, sfo_titleid, "SERVICE_ID_ADDCONT_ADD_3", sfo);
-		insert_appinfo_row_int(db, sfo_titleid, "SERVICE_ID_ADDCONT_ADD_4", sfo);
-		insert_appinfo_row_int(db, sfo_titleid, "SERVICE_ID_ADDCONT_ADD_5", sfo);
-		insert_appinfo_row_int(db, sfo_titleid, "SERVICE_ID_ADDCONT_ADD_6", sfo);
-		insert_appinfo_row_int(db, sfo_titleid, "SERVICE_ID_ADDCONT_ADD_7", sfo);
+		insert_appinfo_sfo_value(db, sfo_titleid, "APP_VER", sfo);
+		insert_appinfo_sfo_value(db, sfo_titleid, "VERSION", sfo);
+		insert_appinfo_sfo_value(db, sfo_titleid, "FORMAT", sfo);
+		insert_appinfo_sfo_value(db, sfo_titleid, "INSTALL_DIR_SAVEDATA", sfo);
+
+		insert_appinfo_sfo_value_int(db, sfo_titleid, "APP_TYPE", sfo);
+		insert_appinfo_sfo_value_int(db, sfo_titleid, "ATTRIBUTE", sfo);
+		insert_appinfo_sfo_value_int(db, sfo_titleid, "PARENTAL_LEVEL", sfo);
+		insert_appinfo_sfo_value_int(db, sfo_titleid, "SYSTEM_VER", sfo);
+		insert_appinfo_sfo_value_int(db, sfo_titleid, "DOWNLOAD_DATA_SIZE", sfo);
+		insert_appinfo_sfo_value_int(db, sfo_titleid, "REMOTE_PLAY_KEY_ASSIGN", sfo);
+		insert_appinfo_sfo_value_int(db, sfo_titleid, "ATTRIBUTE_INTERNAL", sfo);
+		insert_appinfo_sfo_value_int(db, sfo_titleid, "DISP_LOCATION_1", sfo);
+		insert_appinfo_sfo_value_int(db, sfo_titleid, "DISP_LOCATION_2", sfo);
+		insert_appinfo_sfo_value_int(db, sfo_titleid, "PT_PARAM", sfo);
+
+		for (i = 1; i < 5; i++)
+		{
+			snprintf(path, sizeof(path), "USER_DEFINED_PARAM_%d", i);
+			insert_appinfo_sfo_value_int(db, sfo_titleid, path, sfo);
+		}
+		for (i = 1; i < 8; i++)
+		{
+			snprintf(path, sizeof(path), "SERVICE_ID_ADDCONT_ADD_%d", i);
+			insert_appinfo_sfo_value(db, sfo_titleid, path, sfo);
+
+			snprintf(path, sizeof(path), "SAVE_DATA_TRANSFER_TITLE_ID_LIST_%d", i);
+			insert_appinfo_sfo_value(db, sfo_titleid, path, sfo);
+		}
+		for (i = 0; i < 30; i++)
+		{
+			snprintf(path, sizeof(path), "TITLE_%02d", i);
+			insert_appinfo_sfo_value(db, sfo_titleid, path, sfo);
+		}
 
 		snprintf(path, sizeof(path), "/user/appmeta/%s", dirp->d_name);
 		insert_appinfo_row(db, sfo_titleid, "_metadata_path", path);
@@ -249,41 +348,27 @@ int appdb_rebuild(const char* db_path, uint32_t userid)
 		snprintf(path, sizeof(path), "/user/app/%s", dirp->d_name);
 		insert_appinfo_row(db, sfo_titleid, "_org_path", path);
 
-		snprintf(path, sizeof(path), "%ld", pkg_size);
-		insert_appinfo_row(db, sfo_titleid, "#_size", path);
-
-		sfo_content = (char*) sfo_get_param_value(sfo, "INSTALL_DIR_SAVEDATA");
-		if (sfo_content)
-			insert_appinfo_row(db, sfo_titleid, "INSTALL_DIR_SAVEDATA", sfo_content);
-
-		insert_appinfo_row(db, sfo_titleid, "ATTRIBUTE_INTERNAL", "0");
-		insert_appinfo_row(db, sfo_titleid, "DISP_LOCATION_1", "0");
-		insert_appinfo_row(db, sfo_titleid, "DISP_LOCATION_2", "0");
-		insert_appinfo_row(db, sfo_titleid, "USER_DEFINED_PARAM_1", "0");
-		insert_appinfo_row(db, sfo_titleid, "USER_DEFINED_PARAM_2", "0");
-		insert_appinfo_row(db, sfo_titleid, "USER_DEFINED_PARAM_3", "0");
-		insert_appinfo_row(db, sfo_titleid, "USER_DEFINED_PARAM_4", "0");
-
-		insert_appinfo_row(db, sfo_titleid, "#_access_index", "69");
+		insert_appinfo_row_int(db, sfo_titleid, "#_size", pkg_size);
+		insert_appinfo_row_int(db, sfo_titleid, "#_contents_status", 0);
+		insert_appinfo_row_int(db, sfo_titleid, "#_access_index", 1);
+		insert_appinfo_row_int(db, sfo_titleid, "_contents_location", 0);
+		insert_appinfo_row_int(db, sfo_titleid, "#_update_index", 74);
+		insert_appinfo_row_int(db, sfo_titleid, "#exit_type", 0);
+		insert_appinfo_row_int(db, sfo_titleid, "_contents_ext_type", 0);
+		insert_appinfo_row_int(db, sfo_titleid, "_current_slot", 0);
+		insert_appinfo_row_int(db, sfo_titleid, "_disable_live_detail", 0);
+		insert_appinfo_row_int(db, sfo_titleid, "_hdd_location", 0);
+		insert_appinfo_row_int(db, sfo_titleid, "_path_info", 0);
+		insert_appinfo_row_int(db, sfo_titleid, "_path_info_2", 0);
+		insert_appinfo_row_int(db, sfo_titleid, "_size_other_hdd", 0);
+		insert_appinfo_row_int(db, sfo_titleid, "_sort_priority", 100);
+		insert_appinfo_row_int(db, sfo_titleid, "_uninstallable", 1);
+		insert_appinfo_row_int(db, sfo_titleid, "_view_category", 0);
+		insert_appinfo_row_int(db, sfo_titleid, "_working_status", 0);
+		insert_appinfo_row_int(db, sfo_titleid, "#_booted", 1);
 		insert_appinfo_row(db, sfo_titleid, "#_last_access_time", "2020-01-01 20:20:03.000");
-		insert_appinfo_row(db, sfo_titleid, "#_contents_status", "0");
 		insert_appinfo_row(db, sfo_titleid, "#_mtime", "2020-01-01 20:20:02.000");
-		insert_appinfo_row(db, sfo_titleid, "_contents_location", "0");
-		insert_appinfo_row(db, sfo_titleid, "#_update_index", "74");
-		insert_appinfo_row(db, sfo_titleid, "#exit_type", "0");
-		insert_appinfo_row(db, sfo_titleid, "_contents_ext_type", "0");
-		insert_appinfo_row(db, sfo_titleid, "_current_slot", "0");
-		insert_appinfo_row(db, sfo_titleid, "_disable_live_detail", "0");
-		insert_appinfo_row(db, sfo_titleid, "_hdd_location", "0");
-		insert_appinfo_row(db, sfo_titleid, "_path_info", "0");
-		insert_appinfo_row(db, sfo_titleid, "_path_info_2", "0");
-		insert_appinfo_row(db, sfo_titleid, "_size_other_hdd", "0");
-		insert_appinfo_row(db, sfo_titleid, "_sort_priority", "100");
-		insert_appinfo_row(db, sfo_titleid, "_uninstallable", "1");
-		insert_appinfo_row(db, sfo_titleid, "_view_category", "0");
-		insert_appinfo_row(db, sfo_titleid, "_working_status", "0");
 		insert_appinfo_row(db, sfo_titleid, "#_promote_time", "2020-01-01 20:20:01.000");
-		insert_appinfo_row(db, sfo_titleid, "#_booted", "1");
 
 		sqlite3_free(query);
 		sfo_free(sfo);
@@ -387,7 +472,7 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 	return 1;
 }
 
-int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details)
+int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details, uint32_t userParam)
 {
 	OrbisSaveDataParam saveParams;
 	OrbisSaveDataMountPoint mount;
@@ -395,10 +480,11 @@ int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char*
 	memset(&saveParams, 0, sizeof(OrbisSaveDataParam));
 	memset(&mount, 0, sizeof(OrbisSaveDataMountPoint));
 
-	strncpy(mount.data, mountPath, sizeof(mount.data));
-	strncpy(saveParams.title, title, ORBIS_SAVE_DATA_TITLE_MAXSIZE);
-	strncpy(saveParams.subtitle, subtitle, ORBIS_SAVE_DATA_SUBTITLE_MAXSIZE);
-	strncpy(saveParams.details, details, ORBIS_SAVE_DATA_DETAIL_MAXSIZE);
+	strlcpy(mount.data, mountPath, sizeof(mount.data));
+	strlcpy(saveParams.title, title, ORBIS_SAVE_DATA_TITLE_MAXSIZE);
+	strlcpy(saveParams.subtitle, subtitle, ORBIS_SAVE_DATA_SUBTITLE_MAXSIZE);
+	strlcpy(saveParams.details, details, ORBIS_SAVE_DATA_DETAIL_MAXSIZE);
+	saveParams.userParam = userParam;
 	saveParams.mtime = time(NULL);
 
 	int32_t setParamResult = sceSaveDataSetParam(&mount, ORBIS_SAVE_DATA_PARAM_TYPE_ALL, &saveParams, sizeof(OrbisSaveDataParam));
@@ -499,9 +585,9 @@ static option_entry_t* _createOptions(int count, const char* name, char value)
 	option_entry_t* options = _initOptions(count);
 
 	asprintf(&options->name[0], "%s %d", name, 0);
-	asprintf(&options->value[0], "%c%c", value, 0);
+	asprintf(&options->value[0], "%c%c", value, STORAGE_USB0);
 	asprintf(&options->name[1], "%s %d", name, 1);
-	asprintf(&options->value[1], "%c%c", value, 1);
+	asprintf(&options->value[1], "%c%c", value, STORAGE_USB1);
 
 	return options;
 }
@@ -563,6 +649,13 @@ static option_entry_t* _getFileOptions(const char* save_path, const char* mask, 
 
 	file_list = list_alloc();
 	_walk_dir_list(save_path, save_path, mask, file_list);
+
+	if (!list_count(file_list))
+	{
+		is_cmd = 0;
+		asprintf(&filename, CHAR_ICON_WARN " --- %s%s --- " CHAR_ICON_WARN, save_path, mask);
+		list_append(file_list, filename);
+	}
 	opt = _initOptions(list_count(file_list));
 
 	for (node = list_head(file_list); (filename = list_get(node)); node = list_next(node))
@@ -620,7 +713,7 @@ static void _addBackupCommands(save_entry_t* item)
 	cmd->options = _getFileOptions(item->path, "*", CMD_IMPORT_DATA_FILE);
 	list_append(item->codes, cmd);
 }
-
+/*
 static option_entry_t* _getSaveTitleIDs(const char* title_id)
 {
 	int count = 1;
@@ -657,7 +750,7 @@ static option_entry_t* _getSaveTitleIDs(const char* title_id)
 
 	return opt;
 }
-
+*/
 static void _addSfoCommands(save_entry_t* save)
 {
 	code_entry_t* cmd;
@@ -675,7 +768,7 @@ static void _addSfoCommands(save_entry_t* save)
 	list_append(save->codes, cmd);
 
 	return;
-
+/*
 	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " SFO Patches " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(save->codes, cmd);
 
@@ -701,6 +794,7 @@ static void _addSfoCommands(save_entry_t* save)
 	cmd->options_count = 1;
 	cmd->options = _getSaveTitleIDs(save->title_id);
 	list_append(save->codes, cmd);
+*/
 }
 
 static int set_pfs_codes(save_entry_t* item)
@@ -934,7 +1028,9 @@ int ReadOnlineSaves(save_entry_t * game)
 			asprintf(&item->file, "%.12s", content);
 
 			item->options_count = 1;
-			item->options = _createOptions(2, "Download to USB", CMD_DOWNLOAD_USB);
+			item->options = _createOptions(3, "Download to USB", CMD_DOWNLOAD_USB);
+			asprintf(&item->options->name[2], "Download to HDD");
+			asprintf(&item->options->value[2], "%c%c", CMD_DOWNLOAD_USB, STORAGE_HDD);
 			list_append(game->codes, item);
 
 			LOG("[%s%s] %s", game->path, item->file, item->name + 1);
@@ -975,6 +1071,7 @@ list_t * ReadBackupList(const char* userPath)
 
 	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_USER " App.db Database Management");
 	item->path = strdup(APP_DB_PATH_HDD);
+	strrchr(item->path, '/')[1] = 0;
 	item->type = FILE_TYPE_SQL;
 	list_append(list, item);
 
@@ -1018,10 +1115,24 @@ int ReadBackupCodes(save_entry_t * bup)
 	case FILE_TYPE_SQL:
 		bup->codes = list_alloc();
 
-		cmd = _createCmdCode(PATCH_COMMAND, "\x18 App.db Rebuild (Restore missing XMB items)", CMD_DB_REBUILD);
+		cmd = _createCmdCode(PATCH_COMMAND, "\x18 Rebuild App.db Database (Restore missing XMB items)", CMD_DB_REBUILD);
+		asprintf(&cmd->file, "%sapp.db", bup->path);
 		list_append(bup->codes, cmd);
 
-		cmd = _createCmdCode(PATCH_COMMAND, "\x18 Restore Delete option to items (App.db fix)", CMD_DB_DEL_FIX);
+		cmd = _createCmdCode(PATCH_COMMAND, "\x18 Rebuild DLC Database (addcont.db)", CMD_DB_DLC_REBUILD);
+		asprintf(&cmd->file, "%saddcont.db", bup->path);
+		list_append(bup->codes, cmd);
+
+		cmd = _createCmdCode(PATCH_COMMAND, "\x18 Restore Delete option to XMB items (app.db fix)", CMD_DB_DEL_FIX);
+		asprintf(&cmd->file, "%sapp.db", bup->path);
+		list_append(bup->codes, cmd);
+
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup System Database Folder", CMD_EXP_DATABASE);
+		list_append(bup->codes, cmd);
+
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Restore System Database Backup", CMD_CODE_NULL);
+		cmd->options_count = 1;
+		cmd->options = _getFileOptions(EXPORT_DB_PATH, "*.zip", CMD_IMP_DATABASE);
 		list_append(bup->codes, cmd);
 
 		return list_count(bup->codes);

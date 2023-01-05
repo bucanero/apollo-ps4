@@ -102,20 +102,6 @@ jobs:
         repository: bucanero/ps4-libjbc
         path: ps4-libjbc
 
-    - name: Set env vars
-      id: slug
-      run: |
-        echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
-        echo "pkg_file=IV0000-APOL00004_00-APOLLO0000000PS4.pkg" >> $GITHUB_ENV
-        echo "llvm_ver=12.0" >> $GITHUB_ENV
-
-      # temporary release until 0.53 is released
-    - name: Download OpenOrbis Toolchain
-      run: |
-        curl -sL https://github.com/LightningMods/OpenOrbis-PS4-Toolchain/releases/download/v0.50001/OOSDK.tar.gz | tar xvz -C ./
-        echo "OO_PS4_TOOLCHAIN=${GITHUB_WORKSPACE}/OpenOrbis/PS4Toolchain" >> $GITHUB_ENV
-        cp oosdk_libraries/build_rules.mk OpenOrbis/PS4Toolchain/build_rules.mk
-
     - name: Cache LLVM and Clang
       id: cache-llvm
       uses: actions/cache@v3
@@ -194,8 +180,6 @@ jobs:
         mkdir orbis && cd orbis
         cmake --toolchain ../../../SDL-PS4/cmake/openorbis.cmake .. -DCMAKE_USE_POLARSSL=1 -DUSE_UNIX_SOCKETS=0 -DENABLE_THREADED_RESOLVER=0 -DENABLE_IPV6=0
         make libcurl
-        cp lib/libcurl.a "${OO_PS4_TOOLCHAIN}/lib"
-        cp -R ../include/curl "${OO_PS4_TOOLCHAIN}/include/"
         
     - name: Install store-api
       working-directory: store-api

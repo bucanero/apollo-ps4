@@ -114,7 +114,6 @@ void update_callback(int sel)
 
     if (!apollo_config.update)
         return;
-		
 	LOG("checking latest Apollo version at %s", APOLLO_UPDATE_URL);
 
 	if (!http_download(APOLLO_UPDATE_URL, "", APOLLO_LOCAL_CACHE "ver.check", 0))

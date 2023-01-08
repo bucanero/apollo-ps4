@@ -4,6 +4,21 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v1.3.1](https://github.com/bucanero/apollo-ps4/releases/tag/v1.3.1) - 2023-01-08
+
+### Added
+
+* Show PS4 IP address when running Apollo's Web Server
+
+### Fixed
+
+* Copy `SAVEDATA_LIST_PARAM` value when resigning `param.sfo`
+  * This fixes an issue when importing save-games from Horizon Zero Dawn, Gran Turismo Sport, Patapon, LocoRoco Remastered, and others.
+
+### Misc
+
+* Download application data updates from `apollo-patches` repository
+
 ## [v1.3.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.3.0) - 2022-12-14
 
 ### Added
@@ -122,7 +137,7 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 ### Added
 
 * 9.00 firmware support
-* New Save Wizard codes (thanks to sdragon001)
+* New Save Wizard codes
 * Improved graphics library (SDL2 lib by cpasjuste)
 
 ### Fixed

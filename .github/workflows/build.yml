@@ -52,6 +52,8 @@ jobs:
       run: |
         curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/UserService.h > OpenOrbis/PS4Toolchain/include/orbis/UserService.h
         curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/_types/user.h > OpenOrbis/PS4Toolchain/include/orbis/_types/user.h
+        curl https://raw.githubusercontent.com/bucanero/OpenOrbis-PS4-Toolchain/defs/include/orbis/SystemService.h > OpenOrbis/PS4Toolchain/include/orbis/SystemService.h
+        curl https://raw.githubusercontent.com/bucanero/OpenOrbis-PS4-Toolchain/defs/include/orbis/libkernel.h > OpenOrbis/PS4Toolchain/include/orbis/libkernel.h
 
     - name: Checkout dbglogger
       uses: actions/checkout@v3

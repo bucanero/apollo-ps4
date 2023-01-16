@@ -190,17 +190,17 @@ jobs:
         cmake --toolchain ../../../SDL-PS4/cmake/openorbis.cmake .. -DCMAKE_USE_POLARSSL=1 -DUSE_UNIX_SOCKETS=0 -DENABLE_THREADED_RESOLVER=0 -DENABLE_IPV6=0
         make libcurl
         
-    - name: Install store-api
-      working-directory: store-api
-      run: |
-        make 
-        make install
-
     - name: Copy cached libraries
       run: |
         cp ${sdl_path}/orbis/libSDL2.a "${OO_PS4_TOOLCHAIN}/lib"
         cp ${curl_path}/orbis/lib/libcurl.a "${OO_PS4_TOOLCHAIN}/lib"
         cp -R ${curl_path}/include/curl "${OO_PS4_TOOLCHAIN}/include/"
+
+    - name: Install store-api
+      working-directory: store-api
+      run: |
+        make 
+        make install
 
     - name: Add save patches to Package
       run: make createzip

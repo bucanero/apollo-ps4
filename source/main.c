@@ -485,7 +485,8 @@ s32 main(s32 argc, const char* argv[])
 	}
 
 	// Load MsgDialog
-	if (sceSysmoduleLoadModule(ORBIS_SYSMODULE_MESSAGE_DIALOG) < 0)
+	if (sceSysmoduleLoadModule(ORBIS_SYSMODULE_MESSAGE_DIALOG) < 0 ||
+		sceSysmoduleLoadModule(ORBIS_SYSMODULE_IME_DIALOG) < 0)
 	{
 		LOG("Failed to load dialog!");
 		return (-1);

@@ -522,7 +522,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 			if (item->flags & SAVE_FLAG_HDD)
 				fprintf(f, "/icon/%s/%s_icon0.png", item->title_id, item->dir_name);
 			else
-				fprintf(f, "/icon/%s" "sce_sys/icon0.png", strchr(item->path +20, '/') +1);
+				fprintf(f, "/icon%ssce_sys/icon0.png", strchr(item->path +20, '/'));
 
 			fprintf(f, "\" alt=\"%s\" width=\"228\" height=\"128\"></td>", item->name);
 			fprintf(f, "<td>%s</td>", item->title_id);
@@ -952,6 +952,18 @@ static void encryptSaveFile(const save_entry_t* entry, const char* filename)
 
 static void downloadLink(const char* path)
 {
+	char url[256] = "http://";
+	char out_path[256];
+
+	if (!osk_dialog_get_text("Download URL", url, sizeof(url)))
+		return;
+
+	snprintf(out_path, sizeof(out_path), "%s%s", path, strrchr(url, '/')+1);
+
+	if (http_download(url, NULL, out_path, 1))
+		show_message("File successfully downloaded to:\n%s", out_path);
+	else
+		show_message("Error! File couldn't be downloaded");
 }
 
 void execCodeCommand(code_entry_t* code, const char* codecmd)

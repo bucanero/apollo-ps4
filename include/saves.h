@@ -264,6 +264,7 @@ int extract_zip(const char* zip_file, const char* dest_path);
 int zip_directory(const char* basedir, const char* inputdir, const char* output_zipfile);
 
 int show_dialog(int dialog_type, const char * format, ...);
+int osk_dialog_get_text(const char* title, char* text, uint32_t size);
 void init_progress_bar(const char* msg);
 void update_progress_bar(uint64_t progress, const uint64_t total_size, const char* msg);
 void end_progress_bar(void);

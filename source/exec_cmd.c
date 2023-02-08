@@ -453,7 +453,7 @@ static void copySavePFS(const save_entry_t* save)
 	}
 
 	snprintf(hdd_path, sizeof(hdd_path), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
-	if (show_dialog(1, "Resign save %s/%s?", save->title_id, save->dir_name))
+	if (show_dialog(DIALOG_TYPE_YESNO, "Resign save %s/%s?", save->title_id, save->dir_name))
 		patch_sfo(hdd_path, &patch);
 
 	*strrchr(hdd_path, 'p') = 0;
@@ -481,11 +481,10 @@ static void copyKeystone(int import)
 		show_message("Error! Keystone couldn't be copied");
 }
 
-static int webReqHandler(const dWebRequest_t* req, char* outfile)
+static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 {
 	list_node_t *node;
 	save_entry_t *item;
-	list_t *list = ((void**)selected_entry->dir_name)[0];
 
 	// http://ps3-ip:8080/
 	if (strcmp(req->resource, "/") == 0)
@@ -498,12 +497,12 @@ static int webReqHandler(const dWebRequest_t* req, char* outfile)
 			md5_update(&ctx, (uint8_t*) item->name, strlen(item->name));
 
 		md5_finish(&ctx, (uint8_t*) hash);
-		snprintf(outfile, BUFSIZ, APOLLO_LOCAL_CACHE "web%08lx%08lx.html", hash[0], hash[1]);
+		asprintf(&res->data, APOLLO_LOCAL_CACHE "web%016lx%016lx.html", hash[0], hash[1]);
 
-		if (file_exists(outfile) == SUCCESS)
+		if (file_exists(res->data) == SUCCESS)
 			return 1;
 
-		FILE* f = fopen(outfile, "w");
+		FILE* f = fopen(res->data, "w");
 		if (!f)
 			return 0;
 
@@ -523,12 +522,12 @@ static int webReqHandler(const dWebRequest_t* req, char* outfile)
 			if (item->flags & SAVE_FLAG_HDD)
 				fprintf(f, "/icon/%s/%s_icon0.png", item->title_id, item->dir_name);
 			else
-				fprintf(f, "/icon/%s" "sce_sys/icon0.png", item->path +21);
+				fprintf(f, "/icon/%s" "sce_sys/icon0.png", strchr(item->path +20, '/') +1);
 
 			fprintf(f, "\" alt=\"%s\" width=\"228\" height=\"128\"></td>", item->name);
 			fprintf(f, "<td>%s</td>", item->title_id);
 			fprintf(f, "<td>%s</td>", item->dir_name);
-			fprintf(f, "<td>%s</td></tr>", selected_entry->path[5] == 'u' ? "USB":"HDD");
+			fprintf(f, "<td>%s</td></tr>", (item->flags & SAVE_FLAG_HDD) ? "HDD" : "USB");
 		}
 
 		fprintf(f, "</tbody></table></body></html>");
@@ -543,7 +542,7 @@ static int webReqHandler(const dWebRequest_t* req, char* outfile)
 		char *base, *path;
 		int id = 0;
 
-		snprintf(outfile, BUFSIZ, "%s%s", APOLLO_LOCAL_CACHE, req->resource + 14);
+		asprintf(&res->data, "%s%s", APOLLO_LOCAL_CACHE, req->resource + 14);
 		sscanf(req->resource + 5, "%08x", &id);
 		item = list_get_item(list, id);
 
@@ -563,7 +562,7 @@ static int webReqHandler(const dWebRequest_t* req, char* outfile)
 		}
 		*strrchr(base, '/') = 0;
 
-		id = zip_directory(base, path, outfile);
+		id = zip_directory(base, path, res->data);
 		if (item->flags & SAVE_FLAG_HDD)
 			orbis_SaveUmount(mount);
 
@@ -575,29 +574,29 @@ static int webReqHandler(const dWebRequest_t* req, char* outfile)
 	// http://ps3-ip:8080/icon/CUSA12345-DIR-NAME/sce_sys/icon0.png
 	if (wildcard_match(req->resource, "/icon/*/sce_sys/icon0.png"))
 	{
-		snprintf(outfile, BUFSIZ, "%sAPOLLO/%s", selected_entry->path, req->resource + 6);
-		return (file_exists(outfile) == SUCCESS);
+		asprintf(&res->data, "%sAPOLLO/%s", selected_entry->path, req->resource + 6);
+		return (file_exists(res->data) == SUCCESS);
 	}
 
 	// http://ps3-ip:8080/icon/CUSA12345/DIR-NAME_icon0.png
 	if (wildcard_match(req->resource, "/icon/\?\?\?\?\?\?\?\?\?/*_icon0.png"))
 	{
-		snprintf(outfile, BUFSIZ, PS4_SAVES_PATH_HDD "%s", apollo_config.user_id, req->resource + 6);
-		return (file_exists(outfile) == SUCCESS);
+		asprintf(&res->data, PS4_SAVES_PATH_HDD "%s", apollo_config.user_id, req->resource + 6);
+		return (file_exists(res->data) == SUCCESS);
 	}
 
 	return 0;
 }
 
-static void enableWebServer(const save_entry_t* save, int port)
+static void enableWebServer(dWebReqHandler_t handler, void* data, int port)
 {
 	OrbisNetCtlInfo info;
 
 	memset(&info, 0, sizeof(info));
 	sceNetCtlGetInfo(ORBIS_NET_CTL_INFO_IP_ADDRESS, &info);
-	LOG("Starting local web server %s:%d for '%s'...", info.ip_address, port, save->path);
+	LOG("Starting local web server %s:%d ...", info.ip_address, port);
 
-	if (dbg_webserver_start(port, webReqHandler))
+	if (dbg_webserver_start(port, handler, data))
 	{
 		show_message("Web Server listening on http://%s:%d\nPress OK to stop the Server.", info.ip_address, port);
 		dbg_webserver_stop();
@@ -951,6 +950,10 @@ static void encryptSaveFile(const save_entry_t* entry, const char* filename)
 		show_message("Error! File %s couldn't be imported", filename);
 }
 
+static void downloadLink(const char* path)
+{
+}
+
 void execCodeCommand(code_entry_t* code, const char* codecmd)
 {
 	char *tmp, mount[32];
@@ -1015,12 +1018,17 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			activateAccount(code->file[0], code->options->value[code->options->sel] + 1);
 			code->activated = 0;
 			break;
-/*
-		case CMD_EXP_TROPHY_USB:
-			copySave(selected_entry, codecmd[1] ? TROPHY_PATH_USB1 : TROPHY_PATH_USB0);
+
+		case CMD_URL_DOWNLOAD:
+			downloadLink(selected_entry->path);
 			code->activated = 0;
 			break;
 
+		case CMD_NET_WEBSERVER:
+			enableWebServer(dbg_simpleWebServerHandler, NULL, 8080);
+			code->activated = 0;
+			break;
+/*
 		case CMD_ZIP_TROPHY_USB:
 			exportTrophiesZip(codecmd[1] ? EXPORT_PATH_USB1 : EXPORT_PATH_USB0);
 			code->activated = 0;
@@ -1064,8 +1072,8 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			code->activated = 0;
 			break;
 
-		case CMD_RUN_WEBSERVER:
-			enableWebServer(selected_entry, 8080);
+		case CMD_SAVE_WEBSERVER:
+			enableWebServer(webReqHandler, ((void**)selected_entry->dir_name)[0], 8080);
 			code->activated = 0;
 			break;
 

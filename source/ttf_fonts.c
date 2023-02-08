@@ -330,7 +330,7 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
 
         if(posy >= Win_H_ttf) break;
 
-        if(*ustring == 32 || *ustring == 9) {posx += sw>>1; ustring++; continue;}
+        if(*ustring == ' ') {posx += sw>>1; ustring++; continue;}
 
         if(*ustring & 128) {
             m = 1;

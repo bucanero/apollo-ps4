@@ -60,8 +60,8 @@
 #define IMP_PS2VMC_PATH_USB     USB_PATH "PS2/VMC/"
 #define IMPORT_RAP_PATH_USB     USB_PATH PS3_LICENSE_PATH
 
-#define ONLINE_URL				"https://bucanero.github.io/apollo-saves/"
-#define ONLINE_PATCH_URL		"https://bucanero.github.io/apollo-patches/PS4/"
+#define ONLINE_URL              "https://bucanero.github.io/apollo-saves/"
+#define ONLINE_PATCH_URL        "https://bucanero.github.io/apollo-patches/PS4/"
 #define ONLINE_CACHE_TIMEOUT    24*3600     // 1-day local cache
 
 #define OWNER_XML_FILE          "owners.xml"
@@ -108,7 +108,7 @@ enum cmd_code_enum
     CMD_COPY_SAVES_HDD,
     CMD_COPY_ALL_SAVES_HDD,
     CMD_DUMP_FINGERPRINTS,
-    CMD_RUN_WEBSERVER,
+    CMD_SAVE_WEBSERVER,
 
 // Export commands
     CMD_EXP_KEYSTONE,
@@ -123,6 +123,8 @@ enum cmd_code_enum
     CMD_IMP_DATABASE,
     CMD_CREATE_ACT_DAT,
     CMD_EXTRACT_ARCHIVE,
+    CMD_URL_DOWNLOAD,
+    CMD_NET_WEBSERVER,
 
 // SFO patches
     SFO_UNLOCK_COPY,
@@ -155,6 +157,7 @@ enum save_type_enum
     // PS1 File Types
     FILE_TYPE_ZIP,
     FILE_TYPE_SQL,
+    FILE_TYPE_NET,
 
     // License Files
     FILE_TYPE_RIF,
@@ -176,7 +179,7 @@ enum char_flag_enum
     CHAR_TAG_APPLY,
     CHAR_TAG_OWNER,
     CHAR_TAG_LOCKED,
-    CHAR_RES_TAB,
+    CHAR_TAG_NET,
     CHAR_RES_LF,
     CHAR_TAG_TRANSFER,
     CHAR_TAG_ZIP,
@@ -264,7 +267,7 @@ int show_dialog(int dialog_type, const char * format, ...);
 void init_progress_bar(const char* msg);
 void update_progress_bar(uint64_t progress, const uint64_t total_size, const char* msg);
 void end_progress_bar(void);
-#define show_message(...)	show_dialog(0, __VA_ARGS__)
+#define show_message(...)	show_dialog(DIALOG_TYPE_OK, __VA_ARGS__)
 
 int init_loading_screen(const char* msg);
 void stop_loading_screen();

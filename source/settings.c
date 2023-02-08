@@ -110,7 +110,7 @@ void update_callback(int sel)
 
 	LOG("checking latest Apollo version at %s", APOLLO_UPDATE_URL);
 
-	if (!http_download(APOLLO_UPDATE_URL, "", APOLLO_LOCAL_CACHE "ver.check", 0))
+	if (!http_download(APOLLO_UPDATE_URL, NULL, APOLLO_LOCAL_CACHE "ver.check", 0))
 	{
 		LOG("http request to %s failed", APOLLO_UPDATE_URL);
 		return;
@@ -167,9 +167,9 @@ void update_callback(int sel)
 	*end = 0;
 	LOG("download URL is %s", start);
 
-	if (show_dialog(1, "New version available! Download update?"))
+	if (show_dialog(DIALOG_TYPE_YESNO, "New version available! Download update?"))
 	{
-		if (http_download(start, "", "/data/apollo-ps4.pkg", 1))
+		if (http_download(start, NULL, "/data/apollo-ps4.pkg", 1))
 			show_message("Update downloaded to /data/apollo-ps4.pkg");
 		else
 			show_message("Download error!");

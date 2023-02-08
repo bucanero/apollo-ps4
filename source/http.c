@@ -60,6 +60,7 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 		return HTTP_FAILED;
 	}
 
+	if (!filename) filename = "";
 	snprintf(full_url, sizeof(full_url), "%s%s", url, filename);
 	LOG("URL: %s >> %s", full_url, local_dst);
 

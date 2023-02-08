@@ -16,6 +16,7 @@
 
 #define UTF8_CHAR_STAR		"\xE2\x98\x85"
 
+#define CHAR_ICON_NET		"\x09"
 #define CHAR_ICON_ZIP		"\x0C"
 #define CHAR_ICON_COPY		"\x0B"
 #define CHAR_ICON_SIGN		"\x06"
@@ -568,14 +569,12 @@ static code_entry_t* _createCmdCode(uint8_t type, const char* name, char code)
 
 static option_entry_t* _initOptions(int count)
 {
-	option_entry_t* options = (option_entry_t*)malloc(sizeof(option_entry_t));
+	option_entry_t* options = (option_entry_t*)calloc(1, sizeof(option_entry_t));
 
-	options->id = 0;
 	options->sel = -1;
 	options->size = count;
-	options->line = NULL;
-	options->value = malloc (sizeof(char *) * count);
-	options->name = malloc (sizeof(char *) * count);
+	options->value = calloc (count, sizeof(char *));
+	options->name = calloc (count, sizeof(char *));
 
 	return options;
 }
@@ -691,9 +690,12 @@ static void _addBackupCommands(save_entry_t* item)
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy save game", CMD_CODE_NULL);
 	cmd->options_count = 1;
-	cmd->options = _createOptions(3, "Copy Save to USB", CMD_COPY_SAVE_USB);
-	asprintf(&cmd->options->name[2], "Copy Save to HDD");
-	asprintf(&cmd->options->value[2], "%c", CMD_COPY_SAVE_HDD);
+	cmd->options = _createOptions((item->flags & SAVE_FLAG_HDD) ? 2 : 3, "Copy Save to USB", CMD_COPY_SAVE_USB);
+	if (!(item->flags & SAVE_FLAG_HDD))
+	{
+		asprintf(&cmd->options->name[2], "Copy Save to HDD");
+		asprintf(&cmd->options->value[2], "%c", CMD_COPY_SAVE_HDD);
+	}
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " Export save game to Zip", CMD_CODE_NULL);
@@ -854,7 +856,7 @@ int ReadCodes(save_entry_t * save)
 	_addSfoCommands(save);
 
 	snprintf(filePath, sizeof(filePath), APOLLO_DATA_PATH "%s.savepatch", save->title_id);
-	if (file_exists(filePath) != SUCCESS)
+	if ((buffer = readTextFile(filePath, NULL)) == NULL)
 		goto skip_end;
 
 	code = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Cheats " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);	
@@ -864,7 +866,6 @@ int ReadCodes(save_entry_t * save)
 	list_append(save->codes, code);
 
 	LOG("Loading BSD codes '%s'...", filePath);
-	buffer = readTextFile(filePath, NULL);
 	load_patch_code_list(buffer, save->codes, &get_file_entries, save->path);
 	free (buffer);
 
@@ -1075,6 +1076,11 @@ list_t * ReadBackupList(const char* userPath)
 	item->type = FILE_TYPE_SQL;
 	list_append(list, item);
 
+	item = _createSaveEntry(0, CHAR_ICON_NET " Network Tools (Downloader, Web Server)");
+	item->path = strdup("/data/");
+	item->type = FILE_TYPE_NET;
+	list_append(list, item);
+
 	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_LOCK " Show Parental Security Passcode");
 	item->codes = list_alloc();
 	cmd = _createCmdCode(PATCH_NULL, CHAR_ICON_LOCK " Security Passcode: ????????", CMD_CODE_NULL);
@@ -1111,6 +1117,14 @@ int ReadBackupCodes(save_entry_t * bup)
 	{
 	case FILE_TYPE_ZIP:
 		break;
+
+	case FILE_TYPE_NET:
+		bup->codes = list_alloc();
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " URL link Downloader (http, https, ftp, ftps)", CMD_URL_DOWNLOAD);
+		list_append(bup->codes, cmd);
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Local Web Server (full system access)", CMD_NET_WEBSERVER);
+		list_append(bup->codes, cmd);
+		return list_count(bup->codes);
 
 	case FILE_TYPE_SQL:
 		bup->codes = list_alloc();
@@ -1194,7 +1208,7 @@ int ReadBackupCodes(save_entry_t * bup)
 			cmd = _createCmdCode(PATCH_COMMAND, tmp, CMD_EXTRACT_ARCHIVE);
 			asprintf(&cmd->file, "%s%s", bup->path, dir->d_name);
 
-			LOG("[%s] name '%s'", cmd->file, cmd->name);
+			LOG("[%s] name '%s'", cmd->file, cmd->name +2);
 			list_append(bup->codes, cmd);
 		}
 		closedir(d);
@@ -1272,6 +1286,11 @@ void UnloadGameList(list_t * list)
 				{
 					for (int z = 0; z < code->options_count; z++)
 					{
+						for (int j = 0; j < code->options[z].size; j++)
+						{
+							free(code->options[z].name[j]);
+							free(code->options[z].value[j]);
+						}
 						if (code->options[z].line)
 							free(code->options[z].line);
 						if (code->options[z].name)
@@ -1556,7 +1575,7 @@ list_t * ReadUsbList(const char* userPath)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all decrypted Saves to HDD", CMD_COPY_ALL_SAVES_HDD);
 	list_append(item->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Start local Web Server", CMD_RUN_WEBSERVER);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump all decrypted Save Fingerprints", CMD_DUMP_FINGERPRINTS);
@@ -1599,7 +1618,7 @@ list_t * ReadUserList(const char* userPath)
 	cmd->options = _createOptions(2, "Copy Saves to USB", CMD_COPY_ALL_SAVES_USB);
 	list_append(item->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Start local Web Server", CMD_RUN_WEBSERVER);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump all Save Fingerprints", CMD_DUMP_FINGERPRINTS);

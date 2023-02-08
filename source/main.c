@@ -140,7 +140,7 @@ save_list_t online_saves = {
 */
 save_list_t user_backup = {
     .icon_id = cat_bup_png_index,
-    .title = "User Data Backup",
+    .title = "User Tools",
     .list = NULL,
     .path = "",
     .ReadList = &ReadBackupList,
@@ -187,7 +187,6 @@ static int LoadTextures_Menu()
 	set_ttf_window(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WIN_SKIP_LF);
 	
 	//Init Main Menu textures
-
 	load_menu_texture(bgimg, jpg);
 	load_menu_texture(cheat, png);
 
@@ -253,6 +252,7 @@ static int LoadTextures_Menu()
 	load_menu_texture(tag_psv, png);
 	load_menu_texture(tag_warning, png);
 	load_menu_texture(tag_zip, png);
+	load_menu_texture(tag_net, png);
 	load_menu_texture(tag_apply, png);
 	load_menu_texture(tag_transfer, png);
 
@@ -359,6 +359,7 @@ static void registerSpecialChars()
 	RegisterSpecialCharacter(CHAR_TAG_WARNING, 0, 1.3, &menu_textures[tag_warning_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_APPLY, 2, 1.0, &menu_textures[tag_apply_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_ZIP, 0, 1.0, &menu_textures[tag_zip_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_NET, 0, 1.0, &menu_textures[tag_net_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_TRANSFER, 0, 1.0, &menu_textures[tag_transfer_png_index]);
 
 	// Register button icons
@@ -484,7 +485,8 @@ s32 main(s32 argc, const char* argv[])
 	}
 
 	// Load MsgDialog
-	if (sceSysmoduleLoadModule(ORBIS_SYSMODULE_MESSAGE_DIALOG) < 0)
+	if (sceSysmoduleLoadModule(ORBIS_SYSMODULE_MESSAGE_DIALOG) < 0 ||
+		sceSysmoduleLoadModule(ORBIS_SYSMODULE_IME_DIALOG) < 0)
 	{
 		LOG("Failed to load dialog!");
 		return (-1);

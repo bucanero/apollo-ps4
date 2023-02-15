@@ -100,7 +100,7 @@ static int get_appdb_title(sqlite3* db, const char* titleid, char* name)
 int addcont_dlc_rebuild(const char* db_path)
 {
 	char path[256];
-	uint8_t hdr[0x80];
+	sfo_context_t* sfo;
 	DIR *dp, *dp2;
 	struct dirent *dirp, *dirp2;
 	sqlite3* db;
@@ -133,18 +133,24 @@ int addcont_dlc_rebuild(const char* db_path)
 				continue;
 
 			snprintf(path, sizeof(path), "/user/addcont/%s/%s/ac.pkg", dirp->d_name, dirp2->d_name);
-			if (read_file(path, hdr, sizeof(hdr)) != SUCCESS)
+			sfo = sfo_alloc();
+			if (sfo_read(sfo, path) < 0)
+			{
+				LOG("Unable to read from '%s'", path);
+				sfo_free(sfo);
 				continue;
+			}
 
 			LOG("Adding %s to addcont...", dirp2->d_name);
 			query = sqlite3_mprintf("INSERT OR IGNORE INTO addcont(title_id, dir_name, content_id, title, version, attribute, status) "
-				"VALUES(%Q, %Q, %Q, 'DLC %s (Restored by Apollo)', 536870912, '01.00', 0)",
-				dirp->d_name, dirp2->d_name, hdr + 0x40, dirp2->d_name);
+				"VALUES(%Q, %Q, %Q, %Q, 536870912, '01.00', 0)",
+				dirp->d_name, dirp2->d_name, sfo_get_param_value(sfo, "CONTENT_ID"), sfo_get_param_value(sfo, "TITLE"));
 
 			if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
 				LOG("addcont insert failed: %s", sqlite3_errmsg(db));
 
 			sqlite3_free(query);
+			sfo_free(sfo);
 		}
 		closedir(dp2);
 	}

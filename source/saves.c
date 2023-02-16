@@ -6,13 +6,13 @@
 #include <time.h>
 #include <dirent.h>
 #include <orbis/SaveData.h>
+#include <sqlite3.h>
 
 #include "saves.h"
 #include "common.h"
 #include "sfo.h"
 #include "settings.h"
 #include "util.h"
-#include "sqlite3.h"
 
 #define UTF8_CHAR_STAR		"\xE2\x98\x85"
 
@@ -24,8 +24,7 @@
 #define CHAR_ICON_LOCK		"\x08"
 #define CHAR_ICON_WARN		"\x0F"
 
-const void* sqlite3_get_sqlite3Apis();
-int sqlite3_memvfs_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi);
+int sqlite3_memvfs_init(const char* vfsName);
 int sqlite3_memvfs_dump(sqlite3 *db, const char *zSchema, const char *zFilename);
 
 static sqlite3* open_sqlite_db(const char* db_path)
@@ -33,24 +32,12 @@ static sqlite3* open_sqlite_db(const char* db_path)
 	uint8_t* db_buf;
 	size_t db_size;
 	sqlite3 *db;
-	const sqlite3_api_routines* api = sqlite3_get_sqlite3Apis();
 
-	// Open an in-memory database to use as a handle for loading the memvfs extension
-	if (sqlite3_open(":memory:", &db) != SQLITE_OK)
-	{
-		LOG("open :memory: %s", sqlite3_errmsg(db));
-		return NULL;
-	}
-
-	sqlite3_enable_load_extension(db, 1);
-	if (sqlite3_memvfs_init(db, NULL, api) != SQLITE_OK_LOAD_PERMANENTLY)
+	if (sqlite3_memvfs_init("orbis_rw") != SQLITE_OK_LOAD_PERMANENTLY)
 	{
 		LOG("Error loading extension: %s", "memvfs");
 		return NULL;
 	}
-
-	// Done with this database
-	sqlite3_close(db);
 
 	if (read_buffer(db_path, &db_buf, &db_size) != SUCCESS)
 	{
@@ -183,6 +170,7 @@ int appdb_fix_delete(const char* db_path, uint32_t userid)
 	{
 		LOG("Failed to execute query: %s", sqlite3_errmsg(db));
 		sqlite3_free(query);
+		sqlite3_close(db);
 		return 0;
 	}
 

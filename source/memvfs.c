@@ -38,8 +38,7 @@
 ** then it defaults to the sz= value.  Parameter values can be in either
 ** decimal or hexadecimal.  The filename in the URI is ignored.
 */
-#include <sqlite3ext.h>
-SQLITE_EXTENSION_INIT1
+#include <sqlite3.h>
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -443,8 +442,16 @@ static int memCurrentTime(sqlite3_vfs *pVfs, double *pTimeOut){
 static int memGetLastError(sqlite3_vfs *pVfs, int a, char *b){
   return ORIGVFS(pVfs)->xGetLastError(ORIGVFS(pVfs), a, b);
 }
+
+/*
+** Returns, as an integer, the Julian Day Number multiplied by 86400000
+** (the number of milliseconds in a 24-hour day)
+*/
 static int memCurrentTimeInt64(sqlite3_vfs *pVfs, sqlite3_int64 *p){
-  return ORIGVFS(pVfs)->xCurrentTimeInt64(ORIGVFS(pVfs), p);
+  double ct = 0;
+  memCurrentTime(pVfs, &ct);
+  *p = (sqlite3_int64)(ct * 86400000);
+  return SQLITE_OK;
 }
 
 #ifdef MEMVFS_TEST
@@ -550,33 +557,22 @@ static int memvfsRegister(
 }
 #endif /* MEMVFS_TEST */
 
-  
-#ifdef _WIN32
-__declspec(dllexport)
-#endif
 /* 
 ** This routine is called when the extension is loaded.
 ** Register the new VFS.
 */
 int sqlite3_memvfs_init(
-  sqlite3 *db, 
-  char **pzErrMsg, 
-  const sqlite3_api_routines *pApi
+  const char* vfsName
 ){
-  int rc = SQLITE_OK;
-  SQLITE_EXTENSION_INIT2(pApi);
-  mem_vfs.pAppData = sqlite3_vfs_find(0);
+  static int rc = SQLITE_OK;
+  if( rc==SQLITE_OK_LOAD_PERMANENTLY ){
+    return rc;
+  }
+  sqlite3_initialize();
+  mem_vfs.pAppData = sqlite3_vfs_find(vfsName);
   if( mem_vfs.pAppData==0 ) return SQLITE_ERROR;
   mem_vfs.szOsFile = sizeof(MemFile);
   rc = sqlite3_vfs_register(&mem_vfs, 1);
-#ifdef MEMVFS_TEST
-  if( rc==SQLITE_OK ){
-    rc = sqlite3_auto_extension((void(*)(void))memvfsRegister);
-  }
-  if( rc==SQLITE_OK ){
-    rc = memvfsRegister(db, pzErrMsg, pApi);
-  }
-#endif
   if( rc==SQLITE_OK ) rc = SQLITE_OK_LOAD_PERMANENTLY;
   return rc;
 }

@@ -65,6 +65,12 @@ jobs:
         repository: bucanero/apollo-lib
         path: apollo-lib
 
+    - name: Checkout SQLite
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/libSQLite-ps4
+        path: libSQLite-ps4
+
     - name: Checkout zip
       uses: actions/checkout@v3
       with:
@@ -134,6 +140,10 @@ jobs:
     - name: Install apollo-lib
       working-directory: apollo-lib
       run: make -f Makefile.PS4 install
+
+    - name: Install SQLite
+      working-directory: libSQLite-ps4
+      run: make install
 
     - name: Install libun7zip
       working-directory: libun7zip

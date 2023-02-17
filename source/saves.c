@@ -6,13 +6,13 @@
 #include <time.h>
 #include <dirent.h>
 #include <orbis/SaveData.h>
+#include <sqlite3.h>
 
 #include "saves.h"
 #include "common.h"
 #include "sfo.h"
 #include "settings.h"
 #include "util.h"
-#include "sqlite3.h"
 
 #define UTF8_CHAR_STAR		"\xE2\x98\x85"
 
@@ -24,8 +24,7 @@
 #define CHAR_ICON_LOCK		"\x08"
 #define CHAR_ICON_WARN		"\x0F"
 
-const void* sqlite3_get_sqlite3Apis();
-int sqlite3_memvfs_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi);
+int sqlite3_memvfs_init(const char* vfsName);
 int sqlite3_memvfs_dump(sqlite3 *db, const char *zSchema, const char *zFilename);
 
 static sqlite3* open_sqlite_db(const char* db_path)
@@ -33,24 +32,12 @@ static sqlite3* open_sqlite_db(const char* db_path)
 	uint8_t* db_buf;
 	size_t db_size;
 	sqlite3 *db;
-	const sqlite3_api_routines* api = sqlite3_get_sqlite3Apis();
 
-	// Open an in-memory database to use as a handle for loading the memvfs extension
-	if (sqlite3_open(":memory:", &db) != SQLITE_OK)
-	{
-		LOG("open :memory: %s", sqlite3_errmsg(db));
-		return NULL;
-	}
-
-	sqlite3_enable_load_extension(db, 1);
-	if (sqlite3_memvfs_init(db, NULL, api) != SQLITE_OK_LOAD_PERMANENTLY)
+	if (sqlite3_memvfs_init("orbis_rw") != SQLITE_OK_LOAD_PERMANENTLY)
 	{
 		LOG("Error loading extension: %s", "memvfs");
 		return NULL;
 	}
-
-	// Done with this database
-	sqlite3_close(db);
 
 	if (read_buffer(db_path, &db_buf, &db_size) != SUCCESS)
 	{
@@ -100,7 +87,7 @@ static int get_appdb_title(sqlite3* db, const char* titleid, char* name)
 int addcont_dlc_rebuild(const char* db_path)
 {
 	char path[256];
-	uint8_t hdr[0x80];
+	sfo_context_t* sfo;
 	DIR *dp, *dp2;
 	struct dirent *dirp, *dirp2;
 	sqlite3* db;
@@ -133,18 +120,24 @@ int addcont_dlc_rebuild(const char* db_path)
 				continue;
 
 			snprintf(path, sizeof(path), "/user/addcont/%s/%s/ac.pkg", dirp->d_name, dirp2->d_name);
-			if (read_file(path, hdr, sizeof(hdr)) != SUCCESS)
+			sfo = sfo_alloc();
+			if (sfo_read(sfo, path) < 0)
+			{
+				LOG("Unable to read from '%s'", path);
+				sfo_free(sfo);
 				continue;
+			}
 
 			LOG("Adding %s to addcont...", dirp2->d_name);
 			query = sqlite3_mprintf("INSERT OR IGNORE INTO addcont(title_id, dir_name, content_id, title, version, attribute, status) "
-				"VALUES(%Q, %Q, %Q, 'DLC %s (Restored by Apollo)', 536870912, '01.00', 0)",
-				dirp->d_name, dirp2->d_name, hdr + 0x40, dirp2->d_name);
+				"VALUES(%Q, %Q, %Q, %Q, 536870912, '01.00', 0)",
+				dirp->d_name, dirp2->d_name, sfo_get_param_value(sfo, "CONTENT_ID"), sfo_get_param_value(sfo, "TITLE"));
 
 			if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
 				LOG("addcont insert failed: %s", sqlite3_errmsg(db));
 
 			sqlite3_free(query);
+			sfo_free(sfo);
 		}
 		closedir(dp2);
 	}
@@ -177,6 +170,7 @@ int appdb_fix_delete(const char* db_path, uint32_t userid)
 	{
 		LOG("Failed to execute query: %s", sqlite3_errmsg(db));
 		sqlite3_free(query);
+		sqlite3_close(db);
 		return 0;
 	}
 

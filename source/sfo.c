@@ -2,6 +2,7 @@
 #include "sfo.h"
 #include "util.h"
 
+#define PKG_MAGIC   0x544E437Fu
 #define SFO_MAGIC   0x46535000u
 #define SFO_VERSION 0x0101u /* 1.1 */
 
@@ -40,6 +41,16 @@ typedef struct sfo_context_param_s {
 	size_t actual_length;
 	u8 *value;
 } sfo_context_param_t;
+
+typedef struct pkg_table_entry {
+	uint32_t id;
+	uint32_t filename_offset;
+	uint32_t flags1;
+	uint32_t flags2;
+	uint32_t offset;
+	uint32_t size;
+	uint64_t padding;
+} pkg_table_entry_t;
 
 struct sfo_context_s {
 	list_t *params;
@@ -82,6 +93,55 @@ void sfo_free(sfo_context_t *context) {
 	free(context);
 }
 
+// Finds the param.sfo's offset inside a PS4 PKG file
+// https://github.com/hippie68/sfo/blob/main/sfo.c#L732
+static int read_sfo_from_pkg(const char* pkg_path, uint8_t** sfo_buffer, size_t* sfo_size) {
+	FILE* file;
+	uint32_t pkg_table_offset;
+	uint32_t pkg_file_count;
+	pkg_table_entry_t pkg_table_entry;
+
+	file = fopen(pkg_path, "rb");
+	if (!file)
+		return (-1);
+
+  	fread(&pkg_file_count, sizeof(uint32_t), 1, file);
+	if (pkg_file_count != PKG_MAGIC)
+	{
+		fclose(file);
+		return (-1);
+	}
+
+	fseek(file, 0x00C, SEEK_SET);
+	fread(&pkg_file_count, sizeof(uint32_t), 1, file);
+	fseek(file, 0x018, SEEK_SET);
+	fread(&pkg_table_offset, sizeof(uint32_t), 1, file);
+
+	pkg_file_count = ES32(pkg_file_count);
+	pkg_table_offset = ES32(pkg_table_offset);
+	fseek(file, pkg_table_offset, SEEK_SET);
+
+	for (int i = 0; i < pkg_file_count; i++) {
+		fread(&pkg_table_entry, sizeof (pkg_table_entry_t), 1, file);
+
+		// param.sfo ID
+		if (pkg_table_entry.id == 1048576) {
+			*sfo_size = ES32(pkg_table_entry.size);
+			*sfo_buffer = (uint8_t*)malloc(*sfo_size);
+
+			fseek(file, ES32(pkg_table_entry.offset), SEEK_SET);
+			fread(*sfo_buffer, *sfo_size, 1, file);
+			fclose(file);
+
+			return 0;
+		}
+	}
+
+	LOG("Could not find a param.sfo file inside the PKG.");
+	fclose(file);
+	return(-1);
+}
+
 int sfo_read(sfo_context_t *context, const char *file_path) {
 	int ret;
 	u8 *sfo;
@@ -93,8 +153,13 @@ int sfo_read(sfo_context_t *context, const char *file_path) {
 
 	ret = 0;
 
-	if ((ret = read_buffer(file_path, &sfo, &sfo_size)) < 0)
-		goto error;
+	if (strcasecmp(file_path + strlen(file_path) - 4, ".pkg") == 0) {
+		if ((ret = read_sfo_from_pkg(file_path, &sfo, &sfo_size)) < 0)
+			goto error;
+	} else {
+		if ((ret = read_buffer(file_path, &sfo, &sfo_size)) < 0)
+			goto error;
+	}
 
 	if (sfo_size < sizeof(sfo_header_t)) {
 		ret = -1;
@@ -133,6 +198,8 @@ int sfo_read(sfo_context_t *context, const char *file_path) {
 
 		list_append(context->params, param);
 	}
+
+	free(sfo);
 
 error:
 	return ret;
@@ -283,7 +350,7 @@ void sfo_grab(sfo_context_t *inout, sfo_context_t *tpl, int num_keys, const sfo_
 	}
 }
 
-void sfo_patch_titleid(sfo_context_t *inout) {
+static void sfo_patch_titleid(sfo_context_t *inout) {
 	sfo_context_param_t *p;
 
 	p = sfo_context_get_param(inout, "PARAMS");

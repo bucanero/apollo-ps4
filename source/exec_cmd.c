@@ -458,9 +458,9 @@ static void copySavePFS(const save_entry_t* save)
 		patch_sfo(hdd_path, &patch);
 		*strrchr(hdd_path, 'p') = 0;
 		_update_save_details(hdd_path, mount);
-		orbis_SaveUmount(mount);
 		show_message("Encrypted save copied successfully!\n%s/%s", save->title_id, save->dir_name);
 	}
+	orbis_SaveUmount(mount);
 	return;
 }
 

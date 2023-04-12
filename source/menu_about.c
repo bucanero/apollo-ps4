@@ -76,7 +76,7 @@ static void _draw_AboutMenu(u8 alpha)
 	SetCurrentFont(font_adonais_regular);
 	SetFontColor(APP_FONT_MENU_COLOR | alp2, 0);
 	SetFontSize(APP_FONT_SIZE_JARS);
-	DrawStringMono(0, 890, "www.bucanero.com.ar");
+	DrawStringMono(0, 890, "in memory of Leon & Luna");
 	SetFontAlign(FONT_ALIGN_LEFT);
 }
 

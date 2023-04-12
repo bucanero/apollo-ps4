@@ -28,6 +28,7 @@
 #include "libfont.h"
 #include "ttf_render.h"
 #include "font_adonais.h"
+#include "font-10x20.h"
 
 //Sound
 #define SAMPLING_FREQ          48000 /* 48khz. */
@@ -81,6 +82,7 @@ const char * menu_pad_help[TOTAL_MENU_IDS] = { NULL,												//Main
 								"\x13 Back",														//View Cheat
 								"\x10 Select    \x13 Back",											//Cheat Option
 								"\x13 Back",														//View Details
+								"\x10 Value Up  \x11 Value Down   \x13 Exit",						//Hex Editor
 								};
 
 /*
@@ -170,7 +172,7 @@ static int initPad()
 // Used only in initialization. Allocates 64 mb for textures and loads the font
 static int LoadTextures_Menu()
 {
-	texture_mem = malloc(256 * 32 * 32 * 4);
+	texture_mem = malloc(256 * 32 * 4);
 	menu_textures = (png_texture *)calloc(TOTAL_MENU_TEXTURES, sizeof(png_texture));
 	
 	if(!texture_mem || !menu_textures)
@@ -178,7 +180,8 @@ static int LoadTextures_Menu()
 	
 	ResetFont();
 	free_mem = (u32 *) AddFontFromBitmapArray((u8 *) data_font_Adonais, (u8 *) texture_mem, 0x20, 0x7e, 32, 31, 1, BIT7_FIRST_PIXEL);
-	
+	free_mem = (u32 *) AddFontFromBitmapArray((u8 *) console_font_10x20, (u8 *) free_mem, 0, 0xFF, 10, 20, 1, BIT7_FIRST_PIXEL);
+
 	if (TTFLoadFont(0, "/preinst/common/font/DFHEI5-SONY.ttf", NULL, 0) != SUCCESS ||
 		TTFLoadFont(1, "/system_ex/app/NPXS20113/bdjstack/lib/fonts/SCE-PS3-RD-R-LATIN.TTF", NULL, 0) != SUCCESS)
 		return 0;
@@ -532,7 +535,7 @@ s32 main(s32 argc, const char* argv[])
 
 	// Setup font
 	SetExtraSpace(-15);
-	SetCurrentFont(0);
+	SetCurrentFont(font_adonais_regular);
 
 	registerSpecialChars();
 	initMenuOptions();
@@ -575,7 +578,7 @@ s32 main(s32 argc, const char* argv[])
 			}
 			
 			SetFontSize(APP_FONT_SIZE_DESCRIPTION);
-			SetCurrentFont(0);
+			SetCurrentFont(font_adonais_regular);
 			SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 			SetFontColor(APP_FONT_COLOR | alpha, 0);
 			DrawString(0, SCREEN_HEIGHT - 94, (char *)menu_pad_help[menu_id]);

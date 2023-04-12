@@ -90,6 +90,7 @@ void ResetFont()
 u8 * AddFontFromBitmapArray(u8 *font, u8 *texture, u8 first_char, u8 last_char, int w, int h, int bits_per_pixel, int byte_order)
 {
     int n, a, b;
+    u32 buf[w*h];
     u8 i;
     
     if(font_datas.number_of_fonts >= 8) return texture;
@@ -143,21 +144,31 @@ u8 * AddFontFromBitmapArray(u8 *font, u8 *texture, u8 first_char, u8 last_char, 
                     //i>>=3;
                     //*((u16 *) texture) = (1<<15) | (i<<10) | (i<<5) | (i);
                     //TINY3D_TEX_FORMAT_A4R4G4B4
-                    *texture = i;
+                    buf[a*w + b] = 0x000000FF;
 //                    i>>=4;
 //                    *((u16 *) texture) = (i<<12) | 0xfff;
                 } else {
 //                    texture[0] = texture[1] = 0x0; //texture[2] = 0x0;
-                    *texture = 0x0; // alpha
-                } 
-                texture++;
-               
+                    buf[a*w + b] = 0x0; // alpha
+                }
             }
-
-            font += (w * bits_per_pixel) / 8;
-                
+            font += (((w+7) & ~7) * bits_per_pixel) / 8;
         }
-    
+
+        // Black font texture
+        SDL_Surface* surface = SDL_CreateRGBSurfaceFrom((void*) buf, w, h, 32, 4 * w, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+        *((SDL_Texture**) texture) = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
+        texture += sizeof(SDL_Texture*);
+
+        // White font texture
+        for (a = 0; a < h*w; a++)
+            if (buf[a]) buf[a] = 0xFFFFFFFF;
+
+        surface = SDL_CreateRGBSurfaceFrom((void*) buf, w, h, 32, 4 * w, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+        *((SDL_Texture**) texture) = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
+        texture += sizeof(SDL_Texture*);
     }
 
     texture = (u8 *) ((((long) texture) + 15) & ~15);
@@ -390,8 +401,7 @@ int DrawCharSpecial(float x, float y, float z, const special_char* schr, uint8_t
 
 void orbis2dDrawChar(float x, float y, const u8* bitmap, int bw, int bh, int dw, int dh, u32 rgba)
 {
-    u32 buf[bw * bh];
-    u8 a = (rgba & 0x000000FF);
+    SDL_Texture* sdl_tex = ((SDL_Texture**) bitmap)[(rgba & 0xFFFFFF00) ? 1 : 0];
     SDL_Rect dest = {
         .x = x,
         .y = y,
@@ -399,28 +409,12 @@ void orbis2dDrawChar(float x, float y, const u8* bitmap, int bw, int bh, int dw,
         .h = dh,
     };
 
-    for (int i = 0; i < bw*bh; i++)
-        buf[i] = bitmap[i] ? ((rgba & 0xFFFFFF00) | ((bitmap[i] * a) / 0xFF)) : 0;
-
-    SDL_Surface* surface = SDL_CreateRGBSurfaceFrom((void*) buf, bw, bh, 32, 4 * bw, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
-    SDL_Texture* sdl_tex = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_SetTextureBlendMode(sdl_tex, SDL_BLENDMODE_BLEND);
-    SDL_FreeSurface(surface);
-
     SDL_SetTextureAlphaMod(sdl_tex, RGBA_A(rgba));
     SDL_RenderCopy(renderer, sdl_tex, NULL, &dest);
-    SDL_DestroyTexture(sdl_tex);
 }
 
 void DrawCharMono(float x, float y, float z, u8 chr)
 {
-	special_char* schr = GetSpecialCharFromValue(chr);
-	if (schr)
-	{
-//		DrawCharSpecial(x, y, z, schr);
-		return;
-	}
-
 	float dx = font_datas.sx, dy = font_datas.sy;
 	float dx2 = (dx * font_datas.mono) / font_datas.fonts[font_datas.current_font].w;
 	float dy2 = (float)(dy * font_datas.fonts[font_datas.current_font].bh) / (float)font_datas.fonts[font_datas.current_font].h;
@@ -600,86 +594,30 @@ float DrawString(float x, float y, const char *str)
 float DrawFormatString(float x, float y, char *format, ...)
 {
     char buff[4096];
-    va_list	opt;
-	
-	va_start(opt, format);
-	vsprintf( (void *) buff, format, opt);
-	va_end(opt);
+    va_list opt;
+
+    va_start(opt, format);
+    vsprintf( (void *) buff, format, opt);
+    va_end(opt);
 
     return DrawString(x, y, buff);
 }
 
-/*
-indexEntry_t* getImageFontEntry(const uint8_t* imagefontRawData, uint16_t unicodeId)
+float DrawFormatStringMono(float x, float y, char *format, ...)
 {
-    imagefontHeader_t* imgHeader = (imagefontHeader_t*) imagefontRawData;
+    char buff[4096];
+    char *str = buff;
+    va_list opt;
 
-    if (imgHeader->bitOrder != 0x0100)
-        return(NULL);
+    va_start(opt, format);
+    vsprintf(buff, format, opt);
+    va_end(opt);
 
-    indexEntry_t* index = (indexEntry_t*)(imagefontRawData + imgHeader->indexStart);
-
-    for (int i = 0; i < imgHeader->nbrEntries; i++)
-    {
-        if (index[i].unicodeId == unicodeId)
-            return &index[i];
+    while (*str) {
+        DrawCharMono(x, y, font_datas.Z, (u8) *str);
+        x += font_datas.sx;
+        str++;
     }
 
-    return NULL;
+    return x;
 }
-
-int LoadImageFontEntry(const u8* imagefontRawData, uint16_t unicodeId, pngData* texture)
-{
-    size_t len;
-    indexEntry_t* entry;
-    paletteHeader_t* palette;
-    frameInfo_t* frame;
-
-    texture->bmp_out = NULL;
-    entry = getImageFontEntry(imagefontRawData, unicodeId);
-
-    if (!entry)
-        return(0);
-
-    len = entry->paletteDecompSize;
-    u8* paletteRawData = malloc(len);
-
-    if (uncompress(paletteRawData, &len, imagefontRawData + entry->paletteStart, entry->paletteCompSize) != Z_OK)
-    {
-        free(paletteRawData);
-        return(0);
-    }
-
-    palette = (paletteHeader_t*) paletteRawData;		
-    frame = (frameInfo_t*)(paletteRawData + sizeof(paletteHeader_t)); // palette->framesCount * sizeof(frameInfo_t)
-
-    len = entry->imageWidth * entry->imageHeight * (palette->colorsCount / 256);
-    u8* frameRawData = malloc(len);
-    
-    if (uncompress(frameRawData, &len, imagefontRawData + frame->frameDataOffset, frame->frameDataLength) != Z_OK)
-    {
-        free(frameRawData);
-        free(paletteRawData);
-        return(0);
-    }
-
-    u32* pal = (u32*)(paletteRawData + sizeof(paletteHeader_t) + sizeof(frameInfo_t));
-    u32* rawImage = malloc(len * palette->colorChannel);
-
-    while (len--)
-    {
-        rawImage[len] = pal[frameRawData[len]];
-        rawImage[len] = (rawImage[len] << 24) | (rawImage[len] >> 8);
-    }
-
-    texture->pitch = entry->imageWidth * palette->colorChannel;
-    texture->width = entry->imageWidth;
-    texture->height = entry->imageHeight;
-    texture->bmp_out = rawImage;
-
-    free(frameRawData);
-    free(paletteRawData);
-
-    return(texture->pitch * texture->height);
-}
-*/

@@ -224,7 +224,7 @@ int DrawCodes(code_entry_t* code, u8 alpha, int y_inc, int xOff, int selIndex)
     free (lines);
     free (splitCodes);
     
-    SetCurrentFont(0);
+    SetCurrentFont(font_adonais_regular);
     
     return numOfLines;
 }

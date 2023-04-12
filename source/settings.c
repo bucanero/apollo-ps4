@@ -8,6 +8,7 @@
 #include <orbis/libkernel.h>
 #include <orbis/SaveData.h>
 #include <orbis/UserService.h>
+#include <orbis/Sysmodule.h>
 
 #include "types.h"
 #include "menu.h"
@@ -17,8 +18,6 @@
 #define ORBIS_USER_SERVICE_USER_ID_INVALID	-1
 
 static char * sort_opt[] = {"Disabled", "by Name", "by Title ID", NULL};
-#define SCE_SYSMODULE_INTERNAL_BGFT 0x8000002A
-#define SCE_SYSMODULE_INTERNAL_APPINSTUTIL 0x80000014
 
 menu_option_t menu_options[] = {
 	{ .name = "\nBackground Music", 
@@ -109,8 +108,8 @@ void update_callback(int sel)
 {
     apollo_config.update = !sel;
 	
-    sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_BGFT);
-    sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_APPINSTUTIL);
+    sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_BGFT);
+    sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_APP_INST_UTIL);
 
     if (!apollo_config.update)
         return;
@@ -176,7 +175,7 @@ void update_callback(int sel)
 
 	if (show_dialog(DIALOG_TYPE_YESNO, "New version available! Download update?"))
 	{
-		if (dir_exists("/user/app/NPXS39041") == SUCCESS && !sceStoreApiLaunchStore("Apollo"))
+		if (file_exists("/user/app/NPXS39041/app.pkg") == SUCCESS && !sceStoreApiLaunchStore("Apollo"))
 			show_message("An Store API Errror has occurred\ncheck /data/store_api.log for more info");
 		else if (http_download(start, NULL, "/data/apollo-ps4.pkg", 1))
 			show_message("Update downloaded to /data/apollo-ps4.pkg");

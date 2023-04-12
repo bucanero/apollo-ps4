@@ -114,6 +114,7 @@ void update_callback(int sel)
 
     if (!apollo_config.update)
         return;
+
 	LOG("checking latest Apollo version at %s", APOLLO_UPDATE_URL);
 
 	if (!http_download(APOLLO_UPDATE_URL, NULL, APOLLO_LOCAL_CACHE "ver.check", 0))
@@ -175,7 +176,7 @@ void update_callback(int sel)
 
 	if (show_dialog(DIALOG_TYPE_YESNO, "New version available! Download update?"))
 	{
-		if (dir_exists("") == SUCCESS && !sceStoreApiLaunchStore("Apollo"))
+		if (dir_exists("/user/app/NPXS39041") == SUCCESS && !sceStoreApiLaunchStore("Apollo"))
 			show_message("An Store API Errror has occurred\ncheck /data/store_api.log for more info");
 		else if (http_download(start, NULL, "/data/apollo-ps4.pkg", 1))
 			show_message("Update downloaded to /data/apollo-ps4.pkg");

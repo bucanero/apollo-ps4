@@ -16,6 +16,13 @@
 
 static char * sort_opt[] = {"Disabled", "by Name", "by Title ID", NULL};
 
+static void log_callback(int sel);
+static void sort_callback(int sel);
+static void ani_callback(int sel);
+static void db_url_callback(int sel);
+static void clearcache_callback(int sel);
+static void upd_appdata_callback(int sel);
+
 menu_option_t menu_options[] = {
 	{ .name = "\nBackground Music", 
 		.options = NULL, 
@@ -40,6 +47,12 @@ menu_option_t menu_options[] = {
 		.type = APP_OPTION_BOOL, 
 		.value = &apollo_config.update, 
 		.callback = update_callback 
+	},
+	{ .name = "Change Online Database URL",
+		.options = NULL,
+		.type = APP_OPTION_CALL,
+		.value = NULL,
+		.callback = db_url_callback 
 	},
 	{ .name = "Clear Local Cache", 
 		.options = NULL, 
@@ -68,17 +81,26 @@ void music_callback(int sel)
 	apollo_config.music = !sel;
 }
 
-void sort_callback(int sel)
+static void sort_callback(int sel)
 {
 	apollo_config.doSort = sel;
 }
 
-void ani_callback(int sel)
+static void ani_callback(int sel)
 {
 	apollo_config.doAni = !sel;
 }
 
-void clearcache_callback(int sel)
+static void db_url_callback(int sel)
+{
+	if (osk_dialog_get_text("Enter the URL of the online database", apollo_config.save_db, sizeof(apollo_config.save_db)))
+		show_message("Online database URL changed to:\n%s", apollo_config.save_db);
+
+	if (apollo_config.save_db[strlen(apollo_config.save_db)-1] != '/')
+		strcat(apollo_config.save_db, "/");
+}
+
+static void clearcache_callback(int sel)
 {
 	LOG("Cleaning folder '%s'...", APOLLO_LOCAL_CACHE);
 	clean_directory(APOLLO_LOCAL_CACHE);
@@ -86,7 +108,7 @@ void clearcache_callback(int sel)
 	show_message("Local cache folder cleaned:\n" APOLLO_LOCAL_CACHE);
 }
 
-void upd_appdata_callback(int sel)
+static void upd_appdata_callback(int sel)
 {
 	int i;
 
@@ -180,7 +202,7 @@ end_update:
 	return;
 }
 
-void log_callback(int sel)
+static void log_callback(int sel)
 {
 	dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 0);
 	show_message("Debug Logging Enabled!\n\n" APOLLO_PATH "apollo.log");
@@ -202,6 +224,7 @@ int save_app_settings(app_config_t* config)
 	mount.blocks = ORBIS_SAVE_DATA_BLOCKS_MIN2;
 	mount.mountMode = (ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON);
 
+	LOG("Apollo Save Tool v%s - Patch Engine v%s", APOLLO_VERSION, APOLLO_LIB_VERSION);
 	if (sceSaveDataMount2(&mount, &mountResult) < 0) {
 		LOG("sceSaveDataMount2 ERROR");
 		return 0;

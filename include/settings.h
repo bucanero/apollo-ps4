@@ -39,7 +39,6 @@ typedef struct
 } app_config_t;
 
 extern menu_option_t menu_options[];
-
 extern app_config_t apollo_config;
 
 void music_callback(int sel);

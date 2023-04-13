@@ -204,7 +204,7 @@ end_update:
 
 static void log_callback(int sel)
 {
-	dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 0);
+	dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 1);
 	show_message("Debug Logging Enabled!\n\n" APOLLO_PATH "apollo.log");
 }
 

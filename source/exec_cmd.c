@@ -516,7 +516,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PS4) || item->flags & SAVE_FLAG_LOCKED)
 				continue;
 
-			fprintf(f, "<tr><td><a href=\"/zip/%08x/%s_%s.zip\">%s</a></td>", i, item->title_id, item->dir_name, item->name);
+			fprintf(f, "<tr><td><a href=\"/zip/%08d/%s_%s.zip\">%s</a></td>", i, item->title_id, item->dir_name, item->name);
 			fprintf(f, "<td><img class=\"lazy\" data-src=\"");
 
 			if (item->flags & SAVE_FLAG_HDD)
@@ -535,16 +535,61 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 		return 1;
 	}
 
+	// http://ps4-ip:8080/PS4/games.txt
+	if (wildcard_match(req->resource, "/PS4/games.txt"))
+	{
+		asprintf(&res->data, "%s%s", APOLLO_LOCAL_CACHE, "ps4_games.txt");
+
+		FILE* f = fopen(res->data, "w");
+		if (!f)
+			return 0;
+
+		for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+		{
+			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PS4))
+				continue;
+
+			fprintf(f, "%s=%s\n", item->title_id, item->name);
+		}
+
+		fclose(f);
+		return 1;
+	}
+
+	// http://ps4-ip:8080/PS4/BLUS12345/saves.txt
+	if (wildcard_match(req->resource, "/PS4/\?\?\?\?\?\?\?\?\?/saves.txt"))
+	{
+		asprintf(&res->data, "%sweb%.9s_saves.txt", APOLLO_LOCAL_CACHE, req->resource + 5);
+
+		FILE* f = fopen(res->data, "w");
+		if (!f)
+			return 0;
+
+		int i = 0;
+		for (node = list_head(list); (item = list_get(node)); node = list_next(node), i++)
+		{
+			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PS4) || strncmp(item->title_id, req->resource + 5, 9))
+				continue;
+
+			fprintf(f, "%08d.zip=(%s) %s\n", i, item->dir_name, item->name);
+		}
+
+		fclose(f);
+		return 1;
+	}
+
 	// http://ps3-ip:8080/zip/00000000/CUSA12345_DIR-NAME.zip
-	if (wildcard_match(req->resource, "/zip/\?\?\?\?\?\?\?\?/\?\?\?\?\?\?\?\?\?_*.zip"))
+	// http://ps4-ip:8080/PS4/BLUS12345/00000000.zip
+	if (wildcard_match(req->resource, "/zip/\?\?\?\?\?\?\?\?/\?\?\?\?\?\?\?\?\?_*.zip") ||
+		wildcard_match(req->resource, "/PS4/\?\?\?\?\?\?\?\?\?/*.zip"))
 	{
 		char mount[32];
 		char *base, *path;
 		int id = 0;
 
-		asprintf(&res->data, "%s%s", APOLLO_LOCAL_CACHE, req->resource + 14);
-		sscanf(req->resource + 5, "%08x", &id);
+		sscanf(req->resource + (strncmp(req->resource, "/PS4", 4) == 0 ? 15 : 5), "%08d", &id);
 		item = list_get_item(list, id);
+		asprintf(&res->data, "%s%s_%s.zip", APOLLO_LOCAL_CACHE, item->title_id, item->dir_name);
 
 		if (item->flags & SAVE_FLAG_HDD)
 		{
@@ -569,6 +614,25 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 		free(base);
 		free(path);
 		return id;
+	}
+
+	// http://ps4-ip:8080/PS4/BLUS12345/icon0.png
+	if (wildcard_match(req->resource, "/PS4/\?\?\?\?\?\?\?\?\?/icon0.png"))
+	{
+		for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+		{
+			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PS4) || strncmp(item->title_id, req->resource + 5, 9))
+				continue;
+
+			if (item->flags & SAVE_FLAG_HDD)
+				asprintf(&res->data, PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, item->title_id, item->dir_name);
+			else
+				asprintf(&res->data, "%ssce_sys/icon0.png", item->path);
+
+			return (file_exists(res->data) == SUCCESS);
+		}
+
+		return 0;
 	}
 
 	// http://ps3-ip:8080/icon/CUSA12345-DIR-NAME/sce_sys/icon0.png

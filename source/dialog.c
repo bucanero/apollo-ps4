@@ -330,7 +330,7 @@ static int updateImeDialog(void)
 
 int osk_dialog_get_text(const char* title, char* text, uint32_t size)
 {
-    if (size > SCE_IME_DIALOG_MAX_TEXT_LENGTH) size = SCE_IME_DIALOG_MAX_TEXT_LENGTH;
+    size = (size > SCE_IME_DIALOG_MAX_TEXT_LENGTH) ? SCE_IME_DIALOG_MAX_TEXT_LENGTH : (size-1);
 
     if (!initImeDialog(title, text, size, 1))
         return 0;
@@ -341,5 +341,5 @@ int osk_dialog_get_text(const char* title, char* text, uint32_t size)
             return 0;
     }
 
-    return (convert_from_utf16(inputTextBuffer, text, size - 1));
+    return (convert_from_utf16(inputTextBuffer, text, size));
 }

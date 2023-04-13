@@ -392,13 +392,20 @@ static void dumpAllFingerprints(const save_entry_t* save)
 	show_message("All fingerprints dumped to:\n%sfingerprints.txt", APOLLO_PATH);
 }
 
-static void activateAccount(int user, const char* value)
+static void activateAccount(int user)
 {
 	uint64_t account = 0;
+	char value[SFO_ACCOUNT_ID_SIZE*2+1];
 
-	sscanf(value, "%lx", &account);
-	if (!account)
-		account = (0x6F6C6C6F70610000 + ((user & 0xFFFF) ^ 0xFFFF));
+	snprintf(value, sizeof(value), "%016lx", 0x6F6C6C6F70610000 + (~apollo_config.user_id & 0xFFFF));
+	if (!osk_dialog_get_text("Enter the Account ID", value, sizeof(value)))
+		return;
+
+	if (!sscanf(value, "%lx", &account))
+	{
+		show_message("Error! Account ID is not valid");
+		return;
+	};
 
 	LOG("Activating user=%d (%lx)...", user, account);
 	if (regMgr_SetAccountId(user, &account) != SUCCESS)
@@ -911,24 +918,6 @@ static void resignAllSaves(const save_entry_t* save, int all)
 	else
 		show_message("All saves successfully resigned!");
 }
-/*
-int apply_trophy_account()
-{
-	char sfoPath[256];
-	char account_id[SFO_ACCOUNT_ID_SIZE+1];
-
-	snprintf(account_id, sizeof(account_id), "%*lx", SFO_ACCOUNT_ID_SIZE, apollo_config.account_id);
-	if (!apollo_config.account_id)
-		memset(account_id, 0, SFO_ACCOUNT_ID_SIZE);
-
-	snprintf(sfoPath, sizeof(sfoPath), "%s" "PARAM.SFO", selected_entry->path);
-
-	patch_sfo_trophy(sfoPath, account_id);
-//	patch_trophy_account(selected_entry->path, account_id);
-
-	return 1;
-}
-*/
 
 static void exportZipDB(const char* path)
 {
@@ -1022,7 +1011,8 @@ static void downloadLink(const char* path)
 	if (!osk_dialog_get_text("Download URL", url, sizeof(url)))
 		return;
 
-	snprintf(out_path, sizeof(out_path), "%s%s", path, strrchr(url, '/')+1);
+	char *fname = strrchr(url, '/');
+	snprintf(out_path, sizeof(out_path), "%s%s", path, fname ? ++fname : "download.bin");
 
 	if (http_download(url, NULL, out_path, 1))
 		show_message("File successfully downloaded to:\n%s", out_path);
@@ -1091,7 +1081,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_CREATE_ACT_DAT:
-			activateAccount(code->file[0], code->options->value[code->options->sel] + 1);
+			activateAccount(codecmd[1]);
 			code->activated = 0;
 			break;
 

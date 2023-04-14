@@ -48,7 +48,7 @@ int sysKernelGetUpdVersion(int* unk);
 static orbis_patch_t *shellcore_backup = NULL;
 static int goldhen2 = 0;
 
-int _sceKernelGetModuleInfo(OrbisKernelModule handle, OrbisKernelModuleInfo* info)
+static int _sceKernelGetModuleInfo(OrbisKernelModule handle, OrbisKernelModuleInfo* info)
 {
     if (!info)
         return ORBIS_KERNEL_ERROR_EFAULT;
@@ -160,7 +160,7 @@ static int patch_SceSaveData(const orbis_patch_t* savedata_patch)
     return 1;
 }
 
-int get_firmware_version()
+int get_firmware_version(void)
 {
     int fw;
 
@@ -184,7 +184,7 @@ int sys_console_cmd(uint64_t cmd, void *data)
 
 // GoldHEN 2+ only
 // custom syscall 200
-static int check_syscalls()
+static int check_syscalls(void)
 {
     uint64_t tmp;
 
@@ -326,7 +326,7 @@ void disable_unpatch()
     shellcore_backup = NULL;
 }
 
-int unpatch_SceShellCore()
+int unpatch_SceShellCore(void)
 {
     int pid;
     uint64_t ex_start;
@@ -375,7 +375,7 @@ static int patch_SceShellCore(const orbis_patch_t* shellcore_patch)
     return 1;
 }
 
-int patch_save_libraries()
+int patch_save_libraries(void)
 {
     const orbis_patch_t* shellcore_patch = NULL;
     const orbis_patch_t* savedata_patch = NULL;
@@ -436,12 +436,37 @@ int patch_save_libraries()
     return 1;
 }
 
+int get_max_pfskey_ver(void)
+{
+	int fw = get_firmware_version();
+
+	if (fw >= 0x800) return 10;
+	if (fw >= 0x750) return 9;
+	if (fw >= 0x700) return 8;
+	if (fw >= 0x650) return 7;
+	if (fw >= 0x600) return 6;
+	if (fw >= 0x550) return 5;
+	if (fw >= 0x500) return 4;
+	if (fw >= 0x470) return 3;
+	if (fw >= 0x450) return 2;
+	if (fw >= 0x100) return 1;
+	return 0;
+}
+
+char* get_fw_by_pfskey_ver(int key_ver)
+{
+	char* fw[] = {"???", "Any", "4.50+", "4.70+", "5.00+", "5.50+", "6.00+", "6.50+", "7.00+", "7.50+", "8.00+"};
+	if (key_ver > 10) key_ver = 0;
+
+	return fw[key_ver];
+}
+
 // Variables for (un)jailbreaking
-jbc_cred g_Cred;
-jbc_cred g_RootCreds;
+static jbc_cred g_Cred;
+static jbc_cred g_RootCreds;
 
 // Verify jailbreak
-static int is_jailbroken()
+static int is_jailbroken(void)
 {
     FILE *s_FilePointer = fopen("/user/.jailbreak", "w");
 
@@ -454,7 +479,7 @@ static int is_jailbroken()
 }
 
 // Jailbreaks creds
-static int jailbreak()
+static int jailbreak(void)
 {
     if (is_jailbroken())
         return 1;
@@ -468,7 +493,7 @@ static int jailbreak()
 }
 
 // Initialize jailbreak
-int initialize_jbc()
+int initialize_jbc(void)
 {
     // Pop notification depending on jailbreak result
     if (!jailbreak())
@@ -483,7 +508,7 @@ int initialize_jbc()
 }
 
 // Unload libjbc libraries
-void terminate_jbc()
+void terminate_jbc(void)
 {
     if (!is_jailbroken())
         return;

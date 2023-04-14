@@ -1165,17 +1165,8 @@ int ReadBackupCodes(save_entry_t * bup)
 
 			regMgr_GetAccountId(i, &account);
 			snprintf(tmp, sizeof(tmp), "%c Activate Offline Account %s (%016lx)", account ? CHAR_TAG_LOCKED : CHAR_TAG_OWNER, userName, account);
-			cmd = _createCmdCode(account ? PATCH_NULL : PATCH_COMMAND, tmp, CMD_CODE_NULL); //CMD_CREATE_ACT_DAT
-
-			if (!account)
-			{
-				cmd->options_count = 1;
-				cmd->options = calloc(1, sizeof(option_entry_t));
-				cmd->options->sel = -1;
-				cmd->options->size = get_xml_owners(bup->path, CMD_CREATE_ACT_DAT, &cmd->options->name, &cmd->options->value);
-				cmd->file = malloc(1);
-				cmd->file[0] = i;
-			}
+			cmd = _createCmdCode(account ? PATCH_NULL : PATCH_COMMAND, tmp, account ? CMD_CODE_NULL : CMD_CREATE_ACT_DAT);
+			cmd->codes[1] = i;
 			list_append(bup->codes, cmd);
 
 			LOG("ID %d = '%s' (%lx)", i, userName, account);
@@ -1846,7 +1837,7 @@ int get_save_details(const save_entry_t* save, char **details)
 			save->title_id,
 			save->dir_name,
 			save->blocks,
-			save->path + 23);
+			strchr(save->path, 'T') + 3);
 
 		return 1;
 	}

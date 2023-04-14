@@ -392,13 +392,20 @@ static void dumpAllFingerprints(const save_entry_t* save)
 	show_message("All fingerprints dumped to:\n%sfingerprints.txt", APOLLO_PATH);
 }
 
-static void activateAccount(int user, const char* value)
+static void activateAccount(int user)
 {
 	uint64_t account = 0;
+	char value[SFO_ACCOUNT_ID_SIZE*2+1];
 
-	sscanf(value, "%lx", &account);
-	if (!account)
-		account = (0x6F6C6C6F70610000 + ((user & 0xFFFF) ^ 0xFFFF));
+	snprintf(value, sizeof(value), "%016lx", 0x6F6C6C6F70610000 + (~apollo_config.user_id & 0xFFFF));
+	if (!osk_dialog_get_text("Enter the Account ID", value, sizeof(value)))
+		return;
+
+	if (!sscanf(value, "%lx", &account))
+	{
+		show_message("Error! Account ID is not valid");
+		return;
+	};
 
 	LOG("Activating user=%d (%lx)...", user, account);
 	if (regMgr_SetAccountId(user, &account) != SUCCESS)
@@ -420,6 +427,14 @@ static void copySavePFS(const save_entry_t* save)
 		.account_id = apollo_config.account_id,
 	};
 
+	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
+	if ((read_file(src_path, (uint8_t*) mount, 0x10) < 0) || get_max_pfskey_ver() < mount[8])
+	{
+		show_message("Error: Encrypted save from a newer firmware version!\n\n"
+			"Required firmware: %s", get_fw_by_pfskey_ver(mount[8]));
+		return;
+	}
+
 	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
 	{
 		LOG("[!] Error: can't create/mount save!");
@@ -432,7 +447,7 @@ static void copySavePFS(const save_entry_t* save)
 	LOG("Copying <%s> to %s...", src_path, hdd_path);
 	if (copy_file(src_path, hdd_path) != SUCCESS)
 	{
-		LOG("[!] Error: can't copy %s", hdd_path);
+		show_message("Error: can't copy %s", hdd_path);
 		return;
 	}
 
@@ -441,7 +456,7 @@ static void copySavePFS(const save_entry_t* save)
 	LOG("Copying <%s> to %s...", src_path, hdd_path);
 	if (copy_file(src_path, hdd_path) != SUCCESS)
 	{
-		LOG("[!] Error: can't copy %s", hdd_path);
+		show_message("Error: can't copy %s", hdd_path);
 		return;
 	}
 
@@ -516,7 +531,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PS4) || item->flags & SAVE_FLAG_LOCKED)
 				continue;
 
-			fprintf(f, "<tr><td><a href=\"/zip/%08x/%s_%s.zip\">%s</a></td>", i, item->title_id, item->dir_name, item->name);
+			fprintf(f, "<tr><td><a href=\"/zip/%08d/%s_%s.zip\">%s</a></td>", i, item->title_id, item->dir_name, item->name);
 			fprintf(f, "<td><img class=\"lazy\" data-src=\"");
 
 			if (item->flags & SAVE_FLAG_HDD)
@@ -535,16 +550,61 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 		return 1;
 	}
 
+	// http://ps4-ip:8080/PS4/games.txt
+	if (wildcard_match(req->resource, "/PS4/games.txt"))
+	{
+		asprintf(&res->data, "%s%s", APOLLO_LOCAL_CACHE, "ps4_games.txt");
+
+		FILE* f = fopen(res->data, "w");
+		if (!f)
+			return 0;
+
+		for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+		{
+			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PS4))
+				continue;
+
+			fprintf(f, "%s=%s\n", item->title_id, item->name);
+		}
+
+		fclose(f);
+		return 1;
+	}
+
+	// http://ps4-ip:8080/PS4/BLUS12345/saves.txt
+	if (wildcard_match(req->resource, "/PS4/\?\?\?\?\?\?\?\?\?/saves.txt"))
+	{
+		asprintf(&res->data, "%sweb%.9s_saves.txt", APOLLO_LOCAL_CACHE, req->resource + 5);
+
+		FILE* f = fopen(res->data, "w");
+		if (!f)
+			return 0;
+
+		int i = 0;
+		for (node = list_head(list); (item = list_get(node)); node = list_next(node), i++)
+		{
+			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PS4) || strncmp(item->title_id, req->resource + 5, 9))
+				continue;
+
+			fprintf(f, "%08d.zip=(%s) %s\n", i, item->dir_name, item->name);
+		}
+
+		fclose(f);
+		return 1;
+	}
+
 	// http://ps3-ip:8080/zip/00000000/CUSA12345_DIR-NAME.zip
-	if (wildcard_match(req->resource, "/zip/\?\?\?\?\?\?\?\?/\?\?\?\?\?\?\?\?\?_*.zip"))
+	// http://ps4-ip:8080/PS4/BLUS12345/00000000.zip
+	if (wildcard_match(req->resource, "/zip/\?\?\?\?\?\?\?\?/\?\?\?\?\?\?\?\?\?_*.zip") ||
+		wildcard_match(req->resource, "/PS4/\?\?\?\?\?\?\?\?\?/*.zip"))
 	{
 		char mount[32];
 		char *base, *path;
 		int id = 0;
 
-		asprintf(&res->data, "%s%s", APOLLO_LOCAL_CACHE, req->resource + 14);
-		sscanf(req->resource + 5, "%08x", &id);
+		sscanf(req->resource + (strncmp(req->resource, "/PS4", 4) == 0 ? 15 : 5), "%08d", &id);
 		item = list_get_item(list, id);
+		asprintf(&res->data, "%s%s_%s.zip", APOLLO_LOCAL_CACHE, item->title_id, item->dir_name);
 
 		if (item->flags & SAVE_FLAG_HDD)
 		{
@@ -569,6 +629,25 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 		free(base);
 		free(path);
 		return id;
+	}
+
+	// http://ps4-ip:8080/PS4/BLUS12345/icon0.png
+	if (wildcard_match(req->resource, "/PS4/\?\?\?\?\?\?\?\?\?/icon0.png"))
+	{
+		for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+		{
+			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PS4) || strncmp(item->title_id, req->resource + 5, 9))
+				continue;
+
+			if (item->flags & SAVE_FLAG_HDD)
+				asprintf(&res->data, PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, item->title_id, item->dir_name);
+			else
+				asprintf(&res->data, "%ssce_sys/icon0.png", item->path);
+
+			return (file_exists(res->data) == SUCCESS);
+		}
+
+		return 0;
 	}
 
 	// http://ps3-ip:8080/icon/CUSA12345-DIR-NAME/sce_sys/icon0.png
@@ -847,24 +926,6 @@ static void resignAllSaves(const save_entry_t* save, int all)
 	else
 		show_message("All saves successfully resigned!");
 }
-/*
-int apply_trophy_account()
-{
-	char sfoPath[256];
-	char account_id[SFO_ACCOUNT_ID_SIZE+1];
-
-	snprintf(account_id, sizeof(account_id), "%*lx", SFO_ACCOUNT_ID_SIZE, apollo_config.account_id);
-	if (!apollo_config.account_id)
-		memset(account_id, 0, SFO_ACCOUNT_ID_SIZE);
-
-	snprintf(sfoPath, sizeof(sfoPath), "%s" "PARAM.SFO", selected_entry->path);
-
-	patch_sfo_trophy(sfoPath, account_id);
-//	patch_trophy_account(selected_entry->path, account_id);
-
-	return 1;
-}
-*/
 
 static void exportZipDB(const char* path)
 {
@@ -958,7 +1019,8 @@ static void downloadLink(const char* path)
 	if (!osk_dialog_get_text("Download URL", url, sizeof(url)))
 		return;
 
-	snprintf(out_path, sizeof(out_path), "%s%s", path, strrchr(url, '/')+1);
+	char *fname = strrchr(url, '/');
+	snprintf(out_path, sizeof(out_path), "%s%s", path, fname ? ++fname : "download.bin");
 
 	if (http_download(url, NULL, out_path, 1))
 		show_message("File successfully downloaded to:\n%s", out_path);
@@ -1027,7 +1089,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_CREATE_ACT_DAT:
-			activateAccount(code->file[0], code->options->value[code->options->sel] + 1);
+			activateAccount(codecmd[1]);
 			code->activated = 0;
 			break;
 

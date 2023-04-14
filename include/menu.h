@@ -261,9 +261,11 @@ int load_app_settings(app_config_t* config);
 int save_app_settings(app_config_t* config);
 int reset_app_settings(app_config_t* config);
 
-int initialize_jbc();
-void terminate_jbc();
-int patch_save_libraries();
-int unpatch_SceShellCore();
+int initialize_jbc(void);
+void terminate_jbc(void);
+int patch_save_libraries(void);
+int unpatch_SceShellCore(void);
+int get_max_pfskey_ver(void);
+char* get_fw_by_pfskey_ver(int key_ver);
 
 #endif

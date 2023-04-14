@@ -44,7 +44,7 @@ extern app_config_t apollo_config;
 void music_callback(int sel);
 void update_callback(int sel);
 
-int get_firmware_version();
+int get_firmware_version(void);
 int save_xml_owner(const char *xmlfile);
 int read_xml_owner(const char *xmlfile, const char *owner);
 int get_xml_owners(const char *xmlfile, int cmd, char*** nam, char*** val);

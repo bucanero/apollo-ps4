@@ -45,14 +45,11 @@ int file_exists(const char *path)
 
 int dir_exists(const char *path)
 {
-    return file_exists(path);
-/*
     struct stat sb;
-    if ((stat(path, &sb) == 0) && sb.st_mode & S_IFDIR) {
+    if ((stat(path, &sb) == 0) && S_ISDIR(sb.st_mode)) {
         return SUCCESS;
     }
     return FAILED;
-*/
 }
 
 int unlink_secure(const char *path)
@@ -236,48 +233,5 @@ int sys_reboot()
 
     lv2syscall4(379,0x1200,0,0,0);
     return_to_user_prog(int);
-}
-
-//----------------------------------------
-//CONSOLE ID UTILS
-//----------------------------------------
-
-#define SYS_SS_APPLIANCE_INFO_MANAGER                  867
-#define SYS_SS_GET_OPEN_PSID                           872
-#define AIM_GET_DEVICE_ID                              0x19003
-#define AIM_GET_OPEN_PSID                              0x19005
-#define SYSCALL8_OPCODE_IS_HEN                         0x1337
-
-int sys_ss_get_open_psid(uint64_t psid[2])
-{
-	lv2syscall1(SYS_SS_GET_OPEN_PSID, (uint64_t) psid);
-	return_to_user_prog(int);
-}
-
-int sys_ss_appliance_info_manager(u32 packet_id, u64 arg)
-{
-	lv2syscall2(SYS_SS_APPLIANCE_INFO_MANAGER, (uint64_t)packet_id, (uint64_t)arg);
-	return_to_user_prog(int);
-}
-
-int ss_aim_get_device_id(uint8_t *idps)
-{
-	return sys_ss_appliance_info_manager(AIM_GET_DEVICE_ID, (uint64_t)idps);
-}
-
-int ss_aim_get_open_psid(uint8_t *psid)
-{
-	return sys_ss_appliance_info_manager(AIM_GET_OPEN_PSID, (uint64_t)psid);
-}
-
-int sys8_get_hen(void)
-{
-    lv2syscall1(8, SYSCALL8_OPCODE_IS_HEN);
-    return_to_user_prog(int);
-}
-
-int is_ps3hen(void)
-{
-    return (sys8_get_hen() == 0x1337);
 }
 */

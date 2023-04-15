@@ -125,6 +125,7 @@ enum cmd_code_enum
     CMD_EXTRACT_ARCHIVE,
     CMD_URL_DOWNLOAD,
     CMD_NET_WEBSERVER,
+    CMD_BROWSER_HISTORY,
 
 // SFO patches
     SFO_UNLOCK_COPY,

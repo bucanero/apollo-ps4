@@ -1123,6 +1123,8 @@ int ReadBackupCodes(save_entry_t * bup)
 		list_append(bup->codes, cmd);
 		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Local Web Server (full system access)", CMD_NET_WEBSERVER);
 		list_append(bup->codes, cmd);
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Toggle Web Browser history", CMD_BROWSER_HISTORY);
+		list_append(bup->codes, cmd);
 		return list_count(bup->codes);
 
 	case FILE_TYPE_SQL:

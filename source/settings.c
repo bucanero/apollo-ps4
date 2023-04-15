@@ -2,10 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <signal.h>
 #include <stdbool.h>
+#include <store_api.h>
 #include <orbis/libkernel.h>
 #include <orbis/SaveData.h>
 #include <orbis/UserService.h>
+#include <orbis/Sysmodule.h>
 
 #include "types.h"
 #include "menu.h"
@@ -126,6 +129,9 @@ static void upd_appdata_callback(int sel)
 void update_callback(int sel)
 {
     apollo_config.update = !sel;
+	
+    sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_BGFT);
+    sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_APP_INST_UTIL);
 
     if (!apollo_config.update)
         return;
@@ -191,7 +197,9 @@ void update_callback(int sel)
 
 	if (show_dialog(DIALOG_TYPE_YESNO, "New version available! Download update?"))
 	{
-		if (http_download(start, NULL, "/data/apollo-ps4.pkg", 1))
+		if (file_exists("/user/app/NPXS39041/app.pkg") == SUCCESS && !sceStoreApiLaunchStore("Apollo"))
+			show_message("An Store API Errror has occurred\ncheck /data/store_api.log for more info");
+		else if (http_download(start, NULL, "/data/apollo-ps4.pkg", 1))
 			show_message("Update downloaded to /data/apollo-ps4.pkg");
 		else
 			show_message("Download error!");

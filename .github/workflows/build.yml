@@ -52,12 +52,21 @@ jobs:
       run: |
         curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/UserService.h > OpenOrbis/PS4Toolchain/include/orbis/UserService.h
         curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/_types/user.h > OpenOrbis/PS4Toolchain/include/orbis/_types/user.h
+        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/_types/kernel.h > OpenOrbis/PS4Toolchain/include/orbis/_types/kernel.h
+        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/SystemService.h > OpenOrbis/PS4Toolchain/include/orbis/SystemService.h
+        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/libkernel.h > OpenOrbis/PS4Toolchain/include/orbis/libkernel.h
 
     - name: Checkout dbglogger
       uses: actions/checkout@v3
       with:
         repository: bucanero/dbglogger
         path: dbglogger
+
+    - name: Checkout store-api
+      uses: actions/checkout@v3
+      with:
+        repository: LightningMods/store-api
+        path: store-api
 
     - name: Checkout apollo-lib
       uses: actions/checkout@v3
@@ -196,6 +205,12 @@ jobs:
         cp ${sdl_path}/orbis/libSDL2.a "${OO_PS4_TOOLCHAIN}/lib"
         cp ${curl_path}/orbis/lib/libcurl.a "${OO_PS4_TOOLCHAIN}/lib"
         cp -R ${curl_path}/include/curl "${OO_PS4_TOOLCHAIN}/include/"
+
+    - name: Install store-api
+      working-directory: store-api
+      run: |
+        make 
+        make install
 
     - name: Add save patches to Package
       run: make createzip

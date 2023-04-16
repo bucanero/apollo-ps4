@@ -4,6 +4,29 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v1.4.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.4.0) - 2023-04-16
+
+### Added
+
+* Network Tools
+  * URL downloader tool (download http/https/ftp/ftps links)
+  * Simple local Web Server (full access to console drives)
+  * Disable Web Browser history
+* Hex Editor for save-data files
+* On-screen Keyboard (for text input)
+* Activate offline accounts with user-defined account IDs (on-screen keyboard)
+* Improved internal Web Server (Online DB support)
+* User-defined Online DB URL (`Settings`)
+* Improved DLC rebuild (read content details from `.pkg` file)
+* Explicit firmware check when importing encrypted saves
+
+### Misc
+
+* Updated Apollo patch engine v0.4.1
+  * Skip search if the pattern was not found
+  * Improve code types 9, B, D
+  * Add value subtraction support (BSD)
+
 ## [v1.3.1](https://github.com/bucanero/apollo-ps4/releases/tag/v1.3.1) - 2023-01-08
 
 ### Added

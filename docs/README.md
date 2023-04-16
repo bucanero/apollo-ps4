@@ -5,7 +5,7 @@
 
 **Apollo Save Tool** is an application to manage save-game files on the PlayStation 4.
 
-The `apollo-ps4` homebrew app allows to download, unlock, patch and resign save-game files directly on your PS4.
+This homebrew app allows you to download, unlock, patch and resign save-game files directly on your PS4.
 
 ![image](./screenshots/screenshot-main.jpg)
 
@@ -64,35 +64,7 @@ On first run, the application will detect and setup the required user settings.
 
 To activate an account offline, go to the `User Tools` menu, and select `Activate PS4 Accounts`.
 By default the local account will be activated with an auto-generated `account-id` value.
-
-### Custom account-id settings
-
-For the offline account activation, if you want to override the auto-generated ID used by Apollo, you can define your own `account-id` values using the `owners.xml` file.
-For example:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<apollo platform="PS4" version="1.0.0">
-  <owner name="Some User">
-    <console idps="" psid="FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF"/>
-    <user id="10000002" account_id="0123456789abcdef"/>
-  </owner>
-  <owner name="Other User">
-    <console idps="" psid="FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF"/>
-    <user id="10000008" account_id="abcdef0123456789"/>
-  </owner>
-</apollo>
-```
-
-The file must be saved to `/data/apollo/owners.xml`. Apollo will load the user-defined `account-id` values, and you should 
-select the desired Owner when activating an account from the **User tools** menu.
-
-In the `owners.xml` you need to define:
-- Owner name
-- User ID (e.g.: `10000123`)
-- Account ID (e.g.: `0123456789abcdef`)
-- Console PSID (optional)
-- Console IDPS (optional)
+This default account value can be edited using the on-screen keyboard.
 
 # Usage
 
@@ -143,7 +115,7 @@ You need to have installed:
 - [Open Orbis SDK](https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/)
 - [Apollo](https://github.com/bucanero/apollo-lib) library
 - [polarSSL](https://github.com/bucanero/oosdk_libraries/tree/master/polarssl-1.3.9) library
-- [libcurl](https://github.com/bucanero/oosdk_libraries/tree/master/curl-7.64.1) library
+- [cURL](https://github.com/bucanero/oosdk_libraries/tree/master/curl-7.64.1) library
 - [Zip](https://github.com/bucanero/zip) library
 - [SDL2](https://github.com/PacBrew/SDL/tree/ps4) library
 - [libJbc](https://github.com/bucanero/ps4-libjbc) library
@@ -162,7 +134,7 @@ UDP multicast address `239.255.0.100:30000`. To receive them you can use [socat]
 
 # License
 
-[Apollo Save Tool](https://github.com/bucanero/apollo-ps4/) (PS4) - Copyright (C) 2020-2022  [Damian Parrino](https://twitter.com/dparrino)
+[Apollo Save Tool](https://github.com/bucanero/apollo-ps4/) (PS4) - Copyright (C) 2020-2023 [Damian Parrino](https://twitter.com/dparrino)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the [GNU General Public License][app_license] as published by

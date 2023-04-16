@@ -4,7 +4,7 @@
 #define MENU_ICON_OFF 			105         //X Offset to start printing menu mini icon
 #define MENU_ANI_MAX 			0x80        //Max animation number
 #define MENU_SPLIT_OFF			400			//Offset from left of sub/split menu to start drawing
-#define OPTION_ITEM_OFF         1095        //Offset from left of settings item/value
+#define OPTION_ITEM_OFF         1495        //Offset from left of settings item/value
 
 enum app_option_type
 {

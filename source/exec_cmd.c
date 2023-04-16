@@ -555,16 +555,19 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 	{
 		asprintf(&res->data, "%s%s", APOLLO_LOCAL_CACHE, "ps4_games.txt");
 
+		char *last = "";
 		FILE* f = fopen(res->data, "w");
 		if (!f)
 			return 0;
 
 		for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 		{
-			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PS4) || item->flags & SAVE_FLAG_LOCKED)
+			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PS4) || item->flags & SAVE_FLAG_LOCKED ||
+				strcmp(last, item->title_id) == 0)
 				continue;
 
 			fprintf(f, "%s=%s\n", item->title_id, item->name);
+			last = item->title_id;
 		}
 
 		fclose(f);

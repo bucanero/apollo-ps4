@@ -31,6 +31,7 @@ enum menu_screen_ids
 //Textures
 enum texture_index
 {
+	leonluna_jpg_index,
 	bgimg_jpg_index,
 	column_1_png_index,
 	column_2_png_index,

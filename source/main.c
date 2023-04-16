@@ -194,6 +194,7 @@ static int LoadTextures_Menu()
 	//Init Main Menu textures
 	load_menu_texture(bgimg, jpg);
 	load_menu_texture(cheat, png);
+	load_menu_texture(leonluna, jpg);
 
 	load_menu_texture(circle_loading_bg, png);
 	load_menu_texture(circle_loading_seek, png);
@@ -534,6 +535,8 @@ s32 main(s32 argc, const char* argv[])
 		save_app_settings(&apollo_config);
 	}
 
+	// dedicated to Leon & Luna ~ in loving memory
+	menu_textures[buk_scr_png_index] = menu_textures[leonluna_jpg_index];
 	// Splash screen logo (fade-in)
 	drawSplashLogo(1);
 
@@ -554,8 +557,8 @@ s32 main(s32 argc, const char* argv[])
 	//Set options
 	update_callback(!apollo_config.update);
 
+	// Start BGM audio thread
 	SDL_CreateThread(&LoadSounds, "audio_thread", &apollo_config.music);
-
 	Draw_MainMenu_Ani();
 
 	while (!close_app)

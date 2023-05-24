@@ -535,10 +535,12 @@ s32 main(s32 argc, const char* argv[])
 		save_app_settings(&apollo_config);
 	}
 
+#ifndef APOLLO_ENABLE_LOGGING
 	// dedicated to Leon & Luna ~ in loving memory
 	menu_textures[buk_scr_png_index] = menu_textures[leonluna_jpg_index];
 	// Splash screen logo (fade-in)
 	drawSplashLogo(1);
+#endif
 
 	// Apply save-mounter patches
 	patch_save_libraries();
@@ -550,16 +552,22 @@ s32 main(s32 argc, const char* argv[])
 	registerSpecialChars();
 	initMenuOptions();
 
+#ifndef APOLLO_ENABLE_LOGGING
 	// Splash screen logo (fade-out)
 	drawSplashLogo(-1);
 	SDL_DestroyTexture(menu_textures[buk_scr_png_index].texture);
+#endif
 	
 	//Set options
 	update_callback(!apollo_config.update);
 
 	// Start BGM audio thread
 	SDL_CreateThread(&LoadSounds, "audio_thread", &apollo_config.music);
-	Draw_MainMenu_Ani();
+
+#ifndef APOLLO_ENABLE_LOGGING
+	if (apollo_config.doAni)
+		Draw_MainMenu_Ani();
+#endif
 
 	while (!close_app)
 	{
@@ -604,8 +612,10 @@ s32 main(s32 argc, const char* argv[])
 		SDL_RenderPresent(renderer);
 	}
 
+#ifndef APOLLO_ENABLE_LOGGING
 	if (apollo_config.doAni)
 		drawEndLogo();
+#endif
 
     // Cleanup resources
     SDL_DestroyRenderer(renderer);

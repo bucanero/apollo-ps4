@@ -35,6 +35,17 @@ This homebrew app allows you to download, unlock, patch and resign save-game fil
 
 Get the [latest version here][app_latest].
 
+<details>
+<summary>Nightly Builds (Click to Expand)</summary>
+
+- Login to GitHub [(this is required to download artifacts)](https://docs.github.com/en/actions/managing-workflow-runs/downloading-workflow-artifacts#:~:text=Who%20can%20use,download%20workflow%20artifacts.).
+- Click on a build in the **[Actions](../../actions)** Tab.
+  - ![image](https://github.com/bucanero/apollo-ps4/assets/37698908/2e52961b-04ef-42f1-9453-78b3ceb24afc)
+- Click on the artifact to download the pkg zip.
+  - ![image](https://github.com/bucanero/apollo-ps4/assets/37698908/aaeb523e-eab9-43f7-a993-5fa902ada1b7)
+
+</details>
+
 ## Changelog
 
 See the [latest changes here](CHANGELOG.md).

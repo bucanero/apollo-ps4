@@ -17,7 +17,7 @@
 #define APOLLO_LOCAL_CACHE		APOLLO_PATH "cache/"
 #define APOLLO_UPDATE_URL		"https://api.github.com/repos/bucanero/apollo-ps4/releases/latest"
 
-#define MAX_USB_DEVICES         6
+#define MAX_USB_DEVICES         8
 #define USB0_PATH               "/mnt/usb0/"
 #define USB1_PATH               "/mnt/usb1/"
 #define USB_PATH                "/mnt/usb%d/"

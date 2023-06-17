@@ -46,7 +46,10 @@ int file_exists(const char *path)
 int dir_exists(const char *path)
 {
     struct stat sb;
-    if ((stat(path, &sb) == 0) && S_ISDIR(sb.st_mode)) {
+    if (stat(path, &sb) == 0 &&
+	S_ISDIR(sb.st_mode) &&
+	access(path, W_OK) == 0)
+    {
         return SUCCESS;
     }
     return FAILED;

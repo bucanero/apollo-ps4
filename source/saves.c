@@ -1524,34 +1524,16 @@ static void read_hdd_savegames(const char* userPath, list_t *list, sqlite3 *appd
 	sqlite3_close(db);
 }
 
-/*
- * Function:		ReadUserList()
- * File:			saves.c
- * Project:			Apollo PS3
- * Description:		Reads the entire userlist folder into a game_entry array
- * Arguments:
- *	gmc:			Set as the number of games read
- * Return:			Pointer to array of game_entry, null if failed
- */
-list_t * ReadUsbList(const char* userPath)
+static list_t *createSaveEntryOptions(const char *userPath, list_t *list, const char *cmdName)
 {
 	save_entry_t *item;
 	code_entry_t *cmd;
-	list_t *list;
-	char pathEnc[64], pathDec[64];
-
-	snprintf(pathDec, sizeof(pathDec), "%sAPOLLO/", userPath);
-	snprintf(pathEnc, sizeof(pathEnc), "%sSAVEDATA/", userPath);
-	if (dir_exists(pathDec) != SUCCESS && dir_exists(pathEnc) != SUCCESS)
-		return NULL;
-
-	list = list_alloc();
-
-	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_COPY " Bulk Save Management");
+	item = _createSaveEntry(SAVE_FLAG_PS4, cmdName);
 	item->type = FILE_TYPE_MENU;
 	item->codes = list_alloc();
 	item->path = strdup(userPath);
-	//bulk management hack
+
+	// bulk management hack
 	item->dir_name = malloc(sizeof(void**));
 	((void**)item->dir_name)[0] = list;
 
@@ -1574,8 +1556,66 @@ list_t * ReadUsbList(const char* userPath)
 	list_append(item->codes, cmd);
 	list_append(list, item);
 
+	return list;
+}
+
+static size_t processUsbList(const char *pathDec, const char *pathEnc, const char *userPath, const char *deviceName, list_t *list)
+{
+	LOG("pathDec=%s pathEnc=%s userPath=%s deviceName=%s", pathDec, pathEnc, userPath, deviceName);
+	if (dir_exists(pathDec) != SUCCESS && dir_exists(pathEnc) != SUCCESS)
+	{
+		return 0;
+	}
+
+	char BulkcmdName[128] = {0};
+	snprintf(BulkcmdName, sizeof(BulkcmdName), CHAR_ICON_COPY " Bulk Save Management %s", deviceName);
+	list = createSaveEntryOptions(userPath, list, BulkcmdName);
+
 	read_usb_savegames(pathDec, list);
 	read_usb_encrypted_savegames(pathEnc, list);
+	return list_count(list);
+}
+
+/*
+ * Function:		ReadUserList()
+ * File:			saves.c
+ * Project:			Apollo PS3
+ * Description:		Reads the entire userlist folder into a game_entry array
+ * Arguments:
+ *	gmc:			Set as the number of games read
+ * Return:			Pointer to array of game_entry, null if failed
+ */
+list_t * ReadUsbList(const char* userPath)
+{
+	LOG("userPath=%s", userPath);
+
+	list_t *list = list_alloc();
+
+	// Register available usb devices
+	for (u32 i = 0; i <= MAX_USB_DEVICES; i++)
+	{
+		char pathDec[256] = {0}, pathEnc[256] = {0}, devName[8] = {0}, _userPath[256] = {0};
+		snprintf(pathDec, sizeof(pathDec), USB_PATH "PS4/APOLLO/", i);
+		snprintf(pathEnc, sizeof(pathEnc), USB_PATH "PS4/SAVEDATA/", i);
+		snprintf(_userPath, sizeof(_userPath), USB_PATH "PS4/", i);
+		snprintf(devName, sizeof(devName), "USB %u", i);
+		if(!processUsbList(pathDec, pathEnc, _userPath, devName, list))
+		{
+			LOG("Path not available: %s", _userPath);
+			continue;
+		}
+	}
+
+	// Register fake usb path on HDD
+	if(!processUsbList(FAKE_USB_PATH "PS4/APOLLO/", FAKE_USB_PATH "PS4/SAVEDATA/", FAKE_USB_PATH "PS4/", "HDD", list))
+	{
+		LOG("Path not available: %s", FAKE_USB_PATH "PS4/");
+	}
+
+	if (list_count(list) == 0)
+	{
+		return NULL;
+	}
 
 	return list;
 }

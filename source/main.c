@@ -370,19 +370,6 @@ static int LoadSounds(void* data)
 
 void update_usb_path(char* path)
 {
-	for (int i = 0; i <= MAX_USB_DEVICES; i++)
-	{
-		sprintf(path, USB_PATH "PS4/", i);
-
-		if (dir_exists(path) == SUCCESS)
-			return;
-	}
-
-	sprintf(path, FAKE_USB_PATH "PS4/");
-	if (dir_exists(path) == SUCCESS)
-		return;
-
-	path[0] = 0;
 }
 
 void update_hdd_path(char* path)

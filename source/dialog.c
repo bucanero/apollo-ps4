@@ -123,9 +123,8 @@ int init_loading_screen(const char* message)
 	return (sceMsgDialogOpen(&dialogParam) >= 0);
 }
 
-void stop_loading_screen()
+void stop_loading_screen(void)
 {
-	update_progress_bar(1, 1, "");
 	end_progress_bar();
 }
 

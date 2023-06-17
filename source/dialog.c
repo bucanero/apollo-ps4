@@ -107,13 +107,25 @@ void update_progress_bar(uint64_t progress, const uint64_t total_size, const cha
 
 int init_loading_screen(const char* message)
 {
-	init_progress_bar(message);
-    return 1;
+	OrbisMsgDialogButtonsParam buttonsParam;
+	OrbisMsgDialogUserMessageParam messageParam;
+	OrbisMsgDialogParam dialogParam;
+	memset(&buttonsParam, 0, sizeof(buttonsParam));
+	memset(&dialogParam, 0, sizeof(dialogParam));
+	memset(&messageParam, 0, sizeof(messageParam));
+
+	sceMsgDialogInitialize();
+	orbisMsgDialogParamInitialize(&dialogParam);
+	dialogParam.userMsgParam = &messageParam;
+	dialogParam.mode = ORBIS_MSG_DIALOG_MODE_USER_MSG;
+	messageParam.buttonType = ORBIS_MSG_DIALOG_BUTTON_TYPE_WAIT;
+	messageParam.msg = message;
+
+	return (sceMsgDialogOpen(&dialogParam) >= 0);
 }
 
-void stop_loading_screen()
+void stop_loading_screen(void)
 {
-	update_progress_bar(1, 1, "");
 	end_progress_bar();
 }
 

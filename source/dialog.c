@@ -110,11 +110,12 @@ int init_loading_screen(const char* message)
 	OrbisMsgDialogButtonsParam buttonsParam;
 	OrbisMsgDialogUserMessageParam messageParam;
 	OrbisMsgDialogParam dialogParam;
+	memset(&buttonsParam, 0, sizeof(buttonsParam));
+	memset(&dialogParam, 0, sizeof(dialogParam));
+	memset(&messageParam, 0, sizeof(messageParam));
 
 	sceMsgDialogInitialize();
 	orbisMsgDialogParamInitialize(&dialogParam);
-	memset(&buttonsParam, 0, sizeof(buttonsParam));
-	memset(&messageParam, 0, sizeof(messageParam));
 	dialogParam.userMsgParam = &messageParam;
 	dialogParam.mode = ORBIS_MSG_DIALOG_MODE_USER_MSG;
 	messageParam.buttonType = ORBIS_MSG_DIALOG_BUTTON_TYPE_WAIT;

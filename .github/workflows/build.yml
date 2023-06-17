@@ -26,18 +26,20 @@ jobs:
         echo "sdl_path=SDL-PS4" >> $GITHUB_ENV
         echo "curl_path=oosdk_libraries/curl-7.64.1" >> $GITHUB_ENV
         echo "OO_PS4_TOOLCHAIN=${GITHUB_WORKSPACE}/OpenOrbis/PS4Toolchain" >> $GITHUB_ENV
+        # Built on commit c63c9e68d53074603f626cf561edcbf42c1dfd45
+        echo "OO_SDK_URL=https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/download/0.0.1.481/toolchain.tar.gz" >> $GITHUB_ENV
 
     - name: Cache OpenOrbis Toolchain
       id: cache-oosdk
       uses: actions/cache@v3
       with:
         path: ${{ env.OO_PS4_TOOLCHAIN }}
-        key: ${{ runner.os }}-oosdk-llvm-${{ env.llvm_ver }}
+        key: ${{ runner.os }}-oosdk-llvm-${{ env.llvm_ver }}-${{ env.OO_SDK_URL }}
 
     # temporary release until 0.53 is released
     - name: Download OpenOrbis Toolchain
       if: steps.cache-oosdk.outputs.cache-hit != 'true'
-      run: curl -sL https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/download/0.0.1.416/toolchain.tar.gz | tar xz -C ./
+      run: curl -sL ${{ env.OO_SDK_URL }} | tar xz -C ./
 
     - name: Checkout oosdk_libraries
       uses: actions/checkout@v3
@@ -47,11 +49,6 @@ jobs:
 
     - name: Copy makerules
       run: cp oosdk_libraries/build_rules.mk OpenOrbis/PS4Toolchain/build_rules.mk
-
-    - name: TEMP def update
-      run: |
-        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/UserService.h > OpenOrbis/PS4Toolchain/include/orbis/UserService.h
-        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/_types/user.h > OpenOrbis/PS4Toolchain/include/orbis/_types/user.h
 
     - name: Checkout dbglogger
       uses: actions/checkout@v3

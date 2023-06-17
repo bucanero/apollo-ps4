@@ -565,8 +565,7 @@ s32 main(s32 argc, const char* argv[])
 	SDL_CreateThread(&LoadSounds, "audio_thread", &apollo_config.music);
 
 #ifndef APOLLO_ENABLE_LOGGING
-	if (apollo_config.doAni)
-		Draw_MainMenu_Ani();
+	Draw_MainMenu_Ani();
 #endif
 
 	while (!close_app)

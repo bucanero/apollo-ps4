@@ -271,8 +271,8 @@ void update_progress_bar(uint64_t progress, const uint64_t total_size, const cha
 void end_progress_bar(void);
 #define show_message(...)	show_dialog(DIALOG_TYPE_OK, __VA_ARGS__)
 
-int init_loading_screen(const char* msg);
-void stop_loading_screen();
+int init_loading_screen(const char* message);
+void stop_loading_screen(void);
 void disable_unpatch();
 
 void execCodeCommand(code_entry_t* code, const char* codecmd);

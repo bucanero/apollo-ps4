@@ -19,6 +19,7 @@ static char * sort_opt[] = {"Disabled", "by Name", "by Title ID", NULL};
 static void log_callback(int sel);
 static void sort_callback(int sel);
 static void ani_callback(int sel);
+static void btn_fade_callback(int sel);
 static void db_url_callback(int sel);
 static void clearcache_callback(int sel);
 static void upd_appdata_callback(int sel);
@@ -35,6 +36,12 @@ menu_option_t menu_options[] = {
 		.type = APP_OPTION_BOOL, 
 		.value = &apollo_config.doAni, 
 		.callback = ani_callback 
+	},
+	{ .name = "Button Prompts Fade Out", 
+		.options = NULL, 
+		.type = APP_OPTION_BOOL, 
+		.value = &apollo_config.prompt_fade, 
+		.callback = btn_fade_callback 
 	},
 	{ .name = "Sort Saves",
 		.options = sort_opt,
@@ -89,6 +96,11 @@ static void sort_callback(int sel)
 static void ani_callback(int sel)
 {
 	apollo_config.doAni = !sel;
+}
+
+static void btn_fade_callback(int sel)
+{
+	apollo_config.prompt_fade = !sel;
 }
 
 static void db_url_callback(int sel)

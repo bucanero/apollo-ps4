@@ -204,11 +204,20 @@ void update_callback(int sel)
 
 	if (show_dialog(DIALOG_TYPE_YESNO, "New version available! Download update?"))
 	{
-		char* pkg_path = (dir_exists("/data/pkg") == SUCCESS) ? "/data/pkg/apollo-ps4.pkg" : "/data/apollo-ps4.pkg";
+		char* pkg_path = "/data/apollo-ps4.pkg";
+		if (dir_exists(USB0_PATH) == SUCCESS)
+		{
+			pkg_path = USB0_PATH "apollo-ps4.pkg";
+		}
+		else if (dir_exists("/data/pkg/") == SUCCESS)
+		{
+			pkg_path = "/data/pkg/apollo-ps4.pkg";
+		}
+
 		if (http_download(start, NULL, pkg_path, 1))
 			show_message("Update downloaded to %s", pkg_path);
 		else
-			show_message("Download error!");
+			show_message("Unable to download update package file!");
 	}
 
 end_update:

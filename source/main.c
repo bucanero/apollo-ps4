@@ -413,7 +413,7 @@ void update_db_path(char* path)
 	strcpy(path, apollo_config.save_db);
 }
 
-static void registerSpecialChars()
+static void registerSpecialChars(void)
 {
 	// Register save tags
 	RegisterSpecialCharacter(CHAR_TAG_PS1, 2, 1.5, &menu_textures[tag_ps1_png_index]);
@@ -432,10 +432,10 @@ static void registerSpecialChars()
 	RegisterSpecialCharacter(CHAR_TAG_TRANSFER, 0, 1.0, &menu_textures[tag_transfer_png_index]);
 
 	// Register button icons
-	RegisterSpecialCharacter(CHAR_BTN_X, 0, 1.2, &menu_textures[footer_ico_cross_png_index]);
+	RegisterSpecialCharacter(orbisPadGetConf()->crossButtonOK ? CHAR_BTN_X : CHAR_BTN_O, 0, 1.2, &menu_textures[footer_ico_cross_png_index]);
 	RegisterSpecialCharacter(CHAR_BTN_S, 0, 1.2, &menu_textures[footer_ico_square_png_index]);
 	RegisterSpecialCharacter(CHAR_BTN_T, 0, 1.2, &menu_textures[footer_ico_triangle_png_index]);
-	RegisterSpecialCharacter(CHAR_BTN_O, 0, 1.2, &menu_textures[footer_ico_circle_png_index]);
+	RegisterSpecialCharacter(orbisPadGetConf()->crossButtonOK ? CHAR_BTN_O : CHAR_BTN_X, 0, 1.2, &menu_textures[footer_ico_circle_png_index]);
 
 	// Register trophy icons
 	RegisterSpecialCharacter(CHAR_TRP_BRONZE, 2, 0.9f, &menu_textures[trp_bronze_png_index]);

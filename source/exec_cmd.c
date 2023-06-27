@@ -4,6 +4,7 @@
 #include <time.h>
 #include <orbis/NetCtl.h>
 #include <orbis/SaveData.h>
+#include <orbis/SystemService.h>
 #include <orbis/UserService.h>
 #include <polarssl/md5.h>
 
@@ -60,26 +61,36 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 	unlink_secure(APOLLO_LOCAL_CACHE "tmpsave.zip");
 }
 
-static uint32_t get_filename_id(const char* dir)
+static struct tm get_local_time(void)
 {
-	char path[128];
-	uint32_t tid = 0;
+	int32_t tz_offset = 0;
+	int32_t tz_dst = 0;
+	int32_t ret = 0;
 
-	do
+	if ((ret = sceSystemServiceParamGetInt(ORBIS_SYSTEM_SERVICE_PARAM_ID_TIME_ZONE, &tz_offset)) < 0)
 	{
-		tid++;
-		snprintf(path, sizeof(path), "%s%08d.zip", dir, tid);
+		LOG("Failed to obtain ORBIS_SYSTEM_SERVICE_PARAM_ID_TIME_ZONE! Setting timezone offset to 0");
+		LOG("sceSystemServiceParamGetInt: 0x%08X", ret);
+		tz_offset = 0;
 	}
-	while (file_exists(path) == SUCCESS);
 
-	return tid;
+	if ((ret = sceSystemServiceParamGetInt(ORBIS_SYSTEM_SERVICE_PARAM_ID_SUMMERTIME, &tz_dst)) < 0)
+	{
+		LOG("Failed to obtain ORBIS_SYSTEM_SERVICE_PARAM_ID_SUMMERTIME! Setting timezone daylight time savings to 0");
+		LOG("sceSystemServiceParamGetInt: 0x%08X", ret);
+		tz_dst = 0;
+	}
+
+	time_t modifiedTime = time(NULL) + ((tz_offset + (tz_dst * 60)) * 60);
+	return (*gmtime(&modifiedTime));
 }
 
 static void zipSave(const save_entry_t* entry, const char* exp_path)
 {
-	char* export_file;
+	char export_file[256] = {0};
+	char zip_file[256] = {0};
+	struct tm t = get_local_time();
 	char* tmp;
-	uint32_t fid;
 
 	if (mkdirs(exp_path) != SUCCESS)
 	{
@@ -89,36 +100,33 @@ static void zipSave(const save_entry_t* entry, const char* exp_path)
 
 	init_loading_screen("Exporting save game...");
 
-	fid = get_filename_id(exp_path);
-	asprintf(&export_file, "%s%08d.zip", exp_path, fid);
+	snprintf(zip_file, sizeof(zip_file), "%s%s_%d-%02d-%02d_%02d%02d%02d.zip", exp_path, entry->dir_name, t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
 
 	tmp = strdup(entry->path);
 	*strrchr(tmp, '/') = 0;
 	*strrchr(tmp, '/') = 0;
 
-	zip_directory(tmp, entry->path, export_file);
+	zip_directory(tmp, entry->path, zip_file);
 
-	sprintf(export_file, "%s%08x.txt", exp_path, apollo_config.user_id);
+	snprintf(export_file, sizeof(export_file), "%s%08x.txt", exp_path, apollo_config.user_id);
 	FILE* f = fopen(export_file, "a");
 	if (f)
 	{
-		fprintf(f, "%08d.zip=[%s] %s\n", fid, entry->title_id, entry->name);
+		fprintf(f, "%s=[%s] %s\n", zip_file, entry->title_id, entry->name);
 		fclose(f);
 	}
 
-	sprintf(export_file, "%s%08x.xml", exp_path, apollo_config.user_id);
+	snprintf(export_file, sizeof(export_file), "%s%08x.xml", exp_path, apollo_config.user_id);
 	save_xml_owner(export_file);
-
-	free(export_file);
 	free(tmp);
 
 	stop_loading_screen();
-	show_message("Zip file successfully saved to:\n%s%08d.zip", exp_path, fid);
+	show_message("Zip file successfully saved to:\n%s", zip_file);
 }
 
 static void copySave(const save_entry_t* save, const char* exp_path)
 {
-	char* copy_path;
+	char copy_path[256] = {0};
 
 	if (strncmp(save->path, exp_path, strlen(exp_path)) == 0)
 	{
@@ -134,12 +142,10 @@ static void copySave(const save_entry_t* save, const char* exp_path)
 
 	init_loading_screen("Copying files...");
 
-	asprintf(&copy_path, "%s%08x_%s_%s/", exp_path, apollo_config.user_id, save->title_id, save->dir_name);
+	snprintf(copy_path, sizeof(copy_path), "%s%08x_%s_%s/", exp_path, apollo_config.user_id, save->title_id, save->dir_name);
 
 	LOG("Copying <%s> to %s...", save->path, copy_path);
 	copy_directory(save->path, save->path, copy_path);
-
-	free(copy_path);
 
 	stop_loading_screen();
 	show_message("Files successfully copied to:\n%s", exp_path);

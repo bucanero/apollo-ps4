@@ -29,6 +29,7 @@
 *.dylib
 
 # Executables
+*.bin
 *.exe
 *.out
 *.app
@@ -51,3 +52,8 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+/**/*.pkg
+/**/*.gp4
+/**/sce_sys/
+/**/build/
+/**/Debug/

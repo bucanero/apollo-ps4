@@ -201,11 +201,13 @@ jobs:
       run: make createzip
 
     - name: Build Apollo App Package
-      run: make
+      run: |
+        make
+        mv IV0000-APOL00004_00-APOLLO0000000PS4.pkg apollo-ps4-build_${{ env.sha_name }}.pkg
 
     - name: Push package artifact
       uses: actions/upload-artifact@v3
       with:
         name: apollo-ps4-build_${{ env.sha_name }}
-        path: IV0000-APOL00004_00-APOLLO0000000PS4.pkg
+        path: apollo-ps4-build_${{ env.sha_name }}.pkg
         if-no-files-found: error

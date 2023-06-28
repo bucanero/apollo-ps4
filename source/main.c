@@ -71,22 +71,6 @@ SDL_Renderer* renderer;                     // SDL software renderer
 uint32_t* texture_mem;                      // Pointers to texture memory
 uint32_t* free_mem;                         // Pointer after last texture
 
-
-const char * menu_pad_help[TOTAL_MENU_IDS] = { NULL,												//Main
-								"\x10 Select    \x13 Back    \x12 Details    \x11 Refresh",			//Trophy list
-								"\x10 Select    \x13 Back    \x12 Details    \x11 Refresh",			//USB list
-								"\x10 Select    \x13 Back    \x12 Details    \x11 Refresh",			//HDD list
-								"\x10 Select    \x13 Back    \x11 Refresh",							//Online list
-								"\x10 Select    \x13 Back    \x11 Refresh",							//User backup
-								"\x10 Select    \x13 Back",											//Options
-								"\x13 Back",														//About
-								"\x10 Select    \x12 View Code    \x13 Back",						//Select Cheats
-								"\x13 Back",														//View Cheat
-								"\x10 Select    \x13 Back",											//Cheat Option
-								"\x13 Back",														//View Details
-								"\x10 Value Up  \x11 Value Down   \x13 Exit",						//Hex Editor
-								};
-
 /*
 * HDD save list
 */
@@ -152,6 +136,67 @@ save_list_t user_backup = {
     .UpdatePath = NULL,
 };
 
+static const char* get_button_prompts(int menu_id)
+{
+	const char* prompt = NULL;
+
+	switch (menu_id)
+	{
+		case MENU_TROPHIES:
+		case MENU_USB_SAVES:
+		case MENU_HDD_SAVES:
+			prompt = "\x10 Select    \x13 Back    \x12 Details    \x11 Refresh";
+			break;
+
+		case MENU_USER_BACKUP:
+		case MENU_ONLINE_DB:
+			prompt = "\x10 Select    \x13 Back    \x11 Refresh";
+			break;
+
+		case MENU_SETTINGS:
+		case MENU_CODE_OPTIONS:
+			prompt = "\x10 Select    \x13 Back";
+			break;
+
+		case MENU_CREDITS:
+		case MENU_PATCH_VIEW:
+		case MENU_SAVE_DETAILS:
+			prompt = "\x13 Back";
+			break;
+
+		case MENU_PATCHES:
+			prompt = "\x10 Select    \x12 View Code    \x13 Back";
+			break;
+
+		case MENU_HEX_EDITOR:
+			prompt = "\x10 Value Up  \x11 Value Down   \x13 Exit";
+			break;
+
+		case MENU_MAIN_SCREEN:
+		default:
+			prompt = "";
+			break;
+	}
+
+	return prompt;
+}
+
+static void helpFooter(void)
+{
+	u8 alpha = 0xFF;
+
+	if (apollo_config.doAni && orbisPadGetConf()->idle > 0x100)
+	{
+		int dec = (orbisPadGetConf()->idle - 0x100) * 2;
+		alpha = (dec > alpha) ? 0 : (alpha - dec);
+	}
+
+	SetFontSize(APP_FONT_SIZE_DESCRIPTION);
+	SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
+	SetFontColor(APP_FONT_COLOR | alpha, 0);
+	DrawString(0, SCREEN_HEIGHT - 94, get_button_prompts(menu_id));
+	SetFontAlign(FONT_ALIGN_LEFT);
+}
 
 static int initPad()
 {
@@ -355,7 +400,7 @@ void update_db_path(char* path)
 	strcpy(path, apollo_config.save_db);
 }
 
-static void registerSpecialChars()
+static void registerSpecialChars(void)
 {
 	// Register save tags
 	RegisterSpecialCharacter(CHAR_TAG_PS1, 2, 1.5, &menu_textures[tag_ps1_png_index]);
@@ -374,10 +419,10 @@ static void registerSpecialChars()
 	RegisterSpecialCharacter(CHAR_TAG_TRANSFER, 0, 1.0, &menu_textures[tag_transfer_png_index]);
 
 	// Register button icons
-	RegisterSpecialCharacter(CHAR_BTN_X, 0, 1.2, &menu_textures[footer_ico_cross_png_index]);
+	RegisterSpecialCharacter(orbisPadGetConf()->crossButtonOK ? CHAR_BTN_X : CHAR_BTN_O, 0, 1.2, &menu_textures[footer_ico_cross_png_index]);
 	RegisterSpecialCharacter(CHAR_BTN_S, 0, 1.2, &menu_textures[footer_ico_square_png_index]);
 	RegisterSpecialCharacter(CHAR_BTN_T, 0, 1.2, &menu_textures[footer_ico_triangle_png_index]);
-	RegisterSpecialCharacter(CHAR_BTN_O, 0, 1.2, &menu_textures[footer_ico_circle_png_index]);
+	RegisterSpecialCharacter(orbisPadGetConf()->crossButtonOK ? CHAR_BTN_O : CHAR_BTN_X, 0, 1.2, &menu_textures[footer_ico_circle_png_index]);
 
 	// Register trophy icons
 	RegisterSpecialCharacter(CHAR_TRP_BRONZE, 2, 0.9f, &menu_textures[trp_bronze_png_index]);
@@ -584,24 +629,7 @@ s32 main(s32 argc, const char* argv[])
 		drawScene();
 
 		//Draw help
-		if (menu_pad_help[menu_id])
-		{
-			u8 alpha = 0xFF;
-			if (orbisPadGetConf()->idle > 0x100)
-			{
-				int dec = (orbisPadGetConf()->idle - 0x100) * 2;
-				if (dec > alpha)
-					dec = alpha;
-				alpha -= dec;
-			}
-			
-			SetFontSize(APP_FONT_SIZE_DESCRIPTION);
-			SetCurrentFont(font_adonais_regular);
-			SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
-			SetFontColor(APP_FONT_COLOR | alpha, 0);
-			DrawString(0, SCREEN_HEIGHT - 94, (char *)menu_pad_help[menu_id]);
-			SetFontAlign(FONT_ALIGN_LEFT);
-		}
+		helpFooter();
 
 #ifdef APOLLO_ENABLE_LOGGING
 		// Calculate FPS and ms/frame

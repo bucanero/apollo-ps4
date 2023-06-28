@@ -35,9 +35,10 @@ typedef struct OrbisPadConfig
 	unsigned int buttonsHold;
 	unsigned int idle;
 	int padHandle;
+	int crossButtonOK;
 }OrbisPadConfig;
 
-int orbisPadInit();
+int orbisPadInit(void);
 void orbisPadFinish();
 OrbisPadConfig *orbisPadGetConf();
 bool orbisPadGetButtonHold(unsigned int filter);

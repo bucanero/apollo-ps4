@@ -184,18 +184,15 @@ static const char* get_button_prompts(int menu_id)
 
 static void helpFooter(void)
 {
-	// Draw help
 	u8 alpha = 0xFF;
+
 	if (apollo_config.prompt_fade && orbisPadGetConf()->idle > 0x100)
 	{
-			int dec = (orbisPadGetConf()->idle - 0x100) * 2;
-			if (dec > alpha)
-				dec = alpha;
-			alpha -= dec;
+		int dec = (orbisPadGetConf()->idle - 0x100) * 2;
+		alpha = (dec > alpha) ? 0 : (alpha - dec);
 	}
 
 	SetFontSize(APP_FONT_SIZE_DESCRIPTION);
-	SetCurrentFont(font_adonais_regular);
 	SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 	SetFontColor(APP_FONT_COLOR | alpha, 0);
 	DrawString(0, SCREEN_HEIGHT - 94, get_button_prompts(menu_id));

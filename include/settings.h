@@ -32,8 +32,8 @@ typedef struct
     uint8_t doSort;
     uint8_t doAni;
     uint8_t update;
-    uint32_t user_id;
     uint8_t prompt_fade;
+    uint32_t user_id;
     uint64_t psid[2];
     uint64_t account_id;
     char save_db[256];

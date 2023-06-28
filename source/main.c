@@ -185,7 +185,7 @@ static void helpFooter(void)
 {
 	u8 alpha = 0xFF;
 
-	if (apollo_config.prompt_fade && orbisPadGetConf()->idle > 0x100)
+	if (apollo_config.doAni && orbisPadGetConf()->idle > 0x100)
 	{
 		int dec = (orbisPadGetConf()->idle - 0x100) * 2;
 		alpha = (dec > alpha) ? 0 : (alpha - dec);

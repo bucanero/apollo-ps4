@@ -37,12 +37,6 @@ menu_option_t menu_options[] = {
 		.value = &apollo_config.doAni, 
 		.callback = ani_callback 
 	},
-	{ .name = "Button Prompts Fade Out", 
-		.options = NULL, 
-		.type = APP_OPTION_BOOL, 
-		.value = &apollo_config.prompt_fade, 
-		.callback = btn_fade_callback 
-	},
 	{ .name = "Sort Saves",
 		.options = sort_opt,
 		.type = APP_OPTION_LIST,
@@ -96,11 +90,6 @@ static void sort_callback(int sel)
 static void ani_callback(int sel)
 {
 	apollo_config.doAni = !sel;
-}
-
-static void btn_fade_callback(int sel)
-{
-	apollo_config.prompt_fade = !sel;
 }
 
 static void db_url_callback(int sel)

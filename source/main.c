@@ -58,7 +58,6 @@ app_config_t apollo_config = {
     .doAni = 1,
     .update = 1,
     .user_id = 0,
-    .prompt_fade = 1,
     .psid = {0, 0},
     .account_id = 0,
 };

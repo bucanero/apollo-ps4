@@ -632,6 +632,7 @@ s32 main(s32 argc, const char* argv[])
 		orbisPadUpdate();
 		drawScene();
 
+		//Draw help
 		helpFooter();
 
 #ifdef APOLLO_ENABLE_LOGGING

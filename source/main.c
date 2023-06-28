@@ -159,6 +159,8 @@ static const char* get_button_prompts(int menu_id)
 			break;
 
 		case MENU_CREDITS:
+		case MENU_PATCH_VIEW:
+		case MENU_SAVE_DETAILS:
 			prompt = "\x13 Back";
 			break;
 
@@ -166,16 +168,8 @@ static const char* get_button_prompts(int menu_id)
 			prompt = "\x10 Select    \x12 View Code    \x13 Back";
 			break;
 
-		case MENU_PATCH_VIEW:
-			prompt = "\x13 Back";
-			break;
-
 		case MENU_CODE_OPTIONS:
 			prompt = "\x10 Select    \x13 Back";
-			break;
-
-		case MENU_SAVE_DETAILS:
-			prompt = "\x13 Back";
 			break;
 
 		case MENU_HEX_EDITOR:

@@ -33,7 +33,7 @@ static void _draw_OptionsMenu(u8 alpha)
 				DrawTexture(&menu_textures[c], OPTION_ITEM_OFF - 29, y_off, 0, menu_textures[c].width, menu_textures[c].height, 0xFFFFFF00 | alpha);
 				break;
 			case APP_OPTION_CALL:
-				DrawTexture(&menu_textures[orbisPadGetConf()->crossButtonOK ? footer_ico_cross_png_index : footer_ico_circle_png_index], OPTION_ITEM_OFF - 29, y_off+2, 0, menu_textures[footer_ico_cross_png_index].width/2, menu_textures[footer_ico_cross_png_index].height/2, 0xFFFFFF00 | alpha);
+				DrawTexture(&menu_textures[orbisPadGetConf()->crossButtonOK ? footer_ico_cross_png_index : footer_ico_circle_png_index], OPTION_ITEM_OFF - 29, y_off+2, 0, menu_textures[footer_ico_cross_png_index].width, menu_textures[footer_ico_cross_png_index].height, 0xFFFFFF00 | alpha);
 				break;
 			case APP_OPTION_LIST:
 				SetFontAlign(FONT_ALIGN_CENTER);

@@ -146,10 +146,10 @@ static const char* get_button_prompts(int menu_id)
 		case MENU_TROPHIES:
 		case MENU_USB_SAVES:
 		case MENU_HDD_SAVES:
-		case MENU_USER_BACKUP:
 			prompt = "\x10 Select    \x13 Back    \x12 Details    \x11 Refresh";
 			break;
 
+		case MENU_USER_BACKUP:
 		case MENU_ONLINE_DB:
 			prompt = "\x10 Select    \x13 Back    \x11 Refresh";
 			break;

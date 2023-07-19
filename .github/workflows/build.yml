@@ -36,8 +36,7 @@ jobs:
 
     # temporary release until 0.53 is released
     - name: Download OpenOrbis Toolchain
-      if: steps.cache-oosdk.outputs.cache-hit != 'true'
-      run: curl -sL https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/download/0.0.1.416/toolchain.tar.gz | tar xz -C ./
+      run: curl -sL https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/latest/download/toolchain.tar.gz | tar xz -C ./
 
     - name: Checkout oosdk_libraries
       uses: actions/checkout@v3
@@ -47,11 +46,6 @@ jobs:
 
     - name: Copy makerules
       run: cp oosdk_libraries/build_rules.mk OpenOrbis/PS4Toolchain/build_rules.mk
-
-    - name: TEMP def update
-      run: |
-        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/UserService.h > OpenOrbis/PS4Toolchain/include/orbis/UserService.h
-        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/_types/user.h > OpenOrbis/PS4Toolchain/include/orbis/_types/user.h
 
     - name: Checkout dbglogger
       uses: actions/checkout@v3

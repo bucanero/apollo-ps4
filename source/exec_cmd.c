@@ -437,7 +437,7 @@ static void copySavePFS(const save_entry_t* save)
 
 	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
 	{
-		LOG("[!] Error: can't create/mount save!");
+		show_message("Error: can't create/mount save!");
 		return;
 	}
 	orbis_SaveUmount(mount);

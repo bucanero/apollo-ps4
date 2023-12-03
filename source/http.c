@@ -42,6 +42,7 @@ static int update_progress(void *p, int64_t dltotal, int64_t dlnow, int64_t ulto
 
 int http_download(const char* url, const char* filename, const char* local_dst, int show_progress)
 {
+	OrbisNetCtlInfo proxy_info;
 	char full_url[1024];
 	CURL *curl;
 	CURLcode res;
@@ -87,6 +88,22 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
 	// request using SSL for the FTP transfer if available
 	curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
+
+	// check for proxy settings
+	memset(&proxy_info, 0, sizeof(OrbisNetCtlInfo));
+	sceNetCtlGetInfo(ORBIS_NET_CTL_INFO_HTTP_PROXY_CONFIG, &proxy_info);
+
+	if (proxy_info.http_proxy_config)
+	{
+		memset(&proxy_info, 0, sizeof(OrbisNetCtlInfo));
+		sceNetCtlGetInfo(ORBIS_NET_CTL_INFO_HTTP_PROXY_SERVER, &proxy_info);
+		curl_easy_setopt(curl, CURLOPT_PROXY, proxy_info.http_proxy_server);
+		curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+
+		memset(&proxy_info, 0, sizeof(OrbisNetCtlInfo));
+		sceNetCtlGetInfo(ORBIS_NET_CTL_INFO_HTTP_PROXY_PORT, &proxy_info);
+		curl_easy_setopt(curl, CURLOPT_PROXYPORT, proxy_info.http_proxy_port);
+	}
 
 	if (show_progress)
 	{

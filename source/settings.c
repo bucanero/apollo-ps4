@@ -15,7 +15,9 @@
 #define ORBIS_USER_SERVICE_USER_ID_INVALID	-1
 
 static char * sort_opt[] = {"Disabled", "by Name", "by Title ID", NULL};
+static char * usb_src[] = {"usb0", "usb1", "usb2", "usb3", "usb4", "usb5", "usb6", "usb7", "fake", "auto", NULL};
 
+static void usb_callback(int sel);
 static void log_callback(int sel);
 static void sort_callback(int sel);
 static void ani_callback(int sel);
@@ -41,6 +43,12 @@ menu_option_t menu_options[] = {
 		.type = APP_OPTION_LIST,
 		.value = &apollo_config.doSort,
 		.callback = sort_callback
+	},
+	{ .name = "\nUSB Saves Source",
+		.options = (char**) usb_src,
+		.type = APP_OPTION_LIST,
+		.value = &apollo_config.usb_dev,
+		.callback = usb_callback
 	},
 	{ .name = "\nVersion Update Check", 
 		.options = NULL, 
@@ -89,6 +97,11 @@ static void sort_callback(int sel)
 static void ani_callback(int sel)
 {
 	apollo_config.doAni = !sel;
+}
+
+static void usb_callback(int sel)
+{
+	apollo_config.usb_dev = sel;
 }
 
 static void db_url_callback(int sel)

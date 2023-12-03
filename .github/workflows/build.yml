@@ -36,7 +36,7 @@ jobs:
 
     # temporary release until 0.53 is released
     - name: Download OpenOrbis Toolchain
-      run: curl -sL https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/latest/download/toolchain.tar.gz | tar xz -C ./
+      run: curl -sL https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/download/0.0.1.416/toolchain.tar.gz | tar xz -C ./
 
     - name: Checkout oosdk_libraries
       uses: actions/checkout@v3
@@ -46,6 +46,11 @@ jobs:
 
     - name: Copy makerules
       run: cp oosdk_libraries/build_rules.mk OpenOrbis/PS4Toolchain/build_rules.mk
+
+    - name: TEMP def update
+      run: |
+        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/UserService.h > OpenOrbis/PS4Toolchain/include/orbis/UserService.h
+        curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/_types/user.h > OpenOrbis/PS4Toolchain/include/orbis/_types/user.h
 
     - name: Checkout dbglogger
       uses: actions/checkout@v3
@@ -64,12 +69,6 @@ jobs:
       with:
         repository: bucanero/libSQLite-ps4
         path: libSQLite-ps4
-
-    - name: Checkout zip
-      uses: actions/checkout@v3
-      with:
-        repository: bucanero/zip
-        path: zip
 
     - name: Checkout SDL-PS4
       uses: actions/checkout@v3
@@ -124,8 +123,14 @@ jobs:
       run: make install
 
     - name: Install zip
-      working-directory: zip
-      run: make install
+      run: |
+        curl -sL https://libzip.org/download/libzip-1.9.2.tar.gz | tar xz -C ./
+        cd libzip-1.9.2
+        cmake --toolchain ../SDL-PS4/cmake/openorbis.cmake -DBUILD_SHARED=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TOOLS=OFF -DBUILD_REGRESS=OFF -DBUILD_DOC=OFF -DENABLE_LZMA=OFF -DENABLE_ZSTD=OFF -DENABLE_MBEDTLS=OFF .
+        make
+        cp zipconf.h ${OO_PS4_TOOLCHAIN}/include/zipconf.h
+        cp lib/zip.h ${OO_PS4_TOOLCHAIN}/include/zip.h
+        cp lib/libzip.a ${OO_PS4_TOOLCHAIN}/lib/libzip.a
 
     - name: Install dbglogger
       working-directory: dbglogger

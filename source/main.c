@@ -57,6 +57,7 @@ app_config_t apollo_config = {
     .doSort = 1,
     .doAni = 1,
     .update = 1,
+	.usb_dev = 9,
     .user_id = 0,
     .psid = {0, 0},
     .account_id = 0,
@@ -198,7 +199,7 @@ static void helpFooter(void)
 	SetFontAlign(FONT_ALIGN_LEFT);
 }
 
-static int initPad()
+static int initPad(void)
 {
 	if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_PAD) < 0)
 		return 0;
@@ -217,7 +218,7 @@ static int initPad()
 }
 
 // Used only in initialization. Allocates 64 mb for textures and loads the font
-static int LoadTextures_Menu()
+static int LoadTextures_Menu(void)
 {
 	texture_mem = malloc(256 * 32 * 4);
 	menu_textures = (png_texture *)calloc(TOTAL_MENU_TEXTURES, sizeof(png_texture));
@@ -239,7 +240,7 @@ static int LoadTextures_Menu()
 	//Init Main Menu textures
 	load_menu_texture(bgimg, jpg);
 	load_menu_texture(cheat, png);
-	load_menu_texture(leonluna, jpg);
+	load_menu_texture(leon_luna, jpg);
 
 	load_menu_texture(circle_loading_bg, png);
 	load_menu_texture(circle_loading_seek, png);
@@ -370,7 +371,19 @@ static int LoadSounds(void* data)
 
 void update_usb_path(char* path)
 {
-	for (int i = 0; i <= MAX_USB_DEVICES; i++)
+	if (apollo_config.usb_dev < MAX_USB_DEVICES)
+	{
+		sprintf(path, USB_PATH "PS4/", apollo_config.usb_dev);
+		return;
+	}
+
+	if (apollo_config.usb_dev == MAX_USB_DEVICES)
+	{
+		sprintf(path, FAKE_USB_PATH "PS4/");
+		return;
+	}
+
+	for (int i = 0; i < MAX_USB_DEVICES; i++)
 	{
 		sprintf(path, USB_PATH "PS4/", i);
 
@@ -432,18 +445,18 @@ static void registerSpecialChars(void)
 	RegisterSpecialCharacter(CHAR_TRP_SYNC, 0, 0.9f, &menu_textures[trp_sync_png_index]);
 }
 
-static void terminate()
+static void terminate(void)
 {
 	LOG("Exiting...");
 	// Unload loaded libraries
 	if (unpatch_SceShellCore())
-		notifi("cxml://psnotification/tex_default_icon_notification", "PS4 Save patches removed from memory");
+		notify_popup("cxml://psnotification/tex_default_icon_notification", "PS4 Save patches removed from memory");
 
 	terminate_jbc();
 	sceSystemServiceLoadExec("exit", NULL);
 }
 
-static int initInternal()
+static int initInternal(void)
 {
     // load common modules
     int ret = sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_SYSTEM_SERVICE);
@@ -581,7 +594,6 @@ s32 main(s32 argc, const char* argv[])
 	}
 
 	// dedicated to Leon & Luna ~ in loving memory
-	menu_textures[buk_scr_png_index] = menu_textures[leonluna_jpg_index];
 
 #ifndef APOLLO_ENABLE_LOGGING
 	// Splash screen logo (fade-in)

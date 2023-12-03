@@ -129,7 +129,7 @@ void stop_loading_screen(void)
 	end_progress_bar();
 }
 
-void notifi(const char *p_Uri, const char *p_Format, ...)
+void notify_popup(const char *p_Uri, const char *p_Format, ...)
 {
     OrbisNotificationRequest s_Request;
     memset(&s_Request, '\0', sizeof(s_Request));

@@ -413,7 +413,7 @@ int orbis_SaveUmount(const char* mountPath)
 	if (umountErrorCode < 0)
 	{
 		LOG("UMOUNT_ERROR (%X)", umountErrorCode);
-		notifi(NULL, "Warning! Save couldn't be unmounted!");
+		notify_popup(NULL, "Warning! Save couldn't be unmounted!");
 		disable_unpatch();
 	}
 

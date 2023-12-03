@@ -384,7 +384,7 @@ int patch_save_libraries(void)
     switch (version)
     {
     case -1:
-        notifi("cxml://psnotification/tex_icon_ban", "Error: Can't detect firmware version!");
+        notify_popup("cxml://psnotification/tex_icon_ban", "Error: Can't detect firmware version!");
         return 0;
 
     case 0x505:
@@ -416,22 +416,22 @@ int patch_save_libraries(void)
         break;
 
     default:
-        notifi("cxml://psnotification/tex_icon_ban", "Unsupported firmware version %X.%02X", version >> 8, version & 0xFF);
+        notify_popup("cxml://psnotification/tex_icon_ban", "Unsupported firmware version %X.%02X", version >> 8, version & 0xFF);
         return 0;
     }
 
     if (!check_syscalls())
     {
-        notifi("cxml://psnotification/tex_icon_ban", "Missing %X.%02X GoldHEN or ps4debug payload!", version >> 8, version & 0xFF);
+        notify_popup("cxml://psnotification/tex_icon_ban", "Missing %X.%02X GoldHEN or ps4debug payload!", version >> 8, version & 0xFF);
         return 0;
     }
 
     if (!patch_SceShellCore(shellcore_patch) || !patch_SceSaveData(savedata_patch))
     {
-        notifi("cxml://psnotification/tex_icon_ban", "Error: Failed to apply %X.%02X Save patches!", version >> 8, version & 0xFF);
+        notify_popup("cxml://psnotification/tex_icon_ban", "Error: Failed to apply %X.%02X Save patches!", version >> 8, version & 0xFF);
         return 0;
     }
-    notifi("cxml://psnotification/tex_default_icon_notification", "PS4 %X.%02X Save patches applied", version >> 8, version & 0xFF);
+    notify_popup("cxml://psnotification/tex_default_icon_notification", "PS4 %X.%02X Save patches applied", version >> 8, version & 0xFF);
 
     return 1;
 }
@@ -499,7 +499,7 @@ int initialize_jbc(void)
     if (!jailbreak())
     {
         LOG("Jailbreak failed!");
-        notifi("cxml://psnotification/tex_icon_ban", "Jailbreak failed!");
+        notify_popup("cxml://psnotification/tex_icon_ban", "Jailbreak failed!");
         return 0;
     }
 

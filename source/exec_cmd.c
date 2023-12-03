@@ -5,6 +5,7 @@
 #include <orbis/NetCtl.h>
 #include <orbis/SaveData.h>
 #include <orbis/UserService.h>
+#include <orbis/SystemService.h>
 #include <polarssl/md5.h>
 
 #include "saves.h"
@@ -13,6 +14,7 @@
 #include "util.h"
 #include "sfo.h"
 
+static char host_buf[256];
 
 static void _set_dest_path(char* path, int dest, const char* folder)
 {
@@ -60,7 +62,7 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 	unlink_secure(APOLLO_LOCAL_CACHE "tmpsave.zip");
 }
 
-static uint32_t get_filename_id(const char* dir)
+static uint32_t get_filename_id(const char* dir, const char* title_id)
 {
 	char path[128];
 	uint32_t tid = 0;
@@ -68,7 +70,7 @@ static uint32_t get_filename_id(const char* dir)
 	do
 	{
 		tid++;
-		snprintf(path, sizeof(path), "%s%08d.zip", dir, tid);
+		snprintf(path, sizeof(path), "%s%s-%08d.zip", dir, title_id, tid);
 	}
 	while (file_exists(path) == SUCCESS);
 
@@ -77,9 +79,10 @@ static uint32_t get_filename_id(const char* dir)
 
 static void zipSave(const save_entry_t* entry, const char* exp_path)
 {
-	char* export_file;
+	char export_file[256];
 	char* tmp;
 	uint32_t fid;
+	int ret;
 
 	if (mkdirs(exp_path) != SUCCESS)
 	{
@@ -89,31 +92,38 @@ static void zipSave(const save_entry_t* entry, const char* exp_path)
 
 	init_loading_screen("Exporting save game...");
 
-	fid = get_filename_id(exp_path);
-	asprintf(&export_file, "%s%08d.zip", exp_path, fid);
+	fid = get_filename_id(exp_path, entry->title_id);
+	snprintf(export_file, sizeof(export_file), "%s%s-%08d.zip", exp_path, entry->title_id, fid);
 
 	tmp = strdup(entry->path);
 	*strrchr(tmp, '/') = 0;
 	*strrchr(tmp, '/') = 0;
 
-	zip_directory(tmp, entry->path, export_file);
-
-	sprintf(export_file, "%s%08x.txt", exp_path, apollo_config.user_id);
-	FILE* f = fopen(export_file, "a");
-	if (f)
-	{
-		fprintf(f, "%08d.zip=[%s] %s\n", fid, entry->title_id, entry->name);
-		fclose(f);
-	}
-
-	sprintf(export_file, "%s%08x.xml", exp_path, apollo_config.user_id);
-	save_xml_owner(export_file);
-
-	free(export_file);
+	ret = zip_directory(tmp, entry->path, export_file);
 	free(tmp);
 
+	if (ret)
+	{
+		snprintf(export_file, sizeof(export_file), "%s%08x.txt", exp_path, apollo_config.user_id);
+		FILE* f = fopen(export_file, "a");
+		if (f)
+		{
+			fprintf(f, "%s-%08d.zip=%s\n", entry->title_id, fid, entry->name);
+			fclose(f);
+		}
+
+		sprintf(export_file, "%s%08x.xml", exp_path, apollo_config.user_id);
+		save_xml_owner(export_file);
+	}
+
 	stop_loading_screen();
-	show_message("Zip file successfully saved to:\n%s%08d.zip", exp_path, fid);
+	if (!ret)
+	{
+		show_message("Error! Can't export save game to:\n%s", exp_path);
+		return;
+	}
+
+	show_message("Zip file successfully saved to:\n%s%s-%08d.zip", exp_path, entry->title_id, fid);
 }
 
 static void copySave(const save_entry_t* save, const char* exp_path)
@@ -266,6 +276,7 @@ void extractArchive(const char* file_path)
 	case 'z':
 	case 'Z':
 		/* ZIP */
+		strcat(exp_path, "/");
 		ret = extract_zip(file_path, exp_path);
 		break;
 
@@ -674,7 +685,7 @@ static void enableWebServer(dWebReqHandler_t handler, void* data, int port)
 {
 	OrbisNetCtlInfo info;
 
-	memset(&info, 0, sizeof(info));
+	memset(&info, 0, sizeof(OrbisNetCtlInfo));
 	sceNetCtlGetInfo(ORBIS_NET_CTL_INFO_IP_ADDRESS, &info);
 	LOG("Starting local web server %s:%d ...", info.ip_address, port);
 
@@ -767,6 +778,58 @@ static void rebuildAppDB(const char* path)
 		show_message("Database rebuilt successfully!\nLog out for changes to take effect");
 }
 
+static void* orbis_host_callback(int id, int* size)
+{
+	OrbisNetCtlInfo info;
+
+	memset(host_buf, 0, sizeof(host_buf));
+
+	switch (id)
+	{
+	case APOLLO_HOST_TEMP_PATH:
+		return APOLLO_LOCAL_CACHE;
+
+	case APOLLO_HOST_SYS_NAME:
+		if (sceSystemServiceParamGetString(ORBIS_SYSTEM_SERVICE_PARAM_ID_SYSTEM_NAME, host_buf, sizeof(host_buf)) < 0)
+			LOG("Error getting System name");
+
+		if (size) *size = strlen(host_buf);
+		return host_buf;
+
+	case APOLLO_HOST_PSID:
+		memcpy(host_buf, apollo_config.psid, 16);
+		if (size) *size = 16;
+		return host_buf;
+
+	case APOLLO_HOST_ACCOUNT_ID:
+		memcpy(host_buf, &apollo_config.account_id, 8);
+		*(uint64_t*)host_buf = ES64(*(uint64_t*)host_buf);
+		if (size) *size = 8;
+		return host_buf;
+
+	case APOLLO_HOST_USERNAME:
+		if (sceUserServiceGetUserName(apollo_config.user_id, host_buf, sizeof(host_buf)) < 0)
+			LOG("Error getting Username");
+
+		if (size) *size = strlen(host_buf);
+		return host_buf;
+
+	case APOLLO_HOST_LAN_ADDR:
+	case APOLLO_HOST_WLAN_ADDR:
+		memset(&info, 0, sizeof(OrbisNetCtlInfo));
+		if (sceNetCtlGetInfo(ORBIS_NET_CTL_INFO_ETHER_ADDR, &info) < 0)
+			LOG("Error getting Wlan Ethernet Address");
+		else
+			memcpy(host_buf, info.ether_addr, 6);
+
+		if (size) *size = 6;
+		return host_buf;
+	}
+
+	if (size) *size = 1;
+	return host_buf;
+}
+
 static int apply_sfo_patches(save_entry_t* entry, sfo_patch_t* patch)
 {
     code_entry_t* code;
@@ -854,7 +917,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 		else
 			snprintf(tmpfile, sizeof(tmpfile), "%s%s", entry->path, filename);
 
-		if (!apply_cheat_patch_code(tmpfile, entry->title_id, code, APOLLO_LOCAL_CACHE))
+		if (!apply_cheat_patch_code(tmpfile, entry->title_id, code, &orbis_host_callback))
 		{
 			LOG("Error: failed to apply (%s)", code->name);
 			ret = 0;

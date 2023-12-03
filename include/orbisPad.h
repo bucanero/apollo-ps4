@@ -39,16 +39,16 @@ typedef struct OrbisPadConfig
 }OrbisPadConfig;
 
 int orbisPadInit(void);
-void orbisPadFinish();
-OrbisPadConfig *orbisPadGetConf();
+void orbisPadFinish(void);
+OrbisPadConfig *orbisPadGetConf(void);
 bool orbisPadGetButtonHold(unsigned int filter);
 bool orbisPadGetButtonPressed(unsigned int filter);
 bool orbisPadGetButtonReleased(unsigned int filter);
-unsigned int orbisPadGetCurrentButtonsPressed();
-unsigned int orbisPadGetCurrentButtonsReleased();
+unsigned int orbisPadGetCurrentButtonsPressed(void);
+unsigned int orbisPadGetCurrentButtonsReleased(void);
 void orbisPadSetCurrentButtonsPressed(unsigned int buttons);
 void orbisPadSetCurrentButtonsReleased(unsigned int buttons);
-int orbisPadUpdate();
+int orbisPadUpdate(void);
 
 #ifdef __cplusplus
 }

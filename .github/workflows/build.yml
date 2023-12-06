@@ -123,10 +123,9 @@ jobs:
       run: make install
 
     - name: Install zip
+      working-directory: oosdk_libraries/libzip-1.9.2
       run: |
-        curl -sL https://libzip.org/download/libzip-1.9.2.tar.gz | tar xz -C ./
-        cd libzip-1.9.2
-        cmake --toolchain ../SDL-PS4/cmake/openorbis.cmake -DBUILD_SHARED=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TOOLS=OFF -DBUILD_REGRESS=OFF -DBUILD_DOC=OFF -DENABLE_LZMA=OFF -DENABLE_ZSTD=OFF -DENABLE_MBEDTLS=OFF .
+        cmake --toolchain ../../SDL-PS4/cmake/openorbis.cmake -DBUILD_SHARED=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TOOLS=OFF -DBUILD_REGRESS=OFF -DBUILD_DOC=OFF -DENABLE_LZMA=OFF -DENABLE_ZSTD=OFF -DENABLE_MBEDTLS=OFF .
         make
         cp zipconf.h ${OO_PS4_TOOLCHAIN}/include/zipconf.h
         cp lib/zip.h ${OO_PS4_TOOLCHAIN}/include/zip.h

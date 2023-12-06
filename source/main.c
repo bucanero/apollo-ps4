@@ -323,7 +323,6 @@ static int LoadTextures_Menu(void)
 
 static int LoadSounds(void* data)
 {
-	uint8_t* play_audio = data;
 	drmp3 wav;
 
 	// Decode a mp3 file to play
@@ -339,7 +338,7 @@ static int LoadSounds(void* data)
 	// Play the song in a loop
 	while (!close_app)
 	{
-		if (*play_audio == 0)
+		if (!apollo_config.music)
 		{
 			usleep(0x1000);
 			continue;
@@ -448,6 +447,7 @@ static void registerSpecialChars(void)
 static void terminate(void)
 {
 	LOG("Exiting...");
+	sceAudioOutClose(audio);
 	// Unload loaded libraries
 	if (unpatch_SceShellCore())
 		notify_popup("cxml://psnotification/tex_default_icon_notification", "PS4 Save patches removed from memory");
@@ -620,7 +620,7 @@ s32 main(s32 argc, const char* argv[])
 	update_callback(!apollo_config.update);
 
 	// Start BGM audio thread
-	SDL_CreateThread(&LoadSounds, "audio_thread", &apollo_config.music);
+	SDL_CreateThread(&LoadSounds, "audio_thread", NULL);
 
 #ifndef APOLLO_ENABLE_LOGGING
 	Draw_MainMenu_Ani();

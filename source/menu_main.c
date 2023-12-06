@@ -685,7 +685,7 @@ static void doPatchMenu(void)
 				list_node_t* node;
 
 				for (node = list_head(selected_entry->codes); (code = list_get(node)); node = list_next(node))
-					if (wildcard_match_icase(code->name, "*(REQUIRED)*"))
+					if (wildcard_match_icase(code->name, "*(REQUIRED)*") && code->options_count == 0)
 						code->activated = 1;
 			}
 				/*

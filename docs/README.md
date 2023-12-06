@@ -2,6 +2,7 @@
 
 [![Downloads][img_downloads]][app_downloads] [![Release][img_latest]][app_latest] [![License][img_license]][app_license]
 [![Build app package](https://github.com/bucanero/apollo-ps4/actions/workflows/build.yml/badge.svg)](https://github.com/bucanero/apollo-ps4/actions/workflows/build.yml)
+[![Twitter](https://img.shields.io/twitter/follow/dparrino?label=Follow)](https://twitter.com/dparrino)
 
 **Apollo Save Tool** is an application to manage save-game files on the PlayStation 4.
 
@@ -9,7 +10,7 @@ This homebrew app allows you to download, unlock, patch and resign save-game fil
 
 ![image](./screenshots/screenshot-main.jpg)
 
-**Comments, ideas, suggestions?** You can contact [me](https://github.com/bucanero/) on [Twitter](https://twitter.com/dparrino) and on [my website](http://www.bucanero.com.ar/).
+**Comments, ideas, suggestions?** You can [contact me](https://github.com/bucanero/) on [Twitter](https://twitter.com/dparrino) and on [my website](http://www.bucanero.com.ar/).
 
 # Features
 
@@ -116,7 +117,7 @@ You need to have installed:
 - [Apollo](https://github.com/bucanero/apollo-lib) library
 - [polarSSL](https://github.com/bucanero/oosdk_libraries/tree/master/polarssl-1.3.9) library
 - [cURL](https://github.com/bucanero/oosdk_libraries/tree/master/curl-7.64.1) library
-- [Zip](https://github.com/bucanero/zip) library
+- [libZip](https://github.com/bucanero/oosdk_libraries/tree/master/libzip-1.9.2) library
 - [SDL2](https://github.com/PacBrew/SDL/tree/ps4) library
 - [libJbc](https://github.com/bucanero/ps4-libjbc) library
 - [Mini-XML](https://github.com/bucanero/mxml) library

@@ -15,7 +15,7 @@
 #define ORBIS_USER_SERVICE_USER_ID_INVALID	-1
 
 static char * sort_opt[] = {"Disabled", "by Name", "by Title ID", NULL};
-static char * usb_src[] = {"usb0", "usb1", "usb2", "usb3", "usb4", "usb5", "usb6", "usb7", "fake", "auto", NULL};
+static char * usb_src[] = {"USB 0", "USB 1", "USB 2", "USB 3", "USB 4", "USB 5", "USB 6", "USB 7", "Fake USB", "Auto-detect", NULL};
 
 static void usb_callback(int sel);
 static void log_callback(int sel);

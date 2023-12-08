@@ -31,10 +31,9 @@
 #include "font-10x20.h"
 
 //Sound
+#include <s3m.h>
 #define SAMPLING_FREQ          48000 /* 48khz. */
 #define AUDIO_SAMPLES          256   /* audio samples */
-#define DR_MP3_IMPLEMENTATION
-#include "dr_mp3.h"
 
 // Audio handle
 static int32_t audio = 0;
@@ -323,17 +322,19 @@ static int LoadTextures_Menu(void)
 
 static int LoadSounds(void* data)
 {
-	drmp3 wav;
+	s3m_t s3m;
 
+	s3m_initialize(&s3m, SAMPLING_FREQ);
 	// Decode a mp3 file to play
-	if (!drmp3_init_file(&wav, APOLLO_APP_PATH "audio/background_music.mp3", NULL))
+	if (s3m_load(&s3m, APOLLO_APP_PATH "audio/haiku.s3m") < 0)
 	{
 		LOG("[ERROR] Failed to decode audio file");
 		return -1;
 	}
+	LOG("Loaded audio file: %s", s3m.header->song_name);
 
 	// Calculate the sample count and allocate a buffer for the sample data accordingly
-	drmp3_int16 *pSampleData = (drmp3_int16 *)malloc(AUDIO_SAMPLES * wav.channels * sizeof(drmp3_int16));
+	uint8_t *pSampleData = (uint8_t*) malloc(AUDIO_SAMPLES * 2 * sizeof(int16_t));
 
 	// Play the song in a loop
 	while (!close_app)
@@ -344,13 +345,14 @@ static int LoadSounds(void* data)
 			continue;
 		}
 
-		// Decode the wav into pSampleData  wav.totalPCMFrameCount
-		if (!drmp3_read_pcm_frames_s16(&wav, AUDIO_SAMPLES, pSampleData))
+		if (!s3m.rt.playing)
 		{
 			// If we reach the end of the file, seek back to the beginning.
-			drmp3_seek_to_pcm_frame(&wav, 0);
-			continue;
+			s3m_play(&s3m);
 		}
+
+		// Decode the wav into pSampleData
+		s3m_sound_callback(NULL, pSampleData, AUDIO_SAMPLES * 2 * sizeof(int16_t));
 
 		/* Output audio */
 		sceAudioOutOutput(audio, NULL);	// NULL: wait for completion
@@ -362,8 +364,9 @@ static int LoadSounds(void* data)
 		}
 	}
 
+	s3m_stop(&s3m);
+	s3m_unload(&s3m);
 	free(pSampleData);
-	drmp3_uninit(&wav);
 
 	return 0;
 }

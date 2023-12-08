@@ -4,6 +4,37 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v1.4.2](https://github.com/bucanero/apollo-ps4/releases/tag/v1.4.2) - 2023-12-10
+
+### Added
+
+* Auto-detect `X`/`O` button settings
+* Network HTTP proxy settings support
+* New cheat codes
+  - Grand Theft Auto V
+  - Metal Gear Solid 5: The Phantom Pain
+* Custom decryption support
+  - Metal Gear Solid 5: The Phantom Pain
+* Custom checksum support
+  - Grand Theft Auto V
+  - Metal Gear Solid 5: The Phantom Pain
+  - Shantae and the Pirate's Curse
+  - Shantae: Risky's Revenge
+
+### Misc
+
+* Updated audio library to `libs3m`
+* Updated [`apollo-lib`](https://github.com/bucanero/apollo-lib) Patch Engine to v0.6.0
+  - Add host callbacks (username, wlan mac, psid, account id)
+  - Add `murmu3_32`, `jhash` hash functions
+  - Add Patapon 3 PSP decryption
+  - Add MGS5 decryption (PS3/PS4)
+  - Add Monster Hunter 2G/3rd PSP decryption
+  - Add Castlevania:LoS checksum
+  - Add Rockstar checksum
+  - Fix SaveWizard Code Type C
+  - Fix `right()` on little-endian platforms
+
 ## [v1.4.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.4.0) - 2023-04-16
 
 ### Added

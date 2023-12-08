@@ -131,6 +131,7 @@ You need to have installed:
 - [libZip](https://github.com/bucanero/oosdk_libraries/tree/master/libzip-1.9.2) library
 - [SDL2](https://github.com/PacBrew/SDL/tree/ps4) library
 - [libJbc](https://github.com/bucanero/ps4-libjbc) library
+- [libs3m](https://github.com/bucanero/s3mplay) library
 - [Mini-XML](https://github.com/bucanero/mxml) library
 - [dbglogger](https://github.com/bucanero/dbglogger) library
 

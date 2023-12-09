@@ -490,14 +490,18 @@ static void copySavePFS(const save_entry_t* save)
 	return;
 }
 
-static void copyKeystone(int import)
+static void copyKeystone(const save_entry_t* entry, int import)
 {
 	char path_data[256];
 	char path_save[256];
 
-	snprintf(path_save, sizeof(path_save), "%ssce_sys/keystone", selected_entry->path);
-	snprintf(path_data, sizeof(path_data), APOLLO_USER_PATH "%s/keystone", apollo_config.user_id, selected_entry->title_id);
+	snprintf(path_save, sizeof(path_save), "%ssce_sys/keystone", entry->path);
+	snprintf(path_data, sizeof(path_data), APOLLO_USER_PATH "%s/keystone", apollo_config.user_id, entry->title_id);
 	mkdirs(path_data);
+
+	// try to import keystone from data folder
+	if (import && file_exists(path_data) != SUCCESS)
+		snprintf(path_data, sizeof(path_data), APOLLO_DATA_PATH "%s.keystone", entry->title_id);
 
 	LOG("Copy '%s' <-> '%s'...", path_save, path_data);
 
@@ -1167,12 +1171,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_EXP_KEYSTONE:
-			copyKeystone(0);
+			copyKeystone(selected_entry, 0);
 			code->activated = 0;
 			break;
 
 		case CMD_IMP_KEYSTONE:
-			copyKeystone(1);
+			copyKeystone(selected_entry, 1);
 			code->activated = 0;
 			break;
 

@@ -23,6 +23,7 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ### Misc
 
+* Include original keystones for 116 games
 * Updated audio library to `libs3m`
 * Updated [`apollo-lib`](https://github.com/bucanero/apollo-lib) Patch Engine to v0.6.0
   - Add host callbacks (username, wlan mac, psid, account id)

@@ -56,7 +56,7 @@ app_config_t apollo_config = {
     .doSort = 1,
     .doAni = 1,
     .update = 1,
-	.usb_dev = 9,
+    .usb_dev = 9,
     .user_id = 0,
     .psid = {0, 0},
     .account_id = 0,
@@ -655,10 +655,8 @@ s32 main(s32 argc, const char* argv[])
 		SDL_RenderPresent(renderer);
 	}
 
-#ifndef APOLLO_ENABLE_LOGGING
 	if (apollo_config.doAni)
 		drawEndLogo();
-#endif
 
     // Cleanup resources
     SDL_DestroyRenderer(renderer);

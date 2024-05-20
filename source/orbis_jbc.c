@@ -414,6 +414,11 @@ int patch_save_libraries(void)
         savedata_patch = scesavedata_patches_900;
         shellcore_patch = shellcore_patches_900;
         break;
+	    
+     case 0x1100:
+        savedata_patch = scesavedata_patches_1100;
+        shellcore_patch = shellcore_patches_1100;
+        break;
 
     default:
         notify_popup("cxml://psnotification/tex_icon_ban", "Unsupported firmware version %X.%02X", version >> 8, version & 0xFF);

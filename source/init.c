@@ -1,5 +1,14 @@
-#include "init.h"
+#include <unistd.h>
+#include <sys/stat.h>
+#include <orbis/libkernel.h>
+#include <string.h>
+#include <libjbc.h>
 
+#include "init.h"
+#include "sd.h"
+#include "scall.h"
+
+// cred must be set to invoke mount call, use before anything
 int init_cred(void) {
     jbc_cred old_cred;
     jbc_cred cred;
@@ -18,12 +27,34 @@ int init_cred(void) {
     cred.sonyCred = cred.sonyCred | 0x4000000000000000ULL;
     cred.sceProcType = 0x3801000000000013ULL;
 
-    jbc_set_cred(&cred);
+    if (jbc_set_cred(&cred) != 0) {
+        return -3;
+    }
     setuid(0);
 
     return 0;
 }
 
+// can use before mount call after initializing everything
+int setup_cred(void) {
+    jbc_cred cred;
+
+    memset(&cred, 0, sizeof(jbc_cred));
+    if (jbc_get_cred(&cred) != 0) {
+        return -1;
+    }
+    cred.sonyCred = cred.sonyCred | 0x4000000000000000ULL;
+    cred.sceProcType = 0x3801000000000013ULL;
+
+    if (jbc_set_cred(&cred) != 0) {
+        return -2;
+    }
+    setuid(0);
+
+    return 0;
+}
+
+// create devices, do once after setting cred and loading priv libs
 int init_devices(void) {
     struct stat s;
     memset(&s, 0, sizeof(struct stat));

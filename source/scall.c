@@ -1,4 +1,7 @@
+#include <orbis/libkernel.h>
+
 #include "scall.h"
+#include "sd.h"
 
 int sys_open(const char *path, int flags, int mode) {
     int result;
@@ -11,6 +14,10 @@ int sys_open(const char *path, int flags, int mode) {
         : "=a" (result),    // Output operand: result
           "=@ccc" (err)     // Output operand: err (clobbers condition codes)
     );
+
+    UNUSED(path);
+    UNUSED(flags);
+    UNUSED(mode);
 
     return result;
 }
@@ -27,6 +34,10 @@ int sys_mknod(const char *path, mode_t mode, dev_t dev) {
     : "=a"(result),     // Output constraint: Tells the compiler that the result of the operation will be stored in the RAX register
     "=@ccc"(err)        // Output constraint: Indicates that error information will be stored in the specified location
     );
+
+    UNUSED(path);
+    UNUSED(mode);
+    UNUSED(dev);
 
     return result;
 }

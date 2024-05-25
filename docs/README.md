@@ -2,11 +2,12 @@
 
 [![Downloads][img_downloads]][app_downloads] [![Release][img_latest]][app_latest] [![License][img_license]][app_license]
 [![Build app package](https://github.com/bucanero/apollo-ps4/actions/workflows/build.yml/badge.svg)](https://github.com/bucanero/apollo-ps4/actions/workflows/build.yml)
+![PS4](https://img.shields.io/badge/-PS4-003791?style=flat&logo=PlayStation)
 [![Twitter](https://img.shields.io/twitter/follow/dparrino?label=Follow)](https://twitter.com/dparrino)
 
 **Apollo Save Tool** is an application to manage save-game files on the PlayStation 4.
 
-This homebrew app allows you to download, unlock, patch and resign save-game files directly on your PS4.
+This homebrew app allows you to download, unlock, patch, and resign save-game files directly on your PS4.
 
 ![image](./screenshots/screenshot-main.jpg)
 
@@ -46,7 +47,7 @@ My GitHub projects are open to a [sponsor program](https://patreon.com/dparrino)
 
 # Setup instructions
 
-No special setup is needed. Just download the latest `IV0000-APOL00004_00-APOLLO0000000PS4.pkg` package and install it on your PlayStation 4.
+No special setup is needed. Just download the latest [`IV0000-APOL00004_00-APOLLO0000000PS4.pkg`](https://github.com/bucanero/apollo-ps4/releases/latest/download/IV0000-APOL00004_00-APOLLO0000000PS4.pkg) package and install it on your PlayStation 4.
 On first run, the application will detect and setup the required user settings.
 
 ## Data folders
@@ -136,7 +137,7 @@ UDP multicast address `239.255.0.100:30000`. To receive them you can use [socat]
 
 # License
 
-[Apollo Save Tool](https://github.com/bucanero/apollo-ps4/) (PS4) - Copyright (C) 2020-2023 [Damian Parrino](https://twitter.com/dparrino)
+[Apollo Save Tool](https://github.com/bucanero/apollo-ps4/) (PS4) - Copyright (C) 2020-2024 [Damian Parrino](https://twitter.com/dparrino)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the [GNU General Public License][app_license] as published by

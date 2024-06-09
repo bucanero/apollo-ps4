@@ -164,7 +164,7 @@ int get_firmware_version(void)
 {
     int fw;
 
-    // upd_version >> 16 
+    // upd_version >> 16
     // 0x505  0x672  0x702  0x755  etc
     if (sysKernelGetUpdVersion(&fw) && sysKernelGetLowerLimitUpdVersion(&fw))
     {
@@ -392,7 +392,7 @@ int patch_save_libraries(void)
         savedata_patch = scesavedata_patches_505;
         shellcore_patch = shellcore_patches_505;
         break;
-    
+
     case 0x672:
         savedata_patch = scesavedata_patches_672;
         shellcore_patch = shellcore_patches_672;
@@ -414,10 +414,15 @@ int patch_save_libraries(void)
         savedata_patch = scesavedata_patches_900;
         shellcore_patch = shellcore_patches_900;
         break;
-	    
+
      case 0x1100:
         savedata_patch = scesavedata_patches_1100;
         shellcore_patch = shellcore_patches_1100;
+        break;
+
+     case 0x1050:
+        savedata_patch = scesavedata_patches_1050;
+        shellcore_patch = shellcore_patches_1050;
         break;
 
     default:
@@ -566,7 +571,7 @@ restart:;
             *proc_pid = pid;
             break;
         }
-        
+
         if (pid == 1)
             return 0;
 

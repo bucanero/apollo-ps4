@@ -25,13 +25,11 @@ LIBMODULES  := $(wildcard sce_module/*)
 # Root vars
 TOOLCHAIN   := $(OO_PS4_TOOLCHAIN)
 PROJDIR     := source
-#COMMONDIR   := $(TOOLCHAIN)/samples/_common
 INTDIR      := build/x64/Debug
 
 # Define objects to build
 CFILES      := $(wildcard $(PROJDIR)/*.c)
 CPPFILES    := $(wildcard $(PROJDIR)/*.cpp)
-#COMMONFILES := $(wildcard $(COMMONDIR)/*.cpp)
 OBJS        := $(patsubst $(PROJDIR)/%.c, $(INTDIR)/%.o, $(CFILES)) $(patsubst $(PROJDIR)/%.cpp, $(INTDIR)/%.o, $(CPPFILES))
 
 # Define final C/C++ flags

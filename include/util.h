@@ -17,6 +17,13 @@ int unmmap_file(u8 *data, u64 size);
 int calculate_hmac_hash(const u8 *data, u64 size, const u8 *key, u32 key_length, u8 output[20]);
 int calculate_file_hmac_hash(const char *file_path, const u8 *key, u32 key_length, u8 output[20]);
 
+void append_le_uint16(uint8_t *buf, uint16_t val);
+void append_le_uint32(uint8_t *buf, uint32_t val);
+void append_le_uint64(uint8_t *buf, uint64_t val);
+uint16_t read_le_uint16(const uint8_t *buf);
+uint32_t read_le_uint32(const uint8_t *buf);
+uint64_t read_le_uint64(const uint8_t *buf);
+
 u64 align_to_pow2(u64 offset, u64 alignment);
 void notify_popup(const char *p_Uri, const char *p_Format, ...);
 

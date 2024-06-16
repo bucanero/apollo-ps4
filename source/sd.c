@@ -4,10 +4,11 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <orbis/libkernel.h>
+#include <libjbc.h>
+#include <dbglogger.h>
+#define LOG dbglogger_log
 
 #include "sd.h"
-#include <libjbc.h>
 #include "scall.h"
 #include "dir.h"
 
@@ -28,13 +29,13 @@ int loadPrivLibs(void) {
     int kernel_sys;
 
     if (jbc_mount_in_sandbox(privDir, "priv") != 0) {
-        sceKernelDebugOutText(0, "Failed to mount system/priv/lib directory\n");
+        LOG("Failed to mount system/priv/lib directory");
         return -1;
     }
 
     sys = sceKernelLoadStartModule("/priv/libSceFsInternalForVsh.sprx", 0, NULL, 0, NULL, NULL);
     if (jbc_unmount_in_sandbox("priv") != 0) {
-        sceKernelDebugOutText(0, "Failed to unmount priv\n");
+        LOG("Failed to unmount priv");
     }
 
     if (sys >= 0) {
@@ -47,24 +48,24 @@ int loadPrivLibs(void) {
         sceKernelDlsym(sys, "sceFsUmountSaveData",              (void **)&sceFsUmountSaveData);
     }
     else {
-        sceKernelDebugOutText(0, "Failed to load libSceFsInternalForVsh.sprx\n");
+        LOG("Failed to load libSceFsInternalForVsh.sprx");
         return -2;
     }
 
     if (jbc_mount_in_sandbox(commonDir, "common") != 0) {
-        sceKernelDebugOutText(0, "Failed to mount /system/common/lib directory\n");
+        LOG("Failed to mount /system/common/lib directory");
         return -3;
     }
     kernel_sys = sceKernelLoadStartModule("/common/libkernel_sys.sprx", 0, NULL, 0, NULL, NULL);
     if (jbc_unmount_in_sandbox("common") != 0) {
-        sceKernelDebugOutText(0, "Failed to unmount common\n");
+        LOG("Failed to unmount common");
     }
 
     if (kernel_sys >= 0) {
         sceKernelDlsym(kernel_sys, "statfs", (void **)&statfs);
     }
     else {
-        sceKernelDebugOutText(0, "Failed to load libkernel_sys.sprx\n");
+        LOG("Failed to load libkernel_sys.sprx");
         return -4;
     }
 
@@ -81,7 +82,7 @@ int generateSealedKey(uint8_t data[ENC_SEALEDKEY_LEN]) {
     memset(sealedKey, 0, sizeof(sealedKey));
 
     if ((fd = open("/dev/sbl_srv", O_RDWR)) == -1) {
-        sceKernelDebugOutText(0, "sbl_srv open fail!\n");
+        LOG("sbl_srv open fail!");
         return -1;
     }
 
@@ -106,7 +107,7 @@ int decryptSealedKey(uint8_t enc_key[ENC_SEALEDKEY_LEN], uint8_t dec_key[DEC_SEA
     UNUSED(dummy);
 
     if ((fd = open("/dev/sbl_srv", O_RDWR)) == -1) {
-        sceKernelDebugOutText(0, "sbl_srv open fail!\n");
+        LOG("sbl_srv open fail!");
         return -1;
     }
 

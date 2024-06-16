@@ -1,8 +1,9 @@
 #include <unistd.h>
 #include <sys/stat.h>
-#include <orbis/libkernel.h>
 #include <string.h>
 #include <libjbc.h>
+#include <dbglogger.h>
+#define LOG dbglogger_log
 
 #include "init.h"
 #include "sd.h"
@@ -61,18 +62,18 @@ int init_devices(void) {
 
     // mount required devices into sandbox
     if (jbc_mount_in_sandbox("/dev/", "rootdev") != 0) {
-        sceKernelDebugOutText(0, "Failed to mount devices\n");
+        LOG("Failed to mount devices");
         return -1;
     }
 
     // create devices
     if (stat("/rootdev/pfsctldev", &s) == -1) {
-        sceKernelDebugOutText(0, "err stat pfsctldev\n");
+        LOG("err stat pfsctldev");
         return -2;
     }
     else {
         if (sys_mknod("/dev/pfsctldev", S_IFCHR | 0777, s.st_dev) == -1) {
-            sceKernelDebugOutText(0, "err mknod pfsctldev\n");
+            LOG("err mknod pfsctldev");
             return -2;
         }
     }
@@ -80,12 +81,12 @@ int init_devices(void) {
     memset(&s, 0, sizeof(struct stat));
 
     if (stat("/rootdev/lvdctl", &s) == -1) {
-        sceKernelDebugOutText(0, "err stat lvdctl\n");
+        LOG("err stat lvdctl");
         return -3;
     }
     else {
         if (sys_mknod("/dev/lvdctl", S_IFCHR | 0777, s.st_dev) == -1) {
-            sceKernelDebugOutText(0, "err mknod lvdctl\n");
+            LOG("err mknod lvdctl");
             return -3;
         }
     }
@@ -93,19 +94,19 @@ int init_devices(void) {
     memset(&s, 0, sizeof(struct stat));
 
     if (stat("/rootdev/sbl_srv", &s) == -1) {
-        sceKernelDebugOutText(0, "err stat sbl_srv\n");
+        LOG("err stat sbl_srv");
         return -4;
     }
     else {
         if (sys_mknod("/dev/sbl_srv", S_IFCHR | 0777, s.st_dev) == -1) {
-            sceKernelDebugOutText(0, "err mknod sbl_srv\n");
+            LOG("err mknod sbl_srv");
             return -4;
         }
     }
 
     // now unmount devices
     if (jbc_unmount_in_sandbox("rootdev") != 0) {
-        sceKernelDebugOutText(0, "Failed to unmount rootdev\n");
+        LOG("Failed to unmount rootdev");
     }
 
     // get max keyset that can be decrypted

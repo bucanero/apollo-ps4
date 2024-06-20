@@ -415,6 +415,11 @@ int patch_save_libraries(void)
         shellcore_patch = shellcore_patches_900;
         break;
 
+    case 0x960:
+        savedata_patch = scesavedata_patches_960;
+        shellcore_patch = shellcore_patches_960;
+        break;
+
     case 0x1000:
     case 0x1001:
         savedata_patch = scesavedata_patches_1000;

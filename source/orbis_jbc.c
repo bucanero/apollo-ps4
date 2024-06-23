@@ -429,12 +429,12 @@ int patch_save_libraries(void)
         savedata_patch = scesavedata_patches_1100; // 1001 have the same offsets as 1100 for libSceSaveData
         shellcore_patch = shellcore_patches_1001;
         break;
-
+/*
     case 0x1050:
         savedata_patch = scesavedata_patches_1100; // 1050 have the same offsets as 1100 for libSceSaveData
         shellcore_patch = shellcore_patches_1050;
         break;
-
+*/
     case 0x1100:
         savedata_patch = scesavedata_patches_1100;
         shellcore_patch = shellcore_patches_1100;

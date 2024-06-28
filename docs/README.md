@@ -11,6 +11,16 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 
 ![image](./screenshots/screenshot-main.jpg)
 
+![image](./screenshots/screenshot-saves.jpg)
+
+![image](./screenshots/screenshot-savegame.jpg)
+
+![image](./screenshots/screenshot-trophies.jpg)
+
+![image](./screenshots/screenshot-settings.jpg)
+
+![image](./screenshots/screenshot-xmb.jpg)
+
 **Comments, ideas, suggestions?** You can [contact me](https://github.com/bucanero/) on [Twitter](https://twitter.com/dparrino) and on [my website](http://www.bucanero.com.ar/).
 
 # Features

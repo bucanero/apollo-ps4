@@ -4,6 +4,19 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v1.4.5](https://github.com/bucanero/apollo-ps4/releases/tag/v1.4.5) - 2024-06-29
+
+### Added
+
+* 9.60/10.00/10.01 firmware support (thanks to @BestPig)
+  - GoldHEN payload is required
+* New cheat codes
+  - Shin Megami Tensei V
+* Custom save decryption support
+  - Shin Megami Tensei V (AES-ECB)
+* Custom checksum support
+  - Shin Megami Tensei V (SHA1)
+
 ## [v1.4.4](https://github.com/bucanero/apollo-ps4/releases/tag/v1.4.4) - 2024-05-25
 
 ### Added

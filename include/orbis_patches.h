@@ -230,6 +230,7 @@ const orbis_patch_t shellcore_patches_900[] = {
     {0, NULL, 0}
 };
 
+/* 9.60 patches by BestPig */
 const orbis_patch_t shellcore_patches_960[] = {
     {0x0E1BBE9, "\x00", 1},                        // 'sce_sdmemory' patch 1
     {0x0E1BC28, "\x00", 1},                        // 'sce_sdmemory1' patch
@@ -246,6 +247,7 @@ const orbis_patch_t shellcore_patches_960[] = {
     {0, NULL, 0}
 };
 
+/* 10.00 patches by BestPig */
 const orbis_patch_t shellcore_patches_1000[] = {
     {0x0E0FE39, "\x00", 1},                        // 'sce_sdmemory' patch 1
     {0x0E0FE78, "\x00", 1},                        // 'sce_sdmemory1' patch
@@ -262,6 +264,7 @@ const orbis_patch_t shellcore_patches_1000[] = {
     {0, NULL, 0}
 };
 
+/* 10.01 patches by BestPig */
 const orbis_patch_t shellcore_patches_1001[] = {
     {0x0E0FE59, "\x00", 1},                        // 'sce_sdmemory' patch 1
     {0x0E0FE98, "\x00", 1},                        // 'sce_sdmemory1' patch
@@ -278,6 +281,7 @@ const orbis_patch_t shellcore_patches_1001[] = {
     {0, NULL, 0}
 };
 
+/* 10.50 patches by BestPig */
 const orbis_patch_t shellcore_patches_1050[] = {
     {0x0E149B9, "\x00", 1},                        // 'sce_sdmemory' patch 1
     {0x0E149F8, "\x00", 1},                        // 'sce_sdmemory1' patch
@@ -293,7 +297,6 @@ const orbis_patch_t shellcore_patches_1050[] = {
     {0x006A5EE, "\xE9\xC8\x00", 3},                //always jump
     {0, NULL, 0}
 };
-
 
 /* 11.00 WIP patches by LM and SocraticBliss */
 const orbis_patch_t shellcore_patches_1100[] = {

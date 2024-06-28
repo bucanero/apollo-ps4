@@ -14,15 +14,15 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 <details>
 <summary>Screenshots Gallery (Click to Expand)</summary>
 
-![image](./screenshots/screenshot-saves.jpg)
+![image](./docs/screenshots/screenshot-saves.jpg)
 ---
-![image](./screenshots/screenshot-savegame.jpg)
+![image](./docs/screenshots/screenshot-savegame.jpg)
 ---
-![image](./screenshots/screenshot-trophies.jpg)
+![image](./docs/screenshots/screenshot-trophies.jpg)
 ---
-![image](./screenshots/screenshot-settings.jpg)
+![image](./docs/screenshots/screenshot-settings.jpg)
 ---
-![image](./screenshots/screenshot-xmb.jpg)
+![image](./docs/screenshots/screenshot-xmb.jpg)
 
 </details>
 

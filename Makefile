@@ -1,6 +1,6 @@
 # Package metadata.
 TITLE       := Apollo Save Tool
-VERSION     := 01.44
+VERSION     := 01.45
 TITLE_ID    := APOL00004
 CONTENT_ID  := IV0000-APOL00004_00-APOLLO0000000PS4
 
@@ -25,13 +25,11 @@ LIBMODULES  := $(wildcard sce_module/*)
 # Root vars
 TOOLCHAIN   := $(OO_PS4_TOOLCHAIN)
 PROJDIR     := source
-#COMMONDIR   := $(TOOLCHAIN)/samples/_common
 INTDIR      := build/x64/Debug
 
 # Define objects to build
 CFILES      := $(wildcard $(PROJDIR)/*.c)
 CPPFILES    := $(wildcard $(PROJDIR)/*.cpp)
-#COMMONFILES := $(wildcard $(COMMONDIR)/*.cpp)
 OBJS        := $(patsubst $(PROJDIR)/%.c, $(INTDIR)/%.o, $(CFILES)) $(patsubst $(PROJDIR)/%.cpp, $(INTDIR)/%.o, $(CPPFILES))
 
 # Define final C/C++ flags
@@ -58,7 +56,7 @@ ifeq ($(UNAME_S),Darwin)
 		CDIR    := macos
 endif
 
-all: $(CONTENT_ID).pkg
+all: $(CONTENT_ID).pkg ## Build the package.
 
 $(CONTENT_ID).pkg: pkg.gp4
 	$(TOOLCHAIN)/bin/$(CDIR)/PkgTool.Core pkg_build $< .
@@ -89,13 +87,23 @@ $(INTDIR)/%.o: $(PROJDIR)/%.c
 $(INTDIR)/%.o: $(PROJDIR)/%.cpp
 	$(CCX) $(CXXFLAGS) -o $@ $<
 
-clean:
+clean: ## Remove all generated files.
 	rm -f $(CONTENT_ID).pkg pkg.gp4 sce_sys/param.sfo eboot.bin \
 		$(INTDIR)/$(PROJDIR).elf $(INTDIR)/$(PROJDIR).oelf $(OBJS)
 
 #---------------------------------------------------------------------------------
-createzip:
+createzip: ## Download the latest appdata.zip cheat pack.
 	@echo "Downloading appdata.zip ..."
 	@[ -d assets/misc ] || mkdir -p assets/misc
 	@rm -fr assets/misc/appdata.zip
 	@curl -L "https://bucanero.github.io/apollo-patches/PS4/apollo-ps4-update.zip" > assets/misc/appdata.zip
+
+help: ## Display this help message.
+	@echo "Usage: make [target]"
+	@echo ""
+	@echo "Available targets:"
+	@echo "  all              - Build the package."
+	@echo "  clean            - Remove all generated files."
+	@echo "  createzip        - Download the latest appdata.zip cheat pack."
+	@echo "  help             - Display this help message."
+	@echo ""

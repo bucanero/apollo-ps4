@@ -148,8 +148,8 @@ const orbis_patch_t scesavedata_patches_900[] = {
 const orbis_patch_t scesavedata_patches_1100[] = {
     {0x00355E8, "\x00", 1},        // 'sce_' patch
 //  {0x0034679, "\x00", 1}, // patch commented out as idk WTF it does
-    {0x0033E49, "\x00", 1},       
-    {0x0035AA6, "\x00", 1},       
+    {0x0033E49, "\x00", 1},
+    {0x0035AA6, "\x00", 1},
     {0x0000FB8, "\x1F", 1}, // sb
     {0, NULL, 0},
 };
@@ -166,7 +166,7 @@ const orbis_patch_t shellcore_patches_505[] = {
     {0x06A349, "\x90\x90", 2},                    // ^
     {0x0686AE, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
     {0x067FCA, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
-    {0x067798, "\x90\x90", 2},                    //nevah jump                    
+    {0x067798, "\x90\x90", 2},                    //nevah jump
     {0x0679D5, "\x90\xE9", 2},                    //always jump
     {0, NULL, 0}
 };
@@ -180,7 +180,7 @@ const orbis_patch_t shellcore_patches_672[] = {
     {0x0007379E, "\x90\x90", 2},                    // ^
     {0x00070C38, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
     {0x00070855, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
-    {0x00070054, "\x90\x90", 2},                    //nevah jump                    
+    {0x00070054, "\x90\x90", 2},                    //nevah jump
     {0x00070260, "\x90\xE9", 2},                    //always jump
     {0, NULL, 0}
 };
@@ -194,7 +194,7 @@ const orbis_patch_t shellcore_patches_702[] = {
     {0x0006FF5F, "\x90\x90", 2},                    // ^
     {0x0006D058, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
     {0x0006C971, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
-    {0x0006C1A4, "\x90\x90", 2},                    //nevah jump                    
+    {0x0006C1A4, "\x90\x90", 2},                    //nevah jump
     {0x0006C40C, "\x90\xE9", 2},                    //always jump
     {0, NULL, 0}
 };
@@ -208,7 +208,7 @@ const orbis_patch_t shellcore_patches_75x[] = {
     {0x0006D26D, "\x90\x90", 2},                    // ^
     {0x0006B338, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
     {0x0006AC2D, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
-    {0x0006A494, "\x90\x90", 2},                    //nevah jump                    
+    {0x0006A494, "\x90\x90", 2},                    //nevah jump
     {0x0006A6F0, "\x90\xE9", 2},                    //always jump
     {0, NULL, 0}
 };
@@ -225,8 +225,76 @@ const orbis_patch_t shellcore_patches_900[] = {
     {0x0006defe, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
     {0x0006C0A8, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
     {0x0006BA62, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
-    {0x0006B2C4, "\x90\x90", 2},                    //nevah jump                    
+    {0x0006B2C4, "\x90\x90", 2},                    //nevah jump
     {0x0006B51E, "\x90\xE9", 2},                    //always jump
+    {0, NULL, 0}
+};
+
+/* 9.60 patches by BestPig */
+const orbis_patch_t shellcore_patches_960[] = {
+    {0x0E1BBE9, "\x00", 1},                        // 'sce_sdmemory' patch 1
+    {0x0E1BC28, "\x00", 1},                        // 'sce_sdmemory1' patch
+    {0x0E1BC36, "\x00", 1},                        // 'sce_sdmemory2' patch
+    {0x0E1BC44, "\x00", 1},                        // 'sce_sdmemory3' patch
+    {0x08B0BC0, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
+    {0x006B610, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
+    {0x00C6F60, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
+    {0x006CF85, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
+    {0x006B157, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
+    {0x006AB12, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
+    {0x006A374, "\x90\x90", 2},                    //nevah jump
+    {0x006A5CE, "\xE9\xC8\x00", 3},                //always jump
+    {0, NULL, 0}
+};
+
+/* 10.00 patches by BestPig */
+const orbis_patch_t shellcore_patches_1000[] = {
+    {0x0E0FE39, "\x00", 1},                        // 'sce_sdmemory' patch 1
+    {0x0E0FE78, "\x00", 1},                        // 'sce_sdmemory1' patch
+    {0x0E0FE86, "\x00", 1},                        // 'sce_sdmemory2' patch
+    {0x0E0FE94, "\x00", 1},                        // 'sce_sdmemory3' patch
+    {0x08A7510, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
+    {0x006B6A0, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
+    {0x00C70A0, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
+    {0x006D015, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
+    {0x006B1E7, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
+    {0x006AbA2, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
+    {0x006A404, "\x90\x90", 2},                    //nevah jump
+    {0x006A65E, "\xE9\xC8\x00", 3},                //always jump
+    {0, NULL, 0}
+};
+
+/* 10.01 patches by BestPig */
+const orbis_patch_t shellcore_patches_1001[] = {
+    {0x0E0FE59, "\x00", 1},                        // 'sce_sdmemory' patch 1
+    {0x0E0FE98, "\x00", 1},                        // 'sce_sdmemory1' patch
+    {0x0E0FEA6, "\x00", 1},                        // 'sce_sdmemory2' patch
+    {0x0E0FEB4, "\x00", 1},                        // 'sce_sdmemory3' patch
+    {0x08A7520, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
+    {0x006B6A0, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
+    {0x00C70A0, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
+    {0x006D015, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
+    {0x006B1E7, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
+    {0x006ABA2, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
+    {0x006A404, "\x90\x90", 2},                    //nevah jump
+    {0x006A65E, "\xE9\xC8\x00", 3},                //always jump
+    {0, NULL, 0}
+};
+
+/* 10.50 patches by BestPig */
+const orbis_patch_t shellcore_patches_1050[] = {
+    {0x0E149B9, "\x00", 1},                        // 'sce_sdmemory' patch 1
+    {0x0E149F8, "\x00", 1},                        // 'sce_sdmemory1' patch
+    {0x0E14A06, "\x00", 1},                        // 'sce_sdmemory2' patch
+    {0x0E14A14, "\x00", 1},                        // 'sce_sdmemory3' patch
+    {0x08AAC00, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
+    {0x006B630, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
+    {0x00C7060, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
+    {0x006CFA5, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
+    {0x006B177, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
+    {0x006AB32, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
+    {0x006a394, "\x90\x90", 2},                    //nevah jump
+    {0x006A5EE, "\xE9\xC8\x00", 3},                //always jump
     {0, NULL, 0}
 };
 
@@ -242,7 +310,7 @@ const orbis_patch_t shellcore_patches_1100[] = {
     {0x006CFA5, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
     {0x006B177, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
     {0x006AB32, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
-    {0x006A394, "\x90\x90", 2},                    //nevah jump   
+    {0x006A394, "\x90\x90", 2},                    //nevah jump
     {0x006A5EE, "\xE9\xC8\x00", 3},                //always jump
     {0, NULL, 0}
 };

@@ -426,10 +426,12 @@ int patch_save_libraries(void)
     case 0x850:
         savedata_patch = scesavedata_patches_85x;
         shellcore_patch = shellcore_patches_850;
+        break;
 
     case 0x852:
         savedata_patch = scesavedata_patches_85x;
         shellcore_patch = shellcore_patches_852;
+        break;
 
     case 0x900:
         savedata_patch = scesavedata_patches_900;
@@ -439,18 +441,22 @@ int patch_save_libraries(void)
     case 0x903:
         savedata_patch = scesavedata_patches_900; // 903 have the same offsets as 900 for libSceSaveData
         shellcore_patch = shellcore_patches_903;
+        break;
 
     case 0x904:
         savedata_patch = scesavedata_patches_900;  // 904 have the same offsets as 900 for libSceSaveData
         shellcore_patch = shellcore_patches_904;
+        break;
 
     case 0x950:
         savedata_patch = scesavedata_patches_1100; // 950 have the same offsets as 1100 for libSceSaveData
         shellcore_patch = shellcore_patches_950;
+        break;
 
     case 0x951:
         savedata_patch = scesavedata_patches_1100; // 951 have the same offsets as 1100 for libSceSaveData
         shellcore_patch = shellcore_patches_951;
+        break;
 
     case 0x960:
         savedata_patch = scesavedata_patches_1100; // 960 have the same offsets as 1100 for libSceSaveData

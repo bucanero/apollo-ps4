@@ -352,11 +352,12 @@ void DrawGameList(int selIndex, list_t * games, u8 alpha)
 
 			tmp[0] = ' ';
 			if (item->flags & SAVE_FLAG_PS2) tmp[0] = CHAR_TAG_PS2;
-			if (item->flags & SAVE_FLAG_PSP) tmp[0] = CHAR_TAG_PSP;
+			if (item->flags & SAVE_FLAG_PS1) tmp[0] = CHAR_TAG_PS1;
 			if (item->flags & SAVE_FLAG_PS4) tmp[0] = CHAR_TAG_PS4;
 			tmp[1] = (item->flags & SAVE_FLAG_OWNER) ? CHAR_TAG_OWNER : ' ';
 			tmp[2] = (item->flags & SAVE_FLAG_LOCKED) ? CHAR_TAG_LOCKED : ' ';
 			if (item->flags & SAVE_FLAG_PSV) tmp[1] = CHAR_TAG_PSV;
+			if (item->type == FILE_TYPE_VMC) tmp[1] = CHAR_TAG_VMC;
 
 			DrawString(SCREEN_WIDTH - (MENU_ICON_OFF * 3), game_y, tmp);
 skip_draw:

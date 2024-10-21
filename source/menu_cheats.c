@@ -106,9 +106,6 @@ void Draw_CheatsMenu_Options_Ani_Exit(void)
 		DrawTexture(&menu_textures[edit_shadow_png_index], left - (menu_textures[edit_shadow_png_index].width * 1) + 1, 0, 0, menu_textures[edit_shadow_png_index].width, SCREEN_HEIGHT, icon_a);
 		DrawHeader(cat_cheats_png_index, left, selected_centry->name, "Options", APP_FONT_TITLE_COLOR | icon_a, 0xffffffff, 1);
 
-		//DrawOptions(selected_centry->options[option_index], game_a, 18, menu_old_sel[7]);
-		//DrawScrollBar2(menu_old_sel[7], selected_centry->options[option_index].size, 18, 700, game_a);
-
 		SDL_RenderPresent(renderer);
 
 		if (left == SCREEN_WIDTH)

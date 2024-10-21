@@ -13,6 +13,7 @@
 #include "common.h"
 #include "util.h"
 #include "sfo.h"
+#include "mcio.h"
 
 static char host_buf[256];
 

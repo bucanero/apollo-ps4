@@ -47,6 +47,7 @@ void update_usb_path(char *p);
 void update_hdd_path(char *p);
 void update_trophy_path(char *p);
 void update_db_path(char *p);
+void update_vmc_path(char *p);
 
 app_config_t apollo_config = {
     .app_name = "APOLLO",
@@ -136,6 +137,19 @@ save_list_t user_backup = {
     .UpdatePath = NULL,
 };
 
+/*
+* PS2 VMC list
+*/
+save_list_t vmc2_saves = {
+    .icon_id = cat_usb_png_index,
+    .title = "PS2 Virtual Memory Card",
+    .list = NULL,
+    .path = "",
+    .ReadList = &ReadVmc2List,
+    .ReadCodes = &ReadVmc2Codes,
+    .UpdatePath = &update_vmc_path,
+};
+
 static const char* get_button_prompts(int menu_id)
 {
 	const char* prompt = NULL;
@@ -145,11 +159,13 @@ static const char* get_button_prompts(int menu_id)
 		case MENU_TROPHIES:
 		case MENU_USB_SAVES:
 		case MENU_HDD_SAVES:
+		case MENU_ONLINE_DB:
+		case MENU_PS1VMC_SAVES:
+		case MENU_PS2VMC_SAVES:
 			prompt = "\x10 Select    \x13 Back    \x12 Details    \x11 Refresh";
 			break;
 
 		case MENU_USER_BACKUP:
-		case MENU_ONLINE_DB:
 			prompt = "\x10 Select    \x13 Back    \x11 Refresh";
 			break;
 
@@ -294,7 +310,7 @@ static int LoadTextures_Menu(void)
 	load_menu_texture(logo_text, png);
 	load_menu_texture(tag_lock, png);
 	load_menu_texture(tag_own, png);
-	load_menu_texture(tag_pce, png);
+	load_menu_texture(tag_vmc, png);
 	load_menu_texture(tag_ps1, png);
 	load_menu_texture(tag_ps2, png);
 	load_menu_texture(tag_ps3, png);
@@ -415,6 +431,14 @@ void update_db_path(char* path)
 	strcpy(path, apollo_config.save_db);
 }
 
+void update_vmc_path(char* path)
+{
+	if (file_exists(path) == SUCCESS)
+		return;
+
+	path[0] = 0;
+}
+
 static void registerSpecialChars(void)
 {
 	// Register save tags
@@ -424,7 +448,7 @@ static void registerSpecialChars(void)
 	RegisterSpecialCharacter(CHAR_TAG_PS4, 2, 1.5, &menu_textures[tag_ps4_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PSP, 2, 1.5, &menu_textures[tag_psp_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PSV, 2, 1.5, &menu_textures[tag_psv_png_index]);
-	RegisterSpecialCharacter(CHAR_TAG_PCE, 2, 1.5, &menu_textures[tag_pce_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_VMC, 2, 1.0, &menu_textures[tag_vmc_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_LOCKED, 0, 1.3, &menu_textures[tag_lock_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_OWNER, 0, 1.3, &menu_textures[tag_own_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_WARNING, 0, 1.3, &menu_textures[tag_warning_png_index]);

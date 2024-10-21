@@ -8,12 +8,14 @@
 #include "libfont.h"
 #include "ttf_render.h"
 #include "common.h"
+#include "mcio.h"
 
 extern save_list_t hdd_saves;
 extern save_list_t usb_saves;
 extern save_list_t trophies;
 extern save_list_t online_saves;
 extern save_list_t user_backup;
+extern save_list_t vmc2_saves;
 
 extern int close_app;
 
@@ -67,6 +69,8 @@ static int ReloadUserSaves(save_list_t* save_list)
 		list_bubbleSort(save_list->list, &sortSaveList_Compare);
 	else if (apollo_config.doSort == SORT_BY_TITLE_ID)
 		list_bubbleSort(save_list->list, &sortSaveList_Compare_TitleID);
+	else if (apollo_config.doSort == SORT_BY_TYPE)
+		list_bubbleSort(save_list->list, &sortSaveList_Compare_Type);
 
 	stop_loading_screen();
 
@@ -91,13 +95,13 @@ static code_entry_t* LoadRawPatch(void)
 	return centry;
 }
 
-static code_entry_t* LoadSaveDetails(void)
+static code_entry_t* LoadSaveDetails(const save_entry_t* save)
 {
 	code_entry_t* centry = calloc(1, sizeof(code_entry_t));
-	centry->name = strdup(selected_entry->title_id);
+	centry->name = strdup(save->title_id);
 
-	if (!get_save_details(selected_entry, &centry->codes))
-		asprintf(&centry->codes, "Error getting details (%s)", selected_entry->name);
+	if (!get_save_details(save, &centry->codes))
+		asprintf(&centry->codes, "Error getting details (%s)", save->name);
 
 	LOG("%s", centry->codes);
 	return (centry);
@@ -107,6 +111,17 @@ static void SetMenu(int id)
 {
 	switch (menu_id) //Leaving menu
 	{
+		case MENU_PS2VMC_SAVES:
+			if (id == MENU_MAIN_SCREEN)
+			{
+				init_loading_screen("Saving PS2 Memory Card...");
+				UnloadGameList(vmc2_saves.list);
+				vmc2_saves.list = NULL;
+				mcio_vmcFinish();
+				stop_loading_screen();
+			}
+			break;
+
 		case MENU_MAIN_SCREEN: //Main Menu
 		case MENU_TROPHIES:
 		case MENU_USB_SAVES: //USB Saves Menu
@@ -118,7 +133,14 @@ static void SetMenu(int id)
 
 		case MENU_SETTINGS: //Options Menu
 		case MENU_CREDITS: //About Menu
+			break;
+
 		case MENU_PATCHES: //Cheat Selection Menu
+			if (selected_entry->flags & SAVE_FLAG_UPDATED && id == MENU_PS2VMC_SAVES)
+			{
+				selected_entry->flags ^= SAVE_FLAG_UPDATED;
+				ReloadUserSaves(&vmc2_saves);
+			}
 			break;
 
 		case MENU_SAVE_DETAILS:
@@ -178,6 +200,14 @@ static void SetMenu(int id)
 				Draw_UserCheatsMenu_Ani(&online_saves);
 			break;
 
+		case MENU_PS2VMC_SAVES: //Trophies Menu
+			if (!vmc2_saves.list && !ReloadUserSaves(&vmc2_saves))
+				return;
+
+			if (apollo_config.doAni)
+				Draw_UserCheatsMenu_Ani(&vmc2_saves);
+			break;
+
 		case MENU_CREDITS: //About Menu
 			if (apollo_config.doAni)
 				Draw_AboutMenu_Ani();
@@ -198,10 +228,12 @@ static void SetMenu(int id)
 
 		case MENU_PATCHES: //Cheat Selection Menu
 			//if entering from game list, don't keep index, otherwise keep
-			if (menu_id == MENU_USB_SAVES || menu_id == MENU_HDD_SAVES || menu_id == MENU_ONLINE_DB || menu_id == MENU_TROPHIES)
+			if (menu_id == MENU_USB_SAVES || menu_id == MENU_HDD_SAVES || menu_id == MENU_ONLINE_DB ||
+				menu_id == MENU_TROPHIES || menu_id == MENU_PS2VMC_SAVES)
 				menu_old_sel[MENU_PATCHES] = 0;
 
 			char iconfile[256];
+			menu_textures[icon_png_file_index].size = 0;
 			snprintf(iconfile, sizeof(iconfile), "%s" "sce_sys/icon0.png", selected_entry->path);
 
 			if (selected_entry->flags & SAVE_FLAG_ONLINE)
@@ -209,15 +241,16 @@ static void SetMenu(int id)
 				snprintf(iconfile, sizeof(iconfile), APOLLO_LOCAL_CACHE "%s.PNG", selected_entry->title_id);
 
 				if (file_exists(iconfile) != SUCCESS)
-					http_download(selected_entry->path, "icon0.png", iconfile, 0);
+					http_download(selected_entry->path, "icon0.png", iconfile, 1);
 			}
+//			else if (selected_entry->flags & SAVE_FLAG_VMC && selected_entry->type == FILE_TYPE_PS2)
+//				LoadVmcTexture(128, 128, getIconPS2(selected_entry->dir_name, strrchr(selected_entry->path, '\n')+1));
+
 			else if (selected_entry->flags & SAVE_FLAG_HDD)
 				snprintf(iconfile, sizeof(iconfile), PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
 
 			if (file_exists(iconfile) == SUCCESS)
 				LoadMenuTexture(iconfile, icon_png_file_index);
-			else
-				menu_textures[icon_png_file_index].size = 0;
 
 			if (apollo_config.doAni && menu_id != MENU_PATCH_VIEW && menu_id != MENU_CODE_OPTIONS)
 				Draw_CheatsMenu_Selection_Ani();
@@ -321,6 +354,22 @@ static void doSaveMenu(save_list_t * save_list)
 	{
 		selected_entry = list_get_item(save_list->list, menu_sel);
 
+			if (selected_entry->type == FILE_TYPE_VMC && selected_entry->flags & SAVE_FLAG_VMC)
+			{
+				if (selected_entry->flags & SAVE_FLAG_PS1)
+				{
+//					strncpy(vmc1_saves.path, selected_entry->path, sizeof(vmc1_saves.path));
+					SetMenu(MENU_PS1VMC_SAVES);
+				}
+				else
+				{
+					strncpy(vmc2_saves.path, selected_entry->path, sizeof(vmc2_saves.path));
+					SetMenu(MENU_PS2VMC_SAVES);
+				}
+
+				return;
+			}
+
 		if (!selected_entry->codes && !save_list->ReadCodes(selected_entry))
 		{
 			show_message("No data found in folder:\n%s", selected_entry->path);
@@ -339,7 +388,7 @@ static void doSaveMenu(save_list_t * save_list)
 		selected_entry = list_get_item(save_list->list, menu_sel);
 		if (selected_entry->type != FILE_TYPE_MENU)
 		{
-			selected_centry = LoadSaveDetails();
+			selected_centry = LoadSaveDetails(selected_entry);
 			SetMenu(MENU_SAVE_DETAILS);
 			return;
 		}
@@ -715,7 +764,7 @@ static void doPatchMenu(void)
 			if (selected_centry->codes[0] == CMD_VIEW_DETAILS)
 			{
 				selected_centry->activated = 0;
-				selected_centry = LoadSaveDetails();
+				selected_centry = LoadSaveDetails(selected_entry);
 				SetMenu(MENU_SAVE_DETAILS);
 				return;
 			}
@@ -791,6 +840,10 @@ void drawScene(void)
 
 		case MENU_HEX_EDITOR: //Hex Editor Menu
 			doHexEditor();
+			break;
+
+		case MENU_PS2VMC_SAVES: //PS2 VMC Menu
+			doSaveMenu(&vmc2_saves);
 			break;
 	}
 }

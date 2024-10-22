@@ -65,12 +65,12 @@ static void printMAXHeader(const maxHeader_t *header)
         return;
 
     LOG("Magic            : %.*s", (int)sizeof(header->magic), header->magic);
-    LOG("CRC              : %08X", ES32(header->crc));
+    LOG("CRC              : %08X", (header->crc));
     LOG("dirName          : %.*s", (int)sizeof(header->dirName), header->dirName);
     LOG("iconSysName      : %.*s", (int)sizeof(header->iconSysName), header->iconSysName);
-    LOG("compressedSize   : %u", ES32(header->compressedSize));
-    LOG("numFiles         : %u", ES32(header->numFiles));
-    LOG("decompressedSize : %u", ES32(header->decompressedSize));
+    LOG("compressedSize   : %u", (header->compressedSize));
+    LOG("numFiles         : %u", (header->numFiles));
+    LOG("decompressedSize : %u", (header->decompressedSize));
 }
 
 static int roundUp(int i, int j)
@@ -104,9 +104,9 @@ static int isMAXFile(const char *path)
 
     printMAXHeader(&header);
 
-    return (ES32(header.compressedSize) > 0) &&
-           (ES32(header.decompressedSize) > 0) &&
-           (ES32(header.numFiles) > 0) &&
+    return (header.compressedSize > 0) &&
+           (header.decompressedSize > 0) &&
+           (header.numFiles > 0) &&
            strncmp(header.magic, MAX_HEADER_MAGIC, sizeof(header.magic)) == 0 &&
            strlen(header.dirName) > 0 &&
            strlen(header.iconSysName) > 0;
@@ -120,7 +120,7 @@ static void setMcDateTime(sceMcStDateTime* mc, struct tm *ftm)
     mc->Hour = ftm->tm_hour;
     mc->Day = ftm->tm_mday;
     mc->Month = ftm->tm_mon + 1;
-    mc->Year = ES16(ftm->tm_year + 1900);
+    mc->Year = (ftm->tm_year + 1900);
 }
 
 static void set_ps2header_values(ps2_header_t *ps2h, const ps2_FileInfo_t *ps2fi, const ps2_IconSys_t *ps2sys)
@@ -168,9 +168,6 @@ int ps2_max2psv(const char *save, const char* psv_path)
 
     maxHeader_t header;
     fread(&header, 1, sizeof(maxHeader_t), f);
-    header.compressedSize = ES32(header.compressedSize);
-    header.decompressedSize = ES32(header.decompressedSize);
-    header.numFiles = ES32(header.numFiles);
 
     char dirName[sizeof(header.dirName) + 1];
     char psvName[256];
@@ -223,10 +220,10 @@ int ps2_max2psv(const char *save, const char* psv_path)
     memset(&ps2h, 0, sizeof(ps2_header_t));
     memset(&ps2md, 0, sizeof(ps2_MainDirInfo_t));
     
-    ps2h.numberOfFiles = ES32(header.numFiles);
+    ps2h.numberOfFiles = (header.numFiles);
 
-    ps2md.attribute = 0x27840000;
-    ps2md.numberOfFilesInDir = ES32(header.numFiles+2);
+    ps2md.attribute = 0x00008427;
+    ps2md.numberOfFilesInDir = (header.numFiles+2);
     memcpy(&ps2md.created, &fctime, sizeof(sceMcStDateTime));
     memcpy(&ps2md.modified, &fmtime, sizeof(sceMcStDateTime));
     memcpy(ps2md.filename, dirName, sizeof(ps2md.filename));
@@ -239,7 +236,6 @@ int ps2_max2psv(const char *save, const char* psv_path)
     for(i = 0, offset = 0; i < header.numFiles; i++)
     {
         entry = (maxEntry_t*) &decompressed[offset];
-        entry->length = ES32(entry->length);
         offset += sizeof(maxEntry_t);
 
         if(strcmp(entry->name, "icon.sys") == 0)
@@ -252,7 +248,6 @@ int ps2_max2psv(const char *save, const char* psv_path)
     }
 
     LOG(" %8d Total bytes", ps2h.displaySize);
-    ps2h.displaySize = ES32(ps2h.displaySize);
 
     if (!ps2sys)
         return 0;
@@ -268,9 +263,9 @@ int ps2_max2psv(const char *save, const char* psv_path)
         entry = (maxEntry_t*) &decompressed[offset];
         offset += sizeof(maxEntry_t);
 
-        ps2fi[i].attribute = 0x97840000;
-        ps2fi[i].positionInFile = ES32(dataPos);
-        ps2fi[i].filesize = ES32(entry->length);
+        ps2fi[i].attribute = 0x00008497;
+        ps2fi[i].positionInFile = (dataPos);
+        ps2fi[i].filesize = (entry->length);
         memcpy(&ps2fi[i].created, &fctime, sizeof(sceMcStDateTime));
         memcpy(&ps2fi[i].modified, &fmtime, sizeof(sceMcStDateTime));
         memcpy(ps2fi[i].filename, entry->name, sizeof(ps2fi[i].filename));
@@ -303,138 +298,6 @@ int ps2_max2psv(const char *save, const char* psv_path)
     free(decompressed);
 
     return psv_resign(psvName);
-}
-
-int ps2_psu2psv(const char *save, const char* psv_path)
-{
-    u32 dataPos = 0;
-    FILE *psuFile, *psvFile;
-    int numFiles, next, i;
-    char dstName[256];
-    u8 *data;
-    McFsEntry entry;
-    
-    psuFile = fopen(save, "rb");
-    if(!psuFile)
-        return 0;
-    
-    // Read main directory entry
-    fread(&entry, 1, sizeof(McFsEntry), psuFile);
-    numFiles = ES32(entry.length) - 2;
-
-    get_psv_filename(dstName, psv_path, entry.name);
-    psvFile = fopen(dstName, "wb");
-    
-    if(!psvFile)
-    {
-        fclose(psuFile);
-        return 0;
-    }
-
-    ps2_header_t ps2h;
-    ps2_IconSys_t ps2sys;
-    ps2_MainDirInfo_t ps2md;
-    
-    memset(&ps2h, 0, sizeof(ps2_header_t));
-    memset(&ps2md, 0, sizeof(ps2_MainDirInfo_t));
-    
-    ps2h.numberOfFiles = ES32(numFiles);
-
-    ps2md.attribute = ((uint32_t)entry.mode << 16);
-    ps2md.numberOfFilesInDir = entry.length;
-    memcpy(&ps2md.created, &entry.created, sizeof(sceMcStDateTime));
-    memcpy(&ps2md.modified, &entry.modified, sizeof(sceMcStDateTime));
-    memcpy(ps2md.filename, entry.name, sizeof(ps2md.filename));
-    
-    write_psv_header(psvFile, 2);
-
-    // Skip "." and ".."
-    fseek(psuFile, sizeof(McFsEntry)*2, SEEK_CUR);
-
-    // Find the icon.sys (need to know the icons names)
-    for(i = 0; i < numFiles; i++)
-    {
-        fread(&entry, 1, sizeof(McFsEntry), psuFile);
-        entry.length = ES32(entry.length);
-
-        if(strcmp(entry.name, "icon.sys") == 0)
-            fread(&ps2sys, 1, sizeof(ps2_IconSys_t), psuFile);
-        else
-            fseek(psuFile, entry.length, SEEK_CUR);
-
-        ps2h.displaySize += entry.length;
-
-        LOG(" %8d bytes  : %s", entry.length, entry.name);
-
-        next = 1024 - (entry.length % 1024);
-        if(next < 1024)
-            fseek(psuFile, next, SEEK_CUR);
-    }
-
-    LOG(" %8d Total bytes", ps2h.displaySize);
-    ps2h.displaySize = ES32(ps2h.displaySize);
-
-    // Skip "." and ".."
-    fseek(psuFile, sizeof(McFsEntry)*3, SEEK_SET);
-
-    // Calculate the start offset for the file's data
-    dataPos = sizeof(psv_header_t) + sizeof(ps2_header_t) + sizeof(ps2_MainDirInfo_t) + sizeof(ps2_FileInfo_t)*numFiles;
-
-    ps2_FileInfo_t *ps2fi = malloc(sizeof(ps2_FileInfo_t)*numFiles);
-
-    // Build the PS2 FileInfo entries
-    for(i = 0; i < numFiles; i++)
-    {
-        fread(&entry, 1, sizeof(McFsEntry), psuFile);
-
-        ps2fi[i].attribute = ((uint32_t)entry.mode << 16);
-        ps2fi[i].positionInFile = ES32(dataPos);
-        ps2fi[i].filesize = entry.length;
-        memcpy(&ps2fi[i].created, &entry.created, sizeof(sceMcStDateTime));
-        memcpy(&ps2fi[i].modified, &entry.modified, sizeof(sceMcStDateTime));
-        memcpy(ps2fi[i].filename, entry.name, sizeof(ps2fi[i].filename));
-        
-        entry.length = ES32(entry.length);
-        dataPos += entry.length;
-        fseek(psuFile, entry.length, SEEK_CUR);
-        
-        set_ps2header_values(&ps2h, &ps2fi[i], &ps2sys);
-
-        next = 1024 - (entry.length % 1024);
-        if(next < 1024)
-            fseek(psuFile, next, SEEK_CUR);
-    }
-
-    fwrite(&ps2h, sizeof(ps2_header_t), 1, psvFile);
-    fwrite(&ps2md, sizeof(ps2_MainDirInfo_t), 1, psvFile);
-    fwrite(ps2fi, sizeof(ps2_FileInfo_t), numFiles, psvFile);
-
-    free(ps2fi);
-
-    // Skip "." and ".."
-    fseek(psuFile, sizeof(McFsEntry)*3, SEEK_SET);
-    
-    // Copy each file entry
-    for(i = 0; i < numFiles; i++)
-    {
-        fread(&entry, 1, sizeof(McFsEntry), psuFile);
-        entry.length = ES32(entry.length);
-
-        data = malloc(entry.length);
-        fread(data, 1, entry.length, psuFile);
-        fwrite(data, 1, entry.length, psvFile);
-
-        free(data);
-        
-        next = 1024 - (entry.length % 1024);
-        if(next < 1024)
-            fseek(psuFile, next, SEEK_CUR);
-    }
-
-    fclose(psvFile);
-    fclose(psuFile);
-    
-    return psv_resign(dstName);
 }
 
 static void cbsCrypt(uint8_t *buf, size_t bufLen)
@@ -742,94 +605,4 @@ int ps2_xps2psv(const char *save, const char *psv_path)
     fclose(xpsFile);
 
     return psv_resign(dstName);
-}
-
-int ps2_psv2psu(const char *save, const char* psu_path)
-{
-    u32 dataPos = 0;
-    FILE *psuFile, *psvFile;
-    int numFiles, next;
-    char dstName[256];
-    u8 *data;
-    McFsEntry entry;
-    ps2_MainDirInfo_t ps2md;
-    ps2_FileInfo_t ps2fi;
-    
-    psvFile = fopen(save, "rb");
-    if(!psvFile)
-        return 0;
-
-    snprintf(dstName, sizeof(dstName), "%s%s.psu", psu_path, strrchr(save, '/')+1);
-    psuFile = fopen(dstName, "wb");
-    
-    if(!psuFile)
-    {
-        fclose(psvFile);
-        return 0;
-    }
-
-    // Read main directory entry
-    fseek(psvFile, 0x68, SEEK_SET);
-    fread(&ps2md, sizeof(ps2_MainDirInfo_t), 1, psvFile);
-    numFiles = ES32(ps2md.numberOfFilesInDir);
-
-    memset(&entry, 0, sizeof(McFsEntry));
-    memcpy(&entry.created, &ps2md.created, sizeof(sceMcStDateTime));
-    memcpy(&entry.modified, &ps2md.modified, sizeof(sceMcStDateTime));
-    memcpy(entry.name, ps2md.filename, sizeof(entry.name));
-    entry.mode = (ps2md.attribute >> 16);
-    entry.length = ps2md.numberOfFilesInDir;
-    fwrite(&entry, sizeof(McFsEntry), 1, psuFile);
-
-    // "."
-    memset(entry.name, 0, sizeof(entry.name));
-    strcpy(entry.name, ".");
-    entry.length = 0;
-    fwrite(&entry, sizeof(McFsEntry), 1, psuFile);
-    numFiles--;
-
-    // ".."
-    strcpy(entry.name, "..");
-    fwrite(&entry, sizeof(McFsEntry), 1, psuFile);
-    numFiles--;
-
-    while (numFiles > 0)
-    {
-        fread(&ps2fi, sizeof(ps2_FileInfo_t), 1, psvFile);
-        dataPos = ftell(psvFile);
-
-        memset(&entry, 0, sizeof(McFsEntry));
-        memcpy(&entry.created, &ps2fi.created, sizeof(sceMcStDateTime));
-        memcpy(&entry.modified, &ps2fi.modified, sizeof(sceMcStDateTime));
-        memcpy(entry.name, ps2fi.filename, sizeof(entry.name));
-        entry.mode = (ps2fi.attribute >> 16);
-        entry.length = ps2fi.filesize;
-        fwrite(&entry, sizeof(McFsEntry), 1, psuFile);
-
-        ps2fi.positionInFile = ES32(ps2fi.positionInFile);
-        ps2fi.filesize = ES32(ps2fi.filesize);
-        data = malloc(ps2fi.filesize);
-
-        fseek(psvFile, ps2fi.positionInFile, SEEK_SET);
-        fread(data, 1, ps2fi.filesize, psvFile);
-        fwrite(data, 1, ps2fi.filesize, psuFile);
-        free(data);
-
-        next = 1024 - (ps2fi.filesize % 1024);
-        if(next < 1024)
-        {
-            data = malloc(next);
-            memset(data, 0xFF, next);
-            fwrite(data, 1, next, psuFile);
-            free(data);
-        }
-
-        fseek(psvFile, dataPos, SEEK_SET);
-        numFiles--;
-    }
-
-    fclose(psvFile);
-    fclose(psuFile);
-    
-    return 1;
 }

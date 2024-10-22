@@ -15,7 +15,7 @@
 #define  CBS_HEADER_MAGIC   "CFU\0"
 #define  XPS_HEADER_MAGIC   "SharkPortSave\0\0\0"
 
-#define  xps_mode_swap(M)   ((M & 0x00FF0000) << 8) + ((M & 0xFF000000) >> 8)
+#define  xps_mode_swap(M)   ((M & 0x00FF) << 8) + ((M & 0xFF00) >> 8)
 
 // This is the initial permutation state ("S") for the RC4 stream cipher
 // algorithm used to encrypt and decrypt Codebreaker saves.
@@ -637,16 +637,15 @@ int ps2_xps2psv(const char *save, const char *psv_path)
 
     // Skip the variable size header
     fread(&len, 1, sizeof(uint32_t), xpsFile);
-    fread(&tmp, 1, ES32(len), xpsFile);
+    fread(&tmp, 1, len, xpsFile);
     fread(&len, 1, sizeof(uint32_t), xpsFile);
-    fread(&tmp, 1, ES32(len), xpsFile);
+    fread(&tmp, 1, len, xpsFile);
     fread(&len, 1, sizeof(uint32_t), xpsFile);
     fread(&len, 1, sizeof(uint32_t), xpsFile);
 
     // Read main directory entry
     fread(&entry, 1, sizeof(xpsEntry_t), xpsFile);
-
-    numFiles = ES32(entry.length) - 2;
+    numFiles = entry.length - 2;
 
     // Keep the file position (start of file entries)
     len = ftell(xpsFile);
@@ -667,7 +666,7 @@ int ps2_xps2psv(const char *save, const char *psv_path)
     memset(&ps2h, 0, sizeof(ps2_header_t));
     memset(&ps2md, 0, sizeof(ps2_MainDirInfo_t));
 
-    ps2h.numberOfFiles = ES32(numFiles);
+    ps2h.numberOfFiles = numFiles;
 
     ps2md.attribute = xps_mode_swap(entry.mode);
     ps2md.numberOfFilesInDir = entry.length;
@@ -681,7 +680,6 @@ int ps2_xps2psv(const char *save, const char *psv_path)
     for(i = 0; i < numFiles; i++)
     {
         fread(&entry, 1, sizeof(xpsEntry_t), xpsFile);
-        entry.length = ES32(entry.length);
 
         if(strcmp(entry.name, "icon.sys") == 0)
             fread(&ps2sys, 1, sizeof(ps2_IconSys_t), xpsFile);
@@ -694,7 +692,6 @@ int ps2_xps2psv(const char *save, const char *psv_path)
     }
 
     LOG(" %8d Total bytes", ps2h.displaySize);
-    ps2h.displaySize = ES32(ps2h.displaySize);
 
     // Rewind
     fseek(xpsFile, len, SEEK_SET);
@@ -710,13 +707,12 @@ int ps2_xps2psv(const char *save, const char *psv_path)
         fread(&entry, 1, sizeof(xpsEntry_t), xpsFile);
 
         ps2fi[i].attribute = xps_mode_swap(entry.mode);
-        ps2fi[i].positionInFile = ES32(dataPos);
+        ps2fi[i].positionInFile = dataPos;
         ps2fi[i].filesize = entry.length;
         memcpy(&ps2fi[i].created, &entry.created, sizeof(sceMcStDateTime));
         memcpy(&ps2fi[i].modified, &entry.modified, sizeof(sceMcStDateTime));
         memcpy(ps2fi[i].filename, entry.name, sizeof(ps2fi[i].filename));
 
-        entry.length = ES32(entry.length);
         dataPos += entry.length;
         fseek(xpsFile, entry.length, SEEK_CUR);
         
@@ -736,7 +732,6 @@ int ps2_xps2psv(const char *save, const char *psv_path)
     for(i = 0; i < numFiles; i++)
     {
         fread(&entry, 1, sizeof(xpsEntry_t), xpsFile);
-        entry.length = ES32(entry.length);
         
         data = malloc(entry.length);
         fread(data, 1, entry.length, xpsFile);

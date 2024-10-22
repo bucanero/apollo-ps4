@@ -508,11 +508,11 @@ int ps2_cbs2psv(const char *save, const char *psv_path)
     // Some tools create .CBS saves with an incorrect compressed size in the header.
     // It can't be trusted!
     cbsCrypt(compressed, cbsLen - sizeof(cbsHeader_t));
-    decompressedSize = ES32(header->decompressedSize);
+    decompressedSize = header->decompressedSize;
     decompressed = malloc(decompressedSize);
     int z_ret = uncompress(decompressed, &decompressedSize, compressed, cbsLen - sizeof(cbsHeader_t));
     
-    if(z_ret != 0)
+    if(z_ret != Z_OK)
     {
         // Compression failed.
         LOG("Decompression failed! (Z_ERR = %d)", z_ret);
@@ -543,8 +543,6 @@ int ps2_cbs2psv(const char *save, const char *psv_path)
         numFiles++;
 
         entryHeader = (cbsEntry_t*) &decompressed[offset];
-        entryHeader->length = ES32(entryHeader->length);
-        
         offset += sizeof(cbsEntry_t);
 
         if(strcmp(entryHeader->name, "icon.sys") == 0)
@@ -557,9 +555,9 @@ int ps2_cbs2psv(const char *save, const char *psv_path)
     }
 
     LOG(" %8d Total bytes", ps2h.displaySize);
-    ps2h.displaySize = ES32(ps2h.displaySize);
-    ps2h.numberOfFiles = ES32(numFiles);
-    ps2md.numberOfFilesInDir = ES32(numFiles+2);
+    ps2h.displaySize = (ps2h.displaySize);
+    ps2h.numberOfFiles = (numFiles);
+    ps2md.numberOfFilesInDir = (numFiles+2);
 
     if (!ps2sys)
         return 0;
@@ -576,8 +574,8 @@ int ps2_cbs2psv(const char *save, const char *psv_path)
         offset += sizeof(cbsEntry_t);
 
         ps2fi[i].attribute = entryHeader->mode;
-        ps2fi[i].positionInFile = ES32(dataPos);
-        ps2fi[i].filesize = ES32(entryHeader->length);
+        ps2fi[i].positionInFile = (dataPos);
+        ps2fi[i].filesize = entryHeader->length;
         memcpy(&ps2fi[i].created, &entryHeader->created, sizeof(sceMcStDateTime));
         memcpy(&ps2fi[i].modified, &entryHeader->modified, sizeof(sceMcStDateTime));
         memcpy(ps2fi[i].filename, entryHeader->name, sizeof(ps2fi[i].filename));

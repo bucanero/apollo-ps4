@@ -17,10 +17,12 @@
 #include "mcio.h"
 #include "shiftjis.h"
 
-#define PSV_SEED_OFFSET 0x8
+#define PSV_TYPE_PS1    0x01
+#define PSV_TYPE_PS2    0x02
+#define PSV_SEED_OFFSET 0x08
 #define PSV_HASH_OFFSET 0x1C
 #define PSV_TYPE_OFFSET 0x3C
-#define VMP_SEED_OFFSET 0xC
+#define VMP_SEED_OFFSET 0x0C
 #define VMP_HASH_OFFSET 0x20
 #define VMP_MAGIC       0x00504D56
 #define VMP_SIZE        0x20080
@@ -63,20 +65,20 @@ static void XorWithIv(uint8_t* buf, const uint8_t* Iv)
   }
 }
  
-static void generateHash(const uint8_t *input, uint8_t *salt_seed, uint8_t *dest, size_t sz, uint8_t type)
+static void generateHash(const uint8_t *input, uint8_t *dest, size_t sz, uint8_t type)
 {
 	aes_context aes_ctx;
 	sha1_context sha1_ctx;
 	uint8_t iv[0x10];
 	uint8_t salt[0x40];
 	uint8_t work_buf[0x14];
+	const uint8_t *salt_seed = input + PSV_SEED_OFFSET;
 
 	memset(salt , 0, sizeof(salt));
 	memset(&aes_ctx, 0, sizeof(aes_context));
-	memcpy(salt_seed, PSV_SALT, 20);
 
 	LOG("Type detected: %d", type);
-	if(type == 1)
+	if(type == PSV_TYPE_PS1)
 	{	//PS1
 		LOG("PS1 Save File");
 		//idk why the normal cbc doesn't work.
@@ -94,7 +96,7 @@ static void generateHash(const uint8_t *input, uint8_t *salt_seed, uint8_t *dest
 
 		XorWithIv(salt + 0x10, work_buf);
 	} 
-	else if(type == 2)
+	else if(type == PSV_TYPE_PS2)
 	{	//PS2
 		LOG("PS2 Save File");
 		uint8_t laid_paid[16]  = {	
@@ -147,7 +149,7 @@ int psv_resign(const char *src_psv)
 		return 0;
 	}
 
-	LOG("File Size: %ld bytes\n", sz);
+	LOG("File Size: %ld bytes", sz);
 
 	if (memcmp(input, PSV_MAGIC, 4) != 0) {
 		LOG("Not a PSV file");
@@ -155,10 +157,10 @@ int psv_resign(const char *src_psv)
 		return 0;
 	}
 
-	generateHash(input, input + PSV_SEED_OFFSET, input + PSV_HASH_OFFSET, sz, input[PSV_TYPE_OFFSET]);
+	generateHash(input, input + PSV_HASH_OFFSET, sz, input[PSV_TYPE_OFFSET]);
 
 	LOG("New signature: ");
-	dump_data(input+PSV_HASH_OFFSET, 20);
+	dump_data(input + PSV_HASH_OFFSET, 0x14);
 
 	if (write_buffer(src_psv, input, sz) < 0) {
 		LOG("Failed to open output file");
@@ -230,8 +232,8 @@ void write_psv_header(FILE *fp, uint32_t type)
     psv_header_t ph;
 
     memset(&ph, 0, sizeof(psv_header_t));
-    ph.headerSize = (type == 1) ? 0x14000000 : 0x2C000000;
-    ph.saveType = ES32(type);
+    ph.headerSize = (type == PSV_TYPE_PS1) ? 0x14 : 0x2C;
+    ph.saveType = type;
     memcpy(&ph.magic, PSV_MAGIC, sizeof(ph.magic));
     memcpy(&ph.salt, PSV_SALT, sizeof(ph.salt));
 
@@ -498,7 +500,7 @@ int vmc_import_psv(const char *input)
 	if (read_buffer(input, &p, &filesize) < 0)
 		return 0;
 
-	if (memcmp(PSV_MAGIC, p, 4) != 0 || p[0x3C] != 0x02) {
+	if (memcmp(PSV_MAGIC, p, 4) != 0 || p[PSV_TYPE_OFFSET] != PSV_TYPE_PS2) {
 		LOG("Not a PS2 .PSV file");
 		free(p);
 		return 0;
@@ -569,7 +571,7 @@ int vmc_import_psu(const char *input)
 	r = ftell(fh);
 
 	if (!r || r % 512) {
-		printf("Not a .PSU file");
+		LOG("Not a .PSU file");
 		fclose(fh);
 		return 0;
 	}
@@ -594,10 +596,9 @@ int vmc_import_psu(const char *input)
 	else
 		mcio_mcClose(r);
 
-	for (int total = (ES32(psu_entry.length) - 2), i = 0; i < total; i++)
+	for (int total = (psu_entry.length - 2), i = 0; i < total; i++)
 	{
 		fread(&file_entry, 1, sizeof(McFsEntry), fh);
-		file_entry.length = ES32(file_entry.length);
 
 		snprintf(filepath, sizeof(filepath), "%s/%s", psu_entry.name, file_entry.name);
 		LOG("Adding %-48s | %8d bytes", filepath, file_entry.length);
@@ -624,7 +625,7 @@ int vmc_import_psu(const char *input)
 		mcio_mcStat(filepath, &entry);
 		memcpy(&entry.stat.ctime, &file_entry.created, sizeof(struct sceMcStDateTime));
 		memcpy(&entry.stat.mtime, &file_entry.modified, sizeof(struct sceMcStDateTime));
-		entry.stat.mode = ES16(file_entry.mode);
+		entry.stat.mode = file_entry.mode;
 		mcio_mcSetStat(filepath, &entry);
 
 		r = 1024 - (file_entry.length % 1024);
@@ -635,7 +636,7 @@ int vmc_import_psu(const char *input)
 	mcio_mcStat(psu_entry.name, &entry);
 	memcpy(&entry.stat.ctime, &psu_entry.created, sizeof(struct sceMcStDateTime));
 	memcpy(&entry.stat.mtime, &psu_entry.modified, sizeof(struct sceMcStDateTime));
-	entry.stat.mode = ES16(psu_entry.mode);
+	entry.stat.mode = psu_entry.mode;
 	mcio_mcSetStat(psu_entry.name, &entry);
 
 	return 1;
@@ -675,7 +676,7 @@ int vmc_export_psv(const char* save, const char* out_path)
 	if(!psvFile)
 		return 0;
 
-	write_psv_header(psvFile, 2);
+	write_psv_header(psvFile, PSV_TYPE_PS2);
 
 	memset(&ps2h, 0, sizeof(ps2_header_t));
 	memset(&ps2md, 0, sizeof(ps2_MainDirInfo_t));
@@ -685,8 +686,8 @@ int vmc_export_psv(const char* save, const char* out_path)
 
 	// PSV root directory values
 	ps2h.numberOfFiles = dirent.stat.size - 2;
-	ps2md.attribute = ES32(dirent.stat.mode);
-	ps2md.numberOfFilesInDir = ES32(dirent.stat.size);
+	ps2md.attribute = dirent.stat.mode;
+	ps2md.numberOfFilesInDir = dirent.stat.size;
 	memcpy(&ps2md.created, &dirent.stat.ctime, sizeof(sceMcStDateTime));
 	memcpy(&ps2md.modified, &dirent.stat.mtime, sizeof(sceMcStDateTime));
 	memcpy(ps2md.filename, dirent.name, sizeof(ps2md.filename));
@@ -711,9 +712,9 @@ int vmc_export_psv(const char* save, const char* out_path)
 			snprintf(filePath, sizeof(filePath), "%s/%s", save, dirent.name);
 			mcio_mcStat(filePath, &dirent);
 
-			ps2fi[i].attribute = ES32(dirent.stat.mode);
-			ps2fi[i].positionInFile = ES32(dataPos);
-			ps2fi[i].filesize = ES32(dirent.stat.size);
+			ps2fi[i].attribute = dirent.stat.mode;
+			ps2fi[i].positionInFile = dataPos;
+			ps2fi[i].filesize = dirent.stat.size;
 			memcpy(&ps2fi[i].created, &dirent.stat.ctime, sizeof(sceMcStDateTime));
 			memcpy(&ps2fi[i].modified, &dirent.stat.mtime, sizeof(sceMcStDateTime));
 			memcpy(ps2fi[i].filename, dirent.name, sizeof(ps2fi[i].filename));
@@ -751,18 +752,15 @@ int vmc_export_psv(const char* save, const char* out_path)
 	mcio_mcDclose(dd);
 
 	LOG("%d Files: %8d Total bytes", i, ps2h.displaySize);
-    ps2h.displaySize = ES32(ps2h.displaySize);
-	ps2h.numberOfFiles = ES32(ps2h.numberOfFiles);
 
 	fwrite(&ps2h, sizeof(ps2_header_t), 1, psvFile);
 	fwrite(&ps2md, sizeof(ps2_MainDirInfo_t), 1, psvFile);
-	fwrite(ps2fi, sizeof(ps2_FileInfo_t), i, psvFile);
+	fwrite(ps2fi, sizeof(ps2_FileInfo_t), ps2h.numberOfFiles, psvFile);
 	free(ps2fi);
 
 	// Write the file's data
 	dd = mcio_mcDopen(save);
 
-	ps2h.numberOfFiles = i;
 	i = 0;
 	do {
 		r = mcio_mcDread(dd, &dirent);
@@ -836,8 +834,8 @@ int vmc_export_psu(const char* path, const char* output)
 	memcpy(&entry.created, &dirent.stat.ctime, sizeof(sceMcStDateTime));
 	memcpy(&entry.modified, &dirent.stat.mtime, sizeof(sceMcStDateTime));
 	memcpy(entry.name, dirent.name, sizeof(entry.name));
-	entry.mode = ES32(dirent.stat.mode) >> 16;
-	entry.length = ES32(dirent.stat.size);
+	entry.mode = dirent.stat.mode;
+	entry.length = dirent.stat.size;
 	fwrite(&entry, sizeof(McFsEntry), 1, fh);
 	total = dirent.stat.size - 2;
 
@@ -864,8 +862,8 @@ int vmc_export_psu(const char* path, const char* output)
 			memcpy(&entry.created, &dirent.stat.ctime, sizeof(sceMcStDateTime));
 			memcpy(&entry.modified, &dirent.stat.mtime, sizeof(sceMcStDateTime));
 			memcpy(entry.name, dirent.name, sizeof(entry.name));
-			entry.mode = ES32(dirent.stat.mode) >> 16;
-			entry.length = ES32(dirent.stat.size);
+			entry.mode = dirent.stat.mode;
+			entry.length = dirent.stat.size;
 			fwrite(&entry, sizeof(McFsEntry), 1, fh);
 
 			fd = mcio_mcOpen(filepath, sceMcFileAttrReadable | sceMcFileAttrFile);

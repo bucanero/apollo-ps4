@@ -52,6 +52,25 @@ int LoadMenuTexture(const char* path, int idx)
 	return 1;
 }
 
+void LoadVmcTexture(int width, int height, uint8_t* icon)
+{
+	if (menu_textures[icon_png_file_index].texture)
+		SDL_DestroyTexture(menu_textures[icon_png_file_index].texture);
+
+	menu_textures[icon_png_file_index].width = width;
+	menu_textures[icon_png_file_index].height = height;
+	menu_textures[icon_png_file_index].size = width * height * 4;
+	menu_textures[icon_png_file_index].buffer = NULL;
+
+	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(icon, width, height, 32, 4 * width,
+												0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+
+	menu_textures[icon_png_file_index].texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+	SDL_FreeSurface(surface);
+	free(icon);
+}
+
 // draw one background color in virtual 2D coordinates
 void DrawBackground2D(u32 rgba)
 {

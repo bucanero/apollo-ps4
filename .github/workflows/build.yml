@@ -17,7 +17,7 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set env vars
       run: |
@@ -29,7 +29,7 @@ jobs:
 
     - name: Cache OpenOrbis Toolchain
       id: cache-oosdk
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.OO_PS4_TOOLCHAIN }}
         key: ${{ runner.os }}-oosdk-llvm-${{ env.llvm_ver }}
@@ -39,7 +39,7 @@ jobs:
       run: curl -sL https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/download/0.0.1.416/toolchain.tar.gz | tar xz -C ./
 
     - name: Checkout oosdk_libraries
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: bucanero/oosdk_libraries
         path: oosdk_libraries
@@ -53,63 +53,63 @@ jobs:
         curl https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/_types/user.h > OpenOrbis/PS4Toolchain/include/orbis/_types/user.h
 
     - name: Checkout dbglogger
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: bucanero/dbglogger
         path: dbglogger
 
     - name: Checkout apollo-lib
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: bucanero/apollo-lib
         path: apollo-lib
 
     - name: Checkout SQLite
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: bucanero/libSQLite-ps4
         path: libSQLite-ps4
 
     - name: Checkout SDL-PS4
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: bucanero/SDL-PS4
         path: ${{ env.sdl_path }}
         ref: ps4
 
     - name: Checkout mxml
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: bucanero/mxml
         path: mxml
 
     - name: Checkout libunrar
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: bucanero/libunrar-ps3
         path: libunrar-ps3
 
     - name: Checkout libun7zip
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: bucanero/libun7zip
         path: libun7zip
 
     - name: Checkout libjbc
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: bucanero/ps4-libjbc
         path: ps4-libjbc
 
     - name: Checkout libs3m
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: bucanero/s3mplay
         path: s3mplay
 
     - name: Cache LLVM and Clang
       id: cache-llvm
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ./llvm
         key: llvm-${{ env.llvm_ver }}
@@ -171,7 +171,7 @@ jobs:
 
     - name: Cache SDL2
       id: cache-sdl2
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.sdl_path }}/orbis/libSDL2.a
         key: ${{ runner.os }}-sdl2
@@ -186,7 +186,7 @@ jobs:
 
     - name: Cache curl
       id: cache-curl
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.curl_path }}/orbis/lib/libcurl.a
         key: ${{ runner.os }}-curl
@@ -214,7 +214,7 @@ jobs:
         mv IV0000-APOL00004_00-APOLLO0000000PS4.pkg apollo-ps4-build_${{ env.sha_name }}.pkg
 
     - name: Push package artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: apollo-ps4-build_${{ env.sha_name }}
         path: apollo-ps4-build_${{ env.sha_name }}.pkg

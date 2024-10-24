@@ -254,6 +254,7 @@ extern void Draw_MainMenu_Ani(void);
 extern void Draw_HexEditor(const hexedit_data_t* hex);
 extern void Draw_HexEditor_Ani(const hexedit_data_t* hex);
 int LoadMenuTexture(const char* path, int idx);
+void LoadVmcTexture(int width, int height, uint8_t* icon);
 void initMenuOptions(void);
 
 void drawScene(void);

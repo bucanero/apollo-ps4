@@ -9,15 +9,15 @@
 
 static uint32_t TIM2RGBA(const uint8_t *buf)
 {
-	uint8_t ARGB[4];
+	uint8_t RGBA[4];
 	uint16_t lRGB = (int16_t) (buf[1] << 8) | buf[0];
 
-	ARGB[0] = 0xFF;
-	ARGB[1] = 8 * (lRGB & 0x1F);
-	ARGB[2] = 8 * ((lRGB >> 5) & 0x1F);
-	ARGB[3] = 8 * (lRGB >> 10);
+	RGBA[3] = 8 * (lRGB & 0x1F);
+	RGBA[2] = 8 * ((lRGB >> 5) & 0x1F);
+	RGBA[1] = 8 * (lRGB >> 10);
+	RGBA[0] = 0xFF;
 
-	return *((uint32_t *) &ARGB);
+	return *((uint32_t *) &RGBA);
 }
 
 static void* ps2IconTexture(const uint8_t* iData)
@@ -36,7 +36,7 @@ static void* ps2IconTexture(const uint8_t* iData)
 	iData += sizeof(Icon_Header);
 
 	//n_vertices has to be divisible by three, that's for sure:
-	if(header.file_id != 0x0100 || header.n_vertices % 3 != 0)
+	if(header.file_id != 0x010000 || header.n_vertices % 3 != 0)
 		return lTexturePtr;
 
 	//read icon data from file: https://ghulbus-inc.de/projects/ps2iconsys/

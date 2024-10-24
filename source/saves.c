@@ -1112,11 +1112,11 @@ int ReadOnlineSaves(save_entry_t * game)
 		stat(path, &stats);
 		// re-download if file is +1 day old
 		if ((stats.st_mtime + ONLINE_CACHE_TIMEOUT) < time(NULL))
-			http_download(game->path, "saves.txt", path, 0);
+			http_download(game->path, "saves.txt", path, 1);
 	}
 	else
 	{
-		if (!http_download(game->path, "saves.txt", path, 0))
+		if (!http_download(game->path, "saves.txt", path, 1))
 			return -1;
 	}
 
@@ -1453,7 +1453,9 @@ int sortSaveList_Compare_TitleID(const void* a, const void* b)
 	if (!tb)
 		return (1);
 
-	return strcasecmp(ta, tb);
+	int ret = strcasecmp(ta, tb);
+
+	return (ret ? ret : sortSaveList_Compare(a, b));
 }
 
 int sortSaveList_Compare_Type(const void* a, const void* b)
@@ -1462,7 +1464,7 @@ int sortSaveList_Compare_Type(const void* a, const void* b)
 	int tb = ((save_entry_t*) b)->type;
 
 	if (ta == tb)
-		return 0;
+		return sortSaveList_Compare(a, b);
 	else if (ta < tb)
 		return -1;
 	else
@@ -1652,6 +1654,44 @@ static void read_hdd_savegames(const char* userPath, list_t *list, sqlite3 *appd
 
 	sqlite3_finalize(res);
 	sqlite3_close(db);
+}
+
+static void read_vmc2_files(const char* userPath, list_t *list)
+{
+	DIR *d;
+	struct dirent *dir;
+	save_entry_t *item;
+	char psvPath[256];
+	uint64_t size;
+
+	d = opendir(userPath);
+	if (!d)
+		return;
+
+	while ((dir = readdir(d)) != NULL)
+	{
+		if (dir->d_type != DT_REG || !(endsWith(dir->d_name, ".VMC") || endsWith(dir->d_name, ".VM2") || 
+			endsWith(dir->d_name, ".BIN") || endsWith(dir->d_name, ".PS2")|| endsWith(dir->d_name, ".CARD")))
+			continue;
+
+		snprintf(psvPath, sizeof(psvPath), "%s%s", userPath, dir->d_name);
+		get_file_size(psvPath, &size);
+
+		LOG("Adding %s...", psvPath);
+		if (size % 0x840000 != 0 && size % 0x800000 != 0)
+			continue;
+
+		item = _createSaveEntry(SAVE_FLAG_PS2 | SAVE_FLAG_VMC, dir->d_name);
+		item->type = FILE_TYPE_VMC;
+		item->path = strdup(psvPath);
+		item->title_id = strdup("VMC");
+		item->dir_name = strdup(userPath);
+
+		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
+		list_append(list, item);
+	}
+
+	closedir(d);
 }
 
 /*
@@ -1926,7 +1966,7 @@ list_t * ReadVmc2List(const char* userPath)
 
 	for (int i = 0; i <= MAX_USB_DEVICES; i++)
 	{
-		snprintf(filePath, sizeof(filePath), USB_PATH, i);
+		snprintf(filePath, sizeof(filePath), USB_PATH PS2_IMP_PATH_USB, i);
 		if (i && dir_exists(filePath) != SUCCESS)
 			continue;
 
@@ -1967,7 +2007,6 @@ list_t * ReadVmc2List(const char* userPath)
 
 			if (iconsys.secondLineOffset)
 			{
-				iconsys.secondLineOffset = ES16(iconsys.secondLineOffset);
 				memmove(&iconsys.title[iconsys.secondLineOffset+2], &iconsys.title[iconsys.secondLineOffset], sizeof(iconsys.title) - iconsys.secondLineOffset);
 				iconsys.title[iconsys.secondLineOffset] = 0x81;
 				iconsys.title[iconsys.secondLineOffset+1] = 0x50;

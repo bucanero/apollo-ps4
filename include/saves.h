@@ -53,7 +53,7 @@
 #define EXP_PSV_PATH_USB0       USB0_PATH PSV_SAVES_PATH_USB
 #define EXP_PSV_PATH_USB1       USB1_PATH PSV_SAVES_PATH_USB
 
-#define VMC_PS2_PATH_USB1       "PS2/VMC/"
+#define VMC_PS2_PATH_USB        "PS2/VMC/"
 #define VMC_PS2_PATH_HDD        "/dev_hdd0/savedata/vmc/"
 
 #define IMP_PS2VMC_PATH_USB     USB_PATH "PS2/VMC/"

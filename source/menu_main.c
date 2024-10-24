@@ -1,5 +1,7 @@
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
+#include <orbis/SaveData.h>
 
 #include "orbisPad.h"
 #include "saves.h"
@@ -118,6 +120,13 @@ static void SetMenu(int id)
 				UnloadGameList(vmc2_saves.list);
 				vmc2_saves.list = NULL;
 				mcio_vmcFinish();
+
+				if(strncmp(APOLLO_SANDBOX_PATH, vmc2_saves.path, 16) == 0)
+				{
+					*strrchr(vmc2_saves.path, '/') = 0;
+					orbis_SaveUmount(strrchr(vmc2_saves.path, '/'));
+				}
+
 				stop_loading_screen();
 			}
 			break;
@@ -356,6 +365,20 @@ static void doSaveMenu(save_list_t * save_list)
 
 			if (selected_entry->type == FILE_TYPE_VMC && selected_entry->flags & SAVE_FLAG_VMC)
 			{
+				char tmp_path[256];
+
+				strncpy(tmp_path, selected_entry->path, sizeof(tmp_path));
+
+				if (selected_entry->flags & SAVE_FLAG_HDD)
+				{
+					char mount[32];
+
+					if (!orbis_SaveMount(selected_entry, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
+						return;
+
+					snprintf(tmp_path, sizeof(tmp_path), APOLLO_SANDBOX_PATH "%s", mount, selected_entry->path);
+				}
+
 				if (selected_entry->flags & SAVE_FLAG_PS1)
 				{
 //					strncpy(vmc1_saves.path, selected_entry->path, sizeof(vmc1_saves.path));
@@ -363,7 +386,7 @@ static void doSaveMenu(save_list_t * save_list)
 				}
 				else
 				{
-					strncpy(vmc2_saves.path, selected_entry->path, sizeof(vmc2_saves.path));
+					strncpy(vmc2_saves.path, tmp_path, sizeof(vmc2_saves.path));
 					SetMenu(MENU_PS2VMC_SAVES);
 				}
 

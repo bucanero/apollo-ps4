@@ -21,7 +21,7 @@
 #define CHAR_ICON_NET		"\x09"
 #define CHAR_ICON_ZIP		"\x0C"
 #define CHAR_ICON_VMC		"\x0B"
-#define CHAR_ICON_COPY		"\x0B"
+#define CHAR_ICON_COPY		"\x0E"
 #define CHAR_ICON_SIGN		"\x06"
 #define CHAR_ICON_USER		"\x07"
 #define CHAR_ICON_LOCK		"\x08"
@@ -1664,7 +1664,7 @@ static void read_hdd_savegames(const char* userPath, list_t *list, sqlite3 *appd
 	sqlite3_close(db);
 }
 
-static void read_vmc2_files(const char* userPath, list_t *list)
+static void read_vmc2_files(const char* userPath, const save_entry_t* parent, list_t *list)
 {
 	DIR *d;
 	struct dirent *dir;
@@ -1691,15 +1691,53 @@ static void read_vmc2_files(const char* userPath, list_t *list)
 
 		item = _createSaveEntry(SAVE_FLAG_PS2 | SAVE_FLAG_VMC, dir->d_name);
 		item->type = FILE_TYPE_VMC;
-		item->path = strdup(psvPath);
-		item->title_id = strdup("VMC");
-		item->dir_name = strdup(userPath);
+
+		if (parent)
+		{
+			item->flags |= SAVE_FLAG_HDD;
+			item->path = strdup(dir->d_name);
+			item->title_id = strdup(parent->title_id);
+			item->dir_name = strdup(parent->dir_name);
+			item->blocks = parent->blocks;
+
+			free(item->name);
+			asprintf(&item->name, "%s - %s", parent->name, dir->d_name);
+		}
+		else
+		{
+			item->title_id = strdup("VMC");
+			item->path = strdup(psvPath);
+			item->dir_name = strdup(userPath);
+		}
 
 		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
 		list_append(list, item);
 	}
 
 	closedir(d);
+}
+
+static void read_hdd_vmc2_files(const char* userPath, list_t *list)
+{
+	char mount[32];
+	char save_path[256];
+	list_node_t *node;
+	save_entry_t *item;
+
+	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+	{
+		if (item->type != FILE_TYPE_PS4 || (item->flags & SAVE_FLAG_LOCKED) || (strncmp("CUSA", item->title_id, 4) == 0))
+			continue;
+
+		if (!orbis_SaveMount(item, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
+			continue;
+
+		snprintf(save_path, sizeof(save_path), APOLLO_SANDBOX_PATH, mount);
+		read_vmc2_files(save_path, item, list);
+
+		orbis_SaveUmount(mount);
+	}
+
 }
 
 /*
@@ -1798,6 +1836,8 @@ list_t * ReadUserList(const char* userPath)
 	appdb = open_sqlite_db(APP_DB_PATH_HDD);
 	read_hdd_savegames(userPath, list, appdb);
 	sqlite3_close(appdb);
+
+	read_hdd_vmc2_files(userPath, list);
 
 	return list;
 }
@@ -2114,11 +2154,12 @@ int get_save_details(const save_entry_t* save, char **details)
 
 	if(save->type == FILE_TYPE_VMC)
 	{
+		char *tmp = strrchr(save->path, '/');
 		asprintf(details, "%s\n\n----- Virtual Memory Card -----\n"
 			"File: %s\n"
 			"Folder: %s\n",
 			save->path,
-			strrchr(save->path, '/')+1,
+			(tmp ? tmp+1 : save->path),
 			save->dir_name);
 		return 1;
 	}

@@ -316,5 +316,9 @@ int vmc_import_psv(const char *input);
 int vmc_import_psu(const char *input);
 int vmc_delete_save(const char* path);
 
+int ps2_xps2psv(const char *save, const char *psv_path);
+int ps2_cbs2psv(const char *save, const char *psv_path);
+int ps2_max2psv(const char *save, const char *psv_path);
+
 char* sjis2utf8(char* input);
 uint8_t* getIconPS2(const char* folder, const char* iconfile);

@@ -1010,6 +1010,14 @@ static void add_vmc2_import_saves(list_t* list, const char* path, const char* fo
 //			toff = 0x40;
 			type = FILE_TYPE_PSU;
 		}
+		else if (endsWith(dir->d_name, ".CBS"))
+			type = FILE_TYPE_CBS;
+
+		else if (endsWith(dir->d_name, ".XPS"))
+			type = FILE_TYPE_XPS;
+
+		else if (endsWith(dir->d_name, ".MAX"))
+			type = FILE_TYPE_MAX;
 		else continue;
 
 		snprintf(psvPath, sizeof(psvPath), "%s%s%s", path, folder, dir->d_name);

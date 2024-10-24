@@ -55,9 +55,7 @@ const uint8_t cbsKey[256] = {
     0x6b, 0x93, 0x32, 0x48, 0xb6, 0x30, 0x43, 0xa5
 }; 
 
-int psv_resign(const char *src_psv);
 void write_psv_header(FILE *fp, uint32_t type);
-void get_psv_filename(char* psvName, const char* path, const char* dirName);
 
 static void printMAXHeader(const maxHeader_t *header)
 {
@@ -170,13 +168,10 @@ int ps2_max2psv(const char *save, const char* psv_path)
     fread(&header, 1, sizeof(maxHeader_t), f);
 
     char dirName[sizeof(header.dirName) + 1];
-    char psvName[256];
-
     memcpy(dirName, header.dirName, sizeof(header.dirName));
     dirName[32] = '\0';
 
-    get_psv_filename(psvName, psv_path, dirName);
-    FILE* psv = fopen(psvName, "wb");
+    FILE* psv = fopen(psv_path, "wb");
 
     if (!psv)
         return 0;
@@ -297,7 +292,7 @@ int ps2_max2psv(const char *save, const char* psv_path)
     fclose(psv);
     free(decompressed);
 
-    return psv_resign(psvName);
+    return 1;
 }
 
 static void cbsCrypt(uint8_t *buf, size_t bufLen)
@@ -351,7 +346,6 @@ int ps2_cbs2psv(const char *save, const char *psv_path)
     size_t cbsLen;
     int i, numFiles = 0;
     u32 dataPos = 0, offset = 0;
-    char dstName[256];
 
     if(!isCBSFile(save))
         return 0;
@@ -360,8 +354,7 @@ int ps2_cbs2psv(const char *save, const char *psv_path)
         return 0;
 
     header = (cbsHeader_t *)cbsData;
-    get_psv_filename(dstName, psv_path, header->name);
-    dstFile = fopen(dstName, "wb");
+    dstFile = fopen(psv_path, "wb");
 
     if (!dstFile)
         return 0;
@@ -471,7 +464,7 @@ int ps2_cbs2psv(const char *save, const char *psv_path)
     free(decompressed);
     free(cbsData);
 
-    return psv_resign(dstName);
+    return 1;
 }
 
 int ps2_xps2psv(const char *save, const char *psv_path)
@@ -479,7 +472,6 @@ int ps2_xps2psv(const char *save, const char *psv_path)
     u32 len, dataPos = 0;
     FILE *xpsFile, *psvFile;
     int numFiles, i;
-    char dstName[128];
     char tmp[100];
     u8 *data;
     xpsEntry_t entry;
@@ -511,9 +503,7 @@ int ps2_xps2psv(const char *save, const char *psv_path)
     // Keep the file position (start of file entries)
     len = ftell(xpsFile);
 
-    get_psv_filename(dstName, psv_path, entry.name);
-    psvFile = fopen(dstName, "wb");
-
+    psvFile = fopen(psv_path, "wb");
     if(!psvFile)
     {
         fclose(xpsFile);
@@ -604,5 +594,5 @@ int ps2_xps2psv(const char *save, const char *psv_path)
     fclose(psvFile);
     fclose(xpsFile);
 
-    return psv_resign(dstName);
+    return 1;
 }

@@ -823,6 +823,18 @@ static void import_save2vmc(const char* src, int type)
 		ret = vmc_import_psu(src);
 		break;
 
+	case FILE_TYPE_XPS:
+		ret = ps2_xps2psv(src, APOLLO_LOCAL_CACHE "TEMP.PSV") && vmc_import_psv(APOLLO_LOCAL_CACHE "TEMP.PSV");
+		break;
+
+	case FILE_TYPE_CBS:
+		ret = ps2_cbs2psv(src, APOLLO_LOCAL_CACHE "TEMP.PSV") && vmc_import_psv(APOLLO_LOCAL_CACHE "TEMP.PSV");
+		break;
+
+	case FILE_TYPE_MAX:
+		ret = ps2_max2psv(src, APOLLO_LOCAL_CACHE "TEMP.PSV") && vmc_import_psv(APOLLO_LOCAL_CACHE "TEMP.PSV");
+		break;
+
 	default:
 		break;
 	}

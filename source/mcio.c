@@ -64,8 +64,9 @@ static const uint8_t ECC_Table[256] = {
 static const char SUPERBLOCK_MAGIC[]   = "Sony PS2 Memory Card Format ";
 static const char SUPERBLOCK_VERSION[] = "1.2.0.0\0\0\0\0";
 
-static FILE *vmc_fp = NULL;
 static char vmcpath[256] = "";
+static uint8_t *vmc_data = NULL;
+static size_t vmc_size = 0;
 
 struct MCDevInfo {			/* size = 384 */
 	uint8_t  magic[28];		/* Superblock magic, on PS2 MC : "Sony PS2 Memory Card Format " */
@@ -317,14 +318,6 @@ static void mcio_copy_mcentry(struct MCFsEntry *fse, const struct io_dirent *dir
 
 static int Card_GetSpecs(uint16_t *pagesize, uint16_t *blocksize, int32_t *cardsize, uint8_t *flags)
 {
-	uint8_t vmc_data[1024];
-	long vmc_size;
-
-	fseek(vmc_fp, 0, SEEK_END);
-	vmc_size = ftell(vmc_fp);
-	fseek(vmc_fp, 0, SEEK_SET);
-	fread(vmc_data, sizeof(vmc_data), 1, vmc_fp);
-
 	if (memcmp(SUPERBLOCK_MAGIC, vmc_data, 28) != 0)
 		return sceMcResFailDetect2;
 
@@ -350,14 +343,11 @@ static int Card_EraseBlock(int32_t block, uint8_t **pagebuf, uint8_t *eccbuf)
 	int ecc = (mcdi->cardflags & CF_USE_ECC) ? 1 : 0;
 	int val = (mcdi->cardflags & CF_ERASE_ZEROES) ? 0x00 : 0xFF;
 	int sparesize = pagesize >> 5;
-	uint8_t *vmc_data = malloc(pagesize);
 
 	page = block * blocksize;
 
 	for (int i = 0; i < blocksize; i++, page++) {
-		memset(vmc_data, val, pagesize);
-		fseek(vmc_fp, page * (pagesize + ecc*sparesize), SEEK_SET);
-		fwrite(vmc_data, pagesize, 1, vmc_fp);
+		memset(&vmc_data[page * (pagesize + ecc*sparesize)], val, pagesize);
 
 		if (mcdi->cardflags & CF_USE_ECC)
 		{
@@ -366,12 +356,12 @@ static int Card_EraseBlock(int32_t block, uint8_t **pagebuf, uint8_t *eccbuf)
 			size = 0;
 
 			while (size < pagesize) {
-				Card_DataChecksum(vmc_data + size, p_ecc);
+				Card_DataChecksum(&vmc_data[page * (pagesize + ecc*sparesize)] + size, p_ecc);
 				size += 128;
 				p_ecc += 3;
 			}
 
-			fwrite(tmp_ecc, sparesize, 1, vmc_fp);
+			memcpy(&vmc_data[page * (pagesize + ecc*sparesize) + pagesize], tmp_ecc, sparesize);
 			free(tmp_ecc);
 		}
 	}
@@ -398,7 +388,6 @@ static int Card_EraseBlock(int32_t block, uint8_t **pagebuf, uint8_t *eccbuf)
 			page++;
 		}
 	}
-	free(vmc_data);
 
 	return sceMcResSucceed;
 }
@@ -411,11 +400,10 @@ static int Card_WritePageData(int32_t page, uint8_t *pagebuf, uint8_t *eccbuf)
 	int ecc = (mcdi->cardflags & CF_USE_ECC) ? 1 : 0;
 	int sparesize = pagesize >> 5;
 
-	fseek(vmc_fp, page * (pagesize + ecc*sparesize), SEEK_SET);
-	fwrite(pagebuf, pagesize, 1, vmc_fp);
+	memcpy(&vmc_data[page * (pagesize + ecc*sparesize)], pagebuf, pagesize);
 
 	if (mcdi->cardflags & CF_USE_ECC)
-		fwrite(eccbuf, sparesize, 1, vmc_fp);
+		memcpy(&vmc_data[page * (pagesize + ecc*sparesize) + pagesize], eccbuf, sparesize);
 
 	return sceMcResSucceed;
 }
@@ -428,11 +416,10 @@ static int Card_ReadPageData(int32_t page, uint8_t *pagebuf, uint8_t *eccbuf)
 	int ecc = (mcdi->cardflags & CF_USE_ECC) ? 1 : 0;
 	int sparesize = pagesize >> 5;
 
-	fseek(vmc_fp, page * (pagesize + ecc*sparesize), SEEK_SET);
-	fread(pagebuf, pagesize, 1, vmc_fp);
+	memcpy(pagebuf, &vmc_data[page * (pagesize + ecc*sparesize)], pagesize);
 
 	if (mcdi->cardflags & CF_USE_ECC)
-		fread(eccbuf, sparesize, 1, vmc_fp);
+		memcpy(eccbuf, &vmc_data[page * (pagesize + ecc*sparesize) + pagesize], sparesize);
 
 	return sceMcResSucceed;
 }
@@ -2996,12 +2983,17 @@ int mcio_vmcInit(const char* vmc)
 {
 	int r;
 
-	mcio_vmcFinish();
+	if (vmc_data)
+	{
+		write_buffer(vmcpath, vmc_data, vmc_size);
+		free(vmc_data);
+		vmc_data = NULL;
+	}
 
-	vmc_fp = fopen(vmc, "r+b");
-	if (!vmc_fp)
+	if (read_buffer(vmc, &vmc_data, &vmc_size) < 0)
 		return sceMcResFailIO;
 
+	strncpy(vmcpath, vmc, sizeof(vmcpath));
 	Card_InitCache();
 
 	r = mcio_mcDetect();
@@ -3013,11 +3005,14 @@ int mcio_vmcInit(const char* vmc)
 
 void mcio_vmcFinish(void)
 {
-	if (vmc_fp)
-		fclose(vmc_fp);
+	if (vmc_data)
+	{
+		write_buffer(vmcpath, vmc_data, vmc_size);
+		free(vmc_data);
+	}
 
 	vmcpath[0] = 0;
-	vmc_fp = NULL;
+	vmc_data = NULL;
 }
 
 int mcio_mcDetect(void)
@@ -3611,38 +3606,6 @@ int mcio_vmcExportImage(const char *output, int add_ecc)
 	fclose(fh);
 	free(buf);
 	free(ecc);
-
-	return sceMcResSucceed;
-}
-
-int mcio_vmcImportImage(const char *input)
-{
-	off_t size;
-	size_t r, w;
-	char tmpbuf[0x8000];
-
-	if (!vmc_fp)
-		return -1;
-
-	FILE *fh = fopen(input, "rb");
-	if (fh == NULL)
-		return -2;
-
-	fseek(fh, 0, SEEK_END);
-	size = ftell(fh);
-
-	fseek(fh, 0, SEEK_SET);
-	fseek(vmc_fp, 0, SEEK_SET);
-
-	do {
-		r = fread(tmpbuf, 1, sizeof(tmpbuf), fh);
-		w = fwrite(tmpbuf, 1, r, vmc_fp);
-	}
-	while ((r == w) && (r == sizeof(tmpbuf)));
-
-	fflush(vmc_fp);
-	ftruncate(fileno(vmc_fp), size);
-	fclose(fh);
 
 	return sceMcResSucceed;
 }

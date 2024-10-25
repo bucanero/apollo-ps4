@@ -42,7 +42,7 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 {
 	char path[256];
 
-	_set_dest_path(path, dst, PS4_SAVES_PATH_USB);
+	_set_dest_path(path, dst, (entry->flags & SAVE_FLAG_PS4) ? PS4_SAVES_PATH_USB : PS2_SAVES_PATH_USB);
 	if (mkdirs(path) != SUCCESS)
 	{
 		show_message("Error! Export folder is not available:\n%s", path);
@@ -1270,9 +1270,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_DOWNLOAD_USB:
-			if (selected_entry->flags & SAVE_FLAG_PS4)
-				downloadSave(selected_entry, code->file, codecmd[1]);
-			
+			downloadSave(selected_entry, code->file, codecmd[1]);			
 			code->activated = 0;
 			break;
 

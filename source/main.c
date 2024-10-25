@@ -391,25 +391,32 @@ void update_usb_path(char* path)
 {
 	if (apollo_config.usb_dev < MAX_USB_DEVICES)
 	{
-		sprintf(path, USB_PATH "PS4/", apollo_config.usb_dev);
+		sprintf(path, USB_PATH, apollo_config.usb_dev);
 		return;
 	}
 
 	if (apollo_config.usb_dev == MAX_USB_DEVICES)
 	{
-		sprintf(path, FAKE_USB_PATH "PS4/");
+		sprintf(path, FAKE_USB_PATH);
 		return;
 	}
 
 	for (int i = 0; i < MAX_USB_DEVICES; i++)
 	{
-		sprintf(path, USB_PATH "PS4/", i);
+		sprintf(path, USB_PATH ".apollo", i);
 
-		if (dir_exists(path) == SUCCESS)
-			return;
+		FILE *fp = fopen(path, "w");
+		if (!fp)
+			continue;
+
+		fclose(fp);
+		remove(path);
+		*strrchr(path, '.') = 0;
+
+		return;
 	}
 
-	sprintf(path, FAKE_USB_PATH "PS4/");
+	sprintf(path, FAKE_USB_PATH);
 	if (dir_exists(path) == SUCCESS)
 		return;
 

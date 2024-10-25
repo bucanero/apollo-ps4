@@ -1694,10 +1694,10 @@ static void read_vmc2_files(const char* userPath, const save_entry_t* parent, li
 
 		if (parent)
 		{
-			item->flags |= SAVE_FLAG_HDD;
-			item->path = strdup(dir->d_name);
+			item->flags |= (parent->flags & SAVE_FLAG_HDD);
+			item->path = strdup((parent->flags & SAVE_FLAG_HDD) ? dir->d_name : psvPath);
+			item->dir_name = strdup((parent->flags & SAVE_FLAG_HDD) ? parent->dir_name : userPath);
 			item->title_id = strdup(parent->title_id);
-			item->dir_name = strdup(parent->dir_name);
 			item->blocks = parent->blocks;
 
 			free(item->name);
@@ -1717,7 +1717,7 @@ static void read_vmc2_files(const char* userPath, const save_entry_t* parent, li
 	closedir(d);
 }
 
-static void read_hdd_vmc2_files(const char* userPath, list_t *list)
+static void read_inner_vmc2_files(list_t *list)
 {
 	char mount[32];
 	char save_path[256];
@@ -1729,15 +1729,21 @@ static void read_hdd_vmc2_files(const char* userPath, list_t *list)
 		if (item->type != FILE_TYPE_PS4 || (item->flags & SAVE_FLAG_LOCKED) || (strncmp("CUSA", item->title_id, 4) == 0))
 			continue;
 
-		if (!orbis_SaveMount(item, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
-			continue;
+		if (item->flags & SAVE_FLAG_HDD)
+		{
+			if (!orbis_SaveMount(item, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
+				continue;
 
-		snprintf(save_path, sizeof(save_path), APOLLO_SANDBOX_PATH, mount);
+			snprintf(save_path, sizeof(save_path), APOLLO_SANDBOX_PATH, mount);
+		}
+		else
+			snprintf(save_path, sizeof(save_path), "%s", item->path);
+
 		read_vmc2_files(save_path, item, list);
 
-		orbis_SaveUmount(mount);
+		if (item->flags & SAVE_FLAG_HDD)
+			orbis_SaveUmount(mount);
 	}
-
 }
 
 /*
@@ -1754,12 +1760,7 @@ list_t * ReadUsbList(const char* userPath)
 	save_entry_t *item;
 	code_entry_t *cmd;
 	list_t *list;
-	char pathEnc[64], pathDec[64];
-
-	snprintf(pathDec, sizeof(pathDec), "%sAPOLLO/", userPath);
-	snprintf(pathEnc, sizeof(pathEnc), "%sSAVEDATA/", userPath);
-	if (dir_exists(pathDec) != SUCCESS && dir_exists(pathEnc) != SUCCESS)
-		return NULL;
+	char path[64];
 
 	list = list_alloc();
 
@@ -1790,8 +1791,15 @@ list_t * ReadUsbList(const char* userPath)
 	list_append(item->codes, cmd);
 	list_append(list, item);
 
-	read_usb_savegames(pathDec, list);
-	read_usb_encrypted_savegames(pathEnc, list);
+	snprintf(path, sizeof(path), "%sPS4/APOLLO/", userPath);
+	read_usb_savegames(path, list);
+	read_inner_vmc2_files(list);
+
+	snprintf(path, sizeof(path), "%sPS4/SAVEDATA/", userPath);
+	read_usb_encrypted_savegames(path, list);
+
+	snprintf(path, sizeof(path), "%s%s", userPath, VMC_PS2_PATH_USB);
+	read_vmc2_files(path, NULL, list);
 
 	return list;
 }
@@ -1837,7 +1845,7 @@ list_t * ReadUserList(const char* userPath)
 	read_hdd_savegames(userPath, list, appdb);
 	sqlite3_close(appdb);
 
-	read_hdd_vmc2_files(userPath, list);
+	read_inner_vmc2_files(list);
 
 	return list;
 }
@@ -1921,11 +1929,11 @@ list_t * ReadOnlineList(const char* urlPath)
 	snprintf(url, sizeof(url), "%s" "PS4/", urlPath);
 	_ReadOnlineListEx(url, SAVE_FLAG_PS4, list);
 
-/*
 	// PS2 save-games (Zip PSV)
 	snprintf(url, sizeof(url), "%s" "PS2/", urlPath);
 	_ReadOnlineListEx(url, SAVE_FLAG_PS2, list);
 
+/*
 	// PS1 save-games (Zip PSV)
 	//snprintf(url, sizeof(url), "%s" "PS1/", urlPath);
 	//_ReadOnlineListEx(url, SAVE_FLAG_PS1, list);
@@ -2151,6 +2159,17 @@ int get_save_details(const save_entry_t* save, char **details)
 			save->path,
 			(tmp ? tmp+1 : save->path),
 			save->dir_name);
+		return 1;
+	}
+
+	if (save->flags & SAVE_FLAG_ONLINE)
+	{
+		asprintf(details, "%s\n----- Online Database -----\n"
+			"Game: %s\n"
+			"Title ID: %s\n",
+			save->path,
+			save->name,
+			save->title_id);
 		return 1;
 	}
 

@@ -846,6 +846,42 @@ static void import_save2vmc(const char* src, int type)
 		show_message("Error importing save:\n%s", src);
 }
 
+static void deleteVmcSave(const save_entry_t* save)
+{
+	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to delete %s?", save->dir_name))
+		return;
+
+	if ((save->flags & SAVE_FLAG_PS1) ? /*formatSave(save->dir_name[0])*/0 : vmc_delete_save(save->dir_name))
+		show_message("Save successfully deleted:\n%s", save->dir_name);
+	else
+		show_message("Error! Couldn't delete save:\n%s", save->dir_name);
+}
+
+static void exportVM2raw(const char* vm2_file, int dst, int ecc)
+{
+	int ret;
+	char dstfile[256];
+	char dst_path[256];
+
+	_set_dest_path(dst_path, dst, VMC_PS2_PATH_USB);
+	if (mkdirs(dst_path) != SUCCESS)
+	{
+		show_message("Error! Export folder is not available:\n%s", dst_path);
+		return;
+	}
+
+	snprintf(dstfile, sizeof(dstfile), "%s%s.%s", dst_path, vm2_file, ecc ? "VM2" : "VMC");
+
+	init_loading_screen("Exporting PS2 memory card...");
+	ret = mcio_vmcExportImage(dstfile, ecc);
+	stop_loading_screen();
+
+	if (ret == sceMcResSucceed)
+		show_message("File successfully saved to:\n%s", dstfile);
+	else
+		show_message("Error! Failed to export PS2 memory card");
+}
+
 static void rebuildAppDB(const char* path)
 {
 	int error = 0;
@@ -1400,6 +1436,18 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 		case CMD_IMP_VMC2SAVE:
 			import_save2vmc(code->file, codecmd[1]);
 			selected_entry->flags |= SAVE_FLAG_UPDATED;
+			code->activated = 0;
+			break;
+
+		case CMD_DELETE_VMCSAVE:
+			deleteVmcSave(selected_entry);
+			selected_entry->flags |= SAVE_FLAG_UPDATED;
+			code->activated = 0;
+			break;
+
+		case CMD_EXP_PS2_VM2:
+		case CMD_EXP_VM2_RAW:
+			exportVM2raw(code->file, codecmd[1], codecmd[0] == CMD_EXP_PS2_VM2);
 			code->activated = 0;
 			break;
 

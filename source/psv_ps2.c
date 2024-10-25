@@ -167,12 +167,7 @@ int ps2_max2psv(const char *save, const char* psv_path)
     maxHeader_t header;
     fread(&header, 1, sizeof(maxHeader_t), f);
 
-    char dirName[sizeof(header.dirName) + 1];
-    memcpy(dirName, header.dirName, sizeof(header.dirName));
-    dirName[32] = '\0';
-
     FILE* psv = fopen(psv_path, "wb");
-
     if (!psv)
         return 0;
 
@@ -221,7 +216,7 @@ int ps2_max2psv(const char *save, const char* psv_path)
     ps2md.numberOfFilesInDir = (header.numFiles+2);
     memcpy(&ps2md.created, &fctime, sizeof(sceMcStDateTime));
     memcpy(&ps2md.modified, &fmtime, sizeof(sceMcStDateTime));
-    memcpy(ps2md.filename, dirName, sizeof(ps2md.filename));
+    memcpy(ps2md.filename, header.dirName, sizeof(ps2md.filename));
     
     write_psv_header(psv, 2);
 

@@ -1980,31 +1980,21 @@ list_t * ReadVmc2List(const char* userPath)
 	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Virtual Memory Card " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(item->codes, cmd);
 
-	if (!endsWith(userPath, ".VM2"))
-	{
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .VM2 format", CMD_CODE_NULL);
-		cmd->file = strdup(strrchr(userPath, '/')+1);
-		cmd->options_count = 1;
-		cmd->options = _createOptions(3, "Save .VM2 Memory Card to USB", CMD_EXP_PS2_VM2);
-		asprintf(&cmd->options->name[2], "Save .VM2 Memory Card to HDD");
-		asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_PS2_VM2, STORAGE_HDD);
-		list_append(item->codes, cmd);
-	}
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .VM2 format", CMD_CODE_NULL);
+	cmd->file = strdup(strrchr(userPath, '/')+1);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(3, "Save .VM2 Memory Card to USB", CMD_EXP_PS2_VM2);
+	asprintf(&cmd->options->name[2], "Save .VM2 Memory Card to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_PS2_VM2, STORAGE_HDD);
+	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .VMC format (No ECC)", CMD_CODE_NULL);
 	cmd->file = strdup(strrchr(userPath, '/')+1);
 	cmd->options_count = 1;
-	cmd->options = _createOptions(2, "Save .VMC Memory Card to USB", CMD_EXP_VM2_RAW);
+	cmd->options = _createOptions(3, "Save .VMC Memory Card to USB", CMD_EXP_VM2_RAW);
+	asprintf(&cmd->options->name[2], "Save .VMC Memory Card to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_VM2_RAW, STORAGE_HDD);
 	list_append(item->codes, cmd);
-
-	if (!endsWith(userPath, ".VMC"))
-	{
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Import a .VM2 file to Memory Card", CMD_CODE_NULL);
-		cmd->file = strdup(strrchr(userPath, '/')+1);
-		cmd->options_count = 1;
-		cmd->options = _getFileOptions(VMC_PS2_PATH_HDD, "*.VM2", CMD_IMP_PS2_VM2);
-		list_append(item->codes, cmd);
-	}
 
 	item = _createSaveEntry(SAVE_FLAG_PS2, CHAR_ICON_COPY " Import Saves to Virtual Card");
 	item->path = strdup(FAKE_USB_PATH);

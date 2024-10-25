@@ -2983,12 +2983,7 @@ int mcio_vmcInit(const char* vmc)
 {
 	int r;
 
-	if (vmc_data)
-	{
-		write_buffer(vmcpath, vmc_data, vmc_size);
-		free(vmc_data);
-		vmc_data = NULL;
-	}
+	mcio_vmcFinish();
 
 	if (read_buffer(vmc, &vmc_data, &vmc_size) < 0)
 		return sceMcResFailIO;

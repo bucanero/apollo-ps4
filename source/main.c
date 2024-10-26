@@ -138,6 +138,19 @@ save_list_t user_backup = {
 };
 
 /*
+* PS1 VMC list
+*/
+save_list_t vmc1_saves = {
+    .icon_id = cat_usb_png_index,
+    .title = "PS1 Virtual Memory Card",
+    .list = NULL,
+    .path = "",
+    .ReadList = &ReadVmc1List,
+    .ReadCodes = &ReadVmc1Codes,
+    .UpdatePath = &update_vmc_path,
+};
+
+/*
 * PS2 VMC list
 */
 save_list_t vmc2_saves = {

@@ -65,14 +65,13 @@ static void XorWithIv(uint8_t* buf, const uint8_t* Iv)
   }
 }
  
-static void generateHash(const uint8_t *input, uint8_t *dest, size_t sz, uint8_t type)
+static void generateHash(const uint8_t *input, const uint8_t *salt_seed, uint8_t *dest, size_t sz, uint8_t type)
 {
 	aes_context aes_ctx;
 	sha1_context sha1_ctx;
 	uint8_t iv[0x10];
 	uint8_t salt[0x40];
 	uint8_t work_buf[0x14];
-	const uint8_t *salt_seed = input + PSV_SEED_OFFSET;
 
 	memset(salt , 0, sizeof(salt));
 	memset(&aes_ctx, 0, sizeof(aes_context));
@@ -157,7 +156,7 @@ int psv_resign(const char *src_psv)
 		return 0;
 	}
 
-	generateHash(input, input + PSV_HASH_OFFSET, sz, input[PSV_TYPE_OFFSET]);
+	generateHash(input, input + PSV_SEED_OFFSET, input + PSV_HASH_OFFSET, sz, input[PSV_TYPE_OFFSET]);
 
 	LOG("New signature: ");
 	dump_data(input + PSV_HASH_OFFSET, 0x14);
@@ -173,7 +172,7 @@ int psv_resign(const char *src_psv)
 
 	return 1;
 }
-/*
+
 int vmp_resign(const char *src_vmp)
 {
 	size_t sz;
@@ -208,7 +207,7 @@ int vmp_resign(const char *src_vmp)
 
 	return 1;
 }
-*/
+
 void get_psv_filename(char* psvName, const char* path, const char* dirName)
 {
 	char tmpName[13];

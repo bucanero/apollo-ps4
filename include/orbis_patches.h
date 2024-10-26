@@ -203,6 +203,20 @@ const orbis_patch_t shellcore_patches_672[] = {
     {0, NULL, 0}
 };
 
+/* 6.72 patches disabled (restore SceShellCore) by Bucanero */
+const orbis_patch_t shellcore_patches_672_disabled[] = {
+    {0x01600060, "\xB5", 1},
+    {0x0087F840, "\x55\x48\x89\xE5", 4},
+    {0x00071130, "\x55\x48\x89", 3},
+    {0x000D6830, "\x55\x48\x89", 3},
+    {0x0007379E, "\xEB\x35", 2},
+    {0x00070C38, "\x0F\x88\xA3\x00\x00\x00", 6},
+    {0x00070855, "\x0F\x88\xD9\x00\x00\x00", 6},
+    {0x00070054, "\x78\x43", 2},
+    {0x00070260, "\x0F\x89", 2},
+    {0, NULL, 0}
+};
+
 /* 7.02 patches below are taken from Joonie Save-Mounter */
 const orbis_patch_t shellcore_patches_702[] = {
     {0x0130C060, "\x00", 1},                        // 'sce_sdmemory' patch

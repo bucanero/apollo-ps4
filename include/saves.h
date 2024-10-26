@@ -25,8 +25,8 @@
 #define USER_PATH_HDD           "/system_data/savedata/%08x/db/user/savedata.db"
 
 #define PS4_SAVES_PATH_USB      "PS4/APOLLO/"
-#define PS2_SAVES_PATH_USB      "PS3/EXPORT/PS2SD/"
-#define PSP_SAVES_PATH_USB      "PSP/SAVEDATA/"
+#define PS2_SAVES_PATH_USB      "PS2/SAVEDATA/"
+#define PS1_SAVES_PATH_USB      "PS1/SAVEDATA/"
 #define PSV_SAVES_PATH_USB      "PS3/EXPORT/PSV/"
 #define TROPHIES_PATH_USB       "PS4/EXPORT/TROPHY/"
 

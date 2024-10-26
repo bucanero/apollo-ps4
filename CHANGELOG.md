@@ -17,6 +17,8 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 * Custom checksum support
   - Shin Megami Tensei V (SHA1)
 
+---
+
 ## [v1.4.4](https://github.com/bucanero/apollo-ps4/releases/tag/v1.4.4) - 2024-05-25
 
 ### Added

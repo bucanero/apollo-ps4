@@ -321,7 +321,7 @@ static void write_SceShellCore(int pid, uint64_t start, const orbis_patch_t* pat
 }
 
 // hack to disable unpatching on exit in case unmount failed (to avoid KP)
-void disable_unpatch()
+void disable_unpatch(void)
 {
     shellcore_backup = NULL;
 }

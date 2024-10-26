@@ -35,9 +35,6 @@
 #define PS2_SAVES_PATH_HDD      "ps2emu2_savedata/"
 #define PSP_SAVES_PATH_HDD      "minis_savedata/"
 
-#define PS1_IMP_PATH_USB        "PS1/SAVEDATA/"
-#define PS2_IMP_PATH_USB        "PS2/SAVEDATA/"
-
 #define SAVES_PATH_USB0         USB0_PATH PS4_SAVES_PATH_USB
 #define SAVES_PATH_USB1         USB1_PATH PS4_SAVES_PATH_USB
 

@@ -1054,7 +1054,7 @@ int ReadVmc1Codes(save_entry_t * save)
 
 	if (save->type == FILE_TYPE_MENU)
 	{
-		add_vmc_import_saves(save->codes, save->path, PS1_IMP_PATH_USB);
+		add_vmc_import_saves(save->codes, save->path, PS1_SAVES_PATH_USB);
 		add_vmc_import_saves(save->codes, save->path, PSV_SAVES_PATH_USB);
 		if (!list_count(save->codes))
 		{
@@ -1184,7 +1184,7 @@ int ReadVmc2Codes(save_entry_t * save)
 
 	if (save->type == FILE_TYPE_MENU)
 	{
-		add_vmc2_import_saves(save->codes, save->path, PS2_IMP_PATH_USB);
+		add_vmc2_import_saves(save->codes, save->path, PS2_SAVES_PATH_USB);
 		add_vmc2_import_saves(save->codes, save->path, PSV_SAVES_PATH_USB);
 		if (!list_count(save->codes))
 		{
@@ -2253,7 +2253,7 @@ list_t * ReadVmc2List(const char* userPath)
 
 	for (int i = 0; i <= MAX_USB_DEVICES; i++)
 	{
-		snprintf(filePath, sizeof(filePath), USB_PATH PS2_IMP_PATH_USB, i);
+		snprintf(filePath, sizeof(filePath), USB_PATH PS2_SAVES_PATH_USB, i);
 		if (i && dir_exists(filePath) != SUCCESS)
 			continue;
 

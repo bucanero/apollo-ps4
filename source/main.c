@@ -484,7 +484,7 @@ static void terminate(void)
 	sceAudioOutClose(audio);
 	// Unload loaded libraries
 	if (unpatch_SceShellCore())
-		notify_popup("cxml://psnotification/tex_default_icon_notification", "PS4 Save patches removed from memory");
+		notify_popup(NOTIFICATION_ICON_DEFAULT, "PS4 Save patches removed from memory");
 
 	terminate_jbc();
 	sceSystemServiceLoadExec("exit", NULL);

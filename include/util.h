@@ -4,6 +4,9 @@
 #include <apollo.h>
 #include "types.h"
 
+#define NOTIFICATION_ICON_BAN           "cxml://psnotification/tex_icon_ban"
+#define NOTIFICATION_ICON_DEFAULT       "cxml://psnotification/tex_default_icon_notification"
+
 #define ALIGN(_value, _alignment) (((_value) + (_alignment) - 1) & ~((_alignment) - 1))
 
 void dump_data(const u8 *data, u64 size);

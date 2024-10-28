@@ -1143,7 +1143,7 @@ static void add_vmc2_import_saves(list_t* list, const char* path, const char* fo
 		else if (endsWith(dir->d_name, ".CBS"))
 			type = FILE_TYPE_CBS;
 
-		else if (endsWith(dir->d_name, ".XPS"))
+		else if (endsWith(dir->d_name, ".XPS") || endsWith(dir->d_name, ".SPS"))
 			type = FILE_TYPE_XPS;
 
 		else if (endsWith(dir->d_name, ".MAX"))

@@ -135,6 +135,24 @@ const orbis_patch_t scesavedata_patches_75x[] = {
     {0, NULL, 0},
 };
 
+/* 8.00 patches by BestPig */
+const orbis_patch_t scesavedata_patches_800[] = {
+    {0x00035DE8, "\x00", 1},        // 'sce_' patch
+    {0x00034689, "\x00", 1},        // 'sce_sdmemory' patch
+    {0x00036246, "\x00", 1},        // by @Ctn
+    {0x00000FA1, "\x1F", 1},        // by GRModSave_Username
+    {0, NULL, 0},
+};
+
+/* 8.5x patches by BestPig */
+const orbis_patch_t scesavedata_patches_85x[] = {
+    {0x00035FE8, "\x00", 1},        // 'sce_' patch
+    {0x00034869, "\x00", 1},        // 'sce_sdmemory' patch
+    {0x00036446, "\x00", 1},        // by @Ctn
+    {0x00000FA1, "\x1F", 1},        // by GRModSave_Username
+    {0, NULL, 0},
+};
+
 const orbis_patch_t scesavedata_patches_900[] = {
     {0x00035DA8, "\x00", 1},        // 'sce_' patch
     {0x00034679, "\x00", 1},        // 'sce_sdmemory' patch
@@ -185,6 +203,20 @@ const orbis_patch_t shellcore_patches_672[] = {
     {0, NULL, 0}
 };
 
+/* 6.72 patches disabled (restore SceShellCore) by Bucanero */
+const orbis_patch_t shellcore_patches_672_disabled[] = {
+    {0x01600060, "\xB5", 1},
+    {0x0087F840, "\x55\x48\x89\xE5", 4},
+    {0x00071130, "\x55\x48\x89", 3},
+    {0x000D6830, "\x55\x48\x89", 3},
+    {0x0007379E, "\xEB\x35", 2},
+    {0x00070C38, "\x0F\x88\xA3\x00\x00\x00", 6},
+    {0x00070855, "\x0F\x88\xD9\x00\x00\x00", 6},
+    {0x00070054, "\x78\x43", 2},
+    {0x00070260, "\x0F\x89", 2},
+    {0, NULL, 0}
+};
+
 /* 7.02 patches below are taken from Joonie Save-Mounter */
 const orbis_patch_t shellcore_patches_702[] = {
     {0x0130C060, "\x00", 1},                        // 'sce_sdmemory' patch
@@ -213,6 +245,74 @@ const orbis_patch_t shellcore_patches_75x[] = {
     {0, NULL, 0}
 };
 
+/* 8.00 patches by BestPig */
+const orbis_patch_t shellcore_patches_800[] = {
+    {0x00E2AD99, "\x00", 1},                        // 'sce_sdmemory' patch
+    {0x00E2ADD8, "\x00", 1},                        // 'sce_sdmemory1' patch
+    {0x00E2ADE6, "\x00", 1},                        // 'sce_sdmemory2' patch
+    {0x00E2ADF4, "\x00", 1},                        // 'sce_sdmemory3' patch
+    {0x0089B050, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
+    {0x0006BE40, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
+    {0x000C71B0, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
+    {0x0006D85D, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
+    {0x0006B978, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
+    {0x0006B2B1, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
+    {0x0006AB14, "\x90\x90", 2},                    //nevah jump
+    {0x0006AD6E, "\x90\xE9", 2},                    //always jump
+    {0, NULL, 0}
+};
+
+/* 8.03 patches by BestPig */
+const orbis_patch_t shellcore_patches_803[] = {
+    {0x00E2AE59, "\x00", 1},                        // 'sce_sdmemory' patch
+    {0x00E2AE98, "\x00", 1},                        // 'sce_sdmemory1' patch
+    {0x00E2AEA6, "\x00", 1},                        // 'sce_sdmemory2' patch
+    {0x00E2AEB4, "\x00", 1},                        // 'sce_sdmemory3' patch
+    {0x0089B100, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
+    {0x0006BE40, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
+    {0x000C71B0, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
+    {0x0006D85D, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
+    {0x0006B978, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
+    {0x0006B2B1, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
+    {0x0006AB14, "\x90\x90", 2},                    //nevah jump
+    {0x0006AD6E, "\x90\xE9", 2},                    //always jump
+    {0, NULL, 0}
+};
+
+/* 8.50 patches by BestPig */
+const orbis_patch_t shellcore_patches_850[] = {
+    {0x00E1F939, "\x00", 1},                        // 'sce_sdmemory' patch
+    {0x00E1F978, "\x00", 1},                        // 'sce_sdmemory1' patch
+    {0x00E1F986, "\x00", 1},                        // 'sce_sdmemory2' patch
+    {0x00E1F994, "\x00", 1},                        // 'sce_sdmemory3' patch
+    {0x0089D880, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
+    {0x0006C4E0, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
+    {0x000C7A60, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
+    {0x0006DF02, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
+    {0x0006C018, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
+    {0x0006B951, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
+    {0x0006B1A4, "\x90\x90", 2},                    //nevah jump
+    {0x0006B3FE, "\x90\xE9", 2},                    //always jump
+    {0, NULL, 0}
+};
+
+/* 8.52 patches by BestPig */
+const orbis_patch_t shellcore_patches_852[] = {
+    {0x00E1F959, "\x00", 1},                        // 'sce_sdmemory' patch
+    {0x00E1F998, "\x00", 1},                        // 'sce_sdmemory1' patch
+    {0x00E1F9A6, "\x00", 1},                        // 'sce_sdmemory2' patch
+    {0x00E1F9B4, "\x00", 1},                        // 'sce_sdmemory3' patch
+    {0x0089D8A0, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
+    {0x0006C4E0, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
+    {0x000C7A60, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
+    {0x0006DF02, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
+    {0x0006C018, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
+    {0x0006B951, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
+    {0x0006B1A4, "\x90\x90", 2},                    //nevah jump
+    {0x0006B3FE, "\x90\xE9", 2},                    //always jump
+    {0, NULL, 0}
+};
+
 /* 9.00 patches below are taken from Graber Save-Mounter */
 const orbis_patch_t shellcore_patches_900[] = {
     {0x00E351D9, "\x00", 1},                        // 'sce_sdmemory' patch
@@ -227,6 +327,74 @@ const orbis_patch_t shellcore_patches_900[] = {
     {0x0006BA62, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
     {0x0006B2C4, "\x90\x90", 2},                    //nevah jump
     {0x0006B51E, "\x90\xE9", 2},                    //always jump
+    {0, NULL, 0}
+};
+
+/* 9.03 patches by BestPig */
+const orbis_patch_t shellcore_patches_903[] = {
+    {0x00E37869, "\x00", 1},                        // 'sce_sdmemory' patch
+    {0x00E378A8, "\x00", 1},                        // 'sce_sdmemory1' patch
+    {0x00E378B6, "\x00", 1},                        // 'sce_sdmemory2' patch
+    {0x00E378C4, "\x00", 1},                        // 'sce_sdmemory3' patch
+    {0x008B1150, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
+    {0x0006C650, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
+    {0x000C90F0, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
+    {0x0006DFEE, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
+    {0x0006C198, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
+    {0x0006BB52, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
+    {0x0006B3B4, "\x90\x90", 2},                    //nevah jump
+    {0x0006B60E, "\x90\xE9", 2},                    //always jump
+    {0, NULL, 0}
+};
+
+/* 9.04 patches by BestPig */
+const orbis_patch_t shellcore_patches_904[] = {
+    {0x00E37889, "\x00", 1},                        // 'sce_sdmemory' patch
+    {0x00E378C8, "\x00", 1},                        // 'sce_sdmemory1' patch
+    {0x00E378D6, "\x00", 1},                        // 'sce_sdmemory2' patch
+    {0x00E378E4, "\x00", 1},                        // 'sce_sdmemory3' patch
+    {0x008B1180, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
+    {0x0006C650, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
+    {0x000C90F0, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
+    {0x0006DFEE, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
+    {0x0006C198, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
+    {0x0006BB52, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
+    {0x0006B3B4, "\x90\x90", 2},                    //nevah jump
+    {0x0006B60E, "\x90\xE9", 2},                    //always jump
+    {0, NULL, 0}
+};
+
+/* 9.50 patches by BestPig */
+const orbis_patch_t shellcore_patches_950[] = {
+    {0x00E1BBE9, "\x00", 1},                        // 'sce_sdmemory' patch
+    {0x00E1A3F8, "\x00", 1},                        // 'sce_sdmemory1' patch
+    {0x00E1A406, "\x00", 1},                        // 'sce_sdmemory2' patch
+    {0x00E1A414, "\x00", 1},                        // 'sce_sdmemory3' patch
+    {0x008B0BC0, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
+    {0x0006B610, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
+    {0x000C6F60, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
+    {0x0006CE95, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
+    {0x0006B067, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
+    {0x0006AB12, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
+    {0x0006A374, "\x90\x90", 2},                    //nevah jump
+    {0x0006A5CE, "\x90\xE9", 2},                    //always jump
+    {0, NULL, 0}
+};
+
+/* 9.51 patches by BestPig */
+const orbis_patch_t shellcore_patches_951[] = {
+    {0x00E1A3D9, "\x00", 1},                        // 'sce_sdmemory' patch
+    {0x00E1A418, "\x00", 1},                        // 'sce_sdmemory1' patch
+    {0x00E1A426, "\x00", 1},                        // 'sce_sdmemory2' patch
+    {0x00E1A434, "\x00", 1},                        // 'sce_sdmemory3' patch
+    {0x008AF730, "\x48\x31\xC0\xC3", 4},            //verify keystone patch
+    {0x0006B520, "\x31\xC0\xC3", 3},                //transfer mount permission patch eg mount foreign saves with write permission
+    {0x000C6E70, "\x31\xC0\xC3", 3},                //patch psn check to load saves saves foreign to current account
+    {0x0006CE95, "\x90\x90", 2},                    // ^ (thanks to GRModSave_Username)
+    {0x0006B067, "\x90\x90\x90\x90\x90\x90", 6},    // something something patches...
+    {0x0006AA22, "\x90\x90\x90\x90\x90\x90", 6},    // don't even remember doing this
+    {0x0006A284, "\x90\x90", 2},                    //nevah jump
+    {0x0006A4DE, "\x90\xE9", 2},                    //always jump
     {0, NULL, 0}
 };
 

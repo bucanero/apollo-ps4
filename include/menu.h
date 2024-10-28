@@ -25,6 +25,8 @@ enum menu_screen_ids
 	MENU_CODE_OPTIONS,		/* 10 - Code Menu (View Cheat Options) */
 	MENU_SAVE_DETAILS,
 	MENU_HEX_EDITOR,
+	MENU_PS1VMC_SAVES,		/* 13 - PS1 VMC Menu */	
+	MENU_PS2VMC_SAVES,		/* 14 - PS2 VMC Menu */
 	TOTAL_MENU_IDS
 };
 
@@ -68,7 +70,7 @@ enum texture_index
 	cat_warning_png_index,
 	tag_lock_png_index,
 	tag_own_png_index,
-	tag_pce_png_index,
+	tag_vmc_png_index,
 	tag_ps1_png_index,
 	tag_ps2_png_index,
 	tag_ps3_png_index,
@@ -252,6 +254,7 @@ extern void Draw_MainMenu_Ani(void);
 extern void Draw_HexEditor(const hexedit_data_t* hex);
 extern void Draw_HexEditor_Ani(const hexedit_data_t* hex);
 int LoadMenuTexture(const char* path, int idx);
+void LoadVmcTexture(int width, int height, uint8_t* icon);
 void initMenuOptions(void);
 
 void drawScene(void);

@@ -436,6 +436,7 @@ int patch_sfo(const char *in_file_path, sfo_patch_t* patches) {
 
 	sfo = sfo_alloc();
 	if (sfo_read(sfo, in_file_path) < 0) {
+		sfo_free(sfo);
 		LOG("Unable to read from '%s'", in_file_path);
 		return -1;
 	}
@@ -464,12 +465,14 @@ int build_sfo(const char *in_file_path, const char *out_file_path, const char *t
 
 	sfo1 = sfo_alloc();
 	if (sfo_read(sfo1, in_file_path) < 0) {
+		sfo_free(sfo1);
 		LOG("Unable to read from '%s'", in_file_path);
 		return -1;
 	}
 
 	sfo2 = sfo_alloc();
 	if (sfo_read(sfo2, tpl_file_path) < 0) {
+		sfo_free(sfo2);
 		LOG("Unable to read from '%s'", tpl_file_path);
 		return -1;
 	}
@@ -499,6 +502,7 @@ int patch_sfo_trophy(const char *in_file_path, const char* account) {
 
 	sfo = sfo_alloc();
 	if (sfo_read(sfo, in_file_path) < 0) {
+		sfo_free(sfo);
 		LOG("Unable to read from '%s'", in_file_path);
 		return -1;
 	}

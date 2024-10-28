@@ -321,7 +321,7 @@ static void write_SceShellCore(int pid, uint64_t start, const orbis_patch_t* pat
 }
 
 // hack to disable unpatching on exit in case unmount failed (to avoid KP)
-void disable_unpatch()
+void disable_unpatch(void)
 {
     shellcore_backup = NULL;
 }
@@ -384,7 +384,7 @@ int patch_save_libraries(void)
     switch (version)
     {
     case -1:
-        notify_popup("cxml://psnotification/tex_icon_ban", "Error: Can't detect firmware version!");
+        notify_popup(NOTIFICATION_ICON_BAN, "Error: Can't detect firmware version!");
         return 0;
 
     case 0x505:
@@ -398,6 +398,8 @@ int patch_save_libraries(void)
         shellcore_patch = shellcore_patches_672;
         break;
 
+    case 0x700:
+    case 0x701:
     case 0x702:
         savedata_patch = scesavedata_patches_702;
         shellcore_patch = shellcore_patches_702;
@@ -410,9 +412,50 @@ int patch_save_libraries(void)
         shellcore_patch = shellcore_patches_75x;
         break;
 
+    case 0x800:
+    case 0x801:
+        savedata_patch = scesavedata_patches_800;
+        shellcore_patch = shellcore_patches_800;
+        break;
+
+    case 0x803:
+        savedata_patch = scesavedata_patches_800;
+        shellcore_patch = shellcore_patches_803;
+        break;
+
+    case 0x850:
+        savedata_patch = scesavedata_patches_85x;
+        shellcore_patch = shellcore_patches_850;
+        break;
+
+    case 0x852:
+        savedata_patch = scesavedata_patches_85x;
+        shellcore_patch = shellcore_patches_852;
+        break;
+
     case 0x900:
         savedata_patch = scesavedata_patches_900;
         shellcore_patch = shellcore_patches_900;
+        break;
+
+    case 0x903:
+        savedata_patch = scesavedata_patches_900; // 903 have the same offsets as 900 for libSceSaveData
+        shellcore_patch = shellcore_patches_903;
+        break;
+
+    case 0x904:
+        savedata_patch = scesavedata_patches_900;  // 904 have the same offsets as 900 for libSceSaveData
+        shellcore_patch = shellcore_patches_904;
+        break;
+
+    case 0x950:
+        savedata_patch = scesavedata_patches_1100; // 950 have the same offsets as 1100 for libSceSaveData
+        shellcore_patch = shellcore_patches_950;
+        break;
+
+    case 0x951:
+        savedata_patch = scesavedata_patches_1100; // 951 have the same offsets as 1100 for libSceSaveData
+        shellcore_patch = shellcore_patches_951;
         break;
 
     case 0x960:
@@ -429,34 +472,36 @@ int patch_save_libraries(void)
         savedata_patch = scesavedata_patches_1100; // 1001 have the same offsets as 1100 for libSceSaveData
         shellcore_patch = shellcore_patches_1001;
         break;
-/*
+
     case 0x1050:
+    case 0x1070:
+    case 0x1071:
         savedata_patch = scesavedata_patches_1100; // 1050 have the same offsets as 1100 for libSceSaveData
         shellcore_patch = shellcore_patches_1050;
         break;
-*/
+
     case 0x1100:
         savedata_patch = scesavedata_patches_1100;
         shellcore_patch = shellcore_patches_1100;
         break;
 
     default:
-        notify_popup("cxml://psnotification/tex_icon_ban", "Unsupported firmware version %X.%02X", version >> 8, version & 0xFF);
+        notify_popup(NOTIFICATION_ICON_BAN, "Unsupported firmware version %X.%02X", version >> 8, version & 0xFF);
         return 0;
     }
 
     if (!check_syscalls())
     {
-        notify_popup("cxml://psnotification/tex_icon_ban", "Missing %X.%02X GoldHEN or ps4debug payload!", version >> 8, version & 0xFF);
+        notify_popup(NOTIFICATION_ICON_BAN, "Missing %X.%02X GoldHEN or ps4debug payload!", version >> 8, version & 0xFF);
         return 0;
     }
 
     if (!patch_SceShellCore(shellcore_patch) || !patch_SceSaveData(savedata_patch))
     {
-        notify_popup("cxml://psnotification/tex_icon_ban", "Error: Failed to apply %X.%02X Save patches!", version >> 8, version & 0xFF);
+        notify_popup(NOTIFICATION_ICON_BAN, "Error: Failed to apply %X.%02X Save patches!", version >> 8, version & 0xFF);
         return 0;
     }
-    notify_popup("cxml://psnotification/tex_default_icon_notification", "PS4 %X.%02X Save patches applied", version >> 8, version & 0xFF);
+    notify_popup(NOTIFICATION_ICON_DEFAULT, "PS4 %X.%02X\nSave patches applied", version >> 8, version & 0xFF);
 
     return 1;
 }
@@ -524,7 +569,7 @@ int initialize_jbc(void)
     if (!jailbreak())
     {
         LOG("Jailbreak failed!");
-        notify_popup("cxml://psnotification/tex_icon_ban", "Jailbreak failed!");
+        notify_popup(NOTIFICATION_ICON_BAN, "Jailbreak failed!");
         return 0;
     }
 

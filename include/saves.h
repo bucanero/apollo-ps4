@@ -25,8 +25,8 @@
 #define USER_PATH_HDD           "/system_data/savedata/%08x/db/user/savedata.db"
 
 #define PS4_SAVES_PATH_USB      "PS4/APOLLO/"
-#define PS2_SAVES_PATH_USB      "PS3/EXPORT/PS2SD/"
-#define PSP_SAVES_PATH_USB      "PSP/SAVEDATA/"
+#define PS2_SAVES_PATH_USB      "PS2/SAVEDATA/"
+#define PS1_SAVES_PATH_USB      "PS1/SAVEDATA/"
 #define PSV_SAVES_PATH_USB      "PS3/EXPORT/PSV/"
 #define TROPHIES_PATH_USB       "PS4/EXPORT/TROPHY/"
 
@@ -53,9 +53,8 @@
 #define EXP_PSV_PATH_USB0       USB0_PATH PSV_SAVES_PATH_USB
 #define EXP_PSV_PATH_USB1       USB1_PATH PSV_SAVES_PATH_USB
 
-#define EXP_PS2_PATH_USB0       USB0_PATH "PS2/VMC/"
-#define EXP_PS2_PATH_USB1       USB1_PATH "PS2/VMC/"
-#define EXP_PS2_PATH_HDD        "/dev_hdd0/savedata/vmc/"
+#define VMC_PS2_PATH_USB        "PS2/VMC/"
+#define VMC_PS2_PATH_HDD        "/dev_hdd0/savedata/vmc/"
 
 #define IMP_PS2VMC_PATH_USB     USB_PATH "PS2/VMC/"
 #define IMPORT_RAP_PATH_USB     USB_PATH PS3_LICENSE_PATH
@@ -99,6 +98,7 @@ enum cmd_code_enum
     CMD_HEX_EDIT_FILE,
     CMD_COPY_PFS,
     CMD_IMPORT_DATA_FILE,
+    CMD_DELETE_VMCSAVE,
 
 // Bulk commands
     CMD_RESIGN_SAVES,
@@ -109,10 +109,14 @@ enum cmd_code_enum
     CMD_COPY_ALL_SAVES_HDD,
     CMD_DUMP_FINGERPRINTS,
     CMD_SAVE_WEBSERVER,
+    CMD_EXP_SAVES_VMC,
+    CMD_EXP_ALL_SAVES_VMC,
 
 // Export commands
     CMD_EXP_KEYSTONE,
-    CMD_EXP_LICS_RAPS,
+    CMD_EXP_PS2_VM2,
+    CMD_EXP_VMC2SAVE,
+    CMD_EXP_VM2_RAW,
     CMD_EXP_DATABASE,
     CMD_DB_REBUILD,
     CMD_DB_DEL_FIX,
@@ -121,6 +125,7 @@ enum cmd_code_enum
 // Import commands
     CMD_IMP_KEYSTONE,
     CMD_IMP_DATABASE,
+    CMD_IMP_VMC2SAVE,
     CMD_CREATE_ACT_DAT,
     CMD_EXTRACT_ARCHIVE,
     CMD_URL_DOWNLOAD,
@@ -140,20 +145,23 @@ enum cmd_code_enum
 #define SAVE_FLAG_SELECTED      4
 #define SAVE_FLAG_ZIP           8
 #define SAVE_FLAG_PS2           16
-#define SAVE_FLAG_PSP           32
+#define SAVE_FLAG_PS1           32
 #define SAVE_FLAG_PSV           64
 #define SAVE_FLAG_TROPHY        128
 #define SAVE_FLAG_ONLINE        256
 #define SAVE_FLAG_PS4           512
 #define SAVE_FLAG_HDD           1024
+#define SAVE_FLAG_VMC           2048
+#define SAVE_FLAG_UPDATED       4096
 
 enum save_type_enum
 {
     FILE_TYPE_NULL,
-    FILE_TYPE_PSV,
-    FILE_TYPE_TRP,
     FILE_TYPE_MENU,
     FILE_TYPE_PS4,
+    FILE_TYPE_PSV,
+    FILE_TYPE_TRP,
+    FILE_TYPE_VMC,
 
     // PS1 File Types
     FILE_TYPE_ZIP,
@@ -165,8 +173,13 @@ enum save_type_enum
     FILE_TYPE_RAP,
     FILE_TYPE_ACT,
 
-    // ISO Files
-    FILE_TYPE_ISO,
+    // PS2 File Types
+    FILE_TYPE_PS2,
+    FILE_TYPE_PSU,
+    FILE_TYPE_MAX,
+    FILE_TYPE_CBS,
+    FILE_TYPE_XPS,
+    FILE_TYPE_VM2,
 };
 
 enum char_flag_enum
@@ -182,10 +195,10 @@ enum char_flag_enum
     CHAR_TAG_LOCKED,
     CHAR_TAG_NET,
     CHAR_RES_LF,
-    CHAR_TAG_TRANSFER,
+    CHAR_TAG_VMC,
     CHAR_TAG_ZIP,
     CHAR_RES_CR,
-    CHAR_TAG_PCE,
+    CHAR_TAG_TRANSFER,
     CHAR_TAG_WARNING,
     CHAR_BTN_X,
     CHAR_BTN_S,
@@ -215,6 +228,7 @@ enum save_sort_enum
     SORT_DISABLED,
     SORT_BY_NAME,
     SORT_BY_TITLE_ID,
+    SORT_BY_TYPE,
 };
 
 typedef struct save_entry
@@ -245,15 +259,18 @@ list_t * ReadUserList(const char* userPath);
 list_t * ReadOnlineList(const char* urlPath);
 list_t * ReadBackupList(const char* userPath);
 list_t * ReadTrophyList(const char* userPath);
+list_t * ReadVmc2List(const char* userPath);
 void UnloadGameList(list_t * list);
 char * readTextFile(const char * path, long* size);
 int sortSaveList_Compare(const void* A, const void* B);
 int sortSaveList_Compare_TitleID(const void* A, const void* B);
+int sortSaveList_Compare_Type(const void* A, const void* B);
 int sortCodeList_Compare(const void* A, const void* B);
 int ReadCodes(save_entry_t * save);
 int ReadTrophies(save_entry_t * game);
 int ReadOnlineSaves(save_entry_t * game);
 int ReadBackupCodes(save_entry_t * bup);
+int ReadVmc2Codes(save_entry_t * save);
 
 int http_init(void);
 void http_end(void);
@@ -273,7 +290,7 @@ void end_progress_bar(void);
 
 int init_loading_screen(const char* message);
 void stop_loading_screen(void);
-void disable_unpatch();
+void disable_unpatch(void);
 
 void execCodeCommand(code_entry_t* code, const char* codecmd);
 
@@ -291,3 +308,16 @@ int get_save_details(const save_entry_t *save, char** details);
 int orbis_SaveUmount(const char* mountPath);
 int orbis_SaveMount(const save_entry_t *save, uint32_t mode, char* mountPath);
 int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details, uint32_t up);
+
+int vmc_export_psv(const char* save, const char* out_path);
+int vmc_export_psu(const char* path, const char* output);
+int vmc_import_psv(const char *input);
+int vmc_import_psu(const char *input);
+int vmc_delete_save(const char* path);
+
+int ps2_xps2psv(const char *save, const char *psv_path);
+int ps2_cbs2psv(const char *save, const char *psv_path);
+int ps2_max2psv(const char *save, const char *psv_path);
+
+char* sjis2utf8(char* input);
+uint8_t* getIconPS2(const char* folder, const char* iconfile);

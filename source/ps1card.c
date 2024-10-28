@@ -218,14 +218,15 @@ static void setPsvHeader(const char* saveFilename, uint32_t saveLength, FILE* fp
     psvSave[0x3C] = 1;
     psvSave[0x44] = 0x84;
     psvSave[0x49] = 2;
-    psvSave[0x5D] = 0x20;
     psvSave[0x60] = 3;
     psvSave[0x61] = 0x90;
 
     memcpy(&psvSave[0x64], saveFilename, 20);
     memcpy(&psvSave[0x40], &saveLength, sizeof(uint32_t));
+    memcpy(&psvSave[0x5C], &saveLength, sizeof(uint32_t));
 
     fwrite(psvSave, 1, sizeof(psvSave), fp);
+
     return;
 }
 

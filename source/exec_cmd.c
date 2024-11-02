@@ -762,7 +762,7 @@ static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
 			continue;
 
 		if (item->type == FILE_TYPE_PS1)
-			(saveSingleSave(outPath, save->dir_name[0], PS1SAVE_PSV) ? done++ : err_count++);
+			(saveSingleSave(outPath, save->blocks, PS1SAVE_PSV) ? done++ : err_count++);
 
 		if (item->type == FILE_TYPE_PS2)
 			(vmc_export_psv(item->dir_name, outPath) ? done++ : err_count++);
@@ -789,7 +789,7 @@ static void exportVmcSave(const save_entry_t* save, int type, int dst_id)
 			(type == PS1SAVE_MCS) ? "mcs" : "psx");
 	}
 
-	if (saveSingleSave(outPath, save->dir_name[0], type))
+	if (saveSingleSave(outPath, save->blocks, type))
 		show_message("Save successfully exported to:\n%s", outPath);
 	else
 		show_message("Error exporting save:\n%s", save->path);
@@ -874,7 +874,7 @@ static void deleteVmcSave(const save_entry_t* save)
 	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to delete %s?", save->dir_name))
 		return;
 
-	if ((save->flags & SAVE_FLAG_PS1) ? formatSave(save->dir_name[0]) : vmc_delete_save(save->dir_name))
+	if ((save->flags & SAVE_FLAG_PS1) ? formatSave(save->blocks) : vmc_delete_save(save->dir_name))
 		show_message("Save successfully deleted:\n%s", save->dir_name);
 	else
 		show_message("Error! Couldn't delete save:\n%s", save->dir_name);

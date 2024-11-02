@@ -226,7 +226,6 @@ static void setPsvHeader(const char* saveFilename, uint32_t saveLength, FILE* fp
     memcpy(&psvSave[0x5C], &saveLength, sizeof(uint32_t));
 
     fwrite(psvSave, 1, sizeof(psvSave), fp);
-
     return;
 }
 
@@ -302,7 +301,7 @@ static void loadPalette(void)
             if ((redChannel | greenChannel | blueChannel | blackFlag) == 0)
                 ps1saves[slotNumber].iconPalette[colorCounter] = 0x00000000;
             else
-                ps1saves[slotNumber].iconPalette[colorCounter] = blueChannel | (greenChannel << 8) | (redChannel << 16) | 0xFF000000;
+                ps1saves[slotNumber].iconPalette[colorCounter] = (redChannel << 24) | (greenChannel << 16) | (blueChannel << 8) | 0xFF;
 
             colorCounter++;
         }

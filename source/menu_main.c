@@ -120,6 +120,12 @@ static void SetMenu(int id)
 			{
 				UnloadGameList(vmc1_saves.list);
 				vmc1_saves.list = NULL;
+
+				if(strncmp(APOLLO_SANDBOX_PATH, vmc1_saves.path, 16) == 0)
+				{
+					*strrchr(vmc1_saves.path, '/') = 0;
+					orbis_SaveUmount(strrchr(vmc1_saves.path, '/'));
+				}
 			}
 			break;
 
@@ -280,7 +286,11 @@ static void SetMenu(int id)
 				LoadVmcTexture(128, 128, getIconPS2(selected_entry->dir_name, strrchr(selected_entry->path, '\n')+1));
 
 			else if (selected_entry->flags & SAVE_FLAG_VMC && selected_entry->type == FILE_TYPE_PS1)
-				LoadVmcTexture(16, 16, getIconRGBA(selected_entry->dir_name[0], 0));
+			{
+				LoadVmcTexture(16, 16, getIconRGBA(selected_entry->blocks, 0));
+				menu_textures[icon_png_file_index].width = 128;
+				menu_textures[icon_png_file_index].height = 128;
+			}
 
 			else if (selected_entry->flags & SAVE_FLAG_HDD)
 				snprintf(iconfile, sizeof(iconfile), PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
@@ -408,7 +418,7 @@ static void doSaveMenu(save_list_t * save_list)
 
 				if (selected_entry->flags & SAVE_FLAG_PS1)
 				{
-					strncpy(vmc1_saves.path, selected_entry->path, sizeof(vmc1_saves.path));
+					strncpy(vmc1_saves.path, tmp_path, sizeof(vmc1_saves.path));
 					SetMenu(MENU_PS1VMC_SAVES);
 				}
 				else

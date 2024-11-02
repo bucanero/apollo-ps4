@@ -1016,8 +1016,10 @@ static void add_vmc_import_saves(list_t* list, const char* path, const char* fol
 	closedir(d);
 }
 
-static void read_vmc1_files(const char* vmcPath, list_t* list)
+static void read_vmc1_files(const char* vmcPath, const save_entry_t* parent, list_t* list)
 {
+	uint64_t size;
+	char filePath[256];
 	save_entry_t *item;
 	DIR *d;
 	struct dirent *dir;
@@ -1033,13 +1035,45 @@ static void read_vmc1_files(const char* vmcPath, list_t* list)
 			!endsWith(dir->d_name, ".VMC") && !endsWith(dir->d_name, ".BIN") && !endsWith(dir->d_name, ".SRM"))
 			continue;
 
+		snprintf(filePath, sizeof(filePath), "%s%s", vmcPath, dir->d_name);
+		get_file_size(filePath, &size);
+
+		LOG("Checking %s...", filePath);
+		switch (size)
+		{
+		case PS1CARD_SIZE:
+		case 0x20040:
+		case 0x20080:
+		case 0x200A0:
+		case 0x20F40:
+			break;
+		
+		default:
+			continue;
+		}
+
 		item = _createSaveEntry(SAVE_FLAG_PS1 | SAVE_FLAG_VMC, dir->d_name);
 		item->type = FILE_TYPE_VMC;
-		item->title_id = strdup("VMC");
-		item->dir_name = strdup(VMC_PS1_PATH_USB);
-		asprintf(&item->path, "%s%s", vmcPath, dir->d_name);
-		list_append(list, item);
 
+		if (parent)
+		{
+			item->flags |= (parent->flags & SAVE_FLAG_HDD);
+			item->path = strdup((parent->flags & SAVE_FLAG_HDD) ? dir->d_name : vmcPath);
+			item->dir_name = strdup((parent->flags & SAVE_FLAG_HDD) ? parent->dir_name : VMC_PS1_PATH_USB);
+			item->title_id = strdup(parent->title_id);
+			item->blocks = parent->blocks;
+
+			free(item->name);
+			asprintf(&item->name, "%s - %s", parent->name, dir->d_name);
+		}
+		else
+		{
+			item->title_id = strdup("VMC");
+			item->dir_name = strdup(VMC_PS1_PATH_USB);
+			asprintf(&item->path, "%s%s", vmcPath, dir->d_name);
+		}
+
+		list_append(list, item);
 		LOG("[%s] F(%X) name '%s'", item->path, item->flags, item->name);
 	}
 
@@ -1824,7 +1858,7 @@ static void read_vmc2_files(const char* userPath, const save_entry_t* parent, li
 		snprintf(psvPath, sizeof(psvPath), "%s%s", userPath, dir->d_name);
 		get_file_size(psvPath, &size);
 
-		LOG("Adding %s...", psvPath);
+		LOG("Checking %s...", psvPath);
 		if (size % 0x840000 != 0 && size % 0x800000 != 0)
 			continue;
 
@@ -1879,6 +1913,7 @@ static void read_inner_vmc2_files(list_t *list)
 			snprintf(save_path, sizeof(save_path), "%s", item->path);
 
 		read_vmc2_files(save_path, item, list);
+		read_vmc1_files(save_path, item, list);
 
 		if (item->flags & SAVE_FLAG_HDD)
 			orbis_SaveUmount(mount);
@@ -1939,6 +1974,9 @@ list_t * ReadUsbList(const char* userPath)
 
 	snprintf(path, sizeof(path), "%s%s", userPath, VMC_PS2_PATH_USB);
 	read_vmc2_files(path, NULL, list);
+
+	snprintf(path, sizeof(path), "%s%s", userPath, VMC_PS1_PATH_USB);
+	read_vmc1_files(path, NULL, list);
 
 	return list;
 }
@@ -2154,7 +2192,7 @@ list_t * ReadVmc1List(const char* userPath)
 
 	for (int i = 0; i <= MAX_USB_DEVICES; i++)
 	{
-		snprintf(filePath, sizeof(filePath), USB_PATH, i);
+		snprintf(filePath, sizeof(filePath), USB_PATH PS1_SAVES_PATH_USB, i);
 		if (i && dir_exists(filePath) != SUCCESS)
 			continue;
 
@@ -2176,9 +2214,9 @@ list_t * ReadVmc1List(const char* userPath)
 		char* tmp = sjis2utf8(mcdata[i].saveTitle);
 		item = _createSaveEntry(SAVE_FLAG_PS1 | SAVE_FLAG_VMC, tmp);
 		item->type = FILE_TYPE_PS1;
+		item->blocks = i;
 		item->title_id = strdup(mcdata[i].saveProdCode);
-		//hack to keep the save block
-		asprintf(&item->dir_name, "%c%s", i, mcdata[i].saveName);
+		item->dir_name =  strdup(mcdata[i].saveName);
 		asprintf(&item->path, "%s\n%s", userPath, mcdata[i].saveName);
 		free(tmp);
 
@@ -2375,6 +2413,19 @@ int get_save_details(const save_entry_t* save, char **details)
 	char sfoPath[256];
 	sqlite3 *db;
 	sqlite3_stmt *res;
+
+	if(save->type == FILE_TYPE_PS1)
+	{
+		asprintf(details, "%s\n\n----- PS1 Save -----\n"
+			"Game: %s\n"
+			"Title ID: %s\n"
+			"File: %s\n",
+			save->path,
+			save->name,
+			save->title_id,
+			save->dir_name);
+		return 1;
+	}
 
 	if(save->type == FILE_TYPE_PS2)
 	{

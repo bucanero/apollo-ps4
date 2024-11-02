@@ -48,13 +48,20 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Account activation:** create fake Account IDs and generate offline PS4 activations
 * **Recover passcode:** simple recovery method for the Parental Security Passcode.
 
+## PS1 Virtual Memory Card Management
+
+* **VMC saves management:** quick access to all save files on Virtual Memory Cards images.
+  - Supported PS1 VMC formats: `.VMP`, `.MCR`, `.VM1`, `.BIN`, `.VMC`, `.GME`, `.VGS`, `.SRM`, `.MCD`
+* **Import PS1 saves:** import saves to VMCs from other systems and consoles (`.MCS`, `.PSV`, `.PSX`, `.PS1`, `.MCB`, `.PDA` supported).
+* **Export PS1 saves:** allows the user export saves on VMC images to `.MCS`/`.PSV`/`.PSX` formats.
+
 ## PS2 Virtual Memory Card Management
 
 * **VMC saves management:** quick access to all save files on Virtual Memory Cards images.
   - Supported PS2 VMC formats: `.VM2`, `.CARD`, `.PS2`, `.VMC`, `.BIN`
   - Supports ECC and non-ECC images
-* **VMC saves import:** import saves to VMCs from other systems and consoles (`.PSU`, `.PSV`, `.XPS`, `.CBS`, `.MAX`, `.SPS` supported).
-* **VMC saves export:** allows the user export saves on VMC images to `.PSU` and `.PSV` formats
+* **Import PS2 saves:** import saves to VMCs from other systems and consoles (`.PSU`, `.PSV`, `.XPS`, `.CBS`, `.MAX`, `.SPS` supported).
+* **Export PS2 saves:** allows the user export saves on VMC images to `.PSU` and `.PSV` formats
 
 # Download
 
@@ -153,6 +160,8 @@ Currently, the list of available games and files is limited, but the project aim
 * [Berion](https://www.psx-place.com/members/berion.1431/): GUI design
 * [flatz](https://github.com/flatz): [SFO tools](https://github.com/bucanero/pfd_sfo_tools/)
 * [aldostools](https://aldostools.org/): [Bruteforce Save Data](https://bruteforcesavedata.forumms.net/)
+* [jimmikaelkael](https://github.com/jimmikaelkael): ps3mca tool
+* [ShendoXT](https://github.com/ShendoXT): [MemcardRex](https://github.com/ShendoXT/memcardrex)
 * [Nobody/Wild Light](https://github.com/nobodo): [Background music track](https://github.com/bucanero/apollo-vita/blob/main/data/haiku.s3m)
 
 # Building

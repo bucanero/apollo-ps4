@@ -618,8 +618,8 @@ s32 main(s32 argc, const char* argv[])
 
 	if (apollo_config.dbglog)
 	{
-		dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 1);
-		notify_popup(NOTIFICATION_ICON_DEFAULT, "Debug Logging Enabled:\n%s", APOLLO_PATH "apollo.log");
+		dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 0);
+		notify_popup(NOTIFICATION_ICON_DEFAULT, "Debug Logging Enabled\n%s", APOLLO_PATH "apollo.log");
 	}
 
 	// Unpack application data on first run

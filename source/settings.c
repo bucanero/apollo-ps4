@@ -223,12 +223,12 @@ static void log_callback(int sel)
     if (!apollo_config.dbglog)
 	{
 		dbglogger_stop();
-		show_message("Debug Logging Disabled!");
+		show_message("Debug Logging Disabled");
 		return;
 	}
 
-	dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 1);
-	show_message("Debug Logging Enabled!\n\n" APOLLO_PATH "apollo.log");
+	dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 0);
+	show_message("Debug Logging Enabled\n\n%s", APOLLO_PATH "apollo.log");
 }
 
 int save_app_settings(app_config_t* config)

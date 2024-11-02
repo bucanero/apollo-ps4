@@ -43,9 +43,28 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Account activation:** create fake Account IDs and generate offline PS4 activations
 * **Recover passcode:** simple recovery method for the Parental Security Passcode.
 
+## PS2 Virtual Memory Card Management
+
+* **VMC saves management:** quick access to all save files on Virtual Memory Cards images.
+  - Supported PS2 VMC formats: `.VM2`, `.CARD`, `.PS2`, `.VMC`, `.BIN`
+  - Supports ECC and non-ECC images
+* **VMC saves import:** import saves to VMCs from other systems and consoles (`.PSU`, `.PSV`, `.XPS`, `.CBS`, `.MAX`, `.SPS` supported).
+* **VMC saves export:** allows the user export saves on VMC images to `.PSU` and `.PSV` formats
+
 # Download
 
 Get the [latest version here][app_latest].
+
+<details>
+<summary>Nightly Builds (Click to Expand)</summary>
+
+- Login to GitHub [(this is required to download artifacts)](https://docs.github.com/en/actions/managing-workflow-runs/downloading-workflow-artifacts#:~:text=Who%20can%20use,download%20workflow%20artifacts.).
+- Click on a build in the **[Actions](https://github.com/bucanero/apollo-ps4/actions)** Tab.
+  - ![image](https://github.com/bucanero/apollo-ps4/assets/37698908/2e52961b-04ef-42f1-9453-78b3ceb24afc)
+- Click on the artifact to download the pkg zip.
+  - ![image](https://github.com/bucanero/apollo-ps4/assets/37698908/aaeb523e-eab9-43f7-a993-5fa902ada1b7)
+
+</details>
 
 ## Changelog
 
@@ -72,6 +91,17 @@ On first run, the application will detect and setup the required user settings.
 | **External saves (HDD)** | encrypted saves must be placed on `/data/fakeusb/PS4/SAVEDATA/<account-id>/`. |
 | **HDD saves** | files will be scanned from the hard disk, based on the current `User ID`. |
 
+### PS2
+
+| PS2 | Folder |
+|-----|--------|
+| **USB saves** | `/mnt/usbX/PS2/SAVEDATA/` (`*.xps`, `*.max`, `*.psu`, `*.cbs`, `*.psv`, `*.sps`) |
+| **VMC cards** | `/mnt/usbX/PS2/VMC/` (`*.vmc`, `*.card`, `*.vm2`, `*.ps2`, `*.bin`) |
+| **PSV saves** | `/mnt/usbX/PS3/EXPORT/PSV/` |
+| **External saves (HDD)** | `/data/fakeusb/PS2/SAVEDATA/` |
+| **External VMCs (HDD)** | `/data/fakeusb/PS2/VMC/` |
+| **HDD VMC cards** | VMCs will be scanned from PS4 saves on the hard disk |
+
 ## Offline Account activation
 
 To activate an account offline, go to the `User Tools` menu, and select `Activate PS4 Accounts`.
@@ -80,7 +110,7 @@ This default account value can be edited using the on-screen keyboard.
 
 # Usage
 
-Using the application is simple and straight-forward: 
+Using the application is simple and straight-forward:
 
  - Move <kbd>UP</kbd>/<kbd>DOWN</kbd> to select the save-game file you want to patch, and press ![X button](https://github.com/bucanero/pkgi-ps3/raw/master/data/CROSS.png). The patch screen will show the available fixes for the file. Select the patches and click `Apply`.
  - To view the item's details, press ![Triangle](https://github.com/bucanero/pkgi-ps3/raw/master/data/TRIANGLE.png).

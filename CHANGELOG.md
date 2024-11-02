@@ -4,6 +4,33 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+---
+
+## [v1.6.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.6.0) - 2024-11-02
+
+### Added
+
+* 7.0x/8.0x/8.5x/9.0x/9.5x/10.50/10.7x firmware support (thanks to @BestPig)
+  - GoldHEN or ps4debug payload is required
+* Manage PS2 Virtual Memory Card images (VMC)
+  - Supports PS2 MemCard images, ECC and non-ECC (`.PS2`, `.VM2`, `.CARD`, `.VMC`)
+  - List, import, export, and delete PS2 saves inside VMC images
+  - Import - Supported formats: `.PSU`, `.PSV`, `.XPS`, `.MAX`, `.CBS`, `.SPS`
+  - Export - Supported formats: `.PSU`, `.PSV`
+* Online DB: added PS2 saves listing
+* Save sorting option by Type (PS4/PS2/VMC)
+* Add Debug Log option in Settings (on/off)
+
+### Misc
+
+* Updated Apollo Patch Engine to v1.1.0
+  - Improve code parsing
+  - Improve SW Code Type 3 (Subtype 3/7/B/F)
+  - Improve SW Code Type 4 (Subtype 4/5/6/C/D/E)
+  - Add AES CBC encryption command (`aes_cbc(key, iv)`)
+
+---
+
 ## [v1.4.5](https://github.com/bucanero/apollo-ps4/releases/tag/v1.4.5) - 2024-06-29
 
 ### Added

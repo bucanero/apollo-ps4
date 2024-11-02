@@ -218,9 +218,9 @@ end_update:
 
 static void log_callback(int sel)
 {
-    apollo_config.dbglog = !sel;
+	apollo_config.dbglog = !sel;
 
-    if (!apollo_config.dbglog)
+	if (!apollo_config.dbglog)
 	{
 		dbglogger_stop();
 		show_message("Debug Logging Disabled");

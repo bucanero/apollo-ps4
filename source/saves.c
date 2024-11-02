@@ -2112,11 +2112,9 @@ list_t * ReadOnlineList(const char* urlPath)
 	snprintf(url, sizeof(url), "%s" "PS2/", urlPath);
 	_ReadOnlineListEx(url, SAVE_FLAG_PS2, list);
 
-/*
 	// PS1 save-games (Zip PSV)
-	//snprintf(url, sizeof(url), "%s" "PS1/", urlPath);
-	//_ReadOnlineListEx(url, SAVE_FLAG_PS1, list);
-*/
+	snprintf(url, sizeof(url), "%s" "PS1/", urlPath);
+	_ReadOnlineListEx(url, SAVE_FLAG_PS1, list);
 
 	if (!list_count(list))
 	{

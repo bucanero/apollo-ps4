@@ -139,6 +139,19 @@ save_list_t user_backup = {
 };
 
 /*
+* PS1 VMC list
+*/
+save_list_t vmc1_saves = {
+    .icon_id = cat_usb_png_index,
+    .title = "PS1 Virtual Memory Card",
+    .list = NULL,
+    .path = "",
+    .ReadList = &ReadVmc1List,
+    .ReadCodes = &ReadVmc1Codes,
+    .UpdatePath = &update_vmc_path,
+};
+
+/*
 * PS2 VMC list
 */
 save_list_t vmc2_saves = {
@@ -450,7 +463,7 @@ void update_vmc_path(char* path)
 static void registerSpecialChars(void)
 {
 	// Register save tags
-	RegisterSpecialCharacter(CHAR_TAG_PS1, 2, 1.5, &menu_textures[tag_ps1_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_PS1, 0, 1.5, &menu_textures[tag_ps1_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PS2, 0, 1.5, &menu_textures[tag_ps2_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PS3, 2, 1.5, &menu_textures[tag_ps3_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PS4, 2, 1.5, &menu_textures[tag_ps4_png_index]);

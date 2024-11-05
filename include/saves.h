@@ -35,9 +35,6 @@
 #define PS2_SAVES_PATH_HDD      "ps2emu2_savedata/"
 #define PSP_SAVES_PATH_HDD      "minis_savedata/"
 
-#define PS1_IMP_PATH_USB        "PS1/SAVEDATA/"
-#define PS2_IMP_PATH_USB        "PS2/SAVEDATA/"
-
 #define SAVES_PATH_USB0         USB0_PATH PS4_SAVES_PATH_USB
 #define SAVES_PATH_USB1         USB1_PATH PS4_SAVES_PATH_USB
 
@@ -54,7 +51,7 @@
 #define EXP_PSV_PATH_USB1       USB1_PATH PSV_SAVES_PATH_USB
 
 #define VMC_PS2_PATH_USB        "PS2/VMC/"
-#define VMC_PS2_PATH_HDD        "/dev_hdd0/savedata/vmc/"
+#define VMC_PS1_PATH_USB        "PS1/VMC/"
 
 #define IMP_PS2VMC_PATH_USB     USB_PATH "PS2/VMC/"
 #define IMPORT_RAP_PATH_USB     USB_PATH PS3_LICENSE_PATH
@@ -115,8 +112,11 @@ enum cmd_code_enum
 // Export commands
     CMD_EXP_KEYSTONE,
     CMD_EXP_PS2_VM2,
+    CMD_EXP_PS2_RAW,
     CMD_EXP_VMC2SAVE,
-    CMD_EXP_VM2_RAW,
+    CMD_EXP_VMC1SAVE,
+    CMD_EXP_PS1_VMP,
+    CMD_EXP_PS1_VM1,
     CMD_EXP_DATABASE,
     CMD_DB_REBUILD,
     CMD_DB_DEL_FIX,
@@ -126,6 +126,7 @@ enum cmd_code_enum
     CMD_IMP_KEYSTONE,
     CMD_IMP_DATABASE,
     CMD_IMP_VMC2SAVE,
+    CMD_IMP_VMC1SAVE,
     CMD_CREATE_ACT_DAT,
     CMD_EXTRACT_ARCHIVE,
     CMD_URL_DOWNLOAD,
@@ -159,11 +160,15 @@ enum save_type_enum
     FILE_TYPE_NULL,
     FILE_TYPE_MENU,
     FILE_TYPE_PS4,
-    FILE_TYPE_PSV,
     FILE_TYPE_TRP,
     FILE_TYPE_VMC,
 
     // PS1 File Types
+    FILE_TYPE_PS1,
+    FILE_TYPE_PSX,
+    FILE_TYPE_MCS,
+
+    // Misc
     FILE_TYPE_ZIP,
     FILE_TYPE_SQL,
     FILE_TYPE_NET,
@@ -179,7 +184,7 @@ enum save_type_enum
     FILE_TYPE_MAX,
     FILE_TYPE_CBS,
     FILE_TYPE_XPS,
-    FILE_TYPE_VM2,
+    FILE_TYPE_PSV,
 };
 
 enum char_flag_enum
@@ -259,6 +264,7 @@ list_t * ReadUserList(const char* userPath);
 list_t * ReadOnlineList(const char* urlPath);
 list_t * ReadBackupList(const char* userPath);
 list_t * ReadTrophyList(const char* userPath);
+list_t * ReadVmc1List(const char* userPath);
 list_t * ReadVmc2List(const char* userPath);
 void UnloadGameList(list_t * list);
 char * readTextFile(const char * path, long* size);
@@ -270,6 +276,7 @@ int ReadCodes(save_entry_t * save);
 int ReadTrophies(save_entry_t * game);
 int ReadOnlineSaves(save_entry_t * game);
 int ReadBackupCodes(save_entry_t * bup);
+int ReadVmc1Codes(save_entry_t * save);
 int ReadVmc2Codes(save_entry_t * save);
 
 int http_init(void);
@@ -318,6 +325,9 @@ int vmc_delete_save(const char* path);
 int ps2_xps2psv(const char *save, const char *psv_path);
 int ps2_cbs2psv(const char *save, const char *psv_path);
 int ps2_max2psv(const char *save, const char *psv_path);
+
+int psv_resign(const char *src_psv);
+int vmp_resign(const char *src_vmp);
 
 char* sjis2utf8(char* input);
 uint8_t* getIconPS2(const char* folder, const char* iconfile);

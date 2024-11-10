@@ -795,6 +795,26 @@ static void exportVmcSave(const save_entry_t* save, int type, int dst_id)
 		show_message("Error exporting save:\n%s", save->path);
 }
 
+static void export_ps1vmc(const char* vm1_file, int dst, int vmp)
+{
+	char dstfile[256];
+	char dst_path[256];
+
+	_set_dest_path(dst_path, dst, VMC_PS1_PATH_USB);
+	if (mkdirs(dst_path) != SUCCESS)
+	{
+		show_message("Error! Export folder is not available:\n%s", dst_path);
+		return;
+	}
+
+	snprintf(dstfile, sizeof(dstfile), "%s%s.%s", dst_path, vm1_file, vmp ? "VMP" : "VM1");
+
+	if (saveMemoryCard(dstfile, vmp ? PS1CARD_VMP : PS1CARD_RAW, 0))
+		show_message("Memory card successfully exported to:\n%s", dstfile);
+	else
+		show_message("Error! Failed to export PS1 memory card");
+}
+
 static void export_vmc2save(const save_entry_t* save, int type, int dst_id)
 {
 	int ret = 0;
@@ -1484,6 +1504,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 				show_message("Error! Couldn't import save:\n%s", code->file);
 
 			selected_entry->flags |= SAVE_FLAG_UPDATED;
+			code->activated = 0;
+			break;
+
+		case CMD_EXP_PS1_VM1:
+		case CMD_EXP_PS1_VMP:
+			export_ps1vmc(code->file, codecmd[1], codecmd[0] == CMD_EXP_PS1_VMP);
 			code->activated = 0;
 			break;
 

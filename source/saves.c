@@ -1016,70 +1016,6 @@ static void add_vmc_import_saves(list_t* list, const char* path, const char* fol
 	closedir(d);
 }
 
-static void read_vmc1_files(const char* vmcPath, const save_entry_t* parent, list_t* list)
-{
-	uint64_t size;
-	char filePath[256];
-	save_entry_t *item;
-	DIR *d;
-	struct dirent *dir;
-
-	d = opendir(vmcPath);
-	if (!d)
-		return;
-
-	while ((dir = readdir(d)) != NULL)
-	{
-		if (!endsWith(dir->d_name, ".VMP") && !endsWith(dir->d_name, ".MCR") && !endsWith(dir->d_name, ".GME") &&
-			!endsWith(dir->d_name, ".VM1") && !endsWith(dir->d_name, ".MCD") && !endsWith(dir->d_name, ".VGS") &&
-			!endsWith(dir->d_name, ".VMC") && !endsWith(dir->d_name, ".BIN") && !endsWith(dir->d_name, ".SRM"))
-			continue;
-
-		snprintf(filePath, sizeof(filePath), "%s%s", vmcPath, dir->d_name);
-		get_file_size(filePath, &size);
-
-		LOG("Checking %s...", filePath);
-		switch (size)
-		{
-		case PS1CARD_SIZE:
-		case 0x20040:
-		case 0x20080:
-		case 0x200A0:
-		case 0x20F40:
-			break;
-		
-		default:
-			continue;
-		}
-
-		item = _createSaveEntry(SAVE_FLAG_PS1 | SAVE_FLAG_VMC, dir->d_name);
-		item->type = FILE_TYPE_VMC;
-
-		if (parent)
-		{
-			item->flags |= (parent->flags & SAVE_FLAG_HDD);
-			item->path = strdup((parent->flags & SAVE_FLAG_HDD) ? dir->d_name : vmcPath);
-			item->dir_name = strdup((parent->flags & SAVE_FLAG_HDD) ? parent->dir_name : VMC_PS1_PATH_USB);
-			item->title_id = strdup(parent->title_id);
-			item->blocks = parent->blocks;
-
-			free(item->name);
-			asprintf(&item->name, "%s - %s", parent->name, dir->d_name);
-		}
-		else
-		{
-			item->title_id = strdup("VMC");
-			item->dir_name = strdup(VMC_PS1_PATH_USB);
-			asprintf(&item->path, "%s%s", vmcPath, dir->d_name);
-		}
-
-		list_append(list, item);
-		LOG("[%s] F(%X) name '%s'", item->path, item->flags, item->name);
-	}
-
-	closedir(d);
-}
-
 int ReadVmc1Codes(save_entry_t * save)
 {
 	code_entry_t * cmd;
@@ -1837,13 +1773,14 @@ static void read_hdd_savegames(const char* userPath, list_t *list, sqlite3 *appd
 	sqlite3_close(db);
 }
 
-static void read_vmc2_files(const char* userPath, const save_entry_t* parent, list_t *list)
+static void scan_vmc_files(const char* userPath, const save_entry_t* parent, list_t *list)
 {
 	DIR *d;
 	struct dirent *dir;
 	save_entry_t *item;
 	char psvPath[256];
 	uint64_t size;
+	uint16_t flag;
 
 	d = opendir(userPath);
 	if (!d)
@@ -1851,18 +1788,44 @@ static void read_vmc2_files(const char* userPath, const save_entry_t* parent, li
 
 	while ((dir = readdir(d)) != NULL)
 	{
-		if (dir->d_type != DT_REG || !(endsWith(dir->d_name, ".VMC") || endsWith(dir->d_name, ".VM2") || 
-			endsWith(dir->d_name, ".BIN") || endsWith(dir->d_name, ".PS2")|| endsWith(dir->d_name, ".CARD")))
+		if (dir->d_type != DT_REG || !(endsWith(dir->d_name, ".CARD") || endsWith(dir->d_name, ".VM2") || 
+			endsWith(dir->d_name, ".BIN") || endsWith(dir->d_name, ".PS2") || endsWith(dir->d_name, ".VMC") ||
+			// PS1 VMCs
+			endsWith(dir->d_name, ".MCD") || endsWith(dir->d_name, ".MCR") || endsWith(dir->d_name, ".GME") ||
+			endsWith(dir->d_name, ".VM1") || endsWith(dir->d_name, ".VMP") || endsWith(dir->d_name, ".VGS") ||
+			endsWith(dir->d_name, ".SRM")))
 			continue;
 
 		snprintf(psvPath, sizeof(psvPath), "%s%s", userPath, dir->d_name);
 		get_file_size(psvPath, &size);
 
 		LOG("Checking %s...", psvPath);
-		if (size % 0x840000 != 0 && size % 0x800000 != 0)
-			continue;
+		switch (size)
+		{
+		case PS1CARD_SIZE:
+		case 0x20040:
+		case 0x20080:
+		case 0x200A0:
+		case 0x20F40:
+			flag = SAVE_FLAG_PS1;
+			break;
 
-		item = _createSaveEntry(SAVE_FLAG_PS2 | SAVE_FLAG_VMC, dir->d_name);
+		case 0x800000:
+		case 0x840000:
+		case 0x1000000:
+		case 0x1080000:
+		case 0x2000000:
+		case 0x2100000:
+		case 0x4000000:
+		case 0x4200000:
+			flag = SAVE_FLAG_PS2;
+			break;
+
+		default:
+			continue;
+		}
+
+		item = _createSaveEntry(flag | SAVE_FLAG_VMC, dir->d_name);
 		item->type = FILE_TYPE_VMC;
 
 		if (parent)
@@ -1912,8 +1875,7 @@ static void read_inner_vmc2_files(list_t *list)
 		else
 			snprintf(save_path, sizeof(save_path), "%s", item->path);
 
-		read_vmc2_files(save_path, item, list);
-		read_vmc1_files(save_path, item, list);
+		scan_vmc_files(save_path, item, list);
 
 		if (item->flags & SAVE_FLAG_HDD)
 			orbis_SaveUmount(mount);
@@ -1973,10 +1935,10 @@ list_t * ReadUsbList(const char* userPath)
 	read_usb_encrypted_savegames(path, list);
 
 	snprintf(path, sizeof(path), "%s%s", userPath, VMC_PS2_PATH_USB);
-	read_vmc2_files(path, NULL, list);
+	scan_vmc_files(path, NULL, list);
 
 	snprintf(path, sizeof(path), "%s%s", userPath, VMC_PS1_PATH_USB);
-	read_vmc1_files(path, NULL, list);
+	scan_vmc_files(path, NULL, list);
 
 	return list;
 }
@@ -2125,22 +2087,6 @@ list_t * ReadOnlineList(const char* urlPath)
 	return list;
 }
 
-static void add_vmp_commands(save_entry_t* save)
-{
-	code_entry_t* cmd;
-
-	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Virtual Memory Card " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
-	list_append(save->codes, cmd);
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .VM1", CMD_EXP_PS1_VM1);
-	list_append(save->codes, cmd);
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .VMP", CMD_EXP_PS1_VMP);
-	list_append(save->codes, cmd);
-
-	return;
-}
-
 list_t * ReadVmc1List(const char* userPath)
 {
 	char filePath[256];
@@ -2178,10 +2124,28 @@ list_t * ReadVmc1List(const char* userPath)
 	cmd->options_count = 1;
 	cmd->options = _createOptions(2, "Copy all Saves to USB", CMD_EXP_ALL_SAVES_VMC);
 	list_append(item->codes, cmd);
-	add_vmp_commands(item);
+
+	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Virtual Memory Card " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	list_append(item->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .VM1 format", CMD_CODE_NULL);
+	cmd->file = strdup(strrchr(userPath, '/')+1);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(3, "Save .VM1 Memory Card to USB", CMD_EXP_PS1_VM1);
+	asprintf(&cmd->options->name[2], "Save .VM1 Memory Card to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_PS1_VM1, STORAGE_HDD);
+	list_append(item->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .VMP format", CMD_CODE_NULL);
+	cmd->file = strdup(strrchr(userPath, '/')+1);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(3, "Save .VMP Memory Card to USB", CMD_EXP_PS1_VMP);
+	asprintf(&cmd->options->name[2], "Save .VMP Memory Card to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_PS1_VMP, STORAGE_HDD);
+	list_append(item->codes, cmd);
 	list_append(list, item);
 
-	item = _createSaveEntry(SAVE_FLAG_PS1, CHAR_ICON_COPY " Import Saves to Virtual Card");
+	item = _createSaveEntry(SAVE_FLAG_PS1, CHAR_ICON_COPY " Import Saves to Virtual MemCard");
 	item->path = strdup(FAKE_USB_PATH);
 	item->title_id = strdup("HDD");
 	item->dir_name = strdup(userPath);
@@ -2194,7 +2158,7 @@ list_t * ReadVmc1List(const char* userPath)
 		if (i && dir_exists(filePath) != SUCCESS)
 			continue;
 
-		item = _createSaveEntry(SAVE_FLAG_PS1, CHAR_ICON_COPY " Import Saves to Virtual Card");
+		item = _createSaveEntry(SAVE_FLAG_PS1, CHAR_ICON_COPY " Import Saves to Virtual MemCard");
 		asprintf(&item->path, USB_PATH, i);
 		asprintf(&item->title_id, "USB %d", i);
 		item->dir_name = strdup(userPath);
@@ -2281,7 +2245,7 @@ list_t * ReadVmc2List(const char* userPath)
 	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_PS2_RAW, STORAGE_HDD);
 	list_append(item->codes, cmd);
 
-	item = _createSaveEntry(SAVE_FLAG_PS2, CHAR_ICON_COPY " Import Saves to Virtual Card");
+	item = _createSaveEntry(SAVE_FLAG_PS2, CHAR_ICON_COPY " Import Saves to Virtual MemCard");
 	item->path = strdup(FAKE_USB_PATH);
 	item->title_id = strdup("HDD");
 	item->type = FILE_TYPE_MENU;
@@ -2293,7 +2257,7 @@ list_t * ReadVmc2List(const char* userPath)
 		if (i && dir_exists(filePath) != SUCCESS)
 			continue;
 
-		item = _createSaveEntry(SAVE_FLAG_PS2, CHAR_ICON_COPY " Import Saves to Virtual Card");
+		item = _createSaveEntry(SAVE_FLAG_PS2, CHAR_ICON_COPY " Import Saves to Virtual MemCard");
 		asprintf(&item->path, USB_PATH, i);
 		asprintf(&item->title_id, "USB %d", i);
 		item->type = FILE_TYPE_MENU;

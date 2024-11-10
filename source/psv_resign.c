@@ -24,7 +24,7 @@
 #define PSV_TYPE_OFFSET 0x3C
 #define VMP_SEED_OFFSET 0x0C
 #define VMP_HASH_OFFSET 0x20
-#define VMP_MAGIC       0x00504D56
+#define VMP_MAGIC       0x564D5000
 #define VMP_SIZE        0x20080
 
 static const char SJIS_REPLACEMENT_TABLE[] = 

@@ -57,6 +57,7 @@ app_config_t apollo_config = {
     .doSort = 1,
     .doAni = 1,
     .update = 1,
+    .dbglog = 0,
     .usb_dev = 9,
     .user_id = 0,
     .psid = {0, 0},
@@ -135,6 +136,19 @@ save_list_t user_backup = {
     .ReadList = &ReadBackupList,
     .ReadCodes = &ReadBackupCodes,
     .UpdatePath = NULL,
+};
+
+/*
+* PS1 VMC list
+*/
+save_list_t vmc1_saves = {
+    .icon_id = cat_usb_png_index,
+    .title = "PS1 Virtual Memory Card",
+    .list = NULL,
+    .path = "",
+    .ReadList = &ReadVmc1List,
+    .ReadCodes = &ReadVmc1Codes,
+    .UpdatePath = &update_vmc_path,
 };
 
 /*
@@ -449,7 +463,7 @@ void update_vmc_path(char* path)
 static void registerSpecialChars(void)
 {
 	// Register save tags
-	RegisterSpecialCharacter(CHAR_TAG_PS1, 2, 1.5, &menu_textures[tag_ps1_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_PS1, 0, 1.5, &menu_textures[tag_ps1_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PS2, 0, 1.5, &menu_textures[tag_ps2_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PS3, 2, 1.5, &menu_textures[tag_ps3_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PS4, 2, 1.5, &menu_textures[tag_ps4_png_index]);
@@ -615,13 +629,19 @@ s32 main(s32 argc, const char* argv[])
 	// Load application settings
 	load_app_settings(&apollo_config);
 
+	if (apollo_config.dbglog)
+	{
+		dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 0);
+		notify_popup(NOTIFICATION_ICON_DEFAULT, "Debug Logging Enabled\n%s", APOLLO_PATH "apollo.log");
+	}
+
 	// Unpack application data on first run
 	if (strncmp(apollo_config.app_ver, APOLLO_VERSION, sizeof(apollo_config.app_ver)) != 0)
 	{
 		LOG("Unpacking application data...");
 //		clean_directory(APOLLO_DATA_PATH);
 		if (extract_zip(APOLLO_APP_PATH "misc/appdata.zip", APOLLO_DATA_PATH))
-			show_message("Successfully installed local application data");
+			notify_popup(NOTIFICATION_ICON_DEFAULT, "Successfully installed local application data");
 
 		strncpy(apollo_config.app_ver, APOLLO_VERSION, sizeof(apollo_config.app_ver));
 		save_app_settings(&apollo_config);

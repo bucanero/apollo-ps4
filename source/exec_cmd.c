@@ -14,6 +14,7 @@
 #include "util.h"
 #include "sfo.h"
 #include "mcio.h"
+#include "ps1card.h"
 
 static char host_buf[256];
 
@@ -42,7 +43,7 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 {
 	char path[256];
 
-	_set_dest_path(path, dst, (entry->flags & SAVE_FLAG_PS4) ? PS4_SAVES_PATH_USB : PS2_SAVES_PATH_USB);
+	_set_dest_path(path, dst, (entry->flags & SAVE_FLAG_PS4) ? PS4_SAVES_PATH_USB : PSV_SAVES_PATH_USB);
 	if (mkdirs(path) != SUCCESS)
 	{
 		show_message("Error! Export folder is not available:\n%s", path);
@@ -750,7 +751,7 @@ static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
 	list_t *list = ((void**)save->dir_name)[0];
 
 	init_progress_bar("Exporting all VMC saves...");
-	_set_dest_path(outPath, dev, PS1_IMP_PATH_USB);
+	_set_dest_path(outPath, dev, PS1_SAVES_PATH_USB);
 	mkdirs(outPath);
 
 	LOG("Exporting all saves from '%s' to %s...", save->path, outPath);
@@ -760,8 +761,8 @@ static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
 		if (!all && !(item->flags & SAVE_FLAG_SELECTED))
 			continue;
 
-//		if (item->type == FILE_TYPE_PS1)
-//			(saveSingleSave(outPath, save->dir_name[0], PS1SAVE_PSV) ? done++ : err_count++);
+		if (item->type == FILE_TYPE_PS1)
+			(saveSingleSave(outPath, save->blocks, PS1SAVE_PSV) ? done++ : err_count++);
 
 		if (item->type == FILE_TYPE_PS2)
 			(vmc_export_psv(item->dir_name, outPath) ? done++ : err_count++);
@@ -772,13 +773,55 @@ static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
 	show_message("%d/%d Saves exported to\n%s", done, done+err_count, outPath);
 }
 
+static void exportVmcSave(const save_entry_t* save, int type, int dst_id)
+{
+	char outPath[256];
+	struct tm t;
+
+	_set_dest_path(outPath, dst_id, (type == PS1SAVE_PSV) ? PSV_SAVES_PATH_USB : PS1_SAVES_PATH_USB);
+	mkdirs(outPath);
+	if (type != PS1SAVE_PSV)
+	{
+		// build file path
+		gmtime_r(&(time_t){time(NULL)}, &t);
+		sprintf(strrchr(outPath, '/'), "/%s_%d-%02d-%02d_%02d%02d%02d.%s", save->title_id,
+			t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec,
+			(type == PS1SAVE_MCS) ? "mcs" : "psx");
+	}
+
+	if (saveSingleSave(outPath, save->blocks, type))
+		show_message("Save successfully exported to:\n%s", outPath);
+	else
+		show_message("Error exporting save:\n%s", save->path);
+}
+
+static void export_ps1vmc(const char* vm1_file, int dst, int vmp)
+{
+	char dstfile[256];
+	char dst_path[256];
+
+	_set_dest_path(dst_path, dst, VMC_PS1_PATH_USB);
+	if (mkdirs(dst_path) != SUCCESS)
+	{
+		show_message("Error! Export folder is not available:\n%s", dst_path);
+		return;
+	}
+
+	snprintf(dstfile, sizeof(dstfile), "%s%s.%s", dst_path, vm1_file, vmp ? "VMP" : "VM1");
+
+	if (saveMemoryCard(dstfile, vmp ? PS1CARD_VMP : PS1CARD_RAW, 0))
+		show_message("Memory card successfully exported to:\n%s", dstfile);
+	else
+		show_message("Error! Failed to export PS1 memory card");
+}
+
 static void export_vmc2save(const save_entry_t* save, int type, int dst_id)
 {
 	int ret = 0;
 	char outPath[256];
 	struct tm t;
 
-	_set_dest_path(outPath, dst_id, (type == FILE_TYPE_PSV) ? PSV_SAVES_PATH_USB : PS2_IMP_PATH_USB);
+	_set_dest_path(outPath, dst_id, (type == FILE_TYPE_PSV) ? PSV_SAVES_PATH_USB : PS2_SAVES_PATH_USB);
 	mkdirs(outPath);
 	if (type != FILE_TYPE_PSV)
 	{
@@ -851,7 +894,7 @@ static void deleteVmcSave(const save_entry_t* save)
 	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to delete %s?", save->dir_name))
 		return;
 
-	if ((save->flags & SAVE_FLAG_PS1) ? /*formatSave(save->dir_name[0])*/0 : vmc_delete_save(save->dir_name))
+	if ((save->flags & SAVE_FLAG_PS1) ? formatSave(save->blocks) : vmc_delete_save(save->dir_name))
 		show_message("Save successfully deleted:\n%s", save->dir_name);
 	else
 		show_message("Error! Couldn't delete save:\n%s", save->dir_name);
@@ -1444,8 +1487,29 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_EXP_PS2_VM2:
-		case CMD_EXP_VM2_RAW:
+		case CMD_EXP_PS2_RAW:
 			exportVM2raw(code->file, codecmd[1], codecmd[0] == CMD_EXP_PS2_VM2);
+			code->activated = 0;
+			break;
+
+		case CMD_EXP_VMC1SAVE:
+			exportVmcSave(selected_entry, code->options[0].id, codecmd[1]);
+			code->activated = 0;
+			break;
+
+		case CMD_IMP_VMC1SAVE:
+			if (openSingleSave(code->file, (int*) host_buf))
+				show_message("Save successfully imported:\n%s", code->file);
+			else
+				show_message("Error! Couldn't import save:\n%s", code->file);
+
+			selected_entry->flags |= SAVE_FLAG_UPDATED;
+			code->activated = 0;
+			break;
+
+		case CMD_EXP_PS1_VM1:
+		case CMD_EXP_PS1_VMP:
+			export_ps1vmc(code->file, codecmd[1], codecmd[0] == CMD_EXP_PS1_VMP);
 			code->activated = 0;
 			break;
 

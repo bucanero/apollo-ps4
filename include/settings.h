@@ -1,4 +1,4 @@
-#define APOLLO_VERSION          "1.6.0"     //Apollo PS4 version (about menu)
+#define APOLLO_VERSION          "1.7.0"     //Apollo PS4 version (about menu)
 
 #define MENU_TITLE_OFF			45			//Offset of menu title text from menu mini icon
 #define MENU_ICON_OFF 			105         //X Offset to start printing menu mini icon
@@ -33,6 +33,7 @@ typedef struct
     uint8_t doAni;
     uint8_t update;
     uint8_t usb_dev;
+    uint8_t dbglog;
     uint32_t user_id;
     uint64_t psid[2];
     uint64_t account_id;

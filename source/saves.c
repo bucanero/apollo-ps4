@@ -559,7 +559,7 @@ static code_entry_t* _createCmdCode(uint8_t type, const char* name, char code)
 {
 	code_entry_t* entry = (code_entry_t *)calloc(1, sizeof(code_entry_t));
 	entry->type = type;
-	entry->name = strdup(name);
+	entry->name = name ? strdup(name) : NULL;
 	asprintf(&entry->codes, "%c", code);
 
 	return entry;
@@ -1004,7 +1004,7 @@ static void add_vmc_import_saves(list_t* list, const char* path, const char* fol
 				continue;
 		}
 
-		snprintf(psvPath, sizeof(psvPath), "%s %s", CHAR_ICON_COPY, dir->d_name);
+		snprintf(psvPath, sizeof(psvPath), CHAR_ICON_COPY "%c %s", CHAR_TAG_PS1, dir->d_name);
 		cmd = _createCmdCode(PATCH_COMMAND, psvPath, CMD_IMP_VMC1SAVE);
 		asprintf(&cmd->file, "%s%s%s", path, folder, dir->d_name);
 		cmd->codes[1] = FILE_TYPE_PS1;
@@ -1082,7 +1082,8 @@ static void add_vmc2_import_saves(list_t* list, const char* path, const char* fo
 	DIR *d;
 	struct dirent *dir;
 	char psvPath[256];
-	int type;
+	char data[64];
+	int type, toff;
 
 	snprintf(psvPath, sizeof(psvPath), "%s%s", path, folder);
 	d = opendir(psvPath);
@@ -1102,28 +1103,34 @@ static void add_vmc2_import_saves(list_t* list, const char* path, const char* fo
 			if (read_file(psvPath, (uint8_t*) psvPath, 0x40) < 0 || psvPath[0x3C] != 0x02)
 				continue;
 
-//			toff = 0x80;
+			toff = 0x80;
 			type = FILE_TYPE_PSV;
 		}
 		else if (endsWith(dir->d_name, ".PSU"))
 		{
-//			toff = 0x40;
+			toff = 0x40;
 			type = FILE_TYPE_PSU;
 		}
 		else if (endsWith(dir->d_name, ".CBS"))
+		{
+			toff = 0x14;
 			type = FILE_TYPE_CBS;
-
+		}
 		else if (endsWith(dir->d_name, ".XPS") || endsWith(dir->d_name, ".SPS"))
+		{
+			toff = 0x02;
 			type = FILE_TYPE_XPS;
-
+		}
 		else if (endsWith(dir->d_name, ".MAX"))
+		{
+			toff = 0x10;
 			type = FILE_TYPE_MAX;
+		}
 		else continue;
 
 		snprintf(psvPath, sizeof(psvPath), "%s%s%s", path, folder, dir->d_name);
 		LOG("Reading %s...", psvPath);
 
-/*
 		FILE *fp = fopen(psvPath, "rb");
 		if (!fp) {
 			LOG("Unable to open '%s'", psvPath);
@@ -1132,12 +1139,11 @@ static void add_vmc2_import_saves(list_t* list, const char* path, const char* fo
 		fseek(fp, toff, SEEK_SET);
 		fread(data, 1, sizeof(data), fp);
 		fclose(fp);
-*/
 
-		cmd = _createCmdCode(PATCH_COMMAND, psvPath, CMD_IMP_VMC2SAVE);
+		cmd = _createCmdCode(PATCH_COMMAND, NULL, CMD_IMP_VMC2SAVE);
 		cmd->file = strdup(psvPath);
 		cmd->codes[1] = type;
-		sprintf(cmd->name, "%s %s", CHAR_ICON_COPY, dir->d_name);
+		asprintf(&cmd->name, CHAR_ICON_COPY "%c (%.10s) %s", CHAR_TAG_PS2, data + 2, dir->d_name);
 		list_append(list, cmd);
 
 		LOG("[%s] F(%X) name '%s'", cmd->file, cmd->flags, cmd->name+2);
@@ -1575,10 +1581,24 @@ int sortSaveList_Compare_TitleID(const void* a, const void* b)
 	return (ret ? ret : sortSaveList_Compare(a, b));
 }
 
+static int parseTypeFlags(int flags)
+{
+	if (flags & SAVE_FLAG_PS4)
+		return FILE_TYPE_PS4;
+	else if (flags & SAVE_FLAG_PS1)
+		return FILE_TYPE_PS1;
+	else if (flags & SAVE_FLAG_PS2)
+		return FILE_TYPE_PS2;
+	else if (flags & SAVE_FLAG_VMC)
+		return FILE_TYPE_VMC;
+
+	return 0;
+}
+
 int sortSaveList_Compare_Type(const void* a, const void* b)
 {
-	int ta = ((save_entry_t*) a)->type;
-	int tb = ((save_entry_t*) b)->type;
+	int ta = parseTypeFlags(((save_entry_t*) a)->flags);
+	int tb = parseTypeFlags(((save_entry_t*) b)->flags);
 
 	if (ta == tb)
 		return sortSaveList_Compare(a, b);

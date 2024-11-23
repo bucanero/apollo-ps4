@@ -6,6 +6,24 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ---
 
+## [v1.7.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.7.0) - 2024-11-16
+
+### Added
+
+* Manage PS1 Virtual Memory Card images (VMC)
+  - Supports `.VM1` and external formats (`.MCR`, `.VMP`, `.BIN`, `.VMC`, `.GME`, `.VGS`, `.SRM`, `.MCD`)
+  - List, import, export, and delete PS1 saves inside VMC images
+  - Import - Supported formats: `.MCS`, `.PSV`, `.PSX`, `.PS1`, `.MCB`, `.PDA`
+  - Export - Supported formats: `.MCS`, `.PSV`, `.PSX`
+* Online DB: added PS1 saves listing
+
+### Fixed
+
+* Updated Apollo Patch Engine to v1.1.2
+  - Fixed SW Code search bug when bytes are not found
+
+---
+
 ## [v1.6.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.6.0) - 2024-11-02
 
 ### Added

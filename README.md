@@ -114,6 +114,17 @@ On first run, the application will detect and setup the required user settings.
 | **External VMCs (HDD)** | `/data/fakeusb/PS2/VMC/` |
 | **HDD VMC cards** | VMCs will be scanned from PS4 saves on the hard disk |
 
+### PS1
+
+| PS1 | Folder |
+|-----|--------|
+| **USB saves** | `/mnt/usbX/PS1/SAVEDATA/` (`*.mcs`, `*.psx`, `*.ps1`, `*.mcb`, `*.psv`, `*.pda`) |
+| **VMC cards** | `/mnt/usbX/PS1/VMC/` (`*.vmc`, `*.mcd`, `*.mcr`, `*.gme`, `*.vm1`, `*.vmp`, `*.vgs`, `*.srm`, `*.bin`) |
+| **PSV saves** | `/mnt/usbX/PS3/EXPORT/PSV/` |
+| **External saves (HDD)** | `/data/fakeusb/PS1/SAVEDATA/` |
+| **External VMCs (HDD)** | `/data/fakeusb/PS1/VMC/` |
+| **HDD VMC cards** | VMCs will be scanned from PS4 saves on the hard disk |
+
 ## Offline Account activation
 
 To activate an account offline, go to the `User Tools` menu, and select `Activate PS4 Accounts`.

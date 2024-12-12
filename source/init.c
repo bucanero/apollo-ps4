@@ -60,14 +60,8 @@ int init_devices(void) {
     struct stat s;
     memset(&s, 0, sizeof(struct stat));
 
-    // mount required devices into sandbox
-    if (jbc_mount_in_sandbox("/dev/", "rootdev") != 0) {
-        LOG("Failed to mount devices");
-        return -1;
-    }
-
     // create devices
-    if (stat("/rootdev/pfsctldev", &s) == -1) {
+    if (stat("/dev/pfsctldev", &s) == -1) {
         LOG("err stat pfsctldev");
         return -2;
     }
@@ -80,7 +74,7 @@ int init_devices(void) {
 
     memset(&s, 0, sizeof(struct stat));
 
-    if (stat("/rootdev/lvdctl", &s) == -1) {
+    if (stat("/dev/lvdctl", &s) == -1) {
         LOG("err stat lvdctl");
         return -3;
     }
@@ -93,7 +87,7 @@ int init_devices(void) {
 
     memset(&s, 0, sizeof(struct stat));
 
-    if (stat("/rootdev/sbl_srv", &s) == -1) {
+    if (stat("/dev/sbl_srv", &s) == -1) {
         LOG("err stat sbl_srv");
         return -4;
     }
@@ -102,11 +96,6 @@ int init_devices(void) {
             LOG("err mknod sbl_srv");
             return -4;
         }
-    }
-
-    // now unmount devices
-    if (jbc_unmount_in_sandbox("rootdev") != 0) {
-        LOG("Failed to unmount rootdev");
     }
 
     // get max keyset that can be decrypted

@@ -23,21 +23,10 @@ void (*statfs)();
 
 // must be loaded upon setup
 int loadPrivLibs(void) {
-    const char privDir[] = "/system/priv/lib";
-    const char commonDir[] = "/system/common/lib";
     int sys;
     int kernel_sys;
 
-    if (jbc_mount_in_sandbox(privDir, "priv") != 0) {
-        LOG("Failed to mount system/priv/lib directory");
-        return -1;
-    }
-
-    sys = sceKernelLoadStartModule("/priv/libSceFsInternalForVsh.sprx", 0, NULL, 0, NULL, NULL);
-    if (jbc_unmount_in_sandbox("priv") != 0) {
-        LOG("Failed to unmount priv");
-    }
-
+    sys = sceKernelLoadStartModule("/system/priv/lib/libSceFsInternalForVsh.sprx", 0, NULL, 0, NULL, NULL);
     if (sys >= 0) {
         sceKernelDlsym(sys, "sceFsInitCreatePfsSaveDataOpt",    (void **)&sceFsInitCreatePfsSaveDataOpt);
         sceKernelDlsym(sys, "sceFsCreatePfsSaveDataImage",      (void **)&sceFsCreatePfsSaveDataImage);
@@ -52,15 +41,7 @@ int loadPrivLibs(void) {
         return -2;
     }
 
-    if (jbc_mount_in_sandbox(commonDir, "common") != 0) {
-        LOG("Failed to mount /system/common/lib directory");
-        return -3;
-    }
-    kernel_sys = sceKernelLoadStartModule("/common/libkernel_sys.sprx", 0, NULL, 0, NULL, NULL);
-    if (jbc_unmount_in_sandbox("common") != 0) {
-        LOG("Failed to unmount common");
-    }
-
+    kernel_sys = sceKernelLoadStartModule("/system/common/lib/libkernel_sys.sprx", 0, NULL, 0, NULL, NULL);
     if (kernel_sys >= 0) {
         sceKernelDlsym(kernel_sys, "statfs", (void **)&statfs);
     }
@@ -244,7 +225,8 @@ int umountSave(const char *mountPath, int handle, bool ignoreErrors) {
     return sceFsUmountSaveData(&opt, mountPath, handle, ignoreErrors);
 }
 
-uint16_t maxKeyset = 0;
+static uint16_t maxKeyset = 0;
+
 uint16_t getMaxKeySet(void) {
     if (maxKeyset > 0) {
         return maxKeyset;

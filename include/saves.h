@@ -3,13 +3,14 @@
 #define LOG dbglogger_log
 
 #define APOLLO_PATH				"/data/apollo/"
+#define APOLLO_SANDBOX_PATH		"/data/apollo/mount/%s/"
 
 #ifdef APOLLO_ENABLE_LOGGING
 #define APOLLO_APP_PATH			"/data/apollo/debug/"
-#define APOLLO_SANDBOX_PATH		"/mnt/sandbox/LOAD00044_000%s/"
+#define APOLLO_SETTING_PATH		"/mnt/sandbox/LOAD00044_000%s/"
 #else
 #define APOLLO_APP_PATH			"/mnt/sandbox/APOL00004_000/app0/assets/"
-#define APOLLO_SANDBOX_PATH		"/mnt/sandbox/APOL00004_000%s/"
+#define APOLLO_SETTING_PATH		"/mnt/sandbox/APOL00004_000%s/"
 #endif
 
 #define APOLLO_USER_PATH		APOLLO_PATH "%08x/"
@@ -314,7 +315,7 @@ int create_savegame_folder(const char* folder);
 int get_save_details(const save_entry_t *save, char** details);
 int orbis_SaveUmount(const char* mountPath);
 int orbis_SaveMount(const save_entry_t *save, uint32_t mode, char* mountPath);
-int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details, uint32_t up);
+int orbis_UpdateSaveParams(const save_entry_t* save, const char* title, const char* subtitle, const char* details, uint32_t up);
 
 int vmc_export_psv(const char* save, const char* out_path);
 int vmc_export_psu(const char* path, const char* output);

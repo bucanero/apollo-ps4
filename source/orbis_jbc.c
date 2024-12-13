@@ -6,6 +6,8 @@
 #include <libjbc.h>
 
 #include "util.h"
+#include "sd.h"
+#include "init.h"
 
 
 asm("orbis_syscall:\n"
@@ -27,6 +29,40 @@ int orbis_syscall(int num, ...);
 int sysKernelGetLowerLimitUpdVersion(int* unk);
 int sysKernelGetUpdVersion(int* unk);
 
+
+
+
+int initVshDataMount(void)
+{
+    LOG("Loading libSceFsInternalForVsh.sprx...");
+
+    // initialize cred
+    if (init_cred() != 0) {
+        LOG("Failed to init cred");
+        return(0);
+    }
+
+    // load private libraries, do once after setting cred
+    if (loadPrivLibs() != 0) {
+        LOG("Failed to load priv libs");
+        return(0);
+    }
+
+    // create devices
+    if (init_devices() != 0) {
+        LOG("Failed to create devices");
+        return(0);
+    }
+
+    /*if (setup_cred() != 0) {
+        LOG(0, "Failed to setup cred\n");
+        return(0);
+    }*/
+
+    LOG("VSH data mount initialized!");
+
+    return 1;
+}
 
 int get_firmware_version(void)
 {

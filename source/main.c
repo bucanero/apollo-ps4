@@ -496,9 +496,6 @@ static void terminate(void)
 {
 	LOG("Exiting...");
 	sceAudioOutClose(audio);
-	// Unload loaded libraries
-	if (unpatch_SceShellCore())
-		notify_popup(NOTIFICATION_ICON_DEFAULT, "PS4 Save patches removed from memory");
 
 	terminate_jbc();
 	sceSystemServiceLoadExec("exit", NULL);
@@ -588,8 +585,11 @@ s32 main(s32 argc, const char* argv[])
 	}
 
 	// Initialize jailbreak
-	if (!initialize_jbc())
+	if (!initialize_jbc() || !initVshDataMount())
+	{
+		notify_popup(NOTIFICATION_ICON_BAN, "Failed to initialize jailbreak!");
 		terminate();
+	}
 
 	mkdirs(APOLLO_DATA_PATH);
 	mkdirs(APOLLO_LOCAL_CACHE);
@@ -653,9 +653,6 @@ s32 main(s32 argc, const char* argv[])
 	// Splash screen logo (fade-in)
 	drawSplashLogo(1);
 #endif
-
-	// Apply save-mounter patches
-	patch_save_libraries();
 
 	// Setup font
 	SetExtraSpace(-15);

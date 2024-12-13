@@ -298,7 +298,6 @@ void end_progress_bar(void);
 
 int init_loading_screen(const char* message);
 void stop_loading_screen(void);
-void disable_unpatch(void);
 
 void execCodeCommand(code_entry_t* code, const char* codecmd);
 
@@ -311,7 +310,6 @@ int regMgr_GetUserName(int userNumber, char* outString);
 int regMgr_GetAccountId(int userNumber, uint64_t* psnAccountId);
 int regMgr_SetAccountId(int userNumber, uint64_t* psnAccountId);
 
-int create_savegame_folder(const char* folder);
 int get_save_details(const save_entry_t *save, char** details);
 int orbis_SaveUmount(const char* mountPath);
 int orbis_SaveMount(const save_entry_t *save, uint32_t mode, char* mountPath);

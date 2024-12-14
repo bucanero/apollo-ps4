@@ -142,7 +142,7 @@ enum cmd_code_enum
 };
 
 // Save flags
-#define SAVE_FLAG_LOCKED        1
+#define SAVE_FLAG_ONLINE        1
 #define SAVE_FLAG_OWNER         2
 #define SAVE_FLAG_SELECTED      4
 #define SAVE_FLAG_ZIP           8
@@ -150,7 +150,7 @@ enum cmd_code_enum
 #define SAVE_FLAG_PS1           32
 #define SAVE_FLAG_PSV           64
 #define SAVE_FLAG_TROPHY        128
-#define SAVE_FLAG_ONLINE        256
+#define SAVE_FLAG_LOCKED        256
 #define SAVE_FLAG_PS4           512
 #define SAVE_FLAG_HDD           1024
 #define SAVE_FLAG_VMC           2048

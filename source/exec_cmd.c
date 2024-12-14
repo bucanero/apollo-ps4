@@ -1295,7 +1295,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 	if (selected_entry->flags & SAVE_FLAG_HDD)
 	{
-		if (!orbis_SaveMount(selected_entry, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
+		if (!orbis_SaveMount(selected_entry, (selected_entry->flags & SAVE_FLAG_TROPHY), mount))
 		{
 			LOG("Error Mounting Save! Check Save Mount Patches");
 			return;

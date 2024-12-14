@@ -439,6 +439,12 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 		return 0;
 	}
 
+	if (mount_mode & SAVE_FLAG_TROPHY)
+	{
+		snprintf(keyPath, sizeof(keyPath), "/user/home/%08x/trophy/data/%s/sealedkey", apollo_config.user_id, save->title_id);
+		snprintf(volumePath, sizeof(volumePath), "/user/home/%08x/trophy/data/%s/trophy.img", apollo_config.user_id, save->title_id);
+	}
+
 	if ((mount_mode & ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2) && (file_exists(keyPath) != SUCCESS))
 	{
 		sqlite3 *db;
@@ -2396,10 +2402,11 @@ list_t * ReadTrophyList(const char* userPath)
 
 	while (sqlite3_step(res) == SQLITE_ROW)
 	{
-		item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_TROPHY, (const char*) sqlite3_column_text(res, 2));
+		item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_TROPHY | SAVE_FLAG_HDD, (const char*) sqlite3_column_text(res, 2));
 		item->blocks = sqlite3_column_int(res, 0);
 		item->path = strdup(userPath);
 		item->title_id = strdup((const char*) sqlite3_column_text(res, 1));
+		item->dir_name = strdup(item->title_id);
 		item->type = FILE_TYPE_TRP;
 
 		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);

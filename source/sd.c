@@ -4,12 +4,12 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <orbis/libkernel.h>
 #include <libjbc.h>
 #include <dbglogger.h>
 #define LOG dbglogger_log
 
 #include "sd.h"
-#include "scall.h"
 
 int (*sceFsUfsAllocateSaveData)(int fd, uint64_t imageSize, uint64_t imageFlags, int ext);
 int (*sceFsInitCreatePfsSaveDataOpt)(CreatePfsSaveDataOpt *opt);
@@ -19,6 +19,26 @@ int (*sceFsMountSaveData)(MountSaveDataOpt *opt, const char *volumePath, const c
 int (*sceFsInitUmountSaveDataOpt)(UmountSaveDataOpt *opt);
 int (*sceFsUmountSaveData)(UmountSaveDataOpt *opt, const char *mountPath, int handle, bool ignoreErrors);
 void (*statfs)();
+
+
+static int sys_open(const char *path, int flags, int mode) {
+    int result;
+    int err;
+    
+    asm volatile(
+        ".intel_syntax;"
+        "mov rax, 5;"       // System call number for open: 5
+        "syscall;"          // Invoke syscall
+        : "=a" (result),    // Output operand: result
+          "=@ccc" (err)     // Output operand: err (clobbers condition codes)
+    );
+
+    UNUSED(path);
+    UNUSED(flags);
+    UNUSED(mode);
+
+    return result;
+}
 
 // must be loaded upon setup
 int loadPrivLibs(void) {

@@ -7,7 +7,6 @@
 
 #include "util.h"
 #include "sd.h"
-#include "scall.h"
 
 
 asm("orbis_syscall:\n"
@@ -30,8 +29,30 @@ int sysKernelGetLowerLimitUpdVersion(int* unk);
 int sysKernelGetUpdVersion(int* unk);
 
 
+static int sys_mknod(const char *path, mode_t mode, dev_t dev)
+{
+    int result;
+    int err;
+
+    asm volatile(
+    ".intel_syntax;"    // Switches the assembly syntax to Intel syntax
+    "mov rax, 14;"      // Moves the value 14 into the RAX register (which typically holds the system call number)
+    "mov r10, rcx;"     // Moves the value of the RCX register into the R10 register
+    "syscall;"          // Executes a system call using the values in the registers
+    : "=a"(result),     // Output constraint: Tells the compiler that the result of the operation will be stored in the RAX register
+    "=@ccc"(err)        // Output constraint: Indicates that error information will be stored in the specified location
+    );
+
+    UNUSED(path);
+    UNUSED(mode);
+    UNUSED(dev);
+
+    return result;
+}
+
 // cred must be set to invoke mount call, use before anything
-static int init_cred(void) {
+static int init_cred(void)
+{
     jbc_cred old_cred;
     jbc_cred cred;
 
@@ -79,7 +100,8 @@ static int setup_cred(void) {
 */
 
 // create devices, do once after setting cred and loading priv libs
-static int init_devices(void) {
+static int init_devices(void)
+{
     struct stat s;
     memset(&s, 0, sizeof(struct stat));
 

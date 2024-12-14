@@ -3,13 +3,14 @@
 #define LOG dbglogger_log
 
 #define APOLLO_PATH				"/data/apollo/"
+#define APOLLO_SANDBOX_PATH		"/data/apollo/mount/%s/"
 
 #ifdef APOLLO_ENABLE_LOGGING
 #define APOLLO_APP_PATH			"/data/apollo/debug/"
-#define APOLLO_SANDBOX_PATH		"/mnt/sandbox/LOAD00044_000%s/"
+#define APOLLO_SETTING_PATH		"/mnt/sandbox/LOAD00044_000%s/"
 #else
 #define APOLLO_APP_PATH			"/mnt/sandbox/APOL00004_000/app0/assets/"
-#define APOLLO_SANDBOX_PATH		"/mnt/sandbox/APOL00004_000%s/"
+#define APOLLO_SETTING_PATH		"/mnt/sandbox/APOL00004_000%s/"
 #endif
 
 #define APOLLO_USER_PATH		APOLLO_PATH "%08x/"
@@ -141,7 +142,7 @@ enum cmd_code_enum
 };
 
 // Save flags
-#define SAVE_FLAG_LOCKED        1
+#define SAVE_FLAG_ONLINE        1
 #define SAVE_FLAG_OWNER         2
 #define SAVE_FLAG_SELECTED      4
 #define SAVE_FLAG_ZIP           8
@@ -149,7 +150,7 @@ enum cmd_code_enum
 #define SAVE_FLAG_PS1           32
 #define SAVE_FLAG_PSV           64
 #define SAVE_FLAG_TROPHY        128
-#define SAVE_FLAG_ONLINE        256
+#define SAVE_FLAG_LOCKED        256
 #define SAVE_FLAG_PS4           512
 #define SAVE_FLAG_HDD           1024
 #define SAVE_FLAG_VMC           2048
@@ -297,7 +298,6 @@ void end_progress_bar(void);
 
 int init_loading_screen(const char* message);
 void stop_loading_screen(void);
-void disable_unpatch(void);
 
 void execCodeCommand(code_entry_t* code, const char* codecmd);
 
@@ -310,11 +310,10 @@ int regMgr_GetUserName(int userNumber, char* outString);
 int regMgr_GetAccountId(int userNumber, uint64_t* psnAccountId);
 int regMgr_SetAccountId(int userNumber, uint64_t* psnAccountId);
 
-int create_savegame_folder(const char* folder);
 int get_save_details(const save_entry_t *save, char** details);
 int orbis_SaveUmount(const char* mountPath);
 int orbis_SaveMount(const save_entry_t *save, uint32_t mode, char* mountPath);
-int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details, uint32_t up);
+int orbis_UpdateSaveParams(const save_entry_t* save, const char* title, const char* subtitle, const char* details, uint32_t up);
 
 int vmc_export_psv(const char* save, const char* out_path);
 int vmc_export_psu(const char* path, const char* output);

@@ -231,6 +231,30 @@ static void log_callback(int sel)
 	show_message("Debug Logging Enabled\n\n%s", APOLLO_PATH "apollo.log");
 }
 
+static int updateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details, uint32_t userParam)
+{
+	OrbisSaveDataParam saveParams;
+	OrbisSaveDataMountPoint mount;
+
+	memset(&saveParams, 0, sizeof(OrbisSaveDataParam));
+	memset(&mount, 0, sizeof(OrbisSaveDataMountPoint));
+
+	strlcpy(mount.data, mountPath, sizeof(mount.data));
+	strlcpy(saveParams.title, title, ORBIS_SAVE_DATA_TITLE_MAXSIZE);
+	strlcpy(saveParams.subtitle, subtitle, ORBIS_SAVE_DATA_SUBTITLE_MAXSIZE);
+	strlcpy(saveParams.details, details, ORBIS_SAVE_DATA_DETAIL_MAXSIZE);
+	saveParams.userParam = userParam;
+	saveParams.mtime = time(NULL);
+
+	int32_t setParamResult = sceSaveDataSetParam(&mount, ORBIS_SAVE_DATA_PARAM_TYPE_ALL, &saveParams, sizeof(OrbisSaveDataParam));
+	if (setParamResult < 0) {
+		LOG("sceSaveDataSetParam error (%X)", setParamResult);
+		return 0;
+	}
+
+	return (setParamResult == SUCCESS);
+}
+
 int save_app_settings(app_config_t* config)
 {
 	char filePath[256];
@@ -254,11 +278,15 @@ int save_app_settings(app_config_t* config)
 	}
 
 	LOG("Saving Settings...");
-	snprintf(filePath, sizeof(filePath), APOLLO_SANDBOX_PATH "settings.bin", mountResult.mountPathName);
+	snprintf(filePath, sizeof(filePath), APOLLO_SETTING_PATH "settings.bin", mountResult.mountPathName);
 	write_buffer(filePath, (uint8_t*) config, sizeof(app_config_t));
 
-	orbis_UpdateSaveParams(mountResult.mountPathName, "Apollo Save Tool", "User Settings", "www.bucanero.com.ar", 0);
-	orbis_SaveUmount(mountResult.mountPathName);
+	updateSaveParams(mountResult.mountPathName, "Apollo Save Tool", "User Settings", "www.bucanero.com.ar", 0);
+	if (sceSaveDataUmount((void*)&mountResult.mountPathName) < 0)
+	{
+		LOG("UMOUNT ERROR");
+		return 0;
+	}
 
 	return 1;
 }
@@ -298,7 +326,7 @@ int load_app_settings(app_config_t* config)
 	}
 
 	LOG("Loading Settings...");
-	snprintf(filePath, sizeof(filePath), APOLLO_SANDBOX_PATH "settings.bin", mountResult.mountPathName);
+	snprintf(filePath, sizeof(filePath), APOLLO_SETTING_PATH "settings.bin", mountResult.mountPathName);
 
 	if (read_buffer(filePath, (uint8_t**) &file_data, &file_size) == SUCCESS && file_size == sizeof(app_config_t))
 	{
@@ -312,7 +340,11 @@ int load_app_settings(app_config_t* config)
 		free(file_data);
 	}
 
-	orbis_SaveUmount(mountResult.mountPathName);
+	if (sceSaveDataUmount((void*)&mountResult.mountPathName) < 0)
+	{
+		LOG("UMOUNT ERROR");
+		return 0;
+	}
 
 	return 1;
 }

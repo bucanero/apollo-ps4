@@ -157,7 +157,7 @@ static void copySave(const save_entry_t* save, const char* exp_path)
 	show_message("Files successfully copied to:\n%s", exp_path);
 }
 
-static int _update_save_details(const char* sys_path, const char* mount)
+static int _update_save_details(const char* sys_path, const save_entry_t* save)
 {
 	char file_path[256];
 	uint8_t* iconBuf;
@@ -169,7 +169,7 @@ static int _update_save_details(const char* sys_path, const char* mount)
 	sfo_context_t* sfo = sfo_alloc();
 	if (sfo_read(sfo, file_path) == SUCCESS)
 	{
-		orbis_UpdateSaveParams(mount,
+		orbis_UpdateSaveParams(save,
 			(char*) sfo_get_param_value(sfo, "MAINTITLE"),
 			(char*) sfo_get_param_value(sfo, "SUBTITLE"),
 			(char*) sfo_get_param_value(sfo, "DETAIL"),
@@ -180,16 +180,11 @@ static int _update_save_details(const char* sys_path, const char* mount)
 	snprintf(file_path, sizeof(file_path), "%s" "icon0.png", sys_path);
 	if (read_buffer(file_path, &iconBuf, &iconSize) == SUCCESS)
 	{
-		OrbisSaveDataMountPoint mp;
-		OrbisSaveDataIcon icon;
+		snprintf(file_path, sizeof(file_path), PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, save->title_id, save->dir_name);
+		mkdirs(file_path);
 
-		strlcpy(mp.data, mount, sizeof(mp.data));
-		memset(&icon, 0x00, sizeof(icon));
-		icon.buf = iconBuf;
-		icon.bufSize = iconSize;
-		icon.dataSize = iconSize;  // Icon data size
-
-		if (sceSaveDataSaveIcon(&mp, &icon) < 0) {
+		if (write_buffer(file_path, iconBuf, iconSize) < 0)
+		{
 			// Error handling
 			LOG("ERROR sceSaveDataSaveIcon");
 		}
@@ -203,7 +198,7 @@ static int _update_save_details(const char* sys_path, const char* mount)
 static int _copy_save_hdd(const save_entry_t* save)
 {
 	char copy_path[256];
-	char mount[32];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 
 	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
 		return 0;
@@ -214,7 +209,7 @@ static int _copy_save_hdd(const save_entry_t* save)
 	copy_directory(save->path, save->path, copy_path);
 
 	snprintf(copy_path, sizeof(copy_path), "%s" "sce_sys/", save->path);
-	_update_save_details(copy_path, mount);
+	_update_save_details(copy_path, save);
 
 	orbis_SaveUmount(mount);
 	return 1;
@@ -371,7 +366,7 @@ void exportTrophiesZip(const char* exp_path)
 
 static void dumpAllFingerprints(const save_entry_t* save)
 {
-	char mount[32];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 	uint64_t progress = 0;
 	list_node_t *node;
 	save_entry_t *item;
@@ -434,7 +429,7 @@ static void copySavePFS(const save_entry_t* save)
 {
 	char src_path[256];
 	char hdd_path[256];
-	char mount[32];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 	sfo_patch_t patch = {
 		.user_id = apollo_config.user_id,
 		.account_id = apollo_config.account_id,
@@ -485,7 +480,7 @@ static void copySavePFS(const save_entry_t* save)
 		patch_sfo(hdd_path, &patch);
 
 	*strrchr(hdd_path, 'p') = 0;
-	_update_save_details(hdd_path, mount);
+	_update_save_details(hdd_path, save);
 	orbis_SaveUmount(mount);
 
 	show_message("Encrypted save copied successfully!\n%s/%s", save->title_id, save->dir_name);
@@ -618,7 +613,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 	if (wildcard_match(req->resource, "/zip/\?\?\?\?\?\?\?\?/\?\?\?\?\?\?\?\?\?_*.zip") ||
 		wildcard_match(req->resource, "/PS4/\?\?\?\?\?\?\?\?\?/*.zip"))
 	{
-		char mount[32];
+		char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 		char *base, *path;
 		int id = 0;
 
@@ -707,7 +702,7 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int 
 {
 	char copy_path[256];
 	char save_path[256];
-	char mount[32];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 	uint64_t progress = 0;
 	list_node_t *node;
 	save_entry_t *item;
@@ -889,15 +884,20 @@ static void import_save2vmc(const char* src, int type)
 		show_message("Error importing save:\n%s", src);
 }
 
-static void deleteVmcSave(const save_entry_t* save)
+static int deleteVmcSave(const save_entry_t* save)
 {
-	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to delete %s?", save->dir_name))
-		return;
+	int ret;
 
-	if ((save->flags & SAVE_FLAG_PS1) ? formatSave(save->blocks) : vmc_delete_save(save->dir_name))
+	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to delete %s?", save->dir_name))
+		return 0;
+
+	ret = (save->flags & SAVE_FLAG_PS1) ? formatSave(save->blocks) : vmc_delete_save(save->dir_name);
+	if (ret)
 		show_message("Save successfully deleted:\n%s", save->dir_name);
 	else
 		show_message("Error! Couldn't delete save:\n%s", save->dir_name);
+
+	return ret;
 }
 
 static void exportVM2raw(const char* vm2_file, int dst, int ecc)
@@ -1291,11 +1291,11 @@ static void toggleBrowserHistory(int usr)
 
 void execCodeCommand(code_entry_t* code, const char* codecmd)
 {
-	char *tmp, mount[32];
+	char *tmp, mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 
 	if (selected_entry->flags & SAVE_FLAG_HDD)
 	{
-		if (!orbis_SaveMount(selected_entry, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
+		if (!orbis_SaveMount(selected_entry, (selected_entry->flags & SAVE_FLAG_TROPHY), mount))
 		{
 			LOG("Error Mounting Save! Check Save Mount Patches");
 			return;
@@ -1481,9 +1481,10 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_DELETE_VMCSAVE:
-			deleteVmcSave(selected_entry);
-			selected_entry->flags |= SAVE_FLAG_UPDATED;
-			code->activated = 0;
+			if (deleteVmcSave(selected_entry))
+				selected_entry->flags |= SAVE_FLAG_UPDATED;
+			else
+				code->activated = 0;
 			break;
 
 		case CMD_EXP_PS2_VM2:

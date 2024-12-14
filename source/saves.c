@@ -925,9 +925,9 @@ int ReadTrophies(save_entry_t * game)
 		return 0;
 
 	game->codes = list_alloc();
-/*
-	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Apply Changes & Resign Trophy Set", CMD_RESIGN_TROPHY);
-	list_append(game->codes, trophy);
+
+//	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Apply Changes & Resign Trophy Set", CMD_RESIGN_TROPHY);
+//	list_append(game->codes, trophy);
 
 	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup Trophy Set to USB", CMD_CODE_NULL);
 	trophy->file = strdup(game->path);
@@ -938,9 +938,11 @@ int ReadTrophies(save_entry_t * game)
 	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " Export Trophy Set to Zip", CMD_CODE_NULL);
 	trophy->file = strdup(game->path);
 	trophy->options_count = 1;
-	trophy->options = _createOptions(2, "Save .Zip to USB", CMD_EXPORT_ZIP_USB);
+	trophy->options = _createOptions(3, "Save .Zip to USB", CMD_EXPORT_ZIP_USB);
+	asprintf(&trophy->options->name[2], "Save .Zip to HDD");
+	asprintf(&trophy->options->value[2], "%c", CMD_EXPORT_ZIP_HDD);
 	list_append(game->codes, trophy);
-*/
+
 	trophy = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Trophies " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(game->codes, trophy);
 
@@ -2368,7 +2370,7 @@ list_t * ReadVmc2List(const char* userPath)
 list_t * ReadTrophyList(const char* userPath)
 {
 	save_entry_t *item;
-//	code_entry_t *cmd;
+	code_entry_t *cmd;
 	list_t *list;
 	sqlite3 *db;
 	sqlite3_stmt *res;
@@ -2377,7 +2379,7 @@ list_t * ReadTrophyList(const char* userPath)
 		return NULL;
 
 	list = list_alloc();
-/*
+
 	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_COPY " Export Trophies");
 	item->type = FILE_TYPE_MENU;
 	item->path = strdup(userPath);
@@ -2391,7 +2393,7 @@ list_t * ReadTrophyList(const char* userPath)
 	cmd->options = _createOptions(2, "Save .Zip to USB", CMD_ZIP_TROPHY_USB);
 	list_append(item->codes, cmd);
 	list_append(list, item);
-*/
+
 	int rc = sqlite3_prepare_v2(db, "SELECT id, trophy_title_id, title FROM tbl_trophy_title WHERE status = 0", -1, &res, NULL);
 	if (rc != SQLITE_OK)
 	{

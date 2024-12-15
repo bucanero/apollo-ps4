@@ -293,7 +293,7 @@ static void SetMenu(int id)
 			}
 
 			else if (selected_entry->flags & SAVE_FLAG_HDD)
-				snprintf(iconfile, sizeof(iconfile), PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
+				snprintf(iconfile, sizeof(iconfile), SAVE_ICON_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
 
 			if (file_exists(iconfile) == SUCCESS)
 				LoadMenuTexture(iconfile, icon_png_file_index);
@@ -400,35 +400,35 @@ static void doSaveMenu(save_list_t * save_list)
 	{
 		selected_entry = list_get_item(save_list->list, menu_sel);
 
-			if (selected_entry->type == FILE_TYPE_VMC && selected_entry->flags & SAVE_FLAG_VMC)
+		if (selected_entry->type == FILE_TYPE_VMC && selected_entry->flags & SAVE_FLAG_VMC)
+		{
+			char tmp_path[256];
+
+			strncpy(tmp_path, selected_entry->path, sizeof(tmp_path));
+
+			if (selected_entry->flags & SAVE_FLAG_HDD)
 			{
-				char tmp_path[256];
+				char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 
-				strncpy(tmp_path, selected_entry->path, sizeof(tmp_path));
+				if (!orbis_SaveMount(selected_entry, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
+					return;
 
-				if (selected_entry->flags & SAVE_FLAG_HDD)
-				{
-					char mount[32];
-
-					if (!orbis_SaveMount(selected_entry, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
-						return;
-
-					snprintf(tmp_path, sizeof(tmp_path), APOLLO_SANDBOX_PATH "%s", mount, selected_entry->path);
-				}
-
-				if (selected_entry->flags & SAVE_FLAG_PS1)
-				{
-					strncpy(vmc1_saves.path, tmp_path, sizeof(vmc1_saves.path));
-					SetMenu(MENU_PS1VMC_SAVES);
-				}
-				else
-				{
-					strncpy(vmc2_saves.path, tmp_path, sizeof(vmc2_saves.path));
-					SetMenu(MENU_PS2VMC_SAVES);
-				}
-
-				return;
+				snprintf(tmp_path, sizeof(tmp_path), APOLLO_SANDBOX_PATH "%s", mount, selected_entry->path);
 			}
+
+			if (selected_entry->flags & SAVE_FLAG_PS1)
+			{
+				strncpy(vmc1_saves.path, tmp_path, sizeof(vmc1_saves.path));
+				SetMenu(MENU_PS1VMC_SAVES);
+			}
+			else
+			{
+				strncpy(vmc2_saves.path, tmp_path, sizeof(vmc2_saves.path));
+				SetMenu(MENU_PS2VMC_SAVES);
+			}
+
+			return;
+		}
 
 		if (!selected_entry->codes && !save_list->ReadCodes(selected_entry))
 		{

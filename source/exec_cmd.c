@@ -180,7 +180,7 @@ static int _update_save_details(const char* sys_path, const save_entry_t* save)
 	snprintf(file_path, sizeof(file_path), "%s" "icon0.png", sys_path);
 	if (read_buffer(file_path, &iconBuf, &iconSize) == SUCCESS)
 	{
-		snprintf(file_path, sizeof(file_path), PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, save->title_id, save->dir_name);
+		snprintf(file_path, sizeof(file_path), SAVE_ICON_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, save->title_id, save->dir_name);
 		mkdirs(file_path);
 
 		if (write_buffer(file_path, iconBuf, iconSize) < 0)
@@ -199,6 +199,10 @@ static int _copy_save_hdd(const save_entry_t* save)
 {
 	char copy_path[256];
 	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	sfo_patch_t patch = {
+		.user_id = apollo_config.user_id,
+		.account_id = apollo_config.account_id,
+	};
 
 	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
 		return 0;
@@ -211,7 +215,10 @@ static int _copy_save_hdd(const save_entry_t* save)
 	snprintf(copy_path, sizeof(copy_path), "%s" "sce_sys/", save->path);
 	_update_save_details(copy_path, save);
 
+	snprintf(copy_path, sizeof(copy_path), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
+	patch_sfo(copy_path, &patch);
 	orbis_SaveUmount(mount);
+
 	return 1;
 }
 
@@ -451,7 +458,7 @@ static void copySavePFS(const save_entry_t* save)
 	orbis_SaveUmount(mount);
 
 	snprintf(src_path, sizeof(src_path), "%s%s", save->path, save->dir_name);
-	snprintf(hdd_path, sizeof(hdd_path), "/user/home/%08x/savedata/%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
 	LOG("Copying <%s> to %s...", src_path, hdd_path);
 	if (copy_file(src_path, hdd_path) != SUCCESS)
 	{
@@ -460,7 +467,7 @@ static void copySavePFS(const save_entry_t* save)
 	}
 
 	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
-	snprintf(hdd_path, sizeof(hdd_path), "/user/home/%08x/savedata/%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
 	LOG("Copying <%s> to %s...", src_path, hdd_path);
 	if (copy_file(src_path, hdd_path) != SUCCESS)
 	{
@@ -476,8 +483,7 @@ static void copySavePFS(const save_entry_t* save)
 	}
 
 	snprintf(hdd_path, sizeof(hdd_path), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
-	if (show_dialog(DIALOG_TYPE_YESNO, "Resign save %s/%s?", save->title_id, save->dir_name))
-		patch_sfo(hdd_path, &patch);
+	patch_sfo(hdd_path, &patch);
 
 	*strrchr(hdd_path, 'p') = 0;
 	_update_save_details(hdd_path, save);
@@ -655,7 +661,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 				continue;
 
 			if (item->flags & SAVE_FLAG_HDD)
-				asprintf(&res->data, PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, item->title_id, item->dir_name);
+				asprintf(&res->data, SAVE_ICON_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, item->title_id, item->dir_name);
 			else
 				asprintf(&res->data, "%ssce_sys/icon0.png", item->path);
 
@@ -675,7 +681,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 	// http://ps3-ip:8080/icon/CUSA12345/DIR-NAME_icon0.png
 	if (wildcard_match(req->resource, "/icon/\?\?\?\?\?\?\?\?\?/*_icon0.png"))
 	{
-		asprintf(&res->data, PS4_SAVES_PATH_HDD "%s", apollo_config.user_id, req->resource + 6);
+		asprintf(&res->data, SAVE_ICON_PATH_HDD "%s", apollo_config.user_id, req->resource + 6);
 		return (file_exists(res->data) == SUCCESS);
 	}
 

@@ -430,9 +430,6 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 	char volumePath[256];
 
 	snprintf(mountDir, sizeof(mountDir), APOLLO_SANDBOX_PATH, save->dir_name);
-	snprintf(keyPath, sizeof(keyPath), "/user/home/%08x/savedata/%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
-	snprintf(volumePath, sizeof(volumePath), "/user/home/%08x/savedata/%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
-
 	if (mkdirs(mountDir) < 0)
 	{
 		LOG("ERROR: can't create '%s'", mountDir);
@@ -441,8 +438,18 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 
 	if (mount_mode & SAVE_FLAG_TROPHY)
 	{
-		snprintf(keyPath, sizeof(keyPath), "/user/home/%08x/trophy/data/%s/sealedkey", apollo_config.user_id, save->title_id);
-		snprintf(volumePath, sizeof(volumePath), "/user/home/%08x/trophy/data/%s/trophy.img", apollo_config.user_id, save->title_id);
+		snprintf(keyPath, sizeof(keyPath), TROPHY_PATH_HDD "%s/sealedkey", apollo_config.user_id, save->title_id);
+		snprintf(volumePath, sizeof(volumePath), TROPHY_PATH_HDD "%s/trophy.img", apollo_config.user_id, save->title_id);
+	}
+	else if (mount_mode & SAVE_FLAG_LOCKED)
+	{
+		snprintf(keyPath, sizeof(keyPath), "%s%s.bin", save->path, save->dir_name);
+		snprintf(volumePath, sizeof(volumePath), "%s%s", save->path, save->dir_name);
+	}
+	else
+	{
+		snprintf(keyPath, sizeof(keyPath), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
+		snprintf(volumePath, sizeof(volumePath), SAVES_PATH_HDD "%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
 	}
 
 	if ((mount_mode & ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2) && (file_exists(keyPath) != SUCCESS))
@@ -450,13 +457,20 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 		sqlite3 *db;
 		char *query, dbpath[256];
 
-		LOG("WARN: can't find '%s'", keyPath);
-		snprintf(dbpath, sizeof(dbpath), USER_PATH_HDD, apollo_config.user_id);
+		LOG("Creating save '%s'...", keyPath);
+		mkdirs(volumePath);
+		if (createSave(volumePath, keyPath, save->blocks) < 0)
+		{
+			LOG("ERROR: can't create '%s'", keyPath);
+			return 0;
+		}
+
+		snprintf(dbpath, sizeof(dbpath), SAVES_DB_PATH, apollo_config.user_id);
 		if ((db = open_sqlite_db(dbpath)) == NULL)
 			return 0;
 
 		query = sqlite3_mprintf("INSERT INTO savedata(title_id, dir_name, main_title, sub_title, detail, tmp_dir_name, is_broken, user_param, blocks, free_blocks, size_kib, mtime, fake_broken, account_id, user_id, faked_owner, cloud_icon_url, cloud_revision, game_title_id) "
-			"VALUES (%Q, %Q, '', '', '', '', 0, 0, %d, %d, %d, '2020-01-01T20:20:01.00Z', 0, %lld, %ld, 0, '', 0, %Q);",
+			"VALUES (%Q, %Q, '', '', '', '', 0, 0, %d, %d, %d, strftime('%%Y-%%m-%%dT%%H:%%M:%%S.00Z', CURRENT_TIMESTAMP), 0, %ld, %d, 0, '', 0, %Q);",
 			save->title_id, save->dir_name, save->blocks, save->blocks, (save->blocks*32), apollo_config.account_id, apollo_config.user_id, save->title_id);
 
 		if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
@@ -470,13 +484,6 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 		LOG("Saving database to %s", dbpath);
 		sqlite3_memvfs_dump(db, NULL, dbpath);
 		sqlite3_close(db);
-
-		mkdirs(volumePath);
-		if (createSave(volumePath, keyPath, save->blocks) < 0)
-		{
-			LOG("ERROR: can't create '%s'", keyPath);
-			return 0;
-		}
 	}
 
 	int mountErrorCode = mountSave(volumePath, keyPath, mountDir);
@@ -497,7 +504,7 @@ int orbis_UpdateSaveParams(const save_entry_t* save, const char* title, const ch
 	sqlite3 *db;
 	char* query, dbpath[256];
 
-	snprintf(dbpath, sizeof(dbpath), USER_PATH_HDD, apollo_config.user_id);
+	snprintf(dbpath, sizeof(dbpath), SAVES_DB_PATH, apollo_config.user_id);
 	db = open_sqlite_db(dbpath);
 	if (!db)
 		return 0;

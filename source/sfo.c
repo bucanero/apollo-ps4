@@ -449,6 +449,7 @@ int patch_sfo(const char *in_file_path, sfo_patch_t* patches) {
 
 	if (sfo_write(sfo, in_file_path) < 0) {
 		LOG("Unable to write to '%s'", in_file_path);
+		sfo_free(sfo);
 		return -1;
 	}
 

@@ -23,7 +23,7 @@
 #define USB1_PATH               "/mnt/usb1/"
 #define USB_PATH                "/mnt/usb%d/"
 #define FAKE_USB_PATH           "/data/fakeusb/"
-#define USER_PATH_HDD           "/system_data/savedata/%08x/db/user/savedata.db"
+#define SAVES_DB_PATH           "/system_data/savedata/%08x/db/user/savedata.db"
 
 #define PS4_SAVES_PATH_USB      "PS4/APOLLO/"
 #define PS2_SAVES_PATH_USB      "PS2/SAVEDATA/"
@@ -31,17 +31,16 @@
 #define PSV_SAVES_PATH_USB      "PS3/EXPORT/PSV/"
 #define TROPHIES_PATH_USB       "PS4/EXPORT/TROPHY/"
 
-#define PS3_LICENSE_PATH        "exdata/"
-#define PS4_SAVES_PATH_HDD      "/user/home/%08x/savedata_meta/user/"
-#define PS2_SAVES_PATH_HDD      "ps2emu2_savedata/"
-#define PSP_SAVES_PATH_HDD      "minis_savedata/"
+#define SAVES_PATH_HDD          "/user/home/%08x/savedata/"
+#define SAVE_ICON_PATH_HDD      "/user/home/%08x/savedata_meta/user/"
+#define TROPHY_PATH_HDD         "/user/home/%08x/trophy/data/"
 
 #define SAVES_PATH_USB0         USB0_PATH PS4_SAVES_PATH_USB
 #define SAVES_PATH_USB1         USB1_PATH PS4_SAVES_PATH_USB
 
 #define TROPHY_PATH_USB0        USB0_PATH TROPHIES_PATH_USB
 #define TROPHY_PATH_USB1        USB1_PATH TROPHIES_PATH_USB
-#define TROPHY_PATH_HDD         "/user/home/%08x/trophy/db/trophy_local.db"
+#define TROPHY_DB_PATH          "/user/home/%08x/trophy/db/trophy_local.db"
 #define APP_DB_PATH_HDD         "/system_data/priv/mms/app.db"
 
 #define EXPORT_PATH_USB0        USB0_PATH "PS4/EXPORT/"
@@ -55,7 +54,6 @@
 #define VMC_PS1_PATH_USB        "PS1/VMC/"
 
 #define IMP_PS2VMC_PATH_USB     USB_PATH "PS2/VMC/"
-#define IMPORT_RAP_PATH_USB     USB_PATH PS3_LICENSE_PATH
 
 #define ONLINE_URL              "https://bucanero.github.io/apollo-saves/"
 #define ONLINE_PATCH_URL        "https://bucanero.github.io/apollo-patches/PS4/"

@@ -2591,7 +2591,7 @@ int get_save_details(const save_entry_t* save, char **details)
 		if ((db = open_sqlite_db(save->path)) == NULL)
 			return 0;
 
-		char* query = sqlite3_mprintf("SELECT sub_title, detail, free_blocks, size_kib, user_id, account_id, main_title FROM savedata "
+		char* query = sqlite3_mprintf("SELECT sub_title, detail, free_blocks, size_kib, user_id, account_id, main_title, datetime(mtime) FROM savedata "
 			" WHERE title_id = %Q AND dir_name = %Q", save->title_id, save->dir_name);
 
 		if (sqlite3_prepare_v2(db, query, -1, &res, NULL) != SQLITE_OK || sqlite3_step(res) != SQLITE_ROW)
@@ -2606,6 +2606,7 @@ int get_save_details(const save_entry_t* save, char **details)
 			"Title: %s\n"
 			"Subtitle: %s\n"
 			"Detail: %s\n"
+			"Date: %s\n"
 			"Dir Name: %s\n"
 			"Blocks: %d (%d Free)\n"
 			"Size: %d Kb\n"
@@ -2615,6 +2616,7 @@ int get_save_details(const save_entry_t* save, char **details)
 			sqlite3_column_text(res, 6),
 			sqlite3_column_text(res, 0),
 			sqlite3_column_text(res, 1),
+			sqlite3_column_text(res, 7),
 			save->dir_name,
 			save->blocks, sqlite3_column_int(res, 2), 
 			sqlite3_column_int(res, 3),

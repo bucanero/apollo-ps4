@@ -180,7 +180,7 @@ static int _update_save_details(const char* sys_path, const save_entry_t* save)
 	snprintf(file_path, sizeof(file_path), "%s" "icon0.png", sys_path);
 	if (read_buffer(file_path, &iconBuf, &iconSize) == SUCCESS)
 	{
-		snprintf(file_path, sizeof(file_path), PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, save->title_id, save->dir_name);
+		snprintf(file_path, sizeof(file_path), SAVE_ICON_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, save->title_id, save->dir_name);
 		mkdirs(file_path);
 
 		if (write_buffer(file_path, iconBuf, iconSize) < 0)
@@ -199,6 +199,10 @@ static int _copy_save_hdd(const save_entry_t* save)
 {
 	char copy_path[256];
 	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	sfo_patch_t patch = {
+		.user_id = apollo_config.user_id,
+		.account_id = apollo_config.account_id,
+	};
 
 	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
 		return 0;
@@ -211,7 +215,10 @@ static int _copy_save_hdd(const save_entry_t* save)
 	snprintf(copy_path, sizeof(copy_path), "%s" "sce_sys/", save->path);
 	_update_save_details(copy_path, save);
 
+	snprintf(copy_path, sizeof(copy_path), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
+	patch_sfo(copy_path, &patch);
 	orbis_SaveUmount(mount);
+
 	return 1;
 }
 
@@ -329,8 +336,8 @@ static void exportFingerprint(const save_entry_t* save, int silent)
 
 	if (!silent) show_message("%s fingerprint successfully saved to:\n%s", save->title_id, fpath);
 }
-/*
-void exportTrophiesZip(const char* exp_path)
+
+static void exportTrophiesZip(const char* exp_path)
 {
 	char* export_file;
 	char* trp_path;
@@ -344,7 +351,7 @@ void exportTrophiesZip(const char* exp_path)
 
 	init_loading_screen("Exporting Trophies ...");
 
-	asprintf(&export_file, "%s" "trophies_%08d.zip", exp_path, apollo_config.user_id);
+	asprintf(&export_file, "%s" "trophies_%08x.zip", exp_path, apollo_config.user_id);
 	asprintf(&trp_path, TROPHY_PATH_HDD, apollo_config.user_id);
 
 	tmp = strdup(trp_path);
@@ -352,8 +359,8 @@ void exportTrophiesZip(const char* exp_path)
 
 	zip_directory(tmp, trp_path, export_file);
 
-	sprintf(export_file, "%s" OWNER_XML_FILE, exp_path);
-	_saveOwnerData(export_file);
+	sprintf(export_file, "%s%08x.xml", exp_path, apollo_config.user_id);
+	save_xml_owner(export_file);
 
 	free(export_file);
 	free(trp_path);
@@ -362,7 +369,6 @@ void exportTrophiesZip(const char* exp_path)
 	stop_loading_screen();
 	show_message("Trophies successfully saved to:\n%strophies_%08d.zip", exp_path, apollo_config.user_id);
 }
-*/
 
 static void dumpAllFingerprints(const save_entry_t* save)
 {
@@ -451,7 +457,7 @@ static void copySavePFS(const save_entry_t* save)
 	orbis_SaveUmount(mount);
 
 	snprintf(src_path, sizeof(src_path), "%s%s", save->path, save->dir_name);
-	snprintf(hdd_path, sizeof(hdd_path), "/user/home/%08x/savedata/%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
 	LOG("Copying <%s> to %s...", src_path, hdd_path);
 	if (copy_file(src_path, hdd_path) != SUCCESS)
 	{
@@ -460,7 +466,7 @@ static void copySavePFS(const save_entry_t* save)
 	}
 
 	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
-	snprintf(hdd_path, sizeof(hdd_path), "/user/home/%08x/savedata/%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
 	LOG("Copying <%s> to %s...", src_path, hdd_path);
 	if (copy_file(src_path, hdd_path) != SUCCESS)
 	{
@@ -476,8 +482,7 @@ static void copySavePFS(const save_entry_t* save)
 	}
 
 	snprintf(hdd_path, sizeof(hdd_path), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
-	if (show_dialog(DIALOG_TYPE_YESNO, "Resign save %s/%s?", save->title_id, save->dir_name))
-		patch_sfo(hdd_path, &patch);
+	patch_sfo(hdd_path, &patch);
 
 	*strrchr(hdd_path, 'p') = 0;
 	_update_save_details(hdd_path, save);
@@ -655,7 +660,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 				continue;
 
 			if (item->flags & SAVE_FLAG_HDD)
-				asprintf(&res->data, PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, item->title_id, item->dir_name);
+				asprintf(&res->data, SAVE_ICON_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, item->title_id, item->dir_name);
 			else
 				asprintf(&res->data, "%ssce_sys/icon0.png", item->path);
 
@@ -675,7 +680,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 	// http://ps3-ip:8080/icon/CUSA12345/DIR-NAME_icon0.png
 	if (wildcard_match(req->resource, "/icon/\?\?\?\?\?\?\?\?\?/*_icon0.png"))
 	{
-		asprintf(&res->data, PS4_SAVES_PATH_HDD "%s", apollo_config.user_id, req->resource + 6);
+		asprintf(&res->data, SAVE_ICON_PATH_HDD "%s", apollo_config.user_id, req->resource + 6);
 		return (file_exists(res->data) == SUCCESS);
 	}
 
@@ -720,7 +725,9 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int 
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (item->type != FILE_TYPE_PS4 || !(all || item->flags & SAVE_FLAG_SELECTED) || !orbis_SaveMount(item, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
+		if (!(item->type == FILE_TYPE_PS4 || item->type == FILE_TYPE_TRP) || 
+			!(all || item->flags & SAVE_FLAG_SELECTED) || 
+			!orbis_SaveMount(item, (item->flags & SAVE_FLAG_TROPHY), mount))
 			continue;
 
 		snprintf(save_path, sizeof(save_path), APOLLO_SANDBOX_PATH, mount);
@@ -1075,7 +1082,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 		if (!code->activated || (code->type != PATCH_GAMEGENIE && code->type != PATCH_BSD))
 			continue;
 
-    	LOG("Active code: [%s]", code->name);
+		LOG("Active code: [%s]", code->name);
 
 		if (strrchr(code->file, '\\'))
 			filename = strrchr(code->file, '\\')+1;
@@ -1361,17 +1368,23 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			enableWebServer(dbg_simpleWebServerHandler, NULL, 8080);
 			code->activated = 0;
 			break;
-/*
+
 		case CMD_ZIP_TROPHY_USB:
 			exportTrophiesZip(codecmd[1] ? EXPORT_PATH_USB1 : EXPORT_PATH_USB0);
 			code->activated = 0;
 			break;
 
 		case CMD_COPY_TROPHIES_USB:
-			exportFolder(selected_entry->path, codecmd[1] ? TROPHY_PATH_USB1 : TROPHY_PATH_USB0, "Copying trophies...");
+		case CMD_COPY_ALL_TROPHIES_USB:
+			copyAllSavesUSB(selected_entry, codecmd[1] ? TROPHY_PATH_USB1 : TROPHY_PATH_USB0, codecmd[0] == CMD_COPY_ALL_TROPHIES_USB);
 			code->activated = 0;
 			break;
-*/
+
+		case CMD_EXP_TROPHY_USB:
+			copySave(selected_entry, codecmd[1] ? TROPHY_PATH_USB1 : TROPHY_PATH_USB0);
+			code->activated = 0;
+			break;
+
 		case CMD_BROWSER_HISTORY:
 			toggleBrowserHistory(apollo_config.user_id);
 			code->activated = 0;

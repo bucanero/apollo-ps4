@@ -439,12 +439,12 @@ void update_usb_path(char* path)
 
 void update_hdd_path(char* path)
 {
-	sprintf(path, USER_PATH_HDD, apollo_config.user_id);
+	sprintf(path, SAVES_DB_PATH, apollo_config.user_id);
 }
 
 void update_trophy_path(char* path)
 {
-	sprintf(path, TROPHY_PATH_HDD, apollo_config.user_id);
+	sprintf(path, TROPHY_DB_PATH, apollo_config.user_id);
 }
 
 void update_db_path(char* path)

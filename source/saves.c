@@ -13,12 +13,17 @@
 #include "sfo.h"
 #include "settings.h"
 #include "util.h"
+#include "ps2mc.h"
+#include "mcio.h"
+#include "ps1card.h"
+#include "sd.h"
 
 #define UTF8_CHAR_STAR		"\xE2\x98\x85"
 
 #define CHAR_ICON_NET		"\x09"
 #define CHAR_ICON_ZIP		"\x0C"
-#define CHAR_ICON_COPY		"\x0B"
+#define CHAR_ICON_VMC		"\x0B"
+#define CHAR_ICON_COPY		"\x0E"
 #define CHAR_ICON_SIGN		"\x06"
 #define CHAR_ICON_USER		"\x07"
 #define CHAR_ICON_LOCK		"\x08"
@@ -403,92 +408,127 @@ int orbis_SaveDelete(const save_entry_t *save)
 
 int orbis_SaveUmount(const char* mountPath)
 {
-	OrbisSaveDataMountPoint umount;
+	char mountDir[256];
 
-	memset(&umount, 0, sizeof(OrbisSaveDataMountPoint));
-	strncpy(umount.data, mountPath, sizeof(umount.data));
-
-	int32_t umountErrorCode = sceSaveDataUmount(&umount);
+	snprintf(mountDir, sizeof(mountDir), APOLLO_SANDBOX_PATH, mountPath);
+	int umountErrorCode = umountSave(mountDir, 0, 0);
 	
 	if (umountErrorCode < 0)
 	{
 		LOG("UMOUNT_ERROR (%X)", umountErrorCode);
-		notifi(NULL, "Warning! Save couldn't be unmounted!");
-		disable_unpatch();
+		notify_popup(NULL, "Warning! Save couldn't be unmounted!");
 	}
 
+	rmdir(mountDir);
 	return (umountErrorCode == SUCCESS);
 }
 
 int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_path)
 {
-	OrbisSaveDataDirName dirName;
-	OrbisSaveDataTitleId titleId;
-	int32_t saveDataInitializeResult = sceSaveDataInitialize3(0);
+	char mountDir[256];
+	char keyPath[256];
+	char volumePath[256];
 
-	if (saveDataInitializeResult != SUCCESS)
+	snprintf(mountDir, sizeof(mountDir), APOLLO_SANDBOX_PATH, save->dir_name);
+	if (mkdirs(mountDir) < 0)
 	{
-		LOG("Failed to initialize save data library (%X)", saveDataInitializeResult);
+		LOG("ERROR: can't create '%s'", mountDir);
 		return 0;
 	}
 
-	memset(&dirName, 0, sizeof(OrbisSaveDataDirName));
-	memset(&titleId, 0, sizeof(OrbisSaveDataTitleId));
-	strlcpy(dirName.data, save->dir_name, sizeof(dirName.data));
-	strlcpy(titleId.data, save->title_id, sizeof(titleId.data));
+	if (mount_mode & SAVE_FLAG_TROPHY)
+	{
+		snprintf(keyPath, sizeof(keyPath), TROPHY_PATH_HDD "%s/sealedkey", apollo_config.user_id, save->title_id);
+		snprintf(volumePath, sizeof(volumePath), TROPHY_PATH_HDD "%s/trophy.img", apollo_config.user_id, save->title_id);
+	}
+	else if (mount_mode & SAVE_FLAG_LOCKED)
+	{
+		snprintf(keyPath, sizeof(keyPath), "%s%s.bin", save->path, save->dir_name);
+		snprintf(volumePath, sizeof(volumePath), "%s%s", save->path, save->dir_name);
+	}
+	else
+	{
+		snprintf(keyPath, sizeof(keyPath), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
+		snprintf(volumePath, sizeof(volumePath), SAVES_PATH_HDD "%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
+	}
 
-	OrbisSaveDataMount mount;
-	memset(&mount, 0, sizeof(OrbisSaveDataMount));
+	if ((mount_mode & ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2) && (file_exists(keyPath) != SUCCESS))
+	{
+		sqlite3 *db;
+		char *query, dbpath[256];
 
-	OrbisSaveDataFingerprint fingerprint;
-	memset(&fingerprint, 0, sizeof(OrbisSaveDataFingerprint));
-	strlcpy(fingerprint.data, "0000000000000000000000000000000000000000000000000000000000000000", sizeof(fingerprint.data));
+		LOG("Creating save '%s'...", keyPath);
+		mkdirs(volumePath);
+		if (createSave(volumePath, keyPath, save->blocks) < 0)
+		{
+			LOG("ERROR: can't create '%s'", keyPath);
+			return 0;
+		}
 
-	mount.userId = apollo_config.user_id;
-	mount.dirName = dirName.data;
-	mount.fingerprint = fingerprint.data;
-	mount.titleId = titleId.data;
-	mount.blocks = save->blocks;
-	mount.mountMode = mount_mode | ORBIS_SAVE_DATA_MOUNT_MODE_DESTRUCT_OFF;
-	
-	OrbisSaveDataMountResult mountResult;
-	memset(&mountResult, 0, sizeof(OrbisSaveDataMountResult));
+		snprintf(dbpath, sizeof(dbpath), SAVES_DB_PATH, apollo_config.user_id);
+		if ((db = open_sqlite_db(dbpath)) == NULL)
+			return 0;
 
-	int32_t mountErrorCode = sceSaveDataMount(&mount, &mountResult);
+		query = sqlite3_mprintf("INSERT INTO savedata(title_id, dir_name, main_title, sub_title, detail, tmp_dir_name, is_broken, user_param, blocks, free_blocks, size_kib, mtime, fake_broken, account_id, user_id, faked_owner, cloud_icon_url, cloud_revision, game_title_id) "
+			"VALUES (%Q, %Q, '', '', '', '', 0, 0, %d, %d, %d, strftime('%%Y-%%m-%%dT%%H:%%M:%%S.00Z', CURRENT_TIMESTAMP), 0, %ld, %d, 0, '', 0, %Q);",
+			save->title_id, save->dir_name, save->blocks, save->blocks, (save->blocks*32), apollo_config.account_id, apollo_config.user_id, save->title_id);
+
+		if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
+		{
+			LOG("Error inserting '%s': %s", save->title_id, sqlite3_errmsg(db));
+			sqlite3_free(query);
+			sqlite3_close(db);
+			return 0;
+		}
+
+		LOG("Saving database to %s", dbpath);
+		sqlite3_memvfs_dump(db, NULL, dbpath);
+		sqlite3_free(query);
+		sqlite3_close(db);
+	}
+
+	int mountErrorCode = mountSave(volumePath, keyPath, mountDir);
 	if (mountErrorCode < 0)
 	{
 		LOG("ERROR (%X): can't mount '%s/%s'", mountErrorCode, save->title_id, save->dir_name);
 		return 0;
 	}
 
-	LOG("'%s/%s' mountPath (%s)", save->title_id, save->dir_name, mountResult.mountPathName);
-	strncpy(mount_path, mountResult.mountPathName, ORBIS_SAVE_DATA_MOUNT_POINT_DATA_MAXSIZE);
+	LOG("'%s/%s' mountPath (%s)", save->title_id, save->dir_name, mountDir);
+	strlcpy(mount_path, save->dir_name, ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE);
 
 	return 1;
 }
 
-int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details, uint32_t userParam)
+int orbis_UpdateSaveParams(const save_entry_t* save, const char* title, const char* subtitle, const char* details, uint32_t userParam)
 {
-	OrbisSaveDataParam saveParams;
-	OrbisSaveDataMountPoint mount;
+	sqlite3 *db;
+	char* query, dbpath[256];
 
-	memset(&saveParams, 0, sizeof(OrbisSaveDataParam));
-	memset(&mount, 0, sizeof(OrbisSaveDataMountPoint));
+	snprintf(dbpath, sizeof(dbpath), SAVES_DB_PATH, apollo_config.user_id);
+	db = open_sqlite_db(dbpath);
+	if (!db)
+		return 0;
 
-	strlcpy(mount.data, mountPath, sizeof(mount.data));
-	strlcpy(saveParams.title, title, ORBIS_SAVE_DATA_TITLE_MAXSIZE);
-	strlcpy(saveParams.subtitle, subtitle, ORBIS_SAVE_DATA_SUBTITLE_MAXSIZE);
-	strlcpy(saveParams.details, details, ORBIS_SAVE_DATA_DETAIL_MAXSIZE);
-	saveParams.userParam = userParam;
-	saveParams.mtime = time(NULL);
+	LOG("Updating %s ...", save->title_id);
+	query = sqlite3_mprintf("UPDATE savedata SET (main_title, sub_title, detail, user_param)="
+		"(%Q, %Q, %Q, %ld) WHERE (title_id=%Q AND dir_name=%Q);",
+		title, subtitle, details, userParam, save->title_id, save->dir_name);
 
-	int32_t setParamResult = sceSaveDataSetParam(&mount, ORBIS_SAVE_DATA_PARAM_TYPE_ALL, &saveParams, sizeof(OrbisSaveDataParam));
-	if (setParamResult < 0) {
-		LOG("sceSaveDataSetParam error (%X)", setParamResult);
+	if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
+	{
+		LOG("Failed to execute query: %s", sqlite3_errmsg(db));
+		sqlite3_free(query);
+		sqlite3_close(db);
 		return 0;
 	}
 
-	return (setParamResult == SUCCESS);
+	LOG("Saving database to %s", dbpath);
+	sqlite3_memvfs_dump(db, NULL, dbpath);
+	sqlite3_free(query);
+	sqlite3_close(db);
+
+	return 1;
 }
 
 /*
@@ -555,7 +595,7 @@ static code_entry_t* _createCmdCode(uint8_t type, const char* name, char code)
 {
 	code_entry_t* entry = (code_entry_t *)calloc(1, sizeof(code_entry_t));
 	entry->type = type;
-	entry->name = strdup(name);
+	entry->name = name ? strdup(name) : NULL;
 	asprintf(&entry->codes, "%c", code);
 
 	return entry;
@@ -831,7 +871,7 @@ int ReadCodes(save_entry_t * save)
 	code_entry_t * code;
 	char filePath[256];
 	char * buffer = NULL;
-	char mount[32];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 	char *tmp;
 
 	if (save->flags & SAVE_FLAG_LOCKED)
@@ -886,6 +926,8 @@ int ReadTrophies(save_entry_t * game)
 	int trop_count = 0;
 	code_entry_t * trophy;
 	char query[256];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	char *tmp;
 	sqlite3 *db;
 	sqlite3_stmt *res;
 
@@ -893,22 +935,50 @@ int ReadTrophies(save_entry_t * game)
 		return 0;
 
 	game->codes = list_alloc();
-/*
-	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Apply Changes & Resign Trophy Set", CMD_RESIGN_TROPHY);
-	list_append(game->codes, trophy);
 
-	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup Trophy Set to USB", CMD_CODE_NULL);
+	if (!orbis_SaveMount(game, (game->flags & SAVE_FLAG_TROPHY), mount))
+	{
+		trophy = _createCmdCode(PATCH_NULL, CHAR_ICON_WARN " --- Error Mounting Trophy Set! --- " CHAR_ICON_WARN, CMD_CODE_NULL);
+		list_append(game->codes, trophy);
+		return list_count(game->codes);
+	}
+	tmp = game->path;
+	asprintf(&game->path, APOLLO_SANDBOX_PATH, mount);
+
+//	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Apply Changes & Resign Trophy Set", CMD_RESIGN_TROPHY);
+//	list_append(game->codes, trophy);
+
+	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup Trophy files to USB", CMD_CODE_NULL);
 	trophy->file = strdup(game->path);
 	trophy->options_count = 1;
 	trophy->options = _createOptions(2, "Copy Trophy to USB", CMD_EXP_TROPHY_USB);
 	list_append(game->codes, trophy);
 
-	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " Export Trophy Set to Zip", CMD_CODE_NULL);
+	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " Export Trophy files to Zip", CMD_CODE_NULL);
 	trophy->file = strdup(game->path);
 	trophy->options_count = 1;
-	trophy->options = _createOptions(2, "Save .Zip to USB", CMD_EXPORT_ZIP_USB);
+	trophy->options = _createOptions(3, "Save .Zip to USB", CMD_EXPORT_ZIP_USB);
+	asprintf(&trophy->options->name[2], "Save .Zip to HDD");
+	asprintf(&trophy->options->value[2], "%c", CMD_EXPORT_ZIP_HDD);
 	list_append(game->codes, trophy);
-*/
+
+	trophy = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " File Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	list_append(game->codes, trophy);
+
+	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export decrypted trophy files", CMD_CODE_NULL);
+	trophy->options_count = 1;
+	trophy->options = _getFileOptions(game->path, "*", CMD_DECRYPT_FILE);
+	list_append(game->codes, trophy);
+
+	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Import decrypted trophy files", CMD_CODE_NULL);
+	trophy->options_count = 1;
+	trophy->options = _getFileOptions(game->path, "*", CMD_IMPORT_DATA_FILE);
+	list_append(game->codes, trophy);
+
+	orbis_SaveUmount(mount);
+	free(game->path);
+	game->path = tmp;
+
 	trophy = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Trophies " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(game->codes, trophy);
 
@@ -973,6 +1043,233 @@ int ReadTrophies(save_entry_t * game)
 	return list_count(game->codes);
 }
 
+static void add_vmc_import_saves(list_t* list, const char* path, const char* folder)
+{
+	code_entry_t * cmd;
+	DIR *d;
+	struct dirent *dir;
+	char psvPath[256];
+
+	snprintf(psvPath, sizeof(psvPath), "%s%s", path, folder);
+	d = opendir(psvPath);
+
+	if (!d)
+		return;
+
+	while ((dir = readdir(d)) != NULL)
+	{
+		if (!endsWith(dir->d_name, ".PSV") && !endsWith(dir->d_name, ".MCS") && !endsWith(dir->d_name, ".PSX") &&
+			!endsWith(dir->d_name, ".PS1") && !endsWith(dir->d_name, ".MCB") && !endsWith(dir->d_name, ".PDA"))
+			continue;
+
+		// check for PS1 PSV saves
+		if (endsWith(dir->d_name, ".PSV"))
+		{
+			snprintf(psvPath, sizeof(psvPath), "%s%s%s", path, folder, dir->d_name);
+			if (read_file(psvPath, (uint8_t*) psvPath, 0x40) < 0 || psvPath[0x3C] != 0x01)
+				continue;
+		}
+
+		snprintf(psvPath, sizeof(psvPath), CHAR_ICON_COPY "%c %s", CHAR_TAG_PS1, dir->d_name);
+		cmd = _createCmdCode(PATCH_COMMAND, psvPath, CMD_IMP_VMC1SAVE);
+		asprintf(&cmd->file, "%s%s%s", path, folder, dir->d_name);
+		cmd->codes[1] = FILE_TYPE_PS1;
+		list_append(list, cmd);
+
+		LOG("[%s] F(%X) name '%s'", cmd->file, cmd->flags, cmd->name+2);
+	}
+
+	closedir(d);
+}
+
+int ReadVmc1Codes(save_entry_t * save)
+{
+	code_entry_t * cmd;
+
+	save->codes = list_alloc();
+
+	if (save->type == FILE_TYPE_MENU)
+	{
+		add_vmc_import_saves(save->codes, save->path, PS1_SAVES_PATH_USB);
+		add_vmc_import_saves(save->codes, save->path, PSV_SAVES_PATH_USB);
+		if (!list_count(save->codes))
+		{
+			list_free(save->codes);
+			save->codes = NULL;
+			return 0;
+		}
+
+		list_bubbleSort(save->codes, &sortCodeList_Compare);
+
+		return list_count(save->codes);
+	}
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Save Game", CMD_DELETE_VMCSAVE);
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Save Game Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export save game to .MCS format", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(3, "Copy .MCS Save to USB", CMD_EXP_VMC1SAVE);
+	asprintf(&cmd->options->name[2], "Copy .MCS Save to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_VMC1SAVE, STORAGE_HDD);
+	cmd->options[0].id = PS1SAVE_MCS;
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export save game to .PSV format", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(3, "Copy .PSV Save to USB", CMD_EXP_VMC1SAVE);
+	asprintf(&cmd->options->name[2], "Copy .PSV Save to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_VMC1SAVE, STORAGE_HDD);
+	cmd->options[0].id = PS1SAVE_PSV;
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export save game to .PSX format", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(3, "Copy .PSX Save to USB", CMD_EXP_VMC1SAVE);
+	asprintf(&cmd->options->name[2], "Copy .PSX Save to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_VMC1SAVE, STORAGE_HDD);
+	cmd->options[0].id = PS1SAVE_AR;
+	list_append(save->codes, cmd);
+
+	LOG("Loaded %ld codes", list_count(save->codes));
+
+	return list_count(save->codes);
+}
+
+static void add_vmc2_import_saves(list_t* list, const char* path, const char* folder)
+{
+	code_entry_t * cmd;
+	DIR *d;
+	struct dirent *dir;
+	char psvPath[256];
+	char data[64];
+	int type, toff;
+
+	snprintf(psvPath, sizeof(psvPath), "%s%s", path, folder);
+	d = opendir(psvPath);
+
+	if (!d)
+		return;
+
+	while ((dir = readdir(d)) != NULL)
+	{
+		if (dir->d_type != DT_REG)
+			continue;
+
+		// check for PS2 PSV saves
+		if (endsWith(dir->d_name, ".PSV"))
+		{
+			snprintf(psvPath, sizeof(psvPath), "%s%s%s", path, folder, dir->d_name);
+			if (read_file(psvPath, (uint8_t*) psvPath, 0x40) < 0 || psvPath[0x3C] != 0x02)
+				continue;
+
+			toff = 0x80;
+			type = FILE_TYPE_PSV;
+		}
+		else if (endsWith(dir->d_name, ".PSU"))
+		{
+			toff = 0x40;
+			type = FILE_TYPE_PSU;
+		}
+		else if (endsWith(dir->d_name, ".CBS"))
+		{
+			toff = 0x14;
+			type = FILE_TYPE_CBS;
+		}
+		else if (endsWith(dir->d_name, ".XPS") || endsWith(dir->d_name, ".SPS"))
+		{
+			toff = 0x02;
+			type = FILE_TYPE_XPS;
+		}
+		else if (endsWith(dir->d_name, ".MAX"))
+		{
+			toff = 0x10;
+			type = FILE_TYPE_MAX;
+		}
+		else continue;
+
+		snprintf(psvPath, sizeof(psvPath), "%s%s%s", path, folder, dir->d_name);
+		LOG("Reading %s...", psvPath);
+
+		FILE *fp = fopen(psvPath, "rb");
+		if (!fp) {
+			LOG("Unable to open '%s'", psvPath);
+			continue;
+		}
+		fseek(fp, toff, SEEK_SET);
+		fread(data, 1, sizeof(data), fp);
+		fclose(fp);
+
+		cmd = _createCmdCode(PATCH_COMMAND, NULL, CMD_IMP_VMC2SAVE);
+		cmd->file = strdup(psvPath);
+		cmd->codes[1] = type;
+		asprintf(&cmd->name, CHAR_ICON_COPY "%c (%.10s) %s", CHAR_TAG_PS2, data + 2, dir->d_name);
+		list_append(list, cmd);
+
+		LOG("[%s] F(%X) name '%s'", cmd->file, cmd->flags, cmd->name+2);
+	}
+
+	closedir(d);
+}
+
+int ReadVmc2Codes(save_entry_t * save)
+{
+	code_entry_t * cmd;
+
+	save->codes = list_alloc();
+
+	if (save->type == FILE_TYPE_MENU)
+	{
+		add_vmc2_import_saves(save->codes, save->path, PS2_SAVES_PATH_USB);
+		add_vmc2_import_saves(save->codes, save->path, PSV_SAVES_PATH_USB);
+		if (!list_count(save->codes))
+		{
+			list_free(save->codes);
+			save->codes = NULL;
+			return 0;
+		}
+
+		list_bubbleSort(save->codes, &sortCodeList_Compare);
+
+		return list_count(save->codes);
+	}
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Save Game", CMD_DELETE_VMCSAVE);
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Save Game Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export save game to .PSU format", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(3, "Export .PSU save to USB", CMD_EXP_VMC2SAVE);
+	asprintf(&cmd->options->name[2], "Export .PSU save to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_VMC2SAVE, STORAGE_HDD);
+	cmd->options[0].id = FILE_TYPE_PSU;
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export save game to .PSV format", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(3, "Export .PSV save to USB", CMD_EXP_VMC2SAVE);
+	asprintf(&cmd->options->name[2], "Export .PSV save to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_VMC2SAVE, STORAGE_HDD);
+	cmd->options[0].id = FILE_TYPE_PSV;
+	list_append(save->codes, cmd);
+
+	LOG("Loaded %ld codes", list_count(save->codes));
+
+	return list_count(save->codes);
+}
+
 /*
  * Function:		ReadOnlineSaves()
  * File:			saves.c
@@ -995,16 +1292,18 @@ int ReadOnlineSaves(save_entry_t * game)
 		stat(path, &stats);
 		// re-download if file is +1 day old
 		if ((stats.st_mtime + ONLINE_CACHE_TIMEOUT) < time(NULL))
-			http_download(game->path, "saves.txt", path, 0);
+			http_download(game->path, "saves.txt", path, 1);
 	}
 	else
 	{
-		if (!http_download(game->path, "saves.txt", path, 0))
+		if (!http_download(game->path, "saves.txt", path, 1))
 			return -1;
 	}
 
 	long fsize;
 	char *data = readTextFile(path, &fsize);
+	if (!data)
+		return 0;
 	
 	char *ptr = data;
 	char *end = data + fsize;
@@ -1045,8 +1344,15 @@ int ReadOnlineSaves(save_entry_t * game)
 			ptr++;
 		}
 	}
+	free(data);
 
-	if (data) free(data);
+	if (!list_count(game->codes))
+	{
+		list_free(game->codes);
+		game->codes = NULL;
+		return 0;
+	}
+
 	LOG("Loaded %d saves", list_count(game->codes));
 
 	return (list_count(game->codes));
@@ -1336,7 +1642,36 @@ int sortSaveList_Compare_TitleID(const void* a, const void* b)
 	if (!tb)
 		return (1);
 
-	return strcasecmp(ta, tb);
+	int ret = strcasecmp(ta, tb);
+
+	return (ret ? ret : sortSaveList_Compare(a, b));
+}
+
+static int parseTypeFlags(int flags)
+{
+	if (flags & SAVE_FLAG_PS4)
+		return FILE_TYPE_PS4;
+	else if (flags & SAVE_FLAG_PS1)
+		return FILE_TYPE_PS1;
+	else if (flags & SAVE_FLAG_PS2)
+		return FILE_TYPE_PS2;
+	else if (flags & SAVE_FLAG_VMC)
+		return FILE_TYPE_VMC;
+
+	return 0;
+}
+
+int sortSaveList_Compare_Type(const void* a, const void* b)
+{
+	int ta = parseTypeFlags(((save_entry_t*) a)->flags);
+	int tb = parseTypeFlags(((save_entry_t*) b)->flags);
+
+	if (ta == tb)
+		return sortSaveList_Compare(a, b);
+	else if (ta < tb)
+		return -1;
+	else
+		return 1;
 }
 
 static void read_usb_encrypted_saves(const char* userPath, list_t *list, uint64_t account)
@@ -1524,6 +1859,115 @@ static void read_hdd_savegames(const char* userPath, list_t *list, sqlite3 *appd
 	sqlite3_close(db);
 }
 
+static void scan_vmc_files(const char* userPath, const save_entry_t* parent, list_t *list)
+{
+	DIR *d;
+	struct dirent *dir;
+	save_entry_t *item;
+	char psvPath[256];
+	uint64_t size;
+	uint16_t flag;
+
+	d = opendir(userPath);
+	if (!d)
+		return;
+
+	while ((dir = readdir(d)) != NULL)
+	{
+		if (dir->d_type != DT_REG || !(endsWith(dir->d_name, ".CARD") || endsWith(dir->d_name, ".VM2") || 
+			endsWith(dir->d_name, ".BIN") || endsWith(dir->d_name, ".PS2") || endsWith(dir->d_name, ".VMC") ||
+			// PS1 VMCs
+			endsWith(dir->d_name, ".MCD") || endsWith(dir->d_name, ".MCR") || endsWith(dir->d_name, ".GME") ||
+			endsWith(dir->d_name, ".VM1") || endsWith(dir->d_name, ".VMP") || endsWith(dir->d_name, ".VGS") ||
+			endsWith(dir->d_name, ".SRM")))
+			continue;
+
+		snprintf(psvPath, sizeof(psvPath), "%s%s", userPath, dir->d_name);
+		get_file_size(psvPath, &size);
+
+		LOG("Checking %s...", psvPath);
+		switch (size)
+		{
+		case PS1CARD_SIZE:
+		case 0x20040:
+		case 0x20080:
+		case 0x200A0:
+		case 0x20F40:
+			flag = SAVE_FLAG_PS1;
+			break;
+
+		case 0x800000:
+		case 0x840000:
+		case 0x1000000:
+		case 0x1080000:
+		case 0x2000000:
+		case 0x2100000:
+		case 0x4000000:
+		case 0x4200000:
+			flag = SAVE_FLAG_PS2;
+			break;
+
+		default:
+			continue;
+		}
+
+		item = _createSaveEntry(flag | SAVE_FLAG_VMC, dir->d_name);
+		item->type = FILE_TYPE_VMC;
+
+		if (parent)
+		{
+			item->flags |= (parent->flags & SAVE_FLAG_HDD);
+			item->path = strdup((parent->flags & SAVE_FLAG_HDD) ? dir->d_name : psvPath);
+			item->dir_name = strdup((parent->flags & SAVE_FLAG_HDD) ? parent->dir_name : userPath);
+			item->title_id = strdup(parent->title_id);
+			item->blocks = parent->blocks;
+
+			free(item->name);
+			asprintf(&item->name, "%s - %s", parent->name, dir->d_name);
+		}
+		else
+		{
+			item->title_id = strdup("VMC");
+			item->path = strdup(psvPath);
+			item->dir_name = strdup(userPath);
+		}
+
+		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
+		list_append(list, item);
+	}
+
+	closedir(d);
+}
+
+static void read_inner_vmc2_files(list_t *list)
+{
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	char save_path[256];
+	list_node_t *node;
+	save_entry_t *item;
+
+	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+	{
+		if (item->type != FILE_TYPE_PS4 || (item->flags & SAVE_FLAG_LOCKED) || (strncmp("CUSA", item->title_id, 4) == 0))
+			continue;
+
+		if (item->flags & SAVE_FLAG_HDD)
+		{
+			if (!orbis_SaveMount(item, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
+				continue;
+
+			snprintf(save_path, sizeof(save_path), APOLLO_SANDBOX_PATH, mount);
+		}
+		else
+			snprintf(save_path, sizeof(save_path), "%s", item->path);
+
+		scan_vmc_files(save_path, item, list);
+
+		if (item->flags & SAVE_FLAG_HDD)
+			orbis_SaveUmount(mount);
+	}
+}
+
 /*
  * Function:		ReadUserList()
  * File:			saves.c
@@ -1538,12 +1982,7 @@ list_t * ReadUsbList(const char* userPath)
 	save_entry_t *item;
 	code_entry_t *cmd;
 	list_t *list;
-	char pathEnc[64], pathDec[64];
-
-	snprintf(pathDec, sizeof(pathDec), "%sAPOLLO/", userPath);
-	snprintf(pathEnc, sizeof(pathEnc), "%sSAVEDATA/", userPath);
-	if (dir_exists(pathDec) != SUCCESS && dir_exists(pathEnc) != SUCCESS)
-		return NULL;
+	char path[64];
 
 	list = list_alloc();
 
@@ -1574,8 +2013,18 @@ list_t * ReadUsbList(const char* userPath)
 	list_append(item->codes, cmd);
 	list_append(list, item);
 
-	read_usb_savegames(pathDec, list);
-	read_usb_encrypted_savegames(pathEnc, list);
+	snprintf(path, sizeof(path), "%sPS4/APOLLO/", userPath);
+	read_usb_savegames(path, list);
+	read_inner_vmc2_files(list);
+
+	snprintf(path, sizeof(path), "%sPS4/SAVEDATA/", userPath);
+	read_usb_encrypted_savegames(path, list);
+
+	snprintf(path, sizeof(path), "%s%s", userPath, VMC_PS2_PATH_USB);
+	scan_vmc_files(path, NULL, list);
+
+	snprintf(path, sizeof(path), "%s%s", userPath, VMC_PS1_PATH_USB);
+	scan_vmc_files(path, NULL, list);
 
 	return list;
 }
@@ -1621,6 +2070,8 @@ list_t * ReadUserList(const char* userPath)
 	read_hdd_savegames(userPath, list, appdb);
 	sqlite3_close(appdb);
 
+	read_inner_vmc2_files(list);
+
 	return list;
 }
 
@@ -1656,6 +2107,8 @@ static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 	
 	long fsize;
 	char *data = readTextFile(path, &fsize);
+	if (!data)
+		return;
 	
 	char *ptr = data;
 	char *end = data + fsize;
@@ -1691,7 +2144,7 @@ static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 		}
 	}
 
-	if (data) free(data);
+	free(data);
 }
 
 list_t * ReadOnlineList(const char* urlPath)
@@ -1703,15 +2156,13 @@ list_t * ReadOnlineList(const char* urlPath)
 	snprintf(url, sizeof(url), "%s" "PS4/", urlPath);
 	_ReadOnlineListEx(url, SAVE_FLAG_PS4, list);
 
-/*
 	// PS2 save-games (Zip PSV)
 	snprintf(url, sizeof(url), "%s" "PS2/", urlPath);
 	_ReadOnlineListEx(url, SAVE_FLAG_PS2, list);
 
 	// PS1 save-games (Zip PSV)
-	//snprintf(url, sizeof(url), "%s" "PS1/", urlPath);
-	//_ReadOnlineListEx(url, SAVE_FLAG_PS1, list);
-*/
+	snprintf(url, sizeof(url), "%s" "PS1/", urlPath);
+	_ReadOnlineListEx(url, SAVE_FLAG_PS1, list);
 
 	if (!list_count(list))
 	{
@@ -1722,10 +2173,240 @@ list_t * ReadOnlineList(const char* urlPath)
 	return list;
 }
 
+list_t * ReadVmc1List(const char* userPath)
+{
+	char filePath[256];
+	save_entry_t *item;
+	code_entry_t *cmd;
+	list_t *list;
+	ps1mcData_t* mcdata;
+
+	if (!openMemoryCard(userPath, 0))
+	{
+		LOG("Error: no PS1 Memory Card detected! (%s)", userPath);
+		return NULL;
+	}
+
+	mcdata = getMemoryCardData();
+	if (!mcdata)
+		return NULL;
+
+	list = list_alloc();
+
+	item = _createSaveEntry(SAVE_FLAG_PS1, CHAR_ICON_VMC " Memory Card Management");
+	item->type = FILE_TYPE_MENU;
+	item->path = strdup(userPath);
+	item->title_id = strdup("VMC");
+	item->codes = list_alloc();
+	//bulk management hack
+	item->dir_name = malloc(sizeof(void**));
+	((void**)item->dir_name)[0] = list;
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export selected Saves to USB", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(2, "Copy selected Saves to USB", CMD_EXP_SAVES_VMC);
+	list_append(item->codes, cmd);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export all Saves to USB", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(2, "Copy all Saves to USB", CMD_EXP_ALL_SAVES_VMC);
+	list_append(item->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Virtual Memory Card " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	list_append(item->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .VM1 format", CMD_CODE_NULL);
+	cmd->file = strdup(strrchr(userPath, '/')+1);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(3, "Save .VM1 Memory Card to USB", CMD_EXP_PS1_VM1);
+	asprintf(&cmd->options->name[2], "Save .VM1 Memory Card to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_PS1_VM1, STORAGE_HDD);
+	list_append(item->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .VMP format", CMD_CODE_NULL);
+	cmd->file = strdup(strrchr(userPath, '/')+1);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(3, "Save .VMP Memory Card to USB", CMD_EXP_PS1_VMP);
+	asprintf(&cmd->options->name[2], "Save .VMP Memory Card to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_PS1_VMP, STORAGE_HDD);
+	list_append(item->codes, cmd);
+	list_append(list, item);
+
+	item = _createSaveEntry(SAVE_FLAG_PS1, CHAR_ICON_COPY " Import Saves to Virtual MemCard");
+	item->path = strdup(FAKE_USB_PATH);
+	item->title_id = strdup("HDD");
+	item->dir_name = strdup(userPath);
+	item->type = FILE_TYPE_MENU;
+	list_append(list, item);
+
+	for (int i = 0; i <= MAX_USB_DEVICES; i++)
+	{
+		snprintf(filePath, sizeof(filePath), USB_PATH PS1_SAVES_PATH_USB, i);
+		if (i && dir_exists(filePath) != SUCCESS)
+			continue;
+
+		item = _createSaveEntry(SAVE_FLAG_PS1, CHAR_ICON_COPY " Import Saves to Virtual MemCard");
+		asprintf(&item->path, USB_PATH, i);
+		asprintf(&item->title_id, "USB %d", i);
+		item->dir_name = strdup(userPath);
+		item->type = FILE_TYPE_MENU;
+		list_append(list, item);
+	}
+
+	for (int i = 0; i < PS1CARD_MAX_SLOTS; i++)
+	{
+		if (mcdata[i].saveType != PS1BLOCK_INITIAL)
+			continue;
+
+		LOG("Reading '%s'...", mcdata[i].saveName);
+
+		char* tmp = sjis2utf8(mcdata[i].saveTitle);
+		item = _createSaveEntry(SAVE_FLAG_PS1 | SAVE_FLAG_VMC, tmp);
+		item->type = FILE_TYPE_PS1;
+		item->blocks = i;
+		item->title_id = strdup(mcdata[i].saveProdCode);
+		item->dir_name =  strdup(mcdata[i].saveName);
+		asprintf(&item->path, "%s\n%s", userPath, mcdata[i].saveName);
+		free(tmp);
+
+		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
+		list_append(list, item);
+	}
+
+	return list;
+}
+
+list_t * ReadVmc2List(const char* userPath)
+{
+	char filePath[256];
+	save_entry_t *item;
+	code_entry_t *cmd;
+	list_t *list;
+	ps2_IconSys_t iconsys;
+	int r, dd, fd;
+
+	r = mcio_vmcInit(userPath);
+	if (r < 0)
+	{
+		LOG("Error: no PS2 Memory Card detected! (%d)", r);
+		return NULL;
+	}
+
+	list = list_alloc();
+
+	item = _createSaveEntry(SAVE_FLAG_PS2, CHAR_ICON_VMC " Memory Card Management");
+	item->type = FILE_TYPE_MENU;
+	item->path = strdup(userPath);
+	item->title_id = strdup("VMC");
+	item->codes = list_alloc();
+	//bulk management hack
+	item->dir_name = malloc(sizeof(void**));
+	((void**)item->dir_name)[0] = list;
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export selected Saves to USB", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(2, "Copy selected Saves to USB", CMD_EXP_SAVES_VMC);
+	list_append(item->codes, cmd);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export all Saves to USB", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(2, "Copy all Saves to USB", CMD_EXP_ALL_SAVES_VMC);
+	list_append(item->codes, cmd);
+	list_append(list, item);
+
+	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Virtual Memory Card " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	list_append(item->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .VM2 format", CMD_CODE_NULL);
+	cmd->file = strdup(strrchr(userPath, '/')+1);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(3, "Save .VM2 Memory Card to USB", CMD_EXP_PS2_VM2);
+	asprintf(&cmd->options->name[2], "Save .VM2 Memory Card to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_PS2_VM2, STORAGE_HDD);
+	list_append(item->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .VMC format (No ECC)", CMD_CODE_NULL);
+	cmd->file = strdup(strrchr(userPath, '/')+1);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(3, "Save .VMC Memory Card to USB", CMD_EXP_PS2_RAW);
+	asprintf(&cmd->options->name[2], "Save .VMC Memory Card to HDD");
+	asprintf(&cmd->options->value[2], "%c%c", CMD_EXP_PS2_RAW, STORAGE_HDD);
+	list_append(item->codes, cmd);
+
+	item = _createSaveEntry(SAVE_FLAG_PS2, CHAR_ICON_COPY " Import Saves to Virtual MemCard");
+	item->path = strdup(FAKE_USB_PATH);
+	item->title_id = strdup("HDD");
+	item->type = FILE_TYPE_MENU;
+	list_append(list, item);
+
+	for (int i = 0; i <= MAX_USB_DEVICES; i++)
+	{
+		snprintf(filePath, sizeof(filePath), USB_PATH PS2_SAVES_PATH_USB, i);
+		if (i && dir_exists(filePath) != SUCCESS)
+			continue;
+
+		item = _createSaveEntry(SAVE_FLAG_PS2, CHAR_ICON_COPY " Import Saves to Virtual MemCard");
+		asprintf(&item->path, USB_PATH, i);
+		asprintf(&item->title_id, "USB %d", i);
+		item->type = FILE_TYPE_MENU;
+		list_append(list, item);
+	}
+
+	dd = mcio_mcDopen("/");
+	if (dd < 0)
+	{
+		LOG("mcio Dopen Error %d", dd);
+		return list;
+	}
+
+	struct io_dirent dirent;
+
+	do {
+		r = mcio_mcDread(dd, &dirent);
+		if ((r) && (strcmp(dirent.name, ".")) && (strcmp(dirent.name, "..")))
+		{
+			snprintf(filePath, sizeof(filePath), "%s/icon.sys", dirent.name);
+			LOG("Reading %s...", filePath);
+
+			fd = mcio_mcOpen(filePath, sceMcFileAttrReadable | sceMcFileAttrFile);
+			if (fd < 0) {
+				LOG("Unable to read from '%s'", filePath);
+				continue;
+			}
+
+			r = mcio_mcRead(fd, &iconsys, sizeof(ps2_IconSys_t));
+			mcio_mcClose(fd);
+
+			if (r != sizeof(ps2_IconSys_t))
+				continue;
+
+			if (iconsys.secondLineOffset)
+			{
+				memmove(&iconsys.title[iconsys.secondLineOffset+2], &iconsys.title[iconsys.secondLineOffset], sizeof(iconsys.title) - iconsys.secondLineOffset);
+				iconsys.title[iconsys.secondLineOffset] = 0x81;
+				iconsys.title[iconsys.secondLineOffset+1] = 0x50;
+			}
+
+			char* title = sjis2utf8(iconsys.title);
+			item = _createSaveEntry(SAVE_FLAG_PS2 | SAVE_FLAG_VMC, title);
+			item->type = FILE_TYPE_PS2;
+			item->dir_name = strdup(dirent.name);
+			asprintf(&item->title_id, "%.10s", dirent.name+2);
+			asprintf(&item->path, "%s\n%s/\n%s", userPath, dirent.name, iconsys.copyIconName);
+			free(title);
+
+			LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
+			list_append(list, item);
+		}
+	} while (r);
+
+	mcio_mcDclose(dd);
+
+	return list;
+}
+
 list_t * ReadTrophyList(const char* userPath)
 {
 	save_entry_t *item;
-//	code_entry_t *cmd;
+	code_entry_t *cmd;
 	list_t *list;
 	sqlite3 *db;
 	sqlite3_stmt *res;
@@ -1734,21 +2415,31 @@ list_t * ReadTrophyList(const char* userPath)
 		return NULL;
 
 	list = list_alloc();
-/*
+
 	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_COPY " Export Trophies");
 	item->type = FILE_TYPE_MENU;
 	item->path = strdup(userPath);
 	item->codes = list_alloc();
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup Trophies to USB", CMD_CODE_NULL);
+	//bulk management hack
+	item->dir_name = malloc(sizeof(void**));
+	((void**)item->dir_name)[0] = list;
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup selected Trophies to USB", CMD_CODE_NULL);
 	cmd->options_count = 1;
 	cmd->options = _createOptions(2, "Save Trophies to USB", CMD_COPY_TROPHIES_USB);
 	list_append(item->codes, cmd);
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " Export Trophies to .Zip", CMD_CODE_NULL);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup all Trophies to USB", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(2, "Save Trophies to USB", CMD_COPY_ALL_TROPHIES_USB);
+	list_append(item->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " Export all encrypted Trophies to .Zip", CMD_CODE_NULL);
 	cmd->options_count = 1;
 	cmd->options = _createOptions(2, "Save .Zip to USB", CMD_ZIP_TROPHY_USB);
 	list_append(item->codes, cmd);
 	list_append(list, item);
-*/
+
 	int rc = sqlite3_prepare_v2(db, "SELECT id, trophy_title_id, title FROM tbl_trophy_title WHERE status = 0", -1, &res, NULL);
 	if (rc != SQLITE_OK)
 	{
@@ -1759,10 +2450,11 @@ list_t * ReadTrophyList(const char* userPath)
 
 	while (sqlite3_step(res) == SQLITE_ROW)
 	{
-		item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_TROPHY, (const char*) sqlite3_column_text(res, 2));
+		item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_TROPHY | SAVE_FLAG_HDD, (const char*) sqlite3_column_text(res, 2));
 		item->blocks = sqlite3_column_int(res, 0);
 		item->path = strdup(userPath);
 		item->title_id = strdup((const char*) sqlite3_column_text(res, 1));
+		item->dir_name = strdup(item->title_id);
 		item->type = FILE_TYPE_TRP;
 
 		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
@@ -1781,6 +2473,56 @@ int get_save_details(const save_entry_t* save, char **details)
 	sqlite3 *db;
 	sqlite3_stmt *res;
 
+	if(save->type == FILE_TYPE_PS1)
+	{
+		asprintf(details, "%s\n\n----- PS1 Save -----\n"
+			"Game: %s\n"
+			"Title ID: %s\n"
+			"File: %s\n",
+			save->path,
+			save->name,
+			save->title_id,
+			save->dir_name);
+		return 1;
+	}
+
+	if(save->type == FILE_TYPE_PS2)
+	{
+		asprintf(details, "%s\n\n----- PS2 Save -----\n"
+			"Game: %s\n"
+			"Title ID: %s\n"
+			"Folder: %s\n"
+			"Icon: %s\n",
+			save->path,
+			save->name,
+			save->title_id,
+			save->dir_name,
+			strrchr(save->path, '\n')+1);
+		return 1;
+	}
+
+	if(save->type == FILE_TYPE_VMC)
+	{
+		char *tmp = strrchr(save->path, '/');
+		asprintf(details, "%s\n\n----- Virtual Memory Card -----\n"
+			"File: %s\n"
+			"Folder: %s\n",
+			save->path,
+			(tmp ? tmp+1 : save->path),
+			save->dir_name);
+		return 1;
+	}
+
+	if (save->flags & SAVE_FLAG_ONLINE)
+	{
+		asprintf(details, "%s\n----- Online Database -----\n"
+			"Game: %s\n"
+			"Title ID: %s\n",
+			save->path,
+			save->name,
+			save->title_id);
+		return 1;
+	}
 
 	if (!(save->flags & SAVE_FLAG_PS4))
 	{
@@ -1849,7 +2591,7 @@ int get_save_details(const save_entry_t* save, char **details)
 		if ((db = open_sqlite_db(save->path)) == NULL)
 			return 0;
 
-		char* query = sqlite3_mprintf("SELECT sub_title, detail, free_blocks, size_kib, user_id, account_id, main_title FROM savedata "
+		char* query = sqlite3_mprintf("SELECT sub_title, detail, free_blocks, size_kib, user_id, account_id, main_title, datetime(mtime) FROM savedata "
 			" WHERE title_id = %Q AND dir_name = %Q", save->title_id, save->dir_name);
 
 		if (sqlite3_prepare_v2(db, query, -1, &res, NULL) != SQLITE_OK || sqlite3_step(res) != SQLITE_ROW)
@@ -1864,6 +2606,7 @@ int get_save_details(const save_entry_t* save, char **details)
 			"Title: %s\n"
 			"Subtitle: %s\n"
 			"Detail: %s\n"
+			"Date: %s\n"
 			"Dir Name: %s\n"
 			"Blocks: %d (%d Free)\n"
 			"Size: %d Kb\n"
@@ -1873,6 +2616,7 @@ int get_save_details(const save_entry_t* save, char **details)
 			sqlite3_column_text(res, 6),
 			sqlite3_column_text(res, 0),
 			sqlite3_column_text(res, 1),
+			sqlite3_column_text(res, 7),
 			save->dir_name,
 			save->blocks, sqlite3_column_int(res, 2), 
 			sqlite3_column_int(res, 3),

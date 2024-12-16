@@ -214,24 +214,3 @@ int clean_directory(const char* inputdir)
 
     return SUCCESS;
 }
-/*
-//----------------------------------------
-//POWER UTILS
-//----------------------------------------
-
-int sys_shutdown()
-{   
-    unlink_secure("/dev_hdd0/tmp/turnoff");
-    
-    lv2syscall4(379,0x1100,0,0,0);
-    return_to_user_prog(int);
-}
-
-int sys_reboot()
-{
-    unlink_secure("/dev_hdd0/tmp/turnoff");
-
-    lv2syscall4(379,0x1200,0,0,0);
-    return_to_user_prog(int);
-}
-*/

@@ -21,21 +21,6 @@ int mkdirs(const char* dir);
 int copy_file(const char* input, const char* output);
 int copy_directory(const char* startdir, const char* inputdir, const char* outputdir);
 int clean_directory(const char* inputdir);
-
-//----------------------------------------
-//CONSOLE ID UTILS
-//----------------------------------------
-
-int ss_aim_get_device_id(uint8_t *idps);
-int ss_aim_get_open_psid(uint8_t *psid);
-int sys_ss_get_open_psid(uint64_t psid[2]);
-int is_ps3hen(void);
-
-//----------------------------------------
-//POWER UTILS
-//----------------------------------------
-
-int sys_shutdown();
-int sys_reboot();
+uint32_t file_crc32(const char* input);
 
 #endif

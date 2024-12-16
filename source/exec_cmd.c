@@ -6,6 +6,7 @@
 #include <orbis/SaveData.h>
 #include <orbis/SystemService.h>
 #include <orbis/UserService.h>
+#include <orbis/SystemService.h>
 #include <polarssl/md5.h>
 
 #include "saves.h"
@@ -13,7 +14,10 @@
 #include "common.h"
 #include "util.h"
 #include "sfo.h"
+#include "mcio.h"
+#include "ps1card.h"
 
+static char host_buf[256];
 
 static void _set_dest_path(char* path, int dest, const char* folder)
 {
@@ -40,7 +44,7 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 {
 	char path[256];
 
-	_set_dest_path(path, dst, PS4_SAVES_PATH_USB);
+	_set_dest_path(path, dst, (entry->flags & SAVE_FLAG_PS4) ? PS4_SAVES_PATH_USB : PSV_SAVES_PATH_USB);
 	if (mkdirs(path) != SUCCESS)
 	{
 		show_message("Error! Export folder is not available:\n%s", path);
@@ -151,7 +155,7 @@ static void copySave(const save_entry_t* save, const char* exp_path)
 	show_message("Files successfully copied to:\n%s", exp_path);
 }
 
-static int _update_save_details(const char* sys_path, const char* mount)
+static int _update_save_details(const char* sys_path, const save_entry_t* save)
 {
 	char file_path[256];
 	uint8_t* iconBuf;
@@ -163,7 +167,7 @@ static int _update_save_details(const char* sys_path, const char* mount)
 	sfo_context_t* sfo = sfo_alloc();
 	if (sfo_read(sfo, file_path) == SUCCESS)
 	{
-		orbis_UpdateSaveParams(mount,
+		orbis_UpdateSaveParams(save,
 			(char*) sfo_get_param_value(sfo, "MAINTITLE"),
 			(char*) sfo_get_param_value(sfo, "SUBTITLE"),
 			(char*) sfo_get_param_value(sfo, "DETAIL"),
@@ -174,16 +178,11 @@ static int _update_save_details(const char* sys_path, const char* mount)
 	snprintf(file_path, sizeof(file_path), "%s" "icon0.png", sys_path);
 	if (read_buffer(file_path, &iconBuf, &iconSize) == SUCCESS)
 	{
-		OrbisSaveDataMountPoint mp;
-		OrbisSaveDataIcon icon;
+		snprintf(file_path, sizeof(file_path), SAVE_ICON_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, save->title_id, save->dir_name);
+		mkdirs(file_path);
 
-		strlcpy(mp.data, mount, sizeof(mp.data));
-		memset(&icon, 0x00, sizeof(icon));
-		icon.buf = iconBuf;
-		icon.bufSize = iconSize;
-		icon.dataSize = iconSize;  // Icon data size
-
-		if (sceSaveDataSaveIcon(&mp, &icon) < 0) {
+		if (write_buffer(file_path, iconBuf, iconSize) < 0)
+		{
 			// Error handling
 			LOG("ERROR sceSaveDataSaveIcon");
 		}
@@ -197,7 +196,11 @@ static int _update_save_details(const char* sys_path, const char* mount)
 static int _copy_save_hdd(const save_entry_t* save)
 {
 	char copy_path[256];
-	char mount[32];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	sfo_patch_t patch = {
+		.user_id = apollo_config.user_id,
+		.account_id = apollo_config.account_id,
+	};
 
 	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
 		return 0;
@@ -208,9 +211,12 @@ static int _copy_save_hdd(const save_entry_t* save)
 	copy_directory(save->path, save->path, copy_path);
 
 	snprintf(copy_path, sizeof(copy_path), "%s" "sce_sys/", save->path);
-	_update_save_details(copy_path, mount);
+	_update_save_details(copy_path, save);
 
+	snprintf(copy_path, sizeof(copy_path), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
+	patch_sfo(copy_path, &patch);
 	orbis_SaveUmount(mount);
+
 	return 1;
 }
 
@@ -272,6 +278,7 @@ void extractArchive(const char* file_path)
 	case 'z':
 	case 'Z':
 		/* ZIP */
+		strcat(exp_path, "/");
 		ret = extract_zip(file_path, exp_path);
 		break;
 
@@ -327,8 +334,8 @@ static void exportFingerprint(const save_entry_t* save, int silent)
 
 	if (!silent) show_message("%s fingerprint successfully saved to:\n%s", save->title_id, fpath);
 }
-/*
-void exportTrophiesZip(const char* exp_path)
+
+static void exportTrophiesZip(const char* exp_path)
 {
 	char* export_file;
 	char* trp_path;
@@ -342,7 +349,7 @@ void exportTrophiesZip(const char* exp_path)
 
 	init_loading_screen("Exporting Trophies ...");
 
-	asprintf(&export_file, "%s" "trophies_%08d.zip", exp_path, apollo_config.user_id);
+	asprintf(&export_file, "%s" "trophies_%08x.zip", exp_path, apollo_config.user_id);
 	asprintf(&trp_path, TROPHY_PATH_HDD, apollo_config.user_id);
 
 	tmp = strdup(trp_path);
@@ -350,8 +357,8 @@ void exportTrophiesZip(const char* exp_path)
 
 	zip_directory(tmp, trp_path, export_file);
 
-	sprintf(export_file, "%s" OWNER_XML_FILE, exp_path);
-	_saveOwnerData(export_file);
+	sprintf(export_file, "%s%08x.xml", exp_path, apollo_config.user_id);
+	save_xml_owner(export_file);
 
 	free(export_file);
 	free(trp_path);
@@ -360,11 +367,10 @@ void exportTrophiesZip(const char* exp_path)
 	stop_loading_screen();
 	show_message("Trophies successfully saved to:\n%strophies_%08d.zip", exp_path, apollo_config.user_id);
 }
-*/
 
 static void dumpAllFingerprints(const save_entry_t* save)
 {
-	char mount[32];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 	uint64_t progress = 0;
 	list_node_t *node;
 	save_entry_t *item;
@@ -427,7 +433,7 @@ static void copySavePFS(const save_entry_t* save)
 {
 	char src_path[256];
 	char hdd_path[256];
-	char mount[32];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 	sfo_patch_t patch = {
 		.user_id = apollo_config.user_id,
 		.account_id = apollo_config.account_id,
@@ -449,7 +455,7 @@ static void copySavePFS(const save_entry_t* save)
 	orbis_SaveUmount(mount);
 
 	snprintf(src_path, sizeof(src_path), "%s%s", save->path, save->dir_name);
-	snprintf(hdd_path, sizeof(hdd_path), "/user/home/%08x/savedata/%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
 	LOG("Copying <%s> to %s...", src_path, hdd_path);
 	if (copy_file(src_path, hdd_path) != SUCCESS)
 	{
@@ -458,7 +464,7 @@ static void copySavePFS(const save_entry_t* save)
 	}
 
 	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
-	snprintf(hdd_path, sizeof(hdd_path), "/user/home/%08x/savedata/%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
 	LOG("Copying <%s> to %s...", src_path, hdd_path);
 	if (copy_file(src_path, hdd_path) != SUCCESS)
 	{
@@ -474,25 +480,28 @@ static void copySavePFS(const save_entry_t* save)
 	}
 
 	snprintf(hdd_path, sizeof(hdd_path), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
-	if (show_dialog(DIALOG_TYPE_YESNO, "Resign save %s/%s?", save->title_id, save->dir_name))
-		patch_sfo(hdd_path, &patch);
+	patch_sfo(hdd_path, &patch);
 
 	*strrchr(hdd_path, 'p') = 0;
-	_update_save_details(hdd_path, mount);
+	_update_save_details(hdd_path, save);
 	orbis_SaveUmount(mount);
 
 	show_message("Encrypted save copied successfully!\n%s/%s", save->title_id, save->dir_name);
 	return;
 }
 
-static void copyKeystone(int import)
+static void copyKeystone(const save_entry_t* entry, int import)
 {
 	char path_data[256];
 	char path_save[256];
 
-	snprintf(path_save, sizeof(path_save), "%ssce_sys/keystone", selected_entry->path);
-	snprintf(path_data, sizeof(path_data), APOLLO_USER_PATH "%s/keystone", apollo_config.user_id, selected_entry->title_id);
+	snprintf(path_save, sizeof(path_save), "%ssce_sys/keystone", entry->path);
+	snprintf(path_data, sizeof(path_data), APOLLO_USER_PATH "%s/keystone", apollo_config.user_id, entry->title_id);
 	mkdirs(path_data);
+
+	// try to import keystone from data folder
+	if (import && file_exists(path_data) != SUCCESS)
+		snprintf(path_data, sizeof(path_data), APOLLO_DATA_PATH "%s.keystone", entry->title_id);
 
 	LOG("Copy '%s' <-> '%s'...", path_save, path_data);
 
@@ -607,7 +616,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 	if (wildcard_match(req->resource, "/zip/\?\?\?\?\?\?\?\?/\?\?\?\?\?\?\?\?\?_*.zip") ||
 		wildcard_match(req->resource, "/PS4/\?\?\?\?\?\?\?\?\?/*.zip"))
 	{
-		char mount[32];
+		char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 		char *base, *path;
 		int id = 0;
 
@@ -649,7 +658,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 				continue;
 
 			if (item->flags & SAVE_FLAG_HDD)
-				asprintf(&res->data, PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, item->title_id, item->dir_name);
+				asprintf(&res->data, SAVE_ICON_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, item->title_id, item->dir_name);
 			else
 				asprintf(&res->data, "%ssce_sys/icon0.png", item->path);
 
@@ -669,7 +678,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 	// http://ps3-ip:8080/icon/CUSA12345/DIR-NAME_icon0.png
 	if (wildcard_match(req->resource, "/icon/\?\?\?\?\?\?\?\?\?/*_icon0.png"))
 	{
-		asprintf(&res->data, PS4_SAVES_PATH_HDD "%s", apollo_config.user_id, req->resource + 6);
+		asprintf(&res->data, SAVE_ICON_PATH_HDD "%s", apollo_config.user_id, req->resource + 6);
 		return (file_exists(res->data) == SUCCESS);
 	}
 
@@ -680,7 +689,7 @@ static void enableWebServer(dWebReqHandler_t handler, void* data, int port)
 {
 	OrbisNetCtlInfo info;
 
-	memset(&info, 0, sizeof(info));
+	memset(&info, 0, sizeof(OrbisNetCtlInfo));
 	sceNetCtlGetInfo(ORBIS_NET_CTL_INFO_IP_ADDRESS, &info);
 	LOG("Starting local web server %s:%d ...", info.ip_address, port);
 
@@ -696,7 +705,7 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int 
 {
 	char copy_path[256];
 	char save_path[256];
-	char mount[32];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 	uint64_t progress = 0;
 	list_node_t *node;
 	save_entry_t *item;
@@ -714,7 +723,9 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int 
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (item->type != FILE_TYPE_PS4 || !(all || item->flags & SAVE_FLAG_SELECTED) || !orbis_SaveMount(item, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
+		if (!(item->type == FILE_TYPE_PS4 || item->type == FILE_TYPE_TRP) || 
+			!(all || item->flags & SAVE_FLAG_SELECTED) || 
+			!orbis_SaveMount(item, (item->flags & SAVE_FLAG_TROPHY), mount))
 			continue;
 
 		snprintf(save_path, sizeof(save_path), APOLLO_SANDBOX_PATH, mount);
@@ -730,21 +741,193 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int 
 	show_message("All Saves copied to:\n%s", dst_path);
 }
 
-void exportFolder(const char* src_path, const char* exp_path, const char* msg)
+static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
 {
-	if (mkdirs(exp_path) != SUCCESS)
+	char outPath[256];
+	int done = 0, err_count = 0;
+	list_node_t *node;
+	save_entry_t *item;
+	uint64_t progress = 0;
+	list_t *list = ((void**)save->dir_name)[0];
+
+	init_progress_bar("Exporting all VMC saves...");
+	_set_dest_path(outPath, dev, PS1_SAVES_PATH_USB);
+	mkdirs(outPath);
+
+	LOG("Exporting all saves from '%s' to %s...", save->path, outPath);
+	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
-		show_message("Error! Export folder is not available:\n%s", exp_path);
+		update_progress_bar(progress++, list_count(list), item->name);
+		if (!all && !(item->flags & SAVE_FLAG_SELECTED))
+			continue;
+
+		if (item->type == FILE_TYPE_PS1)
+			(saveSingleSave(outPath, save->blocks, PS1SAVE_PSV) ? done++ : err_count++);
+
+		if (item->type == FILE_TYPE_PS2)
+			(vmc_export_psv(item->dir_name, outPath) ? done++ : err_count++);
+	}
+
+	end_progress_bar();
+
+	show_message("%d/%d Saves exported to\n%s", done, done+err_count, outPath);
+}
+
+static void exportVmcSave(const save_entry_t* save, int type, int dst_id)
+{
+	char outPath[256];
+	struct tm t;
+
+	_set_dest_path(outPath, dst_id, (type == PS1SAVE_PSV) ? PSV_SAVES_PATH_USB : PS1_SAVES_PATH_USB);
+	mkdirs(outPath);
+	if (type != PS1SAVE_PSV)
+	{
+		// build file path
+		gmtime_r(&(time_t){time(NULL)}, &t);
+		sprintf(strrchr(outPath, '/'), "/%s_%d-%02d-%02d_%02d%02d%02d.%s", save->title_id,
+			t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec,
+			(type == PS1SAVE_MCS) ? "mcs" : "psx");
+	}
+
+	if (saveSingleSave(outPath, save->blocks, type))
+		show_message("Save successfully exported to:\n%s", outPath);
+	else
+		show_message("Error exporting save:\n%s", save->path);
+}
+
+static void export_ps1vmc(const char* vm1_file, int dst, int vmp)
+{
+	char dstfile[256];
+	char dst_path[256];
+
+	_set_dest_path(dst_path, dst, VMC_PS1_PATH_USB);
+	if (mkdirs(dst_path) != SUCCESS)
+	{
+		show_message("Error! Export folder is not available:\n%s", dst_path);
 		return;
 	}
 
-	init_loading_screen(msg);
+	snprintf(dstfile, sizeof(dstfile), "%s%s.%s", dst_path, vm1_file, vmp ? "VMP" : "VM1");
 
-    LOG("Copying <%s> to %s...", src_path, exp_path);
-	copy_directory(src_path, src_path, exp_path);
+	if (saveMemoryCard(dstfile, vmp ? PS1CARD_VMP : PS1CARD_RAW, 0))
+		show_message("Memory card successfully exported to:\n%s", dstfile);
+	else
+		show_message("Error! Failed to export PS1 memory card");
+}
 
+static void export_vmc2save(const save_entry_t* save, int type, int dst_id)
+{
+	int ret = 0;
+	char outPath[256];
+	struct tm t;
+
+	_set_dest_path(outPath, dst_id, (type == FILE_TYPE_PSV) ? PSV_SAVES_PATH_USB : PS2_SAVES_PATH_USB);
+	mkdirs(outPath);
+	if (type != FILE_TYPE_PSV)
+	{
+		// build file path
+		gmtime_r(&(time_t){time(NULL)}, &t);
+		sprintf(strrchr(outPath, '/'), "/%s_%d-%02d-%02d_%02d%02d%02d.psu", save->title_id,
+			t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+	}
+
+	switch (type)
+	{
+	case FILE_TYPE_PSV:
+		ret = vmc_export_psv(save->dir_name, outPath);
+		break;
+
+	case FILE_TYPE_PSU:
+		ret = vmc_export_psu(save->dir_name, outPath);
+		break;
+
+	default:
+		break;
+	}
+
+	if (ret)
+		show_message("Save successfully exported to:\n%s", outPath);
+	else
+		show_message("Error exporting save:\n%s", save->path);
+}
+
+static void import_save2vmc(const char* src, int type)
+{
+	int ret = 0;
+
+	init_loading_screen("Importing PS2 save...");
+	switch (type)
+	{
+	case FILE_TYPE_PSV:
+		ret = vmc_import_psv(src);
+		break;
+
+	case FILE_TYPE_PSU:
+		ret = vmc_import_psu(src);
+		break;
+
+	case FILE_TYPE_XPS:
+		ret = ps2_xps2psv(src, APOLLO_LOCAL_CACHE "TEMP.PSV") && vmc_import_psv(APOLLO_LOCAL_CACHE "TEMP.PSV");
+		break;
+
+	case FILE_TYPE_CBS:
+		ret = ps2_cbs2psv(src, APOLLO_LOCAL_CACHE "TEMP.PSV") && vmc_import_psv(APOLLO_LOCAL_CACHE "TEMP.PSV");
+		break;
+
+	case FILE_TYPE_MAX:
+		ret = ps2_max2psv(src, APOLLO_LOCAL_CACHE "TEMP.PSV") && vmc_import_psv(APOLLO_LOCAL_CACHE "TEMP.PSV");
+		break;
+
+	default:
+		break;
+	}
 	stop_loading_screen();
-	show_message("Files successfully copied to:\n%s", exp_path);
+
+	if (ret)
+		show_message("Successfully imported to VMC:\n%s", src);
+	else
+		show_message("Error importing save:\n%s", src);
+}
+
+static int deleteVmcSave(const save_entry_t* save)
+{
+	int ret;
+
+	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to delete %s?", save->dir_name))
+		return 0;
+
+	ret = (save->flags & SAVE_FLAG_PS1) ? formatSave(save->blocks) : vmc_delete_save(save->dir_name);
+	if (ret)
+		show_message("Save successfully deleted:\n%s", save->dir_name);
+	else
+		show_message("Error! Couldn't delete save:\n%s", save->dir_name);
+
+	return ret;
+}
+
+static void exportVM2raw(const char* vm2_file, int dst, int ecc)
+{
+	int ret;
+	char dstfile[256];
+	char dst_path[256];
+
+	_set_dest_path(dst_path, dst, VMC_PS2_PATH_USB);
+	if (mkdirs(dst_path) != SUCCESS)
+	{
+		show_message("Error! Export folder is not available:\n%s", dst_path);
+		return;
+	}
+
+	snprintf(dstfile, sizeof(dstfile), "%s%s.%s", dst_path, vm2_file, ecc ? "VM2" : "VMC");
+
+	init_loading_screen("Exporting PS2 memory card...");
+	ret = mcio_vmcExportImage(dstfile, ecc);
+	stop_loading_screen();
+
+	if (ret == sceMcResSucceed)
+		show_message("File successfully saved to:\n%s", dstfile);
+	else
+		show_message("Error! Failed to export PS2 memory card");
 }
 
 static void rebuildAppDB(const char* path)
@@ -771,6 +954,58 @@ static void rebuildAppDB(const char* path)
 
 	if(!error)
 		show_message("Database rebuilt successfully!\nLog out for changes to take effect");
+}
+
+static void* orbis_host_callback(int id, int* size)
+{
+	OrbisNetCtlInfo info;
+
+	memset(host_buf, 0, sizeof(host_buf));
+
+	switch (id)
+	{
+	case APOLLO_HOST_TEMP_PATH:
+		return APOLLO_LOCAL_CACHE;
+
+	case APOLLO_HOST_SYS_NAME:
+		if (sceSystemServiceParamGetString(ORBIS_SYSTEM_SERVICE_PARAM_ID_SYSTEM_NAME, host_buf, sizeof(host_buf)) < 0)
+			LOG("Error getting System name");
+
+		if (size) *size = strlen(host_buf);
+		return host_buf;
+
+	case APOLLO_HOST_PSID:
+		memcpy(host_buf, apollo_config.psid, 16);
+		if (size) *size = 16;
+		return host_buf;
+
+	case APOLLO_HOST_ACCOUNT_ID:
+		memcpy(host_buf, &apollo_config.account_id, 8);
+		*(uint64_t*)host_buf = ES64(*(uint64_t*)host_buf);
+		if (size) *size = 8;
+		return host_buf;
+
+	case APOLLO_HOST_USERNAME:
+		if (sceUserServiceGetUserName(apollo_config.user_id, host_buf, sizeof(host_buf)) < 0)
+			LOG("Error getting Username");
+
+		if (size) *size = strlen(host_buf);
+		return host_buf;
+
+	case APOLLO_HOST_LAN_ADDR:
+	case APOLLO_HOST_WLAN_ADDR:
+		memset(&info, 0, sizeof(OrbisNetCtlInfo));
+		if (sceNetCtlGetInfo(ORBIS_NET_CTL_INFO_ETHER_ADDR, &info) < 0)
+			LOG("Error getting Wlan Ethernet Address");
+		else
+			memcpy(host_buf, info.ether_addr, 6);
+
+		if (size) *size = 6;
+		return host_buf;
+	}
+
+	if (size) *size = 1;
+	return host_buf;
 }
 
 static int apply_sfo_patches(save_entry_t* entry, sfo_patch_t* patch)
@@ -845,7 +1080,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 		if (!code->activated || (code->type != PATCH_GAMEGENIE && code->type != PATCH_BSD))
 			continue;
 
-    	LOG("Active code: [%s]", code->name);
+		LOG("Active code: [%s]", code->name);
 
 		if (strrchr(code->file, '\\'))
 			filename = strrchr(code->file, '\\')+1;
@@ -860,7 +1095,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 		else
 			snprintf(tmpfile, sizeof(tmpfile), "%s%s", entry->path, filename);
 
-		if (!apply_cheat_patch_code(tmpfile, entry->title_id, code, APOLLO_LOCAL_CACHE))
+		if (!apply_cheat_patch_code(tmpfile, entry->title_id, code, &orbis_host_callback))
 		{
 			LOG("Error: failed to apply (%s)", code->name);
 			ret = 0;
@@ -1061,11 +1296,11 @@ static void toggleBrowserHistory(int usr)
 
 void execCodeCommand(code_entry_t* code, const char* codecmd)
 {
-	char *tmp, mount[32];
+	char *tmp, mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 
 	if (selected_entry->flags & SAVE_FLAG_HDD)
 	{
-		if (!orbis_SaveMount(selected_entry, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
+		if (!orbis_SaveMount(selected_entry, (selected_entry->flags & SAVE_FLAG_TROPHY), mount))
 		{
 			LOG("Error Mounting Save! Check Save Mount Patches");
 			return;
@@ -1083,9 +1318,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_DOWNLOAD_USB:
-			if (selected_entry->flags & SAVE_FLAG_PS4)
-				downloadSave(selected_entry, code->file, codecmd[1]);
-			
+			downloadSave(selected_entry, code->file, codecmd[1]);			
 			code->activated = 0;
 			break;
 
@@ -1110,12 +1343,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_EXP_KEYSTONE:
-			copyKeystone(0);
+			copyKeystone(selected_entry, 0);
 			code->activated = 0;
 			break;
 
 		case CMD_IMP_KEYSTONE:
-			copyKeystone(1);
+			copyKeystone(selected_entry, 1);
 			code->activated = 0;
 			break;
 
@@ -1133,17 +1366,23 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			enableWebServer(dbg_simpleWebServerHandler, NULL, 8080);
 			code->activated = 0;
 			break;
-/*
+
 		case CMD_ZIP_TROPHY_USB:
 			exportTrophiesZip(codecmd[1] ? EXPORT_PATH_USB1 : EXPORT_PATH_USB0);
 			code->activated = 0;
 			break;
 
 		case CMD_COPY_TROPHIES_USB:
-			exportFolder(selected_entry->path, codecmd[1] ? TROPHY_PATH_USB1 : TROPHY_PATH_USB0, "Copying trophies...");
+		case CMD_COPY_ALL_TROPHIES_USB:
+			copyAllSavesUSB(selected_entry, codecmd[1] ? TROPHY_PATH_USB1 : TROPHY_PATH_USB0, codecmd[0] == CMD_COPY_ALL_TROPHIES_USB);
 			code->activated = 0;
 			break;
-*/
+
+		case CMD_EXP_TROPHY_USB:
+			copySave(selected_entry, codecmd[1] ? TROPHY_PATH_USB1 : TROPHY_PATH_USB0);
+			code->activated = 0;
+			break;
+
 		case CMD_BROWSER_HISTORY:
 			toggleBrowserHistory(apollo_config.user_id);
 			code->activated = 0;
@@ -1232,6 +1471,57 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			else
 				show_message("DLC Database rebuild failed!");
 
+			code->activated = 0;
+			break;
+
+		case CMD_EXP_SAVES_VMC:
+		case CMD_EXP_ALL_SAVES_VMC:
+			exportAllSavesVMC(selected_entry, codecmd[1], codecmd[0] == CMD_EXP_ALL_SAVES_VMC);
+			code->activated = 0;
+			break;
+
+		case CMD_EXP_VMC2SAVE:
+			export_vmc2save(selected_entry, code->options[0].id, codecmd[1]);
+			code->activated = 0;
+			break;
+
+		case CMD_IMP_VMC2SAVE:
+			import_save2vmc(code->file, codecmd[1]);
+			selected_entry->flags |= SAVE_FLAG_UPDATED;
+			code->activated = 0;
+			break;
+
+		case CMD_DELETE_VMCSAVE:
+			if (deleteVmcSave(selected_entry))
+				selected_entry->flags |= SAVE_FLAG_UPDATED;
+			else
+				code->activated = 0;
+			break;
+
+		case CMD_EXP_PS2_VM2:
+		case CMD_EXP_PS2_RAW:
+			exportVM2raw(code->file, codecmd[1], codecmd[0] == CMD_EXP_PS2_VM2);
+			code->activated = 0;
+			break;
+
+		case CMD_EXP_VMC1SAVE:
+			exportVmcSave(selected_entry, code->options[0].id, codecmd[1]);
+			code->activated = 0;
+			break;
+
+		case CMD_IMP_VMC1SAVE:
+			if (openSingleSave(code->file, (int*) host_buf))
+				show_message("Save successfully imported:\n%s", code->file);
+			else
+				show_message("Error! Couldn't import save:\n%s", code->file);
+
+			selected_entry->flags |= SAVE_FLAG_UPDATED;
+			code->activated = 0;
+			break;
+
+		case CMD_EXP_PS1_VM1:
+		case CMD_EXP_PS1_VMP:
+			export_ps1vmc(code->file, codecmd[1], codecmd[0] == CMD_EXP_PS1_VMP);
 			code->activated = 0;
 			break;
 

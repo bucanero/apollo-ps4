@@ -4,6 +4,145 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+---
+
+## [v1.7.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.7.0) - 2024-11-16
+
+### Added
+
+* Manage PS1 Virtual Memory Card images (VMC)
+  - Supports `.VM1` and external formats (`.MCR`, `.VMP`, `.BIN`, `.VMC`, `.GME`, `.VGS`, `.SRM`, `.MCD`)
+  - List, import, export, and delete PS1 saves inside VMC images
+  - Import - Supported formats: `.MCS`, `.PSV`, `.PSX`, `.PS1`, `.MCB`, `.PDA`
+  - Export - Supported formats: `.MCS`, `.PSV`, `.PSX`
+* Online DB: added PS1 saves listing
+
+### Fixed
+
+* Updated Apollo Patch Engine to v1.1.2
+  - Fixed SW Code search bug when bytes are not found
+
+---
+
+## [v1.6.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.6.0) - 2024-11-02
+
+### Added
+
+* 7.0x/8.0x/8.5x/9.0x/9.5x/10.50/10.7x firmware support (thanks to @BestPig)
+  - GoldHEN or ps4debug payload is required
+* Manage PS2 Virtual Memory Card images (VMC)
+  - Supports PS2 MemCard images, ECC and non-ECC (`.PS2`, `.VM2`, `.CARD`, `.VMC`)
+  - List, import, export, and delete PS2 saves inside VMC images
+  - Import - Supported formats: `.PSU`, `.PSV`, `.XPS`, `.MAX`, `.CBS`, `.SPS`
+  - Export - Supported formats: `.PSU`, `.PSV`
+* Online DB: added PS2 saves listing
+* Save sorting option by Type (PS4/PS2/VMC)
+* Add Debug Log option in Settings (on/off)
+
+### Misc
+
+* Updated Apollo Patch Engine to v1.1.0
+  - Improve code parsing
+  - Improve SW Code Type 3 (Subtype 3/7/B/F)
+  - Improve SW Code Type 4 (Subtype 4/5/6/C/D/E)
+  - Add AES CBC encryption command (`aes_cbc(key, iv)`)
+
+---
+
+## [v1.4.5](https://github.com/bucanero/apollo-ps4/releases/tag/v1.4.5) - 2024-06-29
+
+### Added
+
+* 9.60/10.00/10.01 firmware support (thanks to @BestPig)
+  - GoldHEN payload is required
+* New cheat codes
+  - Shin Megami Tensei V
+* Custom save decryption support
+  - Shin Megami Tensei V (AES-ECB)
+* Custom checksum support
+  - Shin Megami Tensei V (SHA1)
+
+---
+
+## [v1.4.4](https://github.com/bucanero/apollo-ps4/releases/tag/v1.4.4) - 2024-05-25
+
+### Added
+
+* 11.00 firmware support (thanks to @LightningMods @SocraticBliss)
+* New cheat codes
+  - Like a Dragon: Ishin!
+  - Unicorn Overlord
+* Custom save decryption support
+  - Like a Dragon: Ishin!
+  - Metal Gear Solid 5: Ground Zeroes
+  - The Last of Us: Part II
+  - Uncharted: Drake's Fortune Remastered
+  - Uncharted 2: Among Thieves Remastered
+  - Uncharted 3: Drake's Deception Remastered
+  - Uncharted 4: A Thief's End
+  - Uncharted: The Lost Legacy
+* Custom checksum support
+  - Dead Rising
+  - Like a Dragon: Ishin!
+  - Strider
+  - The Last of Us: Part II
+  - Uncharted: Drake's Fortune Remastered
+  - Uncharted 2: Among Thieves Remastered
+  - Uncharted 3: Drake's Deception Remastered
+  - Uncharted 4: A Thief's End
+  - Uncharted: The Lost Legacy
+
+### Fixes
+
+* Patch Code fixes
+  - Metal Gear Solid 5: The Phantom Pain
+
+### Misc
+
+* Updated Apollo Patch Engine to v1.0.0
+  - Add `jenkins_oaat`, `lookup3_little2` hash functions
+  - Add `camellia_ecb` encryption
+  - Add RGG Studio decryption (PS4)
+  - Add Dead Rising checksum
+  - Fix SaveWizard Code Type D issue with `CRLF` line breaks
+  - Changed BSD command syntax for `decompress(offset, wbits)` and `compress(offset)`
+
+---
+
+## [v1.4.2](https://github.com/bucanero/apollo-ps4/releases/tag/v1.4.2) - 2023-12-10
+
+### Added
+
+* Auto-detect `X`/`O` button settings
+* Network HTTP proxy settings support
+* New cheat codes
+  - Grand Theft Auto V
+  - Metal Gear Solid 5: The Phantom Pain
+* Custom decryption support
+  - Metal Gear Solid 5: The Phantom Pain
+* Custom checksum support
+  - Grand Theft Auto V
+  - Metal Gear Solid 5: The Phantom Pain
+  - Shantae and the Pirate's Curse
+  - Shantae: Risky's Revenge
+
+### Misc
+
+* Include original keystones for 116 games
+* Updated audio library to `libs3m`
+* Updated [`apollo-lib`](https://github.com/bucanero/apollo-lib) Patch Engine to v0.6.0
+  - Add host callbacks (username, wlan mac, psid, account id)
+  - Add `murmu3_32`, `jhash` hash functions
+  - Add Patapon 3 PSP decryption
+  - Add MGS5 decryption (PS3/PS4)
+  - Add Monster Hunter 2G/3rd PSP decryption
+  - Add Castlevania:LoS checksum
+  - Add Rockstar checksum
+  - Fix SaveWizard Code Type C
+  - Fix `right()` on little-endian platforms
+
+---
+
 ## [v1.4.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.4.0) - 2023-04-16
 
 ### Added
@@ -27,6 +166,8 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
   * Improve code types 9, B, D
   * Add value subtraction support (BSD)
 
+---
+
 ## [v1.3.1](https://github.com/bucanero/apollo-ps4/releases/tag/v1.3.1) - 2023-01-08
 
 ### Added
@@ -41,6 +182,8 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 ### Misc
 
 * Download application data updates from `apollo-patches` repository
+
+---
 
 ## [v1.3.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.3.0) - 2022-12-14
 
@@ -60,6 +203,8 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 * Updated networking code to `libcurl`+`polarssl` (TLS 1.2)
 * Improved Pad control handling
+
+---
 
 ## [v1.2.2](https://github.com/bucanero/apollo-ps4/releases/tag/v1.2.2) - 2022-11-05
 
@@ -85,6 +230,8 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
   * Fix `md5_xor`, `sha1_xor64` custom hashing
   * Fix little-endian support for decrypters/hashes
 
+---
+
 ## [v1.2.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.2.0) - 2022-05-05
 
 ### Added
@@ -104,6 +251,8 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 * Fixed issue when cheat patch couldn't be applied
 
+---
+
 ## [v1.1.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.1.0) - 2022-04-17
 
 ### Added
@@ -119,11 +268,15 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 * Fixed Trophy-set listing bug
 * Avoid issue when removing mount patches on exit
 
+---
+
 ## [v1.0.1](https://github.com/bucanero/apollo-ps4/releases/tag/v1.0.1) - 2022-02-02
 
 ### Fixed
 
 * Fixed Bulk resign and copy from USB
+
+---
 
 ## [v1.0.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.0.0) - 2022-01-30
 
@@ -137,6 +290,8 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 * Fixed inner file handling when save has sub-folders
 * Fixed SaveWizard write codes
+
+---
 
 ## [v0.8.0](https://github.com/bucanero/apollo-ps4/releases/tag/v0.8.0) - 2022-01-15
 
@@ -155,6 +310,8 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 * Project updated to Open Orbis SDK v0.5.2
 
+---
+
 ## [v0.7.0](https://github.com/bucanero/apollo-ps4/releases/tag/v0.7.0) - 2022-01-05
 
 ### Added
@@ -166,6 +323,8 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 ### Fixed
 
 * Fixed save-mount patches for 9.00 (thanks to GRModSave_Username)
+
+---
 
 ## [v0.6.0](https://github.com/bucanero/apollo-ps4/releases/tag/v0.6.0) - 2022-01-01
 
@@ -180,6 +339,8 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 ### Fixed
 
 * Fixed font rendering issue
+
+---
 
 ## [v0.5.0](https://github.com/bucanero/apollo-ps4/releases/tag/v0.5.0) - 2021-12-22
 

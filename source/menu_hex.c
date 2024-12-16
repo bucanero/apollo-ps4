@@ -22,8 +22,8 @@ static void _draw_HexEditor(const hexedit_data_t* hex, u8 alpha)
 
     memset(msgout, 32, sizeof(msgout));
     sprintf(msgout + (hex->pos % 16)*3 + hex->low_nibble, "%c", 0xDB);
-    DrawFormatStringMono(MENU_ICON_OFF + MENU_TITLE_OFF, y_off - FNT_HEIGHT, "OFFSET \xB3 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  \xB3 0123456789ABCDEF");
-    DrawFormatStringMono(MENU_ICON_OFF + MENU_TITLE_OFF, y_off + (hex->pos - hex->start)/16*FNT_HEIGHT, "         %s", msgout);
+    DrawFormatStringMono(MENU_ICON_OFF + MENU_TITLE_OFF, y_off - FNT_HEIGHT, "  OFFSET \xB3 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  \xB3 0123456789ABCDEF");
+    DrawFormatStringMono(MENU_ICON_OFF + MENU_TITLE_OFF, y_off + (hex->pos - hex->start)/16*FNT_HEIGHT, "           %s", msgout);
     DrawTexture(&menu_textures[mark_line_png_index], 0, y_off-1 + (hex->pos - hex->start)/16*FNT_HEIGHT, 0, SCREEN_WIDTH, menu_textures[mark_line_png_index].height*2, 0xFFFFFF00 | alpha);
 
     SetFontColor(APP_FONT_COLOR | alpha, 0);
@@ -31,14 +31,14 @@ static void _draw_HexEditor(const hexedit_data_t* hex, u8 alpha)
     {
         if (i != hex->start && !(i % 16))
         {
-            DrawFormatStringMono(MENU_ICON_OFF + MENU_TITLE_OFF, y_off, "%06X \xB3 %s \xB3 %s", i-0x10, msgout, ascii);
+            DrawFormatStringMono(MENU_ICON_OFF + MENU_TITLE_OFF, y_off, "%08X \xB3 %s \xB3 %s", i-0x10, msgout, ascii);
             y_off += FNT_HEIGHT;
         }
 
         sprintf(msgout + (i % 16)*3, "%02X ", hex->data[i]);
         sprintf(ascii  + (i % 16), "%c", hex->data[i] ? hex->data[i] : '.');
     }
-    DrawFormatStringMono(MENU_ICON_OFF + MENU_TITLE_OFF, y_off, "%06X \xB3 %-48s \xB3 %s", (i-1) & ~15, msgout, ascii);
+    DrawFormatStringMono(MENU_ICON_OFF + MENU_TITLE_OFF, y_off, "%08X \xB3 %-48s \xB3 %s", (i-1) & ~15, msgout, ascii);
 
     SetCurrentFont(font_adonais_regular);
 }

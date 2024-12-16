@@ -1,5 +1,7 @@
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
+#include <orbis/SaveData.h>
 
 #include "orbisPad.h"
 #include "saves.h"
@@ -8,12 +10,16 @@
 #include "libfont.h"
 #include "ttf_render.h"
 #include "common.h"
+#include "mcio.h"
+#include "ps1card.h"
 
 extern save_list_t hdd_saves;
 extern save_list_t usb_saves;
 extern save_list_t trophies;
 extern save_list_t online_saves;
 extern save_list_t user_backup;
+extern save_list_t vmc1_saves;
+extern save_list_t vmc2_saves;
 
 extern int close_app;
 
@@ -30,7 +36,7 @@ code_entry_t* selected_centry;
 int option_index = 0;
 static hexedit_data_t hex_data;
 
-void initMenuOptions()
+void initMenuOptions(void)
 {
 	menu_options_maxopt = 0;
 	while (menu_options[menu_options_maxopt].name)
@@ -67,6 +73,8 @@ static int ReloadUserSaves(save_list_t* save_list)
 		list_bubbleSort(save_list->list, &sortSaveList_Compare);
 	else if (apollo_config.doSort == SORT_BY_TITLE_ID)
 		list_bubbleSort(save_list->list, &sortSaveList_Compare_TitleID);
+	else if (apollo_config.doSort == SORT_BY_TYPE)
+		list_bubbleSort(save_list->list, &sortSaveList_Compare_Type);
 
 	stop_loading_screen();
 
@@ -79,7 +87,7 @@ static int ReloadUserSaves(save_list_t* save_list)
 	return list_count(save_list->list);
 }
 
-static code_entry_t* LoadRawPatch()
+static code_entry_t* LoadRawPatch(void)
 {
 	char patchPath[256];
 	code_entry_t* centry = calloc(1, sizeof(code_entry_t));
@@ -91,13 +99,13 @@ static code_entry_t* LoadRawPatch()
 	return centry;
 }
 
-static code_entry_t* LoadSaveDetails()
+static code_entry_t* LoadSaveDetails(const save_entry_t* save)
 {
 	code_entry_t* centry = calloc(1, sizeof(code_entry_t));
-	centry->name = strdup(selected_entry->title_id);
+	centry->name = strdup(save->title_id);
 
-	if (!get_save_details(selected_entry, &centry->codes))
-		asprintf(&centry->codes, "Error getting details (%s)", selected_entry->name);
+	if (!get_save_details(save, &centry->codes))
+		asprintf(&centry->codes, "Error getting details (%s)", save->name);
 
 	LOG("%s", centry->codes);
 	return (centry);
@@ -107,6 +115,38 @@ static void SetMenu(int id)
 {
 	switch (menu_id) //Leaving menu
 	{
+		case MENU_PS1VMC_SAVES:
+			if (id == MENU_MAIN_SCREEN)
+			{
+				UnloadGameList(vmc1_saves.list);
+				vmc1_saves.list = NULL;
+
+				if(strncmp(APOLLO_SANDBOX_PATH, vmc1_saves.path, 16) == 0)
+				{
+					*strrchr(vmc1_saves.path, '/') = 0;
+					orbis_SaveUmount(strrchr(vmc1_saves.path, '/'));
+				}
+			}
+			break;
+
+		case MENU_PS2VMC_SAVES:
+			if (id == MENU_MAIN_SCREEN)
+			{
+				init_loading_screen("Saving PS2 Memory Card...");
+				UnloadGameList(vmc2_saves.list);
+				vmc2_saves.list = NULL;
+				mcio_vmcFinish();
+
+				if(strncmp(APOLLO_SANDBOX_PATH, vmc2_saves.path, 16) == 0)
+				{
+					*strrchr(vmc2_saves.path, '/') = 0;
+					orbis_SaveUmount(strrchr(vmc2_saves.path, '/'));
+				}
+
+				stop_loading_screen();
+			}
+			break;
+
 		case MENU_MAIN_SCREEN: //Main Menu
 		case MENU_TROPHIES:
 		case MENU_USB_SAVES: //USB Saves Menu
@@ -118,7 +158,20 @@ static void SetMenu(int id)
 
 		case MENU_SETTINGS: //Options Menu
 		case MENU_CREDITS: //About Menu
+			break;
+
 		case MENU_PATCHES: //Cheat Selection Menu
+			if (selected_entry->flags & SAVE_FLAG_UPDATED && id == MENU_PS2VMC_SAVES)
+			{
+				selected_entry->flags ^= SAVE_FLAG_UPDATED;
+				ReloadUserSaves(&vmc2_saves);
+			}
+			else if (selected_entry->flags & SAVE_FLAG_UPDATED && id == MENU_PS1VMC_SAVES)
+			{
+				selected_entry->flags ^= SAVE_FLAG_UPDATED;
+				saveMemoryCard(vmc1_saves.path, 0, 0);
+				ReloadUserSaves(&vmc1_saves);
+			}
 			break;
 
 		case MENU_SAVE_DETAILS:
@@ -178,6 +231,22 @@ static void SetMenu(int id)
 				Draw_UserCheatsMenu_Ani(&online_saves);
 			break;
 
+		case MENU_PS1VMC_SAVES: //VMC Menu
+			if (!vmc1_saves.list && !ReloadUserSaves(&vmc1_saves))
+				return;
+
+			if (apollo_config.doAni)
+				Draw_UserCheatsMenu_Ani(&vmc1_saves);
+			break;
+
+		case MENU_PS2VMC_SAVES: //Trophies Menu
+			if (!vmc2_saves.list && !ReloadUserSaves(&vmc2_saves))
+				return;
+
+			if (apollo_config.doAni)
+				Draw_UserCheatsMenu_Ani(&vmc2_saves);
+			break;
+
 		case MENU_CREDITS: //About Menu
 			if (apollo_config.doAni)
 				Draw_AboutMenu_Ani();
@@ -198,10 +267,12 @@ static void SetMenu(int id)
 
 		case MENU_PATCHES: //Cheat Selection Menu
 			//if entering from game list, don't keep index, otherwise keep
-			if (menu_id == MENU_USB_SAVES || menu_id == MENU_HDD_SAVES || menu_id == MENU_ONLINE_DB || menu_id == MENU_TROPHIES)
+			if (menu_id == MENU_USB_SAVES || menu_id == MENU_HDD_SAVES || menu_id == MENU_ONLINE_DB ||
+				menu_id == MENU_TROPHIES || menu_id == MENU_PS1VMC_SAVES || menu_id == MENU_PS2VMC_SAVES)
 				menu_old_sel[MENU_PATCHES] = 0;
 
 			char iconfile[256];
+			menu_textures[icon_png_file_index].size = 0;
 			snprintf(iconfile, sizeof(iconfile), "%s" "sce_sys/icon0.png", selected_entry->path);
 
 			if (selected_entry->flags & SAVE_FLAG_ONLINE)
@@ -209,15 +280,23 @@ static void SetMenu(int id)
 				snprintf(iconfile, sizeof(iconfile), APOLLO_LOCAL_CACHE "%s.PNG", selected_entry->title_id);
 
 				if (file_exists(iconfile) != SUCCESS)
-					http_download(selected_entry->path, "icon0.png", iconfile, 0);
+					http_download(selected_entry->path, "icon0.png", iconfile, 1);
 			}
+			else if (selected_entry->flags & SAVE_FLAG_VMC && selected_entry->type == FILE_TYPE_PS2)
+				LoadVmcTexture(128, 128, getIconPS2(selected_entry->dir_name, strrchr(selected_entry->path, '\n')+1));
+
+			else if (selected_entry->flags & SAVE_FLAG_VMC && selected_entry->type == FILE_TYPE_PS1)
+			{
+				LoadVmcTexture(16, 16, getIconRGBA(selected_entry->blocks, 0));
+				menu_textures[icon_png_file_index].width = 128;
+				menu_textures[icon_png_file_index].height = 128;
+			}
+
 			else if (selected_entry->flags & SAVE_FLAG_HDD)
-				snprintf(iconfile, sizeof(iconfile), PS4_SAVES_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
+				snprintf(iconfile, sizeof(iconfile), SAVE_ICON_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name);
 
 			if (file_exists(iconfile) == SUCCESS)
 				LoadMenuTexture(iconfile, icon_png_file_index);
-			else
-				menu_textures[icon_png_file_index].size = 0;
 
 			if (apollo_config.doAni && menu_id != MENU_PATCH_VIEW && menu_id != MENU_CODE_OPTIONS)
 				Draw_CheatsMenu_Selection_Ani();
@@ -321,6 +400,36 @@ static void doSaveMenu(save_list_t * save_list)
 	{
 		selected_entry = list_get_item(save_list->list, menu_sel);
 
+		if (selected_entry->type == FILE_TYPE_VMC && selected_entry->flags & SAVE_FLAG_VMC)
+		{
+			char tmp_path[256];
+
+			strncpy(tmp_path, selected_entry->path, sizeof(tmp_path));
+
+			if (selected_entry->flags & SAVE_FLAG_HDD)
+			{
+				char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+
+				if (!orbis_SaveMount(selected_entry, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
+					return;
+
+				snprintf(tmp_path, sizeof(tmp_path), APOLLO_SANDBOX_PATH "%s", mount, selected_entry->path);
+			}
+
+			if (selected_entry->flags & SAVE_FLAG_PS1)
+			{
+				strncpy(vmc1_saves.path, tmp_path, sizeof(vmc1_saves.path));
+				SetMenu(MENU_PS1VMC_SAVES);
+			}
+			else
+			{
+				strncpy(vmc2_saves.path, tmp_path, sizeof(vmc2_saves.path));
+				SetMenu(MENU_PS2VMC_SAVES);
+			}
+
+			return;
+		}
+
 		if (!selected_entry->codes && !save_list->ReadCodes(selected_entry))
 		{
 			show_message("No data found in folder:\n%s", selected_entry->path);
@@ -339,7 +448,7 @@ static void doSaveMenu(save_list_t * save_list)
 		selected_entry = list_get_item(save_list->list, menu_sel);
 		if (selected_entry->type != FILE_TYPE_MENU)
 		{
-			selected_centry = LoadSaveDetails();
+			selected_centry = LoadSaveDetails(selected_entry);
 			SetMenu(MENU_SAVE_DETAILS);
 			return;
 		}
@@ -359,7 +468,7 @@ static void doSaveMenu(save_list_t * save_list)
 	Draw_UserCheatsMenu(save_list, menu_sel, 0xFF);
 }
 
-static void doMainMenu()
+static void doMainMenu(void)
 {
 	// Check the pads.
 	if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_LEFT))
@@ -381,19 +490,30 @@ static void doMainMenu()
 	Draw_MainMenu();
 }
 
-static void doAboutMenu()
+static void doAboutMenu(void)
 {
+	static int ll = 0;
+
 	// Check the pads.
 	if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 	{
+		if (ll)
+			apollo_config.music = (ll & 0x01);
+
+		ll = 0;
 		SetMenu(MENU_MAIN_SCREEN);
 		return;
 	}
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TOUCH_PAD))
+	{
+		ll = (0x02 | apollo_config.music);
+		apollo_config.music = 1;
+	}
 
-	Draw_AboutMenu();
+	Draw_AboutMenu(ll);
 }
 
-static void doOptionsMenu()
+static void doOptionsMenu(void)
 {
 	// Check the pads.
 	if(orbisPadGetButtonHold(ORBIS_PAD_BUTTON_UP))
@@ -536,13 +656,12 @@ static void doHexEditor(void)
 	Draw_HexEditor(&hex_data);
 }
 
-static int count_code_lines()
+static int count_code_lines(const char * str)
 {
 	//Calc max
 	int max = 0;
-	const char * str;
 
-	for(str = selected_centry->codes; *str; ++str)
+	for(max = 0; *str; ++str)
 		max += (*str == '\n');
 
 	if (max <= 0)
@@ -551,10 +670,10 @@ static int count_code_lines()
 	return max;
 }
 
-static void doPatchViewMenu()
+static void doPatchViewMenu(void)
 {
 	// Check the pads.
-	if (updatePadSelection(count_code_lines()))
+	if (updatePadSelection(count_code_lines(selected_centry->codes)))
 		(void)0;
 
 	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
@@ -566,7 +685,7 @@ static void doPatchViewMenu()
 	Draw_CheatsMenu_View("Patch view");
 }
 
-static void doCodeOptionsMenu()
+static void doCodeOptionsMenu(void)
 {
     code_entry_t* code = selected_centry;
 
@@ -624,10 +743,10 @@ static void doCodeOptionsMenu()
 	Draw_CheatsMenu_Options();
 }
 
-static void doSaveDetailsMenu()
+static void doSaveDetailsMenu(void)
 {
 	// Check the pads.
-	if (updatePadSelection(count_code_lines()))
+	if (updatePadSelection(count_code_lines(selected_centry->codes)))
 		(void)0;
 
 	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
@@ -645,7 +764,7 @@ static void doSaveDetailsMenu()
 	Draw_CheatsMenu_View(selected_entry->name);
 }
 
-static void doPatchMenu()
+static void doPatchMenu(void)
 {
 	// Check the pads.
 	if (updatePadSelection(list_count(selected_entry->codes)))
@@ -675,7 +794,7 @@ static void doPatchMenu()
 				list_node_t* node;
 
 				for (node = list_head(selected_entry->codes); (code = list_get(node)); node = list_next(node))
-					if (wildcard_match_icase(code->name, "*(REQUIRED)*"))
+					if (wildcard_match_icase(code->name, "*(REQUIRED)*") && code->options_count == 0)
 						code->activated = 1;
 			}
 				/*
@@ -694,6 +813,13 @@ static void doPatchMenu()
 				return;
 			}
 
+			if (selected_centry->codes[0] == CMD_DELETE_VMCSAVE)
+			{
+				selected_centry->activated = 0;
+				SetMenu(last_menu_id[MENU_PATCHES]);
+				return;
+			}
+
 			if (selected_centry->codes[0] == CMD_VIEW_RAW_PATCH)
 			{
 				selected_centry->activated = 0;
@@ -705,7 +831,7 @@ static void doPatchMenu()
 			if (selected_centry->codes[0] == CMD_VIEW_DETAILS)
 			{
 				selected_centry->activated = 0;
-				selected_centry = LoadSaveDetails();
+				selected_centry = LoadSaveDetails(selected_entry);
 				SetMenu(MENU_SAVE_DETAILS);
 				return;
 			}
@@ -727,7 +853,7 @@ static void doPatchMenu()
 }
 
 // Resets new frame
-void drawScene()
+void drawScene(void)
 {
 	switch (menu_id)
 	{
@@ -781,6 +907,14 @@ void drawScene()
 
 		case MENU_HEX_EDITOR: //Hex Editor Menu
 			doHexEditor();
+			break;
+
+		case MENU_PS1VMC_SAVES: //PS1 VMC Menu
+			doSaveMenu(&vmc1_saves);
+			break;
+
+		case MENU_PS2VMC_SAVES: //PS2 VMC Menu
+			doSaveMenu(&vmc2_saves);
 			break;
 	}
 }

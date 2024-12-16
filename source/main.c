@@ -31,10 +31,9 @@
 #include "font-10x20.h"
 
 //Sound
+#include <s3m.h>
 #define SAMPLING_FREQ          48000 /* 48khz. */
 #define AUDIO_SAMPLES          256   /* audio samples */
-#define DR_MP3_IMPLEMENTATION
-#include "dr_mp3.h"
 
 // Audio handle
 static int32_t audio = 0;
@@ -48,6 +47,7 @@ void update_usb_path(char *p);
 void update_hdd_path(char *p);
 void update_trophy_path(char *p);
 void update_db_path(char *p);
+void update_vmc_path(char *p);
 
 app_config_t apollo_config = {
     .app_name = "APOLLO",
@@ -57,6 +57,8 @@ app_config_t apollo_config = {
     .doSort = 1,
     .doAni = 1,
     .update = 1,
+    .dbglog = 0,
+    .usb_dev = 9,
     .user_id = 0,
     .psid = {0, 0},
     .account_id = 0,
@@ -136,6 +138,32 @@ save_list_t user_backup = {
     .UpdatePath = NULL,
 };
 
+/*
+* PS1 VMC list
+*/
+save_list_t vmc1_saves = {
+    .icon_id = cat_usb_png_index,
+    .title = "PS1 Virtual Memory Card",
+    .list = NULL,
+    .path = "",
+    .ReadList = &ReadVmc1List,
+    .ReadCodes = &ReadVmc1Codes,
+    .UpdatePath = &update_vmc_path,
+};
+
+/*
+* PS2 VMC list
+*/
+save_list_t vmc2_saves = {
+    .icon_id = cat_usb_png_index,
+    .title = "PS2 Virtual Memory Card",
+    .list = NULL,
+    .path = "",
+    .ReadList = &ReadVmc2List,
+    .ReadCodes = &ReadVmc2Codes,
+    .UpdatePath = &update_vmc_path,
+};
+
 static const char* get_button_prompts(int menu_id)
 {
 	const char* prompt = NULL;
@@ -145,11 +173,13 @@ static const char* get_button_prompts(int menu_id)
 		case MENU_TROPHIES:
 		case MENU_USB_SAVES:
 		case MENU_HDD_SAVES:
+		case MENU_ONLINE_DB:
+		case MENU_PS1VMC_SAVES:
+		case MENU_PS2VMC_SAVES:
 			prompt = "\x10 Select    \x13 Back    \x12 Details    \x11 Refresh";
 			break;
 
 		case MENU_USER_BACKUP:
-		case MENU_ONLINE_DB:
 			prompt = "\x10 Select    \x13 Back    \x11 Refresh";
 			break;
 
@@ -198,7 +228,7 @@ static void helpFooter(void)
 	SetFontAlign(FONT_ALIGN_LEFT);
 }
 
-static int initPad()
+static int initPad(void)
 {
 	if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_PAD) < 0)
 		return 0;
@@ -217,7 +247,7 @@ static int initPad()
 }
 
 // Used only in initialization. Allocates 64 mb for textures and loads the font
-static int LoadTextures_Menu()
+static int LoadTextures_Menu(void)
 {
 	texture_mem = malloc(256 * 32 * 4);
 	menu_textures = (png_texture *)calloc(TOTAL_MENU_TEXTURES, sizeof(png_texture));
@@ -239,7 +269,7 @@ static int LoadTextures_Menu()
 	//Init Main Menu textures
 	load_menu_texture(bgimg, jpg);
 	load_menu_texture(cheat, png);
-	load_menu_texture(leonluna, jpg);
+	load_menu_texture(leon_luna, jpg);
 
 	load_menu_texture(circle_loading_bg, png);
 	load_menu_texture(circle_loading_seek, png);
@@ -294,7 +324,7 @@ static int LoadTextures_Menu()
 	load_menu_texture(logo_text, png);
 	load_menu_texture(tag_lock, png);
 	load_menu_texture(tag_own, png);
-	load_menu_texture(tag_pce, png);
+	load_menu_texture(tag_vmc, png);
 	load_menu_texture(tag_ps1, png);
 	load_menu_texture(tag_ps2, png);
 	load_menu_texture(tag_ps3, png);
@@ -322,35 +352,37 @@ static int LoadTextures_Menu()
 
 static int LoadSounds(void* data)
 {
-	uint8_t* play_audio = data;
-	drmp3 wav;
+	s3m_t s3m;
 
+	s3m_initialize(&s3m, SAMPLING_FREQ);
 	// Decode a mp3 file to play
-	if (!drmp3_init_file(&wav, APOLLO_APP_PATH "audio/background_music.mp3", NULL))
+	if (s3m_load(&s3m, APOLLO_APP_PATH "audio/haiku.s3m") < 0)
 	{
 		LOG("[ERROR] Failed to decode audio file");
 		return -1;
 	}
+	LOG("Loaded audio file: %s", s3m.header->song_name);
 
 	// Calculate the sample count and allocate a buffer for the sample data accordingly
-	drmp3_int16 *pSampleData = (drmp3_int16 *)malloc(AUDIO_SAMPLES * wav.channels * sizeof(drmp3_int16));
+	uint8_t *pSampleData = (uint8_t*) malloc(AUDIO_SAMPLES * 2 * sizeof(int16_t));
 
 	// Play the song in a loop
 	while (!close_app)
 	{
-		if (*play_audio == 0)
+		if (!apollo_config.music)
 		{
 			usleep(0x1000);
 			continue;
 		}
 
-		// Decode the wav into pSampleData  wav.totalPCMFrameCount
-		if (!drmp3_read_pcm_frames_s16(&wav, AUDIO_SAMPLES, pSampleData))
+		if (!s3m.rt.playing)
 		{
 			// If we reach the end of the file, seek back to the beginning.
-			drmp3_seek_to_pcm_frame(&wav, 0);
-			continue;
+			s3m_play(&s3m);
 		}
+
+		// Decode the wav into pSampleData
+		s3m_sound_callback(NULL, pSampleData, AUDIO_SAMPLES * 2 * sizeof(int16_t));
 
 		/* Output audio */
 		sceAudioOutOutput(audio, NULL);	// NULL: wait for completion
@@ -362,23 +394,43 @@ static int LoadSounds(void* data)
 		}
 	}
 
+	s3m_stop(&s3m);
+	s3m_unload(&s3m);
 	free(pSampleData);
-	drmp3_uninit(&wav);
 
 	return 0;
 }
 
 void update_usb_path(char* path)
 {
-	for (int i = 0; i <= MAX_USB_DEVICES; i++)
+	if (apollo_config.usb_dev < MAX_USB_DEVICES)
 	{
-		sprintf(path, USB_PATH "PS4/", i);
-
-		if (dir_exists(path) == SUCCESS)
-			return;
+		sprintf(path, USB_PATH, apollo_config.usb_dev);
+		return;
 	}
 
-	sprintf(path, FAKE_USB_PATH "PS4/");
+	if (apollo_config.usb_dev == MAX_USB_DEVICES)
+	{
+		sprintf(path, FAKE_USB_PATH);
+		return;
+	}
+
+	for (int i = 0; i < MAX_USB_DEVICES; i++)
+	{
+		sprintf(path, USB_PATH ".apollo", i);
+
+		FILE *fp = fopen(path, "w");
+		if (!fp)
+			continue;
+
+		fclose(fp);
+		remove(path);
+		*strrchr(path, '.') = 0;
+
+		return;
+	}
+
+	sprintf(path, FAKE_USB_PATH);
 	if (dir_exists(path) == SUCCESS)
 		return;
 
@@ -387,12 +439,12 @@ void update_usb_path(char* path)
 
 void update_hdd_path(char* path)
 {
-	sprintf(path, USER_PATH_HDD, apollo_config.user_id);
+	sprintf(path, SAVES_DB_PATH, apollo_config.user_id);
 }
 
 void update_trophy_path(char* path)
 {
-	sprintf(path, TROPHY_PATH_HDD, apollo_config.user_id);
+	sprintf(path, TROPHY_DB_PATH, apollo_config.user_id);
 }
 
 void update_db_path(char* path)
@@ -400,16 +452,24 @@ void update_db_path(char* path)
 	strcpy(path, apollo_config.save_db);
 }
 
+void update_vmc_path(char* path)
+{
+	if (file_exists(path) == SUCCESS)
+		return;
+
+	path[0] = 0;
+}
+
 static void registerSpecialChars(void)
 {
 	// Register save tags
-	RegisterSpecialCharacter(CHAR_TAG_PS1, 2, 1.5, &menu_textures[tag_ps1_png_index]);
-	RegisterSpecialCharacter(CHAR_TAG_PS2, 2, 1.5, &menu_textures[tag_ps2_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_PS1, 0, 1.5, &menu_textures[tag_ps1_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_PS2, 0, 1.5, &menu_textures[tag_ps2_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PS3, 2, 1.5, &menu_textures[tag_ps3_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PS4, 2, 1.5, &menu_textures[tag_ps4_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PSP, 2, 1.5, &menu_textures[tag_psp_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PSV, 2, 1.5, &menu_textures[tag_psv_png_index]);
-	RegisterSpecialCharacter(CHAR_TAG_PCE, 2, 1.5, &menu_textures[tag_pce_png_index]);
+	RegisterSpecialCharacter(CHAR_TAG_VMC, 2, 1.0, &menu_textures[tag_vmc_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_LOCKED, 0, 1.3, &menu_textures[tag_lock_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_OWNER, 0, 1.3, &menu_textures[tag_own_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_WARNING, 0, 1.3, &menu_textures[tag_warning_png_index]);
@@ -432,18 +492,16 @@ static void registerSpecialChars(void)
 	RegisterSpecialCharacter(CHAR_TRP_SYNC, 0, 0.9f, &menu_textures[trp_sync_png_index]);
 }
 
-static void terminate()
+static void terminate(void)
 {
 	LOG("Exiting...");
-	// Unload loaded libraries
-	if (unpatch_SceShellCore())
-		notifi("cxml://psnotification/tex_default_icon_notification", "PS4 Save patches removed from memory");
+	sceAudioOutClose(audio);
 
 	terminate_jbc();
 	sceSystemServiceLoadExec("exit", NULL);
 }
 
-static int initInternal()
+static int initInternal(void)
 {
     // load common modules
     int ret = sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_SYSTEM_SERVICE);
@@ -527,8 +585,11 @@ s32 main(s32 argc, const char* argv[])
 	}
 
 	// Initialize jailbreak
-	if (!initialize_jbc())
+	if (!initialize_jbc() || !initVshDataMount())
+	{
+		notify_popup(NOTIFICATION_ICON_BAN, "Failed to initialize jailbreak!");
 		terminate();
+	}
 
 	mkdirs(APOLLO_DATA_PATH);
 	mkdirs(APOLLO_LOCAL_CACHE);
@@ -568,28 +629,30 @@ s32 main(s32 argc, const char* argv[])
 	// Load application settings
 	load_app_settings(&apollo_config);
 
+	if (apollo_config.dbglog)
+	{
+		dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 0);
+		notify_popup(NOTIFICATION_ICON_DEFAULT, "Debug Logging Enabled\n%s", APOLLO_PATH "apollo.log");
+	}
+
 	// Unpack application data on first run
 	if (strncmp(apollo_config.app_ver, APOLLO_VERSION, sizeof(apollo_config.app_ver)) != 0)
 	{
 		LOG("Unpacking application data...");
 //		clean_directory(APOLLO_DATA_PATH);
 		if (extract_zip(APOLLO_APP_PATH "misc/appdata.zip", APOLLO_DATA_PATH))
-			show_message("Successfully installed local application data");
+			notify_popup(NOTIFICATION_ICON_DEFAULT, "Successfully installed local application data");
 
 		strncpy(apollo_config.app_ver, APOLLO_VERSION, sizeof(apollo_config.app_ver));
 		save_app_settings(&apollo_config);
 	}
 
 	// dedicated to Leon & Luna ~ in loving memory
-	menu_textures[buk_scr_png_index] = menu_textures[leonluna_jpg_index];
 
 #ifndef APOLLO_ENABLE_LOGGING
 	// Splash screen logo (fade-in)
 	drawSplashLogo(1);
 #endif
-
-	// Apply save-mounter patches
-	patch_save_libraries();
 
 	// Setup font
 	SetExtraSpace(-15);
@@ -608,7 +671,7 @@ s32 main(s32 argc, const char* argv[])
 	update_callback(!apollo_config.update);
 
 	// Start BGM audio thread
-	SDL_CreateThread(&LoadSounds, "audio_thread", &apollo_config.music);
+	SDL_CreateThread(&LoadSounds, "audio_thread", NULL);
 
 #ifndef APOLLO_ENABLE_LOGGING
 	Draw_MainMenu_Ani();
@@ -640,10 +703,8 @@ s32 main(s32 argc, const char* argv[])
 		SDL_RenderPresent(renderer);
 	}
 
-#ifndef APOLLO_ENABLE_LOGGING
 	if (apollo_config.doAni)
 		drawEndLogo();
-#endif
 
     // Cleanup resources
     SDL_DestroyRenderer(renderer);

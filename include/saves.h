@@ -76,6 +76,7 @@ enum cmd_code_enum
     CMD_RESIGN_TROPHY,
     CMD_EXP_TROPHY_USB,
     CMD_COPY_TROPHIES_USB,
+    CMD_COPY_ALL_TROPHIES_USB,
     CMD_ZIP_TROPHY_USB,
 
 // Save commands

@@ -95,7 +95,7 @@ enum cmd_code_enum
     CMD_HEX_EDIT_FILE,
     CMD_COPY_PFS,
     CMD_IMPORT_DATA_FILE,
-    CMD_DELETE_VMCSAVE,
+    CMD_DELETE_SAVE,
 
 // Bulk commands
     CMD_RESIGN_SAVES,
@@ -312,6 +312,7 @@ int regMgr_SetAccountId(int userNumber, uint64_t* psnAccountId);
 int get_save_details(const save_entry_t *save, char** details);
 int orbis_SaveUmount(const char* mountPath);
 int orbis_SaveMount(const save_entry_t *save, uint32_t mode, char* mountPath);
+int orbis_SaveDelete(const save_entry_t *save);
 int orbis_UpdateSaveParams(const save_entry_t* save, const char* title, const char* subtitle, const char* details, uint32_t up);
 
 int vmc_export_psv(const char* save, const char* out_path);

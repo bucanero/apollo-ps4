@@ -308,7 +308,7 @@ void extractArchive(const char* file_path)
 static void exportFingerprint(const save_entry_t* save, int silent)
 {
 	char fpath[256];
-	uint8_t buffer[0x40];
+	uint8_t buffer[0x60];
 
 	snprintf(fpath, sizeof(fpath), "%ssce_sys/keystone", save->path);
 	LOG("Reading '%s' ...", fpath);
@@ -319,22 +319,22 @@ static void exportFingerprint(const save_entry_t* save, int silent)
 		return;
 	}
 
-	snprintf(fpath, sizeof(fpath), APOLLO_PATH "fingerprints.txt");
-	FILE *fp = fopen(fpath, "a");
-	if (!fp)
+	for (int i = 0; i < 0x20; i++)
+		snprintf(((char*)buffer) + (i * 2), 3, "%02x", buffer[i + 0x20]);
+
+	if (!silent)
 	{
-		if (!silent) show_message("Error! Can't open file:\n%s", fpath);
+		show_message("%s keystone fingerprint:\n%s", save->title_id, buffer);
 		return;
 	}
 
-	fprintf(fp, "%s=", save->title_id);
-	for (size_t i = 0x20; i < 0x40; i++)
-		fprintf(fp, "%02x", buffer[i]);
+	snprintf(fpath, sizeof(fpath), APOLLO_PATH "fingerprints.txt");
+	FILE *fp = fopen(fpath, "a");
+	if (!fp)
+		return;
 
-	fprintf(fp, "\n");
+	fprintf(fp, "%s=%s\n", save->title_id, buffer);
 	fclose(fp);
-
-	if (!silent) show_message("%s fingerprint successfully saved to:\n%s", save->title_id, fpath);
 }
 
 static void exportTrophiesZip(const char* exp_path)

@@ -491,6 +491,7 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 	if (mountErrorCode < 0)
 	{
 		LOG("ERROR (%X): can't mount '%s/%s'", mountErrorCode, save->title_id, save->dir_name);
+		rmdir(mountDir);
 		return 0;
 	}
 
@@ -808,7 +809,7 @@ static void _addSfoCommands(save_entry_t* save)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Import Keystone", CMD_IMP_KEYSTONE);
 	list_append(save->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump save Fingerprint", CMD_EXP_FINGERPRINT);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Show Keystone Fingerprint", CMD_EXP_FINGERPRINT);
 	list_append(save->codes, cmd);
 
 	return;
@@ -1194,7 +1195,7 @@ static void add_vmc2_import_saves(list_t* list, const char* path, const char* fo
 		}
 		else if (endsWith(dir->d_name, ".XPS") || endsWith(dir->d_name, ".SPS"))
 		{
-			toff = 0x02;
+			toff = 0x15;
 			type = FILE_TYPE_XPS;
 		}
 		else if (endsWith(dir->d_name, ".MAX"))
@@ -1213,6 +1214,14 @@ static void add_vmc2_import_saves(list_t* list, const char* path, const char* fo
 			continue;
 		}
 		fseek(fp, toff, SEEK_SET);
+		if (type == FILE_TYPE_XPS)
+		{
+			// Skip the variable size header
+			fread(&toff, 1, sizeof(int), fp);
+			fseek(fp, toff, SEEK_CUR);
+			fread(&toff, 1, sizeof(int), fp);
+			fseek(fp, toff + 10, SEEK_CUR);
+		}
 		fread(data, 1, sizeof(data), fp);
 		fclose(fp);
 

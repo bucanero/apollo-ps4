@@ -841,6 +841,26 @@ static void _addSfoCommands(save_entry_t* save)
 */
 }
 
+static int set_pfs_codes(save_entry_t* item)
+{
+	uint8_t data[16];
+	char savePath[256];
+	code_entry_t* cmd;
+	item->codes = list_alloc();
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
+	list_append(item->codes, cmd);
+
+	snprintf(savePath, sizeof(savePath), "%s%s.bin", item->path, item->dir_name);
+	read_file(savePath, data, sizeof(data));
+	snprintf(savePath, sizeof(savePath), CHAR_ICON_WARN " --- Encrypted save requires firmware %s --- " CHAR_ICON_WARN, get_fw_by_pfskey_ver(data[8]));
+
+	cmd = _createCmdCode(PATCH_NULL, savePath, CMD_CODE_NULL);
+	list_append(item->codes, cmd);
+
+	return list_count(item->codes);
+}
+
 option_entry_t* get_file_entries(const char* path, const char* mask)
 {
 	return _getFileOptions(path, mask, CMD_CODE_NULL);
@@ -863,6 +883,9 @@ int ReadCodes(save_entry_t * save)
 	char * buffer = NULL;
 	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 	char *tmp = NULL;
+
+	if (save->type == FILE_TYPE_NULL)
+		return set_pfs_codes(save);
 
 	save->codes = list_alloc();
 
@@ -1665,8 +1688,9 @@ static void read_usb_encrypted_saves(const char* userPath, list_t *list, uint64_
 {
 	DIR *d, *d2;
 	struct dirent *dir, *dir2;
-	save_entry_t *item;
+	save_entry_t *item, tmp;
 	char savePath[256];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 
 	d = opendir(userPath);
 
@@ -1691,30 +1715,51 @@ static void read_usb_encrypted_saves(const char* userPath, list_t *list, uint64_
 			if (dir2->d_type != DT_REG || endsWith(dir2->d_name, ".bin"))
 				continue;
 
-			snprintf(savePath, sizeof(savePath), "%s%s/%s.bin", userPath, dir->d_name, dir2->d_name);
-			if (file_exists(savePath) != SUCCESS)
+			snprintf(savePath, sizeof(savePath), "%s%s/", userPath, dir->d_name);
+			tmp.path = savePath;
+			tmp.title_id = dir->d_name;
+			tmp.dir_name = dir2->d_name;
+			if (!orbis_SaveMount(&tmp, SAVE_FLAG_LOCKED, mount))
+			{
+				snprintf(savePath, sizeof(savePath), CHAR_ICON_WARN "%s/%s", dir->d_name, dir2->d_name);
+				item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_LOCKED, savePath);
+				item->type = FILE_TYPE_NULL;
+				item->dir_name = strdup(dir2->d_name);
+				asprintf(&item->path, "%s%s/", userPath, dir->d_name);
+				asprintf(&item->title_id, "%.9s", dir->d_name);
+				list_append(list, item);
 				continue;
+			}
 
-			snprintf(savePath, sizeof(savePath), "(Encrypted) %s/%s", dir->d_name, dir2->d_name);
+			snprintf(savePath, sizeof(savePath), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
+			LOG("Reading %s...", savePath);
+
+			sfo_context_t* sfo = sfo_alloc();
+			if (sfo_read(sfo, savePath) < 0) {
+				LOG("Unable to read from '%s'", savePath);
+				sfo_free(sfo);
+				continue;
+			}
+
+			snprintf(savePath, sizeof(savePath), "%s - %s", sfo_get_param_value(sfo, "MAINTITLE"), sfo_get_param_value(sfo, "SUBTITLE"));
 			item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_LOCKED, savePath);
 			item->type = FILE_TYPE_PS4;
-
+			item->dir_name = strdup(dir2->d_name);
 			asprintf(&item->path, "%s%s/", userPath, dir->d_name);
 			asprintf(&item->title_id, "%.9s", dir->d_name);
-			item->dir_name = strdup(dir2->d_name);
 
-			if (apollo_config.account_id == account)
+			uint64_t* int_data = (uint64_t*) sfo_get_param_value(sfo, "ACCOUNT_ID");
+			if (int_data && (apollo_config.account_id == *int_data))
 				item->flags |= SAVE_FLAG_OWNER;
 
-			snprintf(savePath, sizeof(savePath), "%s%s/%s", userPath, dir->d_name, dir2->d_name);
-			
-			uint64_t size = 0;
-			get_file_size(savePath, &size);
-			item->blocks = size / ORBIS_SAVE_DATA_BLOCK_SIZE;
+			int_data = (uint64_t*) sfo_get_param_value(sfo, "SAVEDATA_BLOCKS");
+			item->blocks = (*int_data);
+
+			sfo_free(sfo);
+			orbis_SaveUmount(mount);
 
 			LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
 			list_append(list, item);
-
 		}
 		closedir(d2);
 	}

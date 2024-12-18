@@ -451,7 +451,7 @@ static void copySavePFS(const save_entry_t* save)
 
 	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
 	{
-		LOG("[!] Error: can't create/mount save!");
+		show_message("Error: can't create HDD save");
 		return;
 	}
 	orbis_SaveUmount(mount);
@@ -476,7 +476,6 @@ static void copySavePFS(const save_entry_t* save)
 
 	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
 	{
-		LOG("[!] Error: can't remount save");
 		show_message("Error! Can't mount encrypted save.\n(incompatible save-game firmware version)");
 		return;
 	}
@@ -638,8 +637,8 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 		{
 			base = strdup(item->path);
 			path = strdup(item->path);
-			*strrchr(base, '/') = 0;
 		}
+		*strrchr(base, '/') = 0;
 		*strrchr(base, '/') = 0;
 
 		id = zip_directory(base, path, res->data);
@@ -673,7 +672,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 	// http://ps3-ip:8080/icon/CUSA12345-DIR-NAME/sce_sys/icon0.png
 	if (wildcard_match(req->resource, "/icon/*/sce_sys/icon0.png"))
 	{
-		asprintf(&res->data, "%sAPOLLO/%s", selected_entry->path, req->resource + 6);
+		asprintf(&res->data, "%sPS4/APOLLO/%s", selected_entry->path, req->resource + 6);
 		return (file_exists(res->data) == SUCCESS);
 	}
 

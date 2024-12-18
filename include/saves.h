@@ -330,3 +330,4 @@ int vmp_resign(const char *src_vmp);
 
 char* sjis2utf8(char* input);
 uint8_t* getIconPS2(const char* folder, const char* iconfile);
+const char* get_fw_by_pfskey_ver(int key_ver);

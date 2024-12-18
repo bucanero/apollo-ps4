@@ -719,6 +719,9 @@ static void _addBackupCommands(save_entry_t* item)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
 	list_append(item->codes, cmd);
 
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Save Game", CMD_DELETE_SAVE);
+	list_append(item->codes, cmd);
+
 	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " File Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(item->codes, cmd);
 
@@ -728,7 +731,7 @@ static void _addBackupCommands(save_entry_t* item)
 	if (!(item->flags & SAVE_FLAG_HDD))
 	{
 		asprintf(&cmd->options->name[2], "Copy Save to HDD");
-		asprintf(&cmd->options->value[2], "%c", CMD_COPY_SAVE_HDD);
+		asprintf(&cmd->options->value[2], "%c", (item->flags & SAVE_FLAG_LOCKED) ? CMD_COPY_PFS : CMD_COPY_SAVE_HDD);
 	}
 	list_append(item->codes, cmd);
 
@@ -840,12 +843,19 @@ static void _addSfoCommands(save_entry_t* save)
 
 static int set_pfs_codes(save_entry_t* item)
 {
+	uint8_t data[16];
+	char savePath[256];
 	code_entry_t* cmd;
 	item->codes = list_alloc();
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
 	list_append(item->codes, cmd);
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy Save game to HDD", CMD_COPY_PFS);
+
+	snprintf(savePath, sizeof(savePath), "%s%s.bin", item->path, item->dir_name);
+	read_file(savePath, data, sizeof(data));
+	snprintf(savePath, sizeof(savePath), CHAR_ICON_WARN " --- Encrypted save requires firmware %s --- " CHAR_ICON_WARN, get_fw_by_pfskey_ver(data[8]));
+
+	cmd = _createCmdCode(PATCH_NULL, savePath, CMD_CODE_NULL);
 	list_append(item->codes, cmd);
 
 	return list_count(item->codes);
@@ -872,18 +882,18 @@ int ReadCodes(save_entry_t * save)
 	char filePath[256];
 	char * buffer = NULL;
 	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
-	char *tmp;
+	char *tmp = NULL;
 
-	if (save->flags & SAVE_FLAG_LOCKED)
+	if (save->type == FILE_TYPE_NULL)
 		return set_pfs_codes(save);
 
 	save->codes = list_alloc();
 
-	if (save->flags & SAVE_FLAG_HDD)
+	if (save->flags & (SAVE_FLAG_HDD|SAVE_FLAG_LOCKED))
 	{
-		if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
+		if (!orbis_SaveMount(save, (save->flags & SAVE_FLAG_LOCKED), mount))
 		{
-			code = _createCmdCode(PATCH_NULL, CHAR_ICON_WARN " --- Error Mounting Save! Check Save Mount Patches --- " CHAR_ICON_WARN, CMD_CODE_NULL);
+			code = _createCmdCode(PATCH_NULL, CHAR_ICON_WARN " --- Error Mounting Save! --- " CHAR_ICON_WARN, CMD_CODE_NULL);
 			list_append(save->codes, code);
 			return list_count(save->codes);
 		}
@@ -911,7 +921,7 @@ int ReadCodes(save_entry_t * save)
 	LOG("Loaded %zu codes", list_count(save->codes));
 
 skip_end:
-	if (save->flags & SAVE_FLAG_HDD)
+	if (tmp)
 	{
 		orbis_SaveUmount(mount);
 		free(save->path);
@@ -1107,7 +1117,7 @@ int ReadVmc1Codes(save_entry_t * save)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
 	list_append(save->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Save Game", CMD_DELETE_VMCSAVE);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Save Game", CMD_DELETE_SAVE);
 	list_append(save->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Save Game Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
@@ -1243,7 +1253,7 @@ int ReadVmc2Codes(save_entry_t * save)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
 	list_append(save->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Save Game", CMD_DELETE_VMCSAVE);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Save Game", CMD_DELETE_SAVE);
 	list_append(save->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Save Game Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
@@ -1678,8 +1688,9 @@ static void read_usb_encrypted_saves(const char* userPath, list_t *list, uint64_
 {
 	DIR *d, *d2;
 	struct dirent *dir, *dir2;
-	save_entry_t *item;
+	save_entry_t *item, tmp;
 	char savePath[256];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 
 	d = opendir(userPath);
 
@@ -1704,30 +1715,51 @@ static void read_usb_encrypted_saves(const char* userPath, list_t *list, uint64_
 			if (dir2->d_type != DT_REG || endsWith(dir2->d_name, ".bin"))
 				continue;
 
-			snprintf(savePath, sizeof(savePath), "%s%s/%s.bin", userPath, dir->d_name, dir2->d_name);
-			if (file_exists(savePath) != SUCCESS)
+			snprintf(savePath, sizeof(savePath), "%s%s/", userPath, dir->d_name);
+			tmp.path = savePath;
+			tmp.title_id = dir->d_name;
+			tmp.dir_name = dir2->d_name;
+			if (!orbis_SaveMount(&tmp, SAVE_FLAG_LOCKED, mount))
+			{
+				snprintf(savePath, sizeof(savePath), CHAR_ICON_WARN "%s/%s", dir->d_name, dir2->d_name);
+				item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_LOCKED, savePath);
+				item->type = FILE_TYPE_NULL;
+				item->dir_name = strdup(dir2->d_name);
+				asprintf(&item->path, "%s%s/", userPath, dir->d_name);
+				asprintf(&item->title_id, "%.9s", dir->d_name);
+				list_append(list, item);
 				continue;
+			}
 
-			snprintf(savePath, sizeof(savePath), "(Encrypted) %s/%s", dir->d_name, dir2->d_name);
+			snprintf(savePath, sizeof(savePath), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
+			LOG("Reading %s...", savePath);
+
+			sfo_context_t* sfo = sfo_alloc();
+			if (sfo_read(sfo, savePath) < 0) {
+				LOG("Unable to read from '%s'", savePath);
+				sfo_free(sfo);
+				continue;
+			}
+
+			snprintf(savePath, sizeof(savePath), "%s - %s", sfo_get_param_value(sfo, "MAINTITLE"), sfo_get_param_value(sfo, "SUBTITLE"));
 			item = _createSaveEntry(SAVE_FLAG_PS4 | SAVE_FLAG_LOCKED, savePath);
 			item->type = FILE_TYPE_PS4;
-
+			item->dir_name = strdup(dir2->d_name);
 			asprintf(&item->path, "%s%s/", userPath, dir->d_name);
 			asprintf(&item->title_id, "%.9s", dir->d_name);
-			item->dir_name = strdup(dir2->d_name);
 
-			if (apollo_config.account_id == account)
+			uint64_t* int_data = (uint64_t*) sfo_get_param_value(sfo, "ACCOUNT_ID");
+			if (int_data && (apollo_config.account_id == *int_data))
 				item->flags |= SAVE_FLAG_OWNER;
 
-			snprintf(savePath, sizeof(savePath), "%s%s/%s", userPath, dir->d_name, dir2->d_name);
-			
-			uint64_t size = 0;
-			get_file_size(savePath, &size);
-			item->blocks = size / ORBIS_SAVE_DATA_BLOCK_SIZE;
+			int_data = (uint64_t*) sfo_get_param_value(sfo, "SAVEDATA_BLOCKS");
+			item->blocks = (*int_data);
+
+			sfo_free(sfo);
+			orbis_SaveUmount(mount);
 
 			LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
 			list_append(list, item);
-
 		}
 		closedir(d2);
 	}
@@ -2127,6 +2159,7 @@ static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 		{
 			*tmp++ = 0;
 			item = _createSaveEntry(flag | SAVE_FLAG_ONLINE, tmp);
+			item->type = FILE_TYPE_ZIP;
 			item->title_id = strdup(content);
 			asprintf(&item->path, "%s%s/", urlPath, item->title_id);
 

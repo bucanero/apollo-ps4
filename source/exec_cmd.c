@@ -451,7 +451,7 @@ static void copySavePFS(const save_entry_t* save)
 
 	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
 	{
-		LOG("[!] Error: can't create/mount save!");
+		show_message("Error: can't create HDD save");
 		return;
 	}
 	orbis_SaveUmount(mount);
@@ -476,7 +476,6 @@ static void copySavePFS(const save_entry_t* save)
 
 	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
 	{
-		LOG("[!] Error: can't remount save");
 		show_message("Error! Can't mount encrypted save.\n(incompatible save-game firmware version)");
 		return;
 	}
@@ -638,8 +637,8 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 		{
 			base = strdup(item->path);
 			path = strdup(item->path);
-			*strrchr(base, '/') = 0;
 		}
+		*strrchr(base, '/') = 0;
 		*strrchr(base, '/') = 0;
 
 		id = zip_directory(base, path, res->data);
@@ -673,7 +672,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 	// http://ps3-ip:8080/icon/CUSA12345-DIR-NAME/sce_sys/icon0.png
 	if (wildcard_match(req->resource, "/icon/*/sce_sys/icon0.png"))
 	{
-		asprintf(&res->data, "%sAPOLLO/%s", selected_entry->path, req->resource + 6);
+		asprintf(&res->data, "%sPS4/APOLLO/%s", selected_entry->path, req->resource + 6);
 		return (file_exists(res->data) == SUCCESS);
 	}
 
@@ -891,14 +890,37 @@ static void import_save2vmc(const char* src, int type)
 		show_message("Error importing save:\n%s", src);
 }
 
-static int deleteVmcSave(const save_entry_t* save)
+static int deleteSave(const save_entry_t* save)
 {
-	int ret;
+	int ret = 0;
+	char fpath[256];
 
 	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to delete %s?", save->dir_name))
 		return 0;
 
-	ret = (save->flags & SAVE_FLAG_PS1) ? formatSave(save->blocks) : vmc_delete_save(save->dir_name);
+	if (save->flags & SAVE_FLAG_PS1)
+		ret = formatSave(save->blocks);
+	
+	else if (save->flags & SAVE_FLAG_PS2)
+		ret = vmc_delete_save(save->dir_name);
+
+	else if (save->flags & SAVE_FLAG_PS4)
+	{
+		if (save->flags & SAVE_FLAG_HDD)
+			ret = orbis_SaveDelete(save);
+
+		else if (save->flags & SAVE_FLAG_LOCKED)
+		{
+			snprintf(fpath, sizeof(fpath), "%s%s.bin", save->path, save->dir_name);
+			ret = (unlink_secure(fpath) == SUCCESS);
+
+			snprintf(fpath, sizeof(fpath), "%s%s", save->path, save->dir_name);
+			ret &= (unlink_secure(fpath) == SUCCESS);
+		}
+		else
+			ret = (clean_directory(save->path) == SUCCESS);
+	}
+
 	if (ret)
 		show_message("Save successfully deleted:\n%s", save->dir_name);
 	else
@@ -1298,11 +1320,13 @@ static void toggleBrowserHistory(int usr)
 
 void execCodeCommand(code_entry_t* code, const char* codecmd)
 {
-	char *tmp, mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	char *tmp = NULL;
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 
-	if (selected_entry->flags & SAVE_FLAG_HDD)
+	if (selected_entry->flags & (SAVE_FLAG_HDD|SAVE_FLAG_LOCKED) &&
+		codecmd[0] != CMD_DELETE_SAVE && codecmd[0] != CMD_COPY_PFS)
 	{
-		if (!orbis_SaveMount(selected_entry, (selected_entry->flags & SAVE_FLAG_TROPHY), mount))
+		if (!orbis_SaveMount(selected_entry, selected_entry->flags & (SAVE_FLAG_TROPHY|SAVE_FLAG_LOCKED), mount))
 		{
 			LOG("Error Mounting Save! Check Save Mount Patches");
 			return;
@@ -1493,8 +1517,8 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			code->activated = 0;
 			break;
 
-		case CMD_DELETE_VMCSAVE:
-			if (deleteVmcSave(selected_entry))
+		case CMD_DELETE_SAVE:
+			if (deleteSave(selected_entry))
 				selected_entry->flags |= SAVE_FLAG_UPDATED;
 			else
 				code->activated = 0;
@@ -1531,7 +1555,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 	}
 
-	if (selected_entry->flags & SAVE_FLAG_HDD)
+	if (tmp)
 	{
 		orbis_SaveUmount(mount);
 		free(selected_entry->path);

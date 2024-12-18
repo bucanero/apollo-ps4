@@ -214,9 +214,9 @@ int get_max_pfskey_ver(void)
 	return 0;
 }
 
-char* get_fw_by_pfskey_ver(int key_ver)
+const char* get_fw_by_pfskey_ver(int key_ver)
 {
-	char* fw[] = {"???", "Any", "4.50+", "4.70+", "5.00+", "5.50+", "6.00+", "6.50+", "7.00+", "7.50+", "8.00+"};
+	const char* fw[] = {"???", "Any", "4.50+", "4.70+", "5.00+", "5.50+", "6.00+", "6.50+", "7.00+", "7.50+", "8.00+"};
 	if (key_ver > 10) key_ver = 0;
 
 	return fw[key_ver];

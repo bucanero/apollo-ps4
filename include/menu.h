@@ -263,12 +263,10 @@ void drawEndLogo(void);
 
 int load_app_settings(app_config_t* config);
 int save_app_settings(app_config_t* config);
-int reset_app_settings(app_config_t* config);
 
 int initialize_jbc(void);
 void terminate_jbc(void);
 int initVshDataMount(void);
 int get_max_pfskey_ver(void);
-char* get_fw_by_pfskey_ver(int key_ver);
 
 #endif

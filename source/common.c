@@ -207,6 +207,13 @@ int clean_directory(const char* inputdir)
 		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0)
 		{
 			snprintf(dataPath, sizeof(dataPath), "%s" "%s", inputdir, dir->d_name);
+
+			if (dir->d_type == DT_DIR) {
+				strcat(dataPath, "/");
+				clean_directory(dataPath);
+				rmdir(dataPath);
+			}
+
 			unlink_secure(dataPath);
 		}
 	}

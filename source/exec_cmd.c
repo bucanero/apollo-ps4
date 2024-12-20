@@ -337,6 +337,47 @@ static void exportFingerprint(const save_entry_t* save, int silent)
 	fclose(fp);
 }
 
+static void toggleTrophy(const save_entry_t* entry)
+{
+	int ret = 1;
+	uint32_t trophy_id;
+	code_entry_t* code;
+	list_node_t* node;
+
+	init_loading_screen("Applying changes...");
+
+	for (node = list_head(entry->codes); (code = list_get(node)); node = list_next(node))
+	{
+		if (!code->activated || (code->type != PATCH_TROP_UNLOCK && code->type != PATCH_TROP_LOCK))
+			continue;
+
+		trophy_id = *(uint32_t*)(code->file);
+		LOG("Active code: [%d] '%s'", trophy_id, code->name+2);
+
+		if (code->type == PATCH_TROP_UNLOCK)
+		{
+			ret &= trophy_unlock(entry, trophy_id, code->name[0]);
+			code->type = PATCH_TROP_LOCK;
+			code->name[1] = ' ';
+		}
+		else
+		{
+			ret &= trophy_lock(entry, trophy_id, code->name[0]);
+			code->type = PATCH_TROP_UNLOCK;
+			code->name[1] = CHAR_TAG_LOCKED;
+		}
+
+		code->activated = 0;
+	}
+
+	stop_loading_screen();
+
+	if(ret)
+		show_message("Trophies successfully updated!");
+	else
+		show_message("Error! Couldn't update trophies");
+}
+
 static void exportTrophiesZip(const char* exp_path)
 {
 	char* export_file;
@@ -1390,6 +1431,11 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_NET_WEBSERVER:
 			enableWebServer(dbg_simpleWebServerHandler, NULL, 8080);
+			code->activated = 0;
+			break;
+
+		case CMD_UPDATE_TROPHY:
+			toggleTrophy(selected_entry);
 			code->activated = 0;
 			break;
 

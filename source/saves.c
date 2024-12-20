@@ -403,7 +403,7 @@ static const char* trophy_type_field(int type)
 	}
 }
 
-int trophy_unlock(const save_entry_t* game, int trp_id, int type)
+int trophy_unlock(const save_entry_t* game, int trp_id, int grp_id, int type)
 {
 	char dbpath[256];
 	sqlite3 *db;
@@ -420,9 +420,12 @@ int trophy_unlock(const save_entry_t* game, int trp_id, int type)
 		"(1, 1, strftime('%%Y-%%m-%%dT%%H:%%M:%%S.00Z', CURRENT_TIMESTAMP), strftime('%%Y-%%m-%%dT%%H:%%M:%%S.00Z', CURRENT_TIMESTAMP))"
 		"WHERE (title_id = %d AND trophyid = %d);\n"
 		"UPDATE tbl_trophy_title SET (progress, unlocked_trophy_num, %s) ="
-		"(((unlocked_trophy_num+1)*100)/trophy_num, unlocked_trophy_num+1, %s+1) WHERE (id=%d);",
+		"(((unlocked_trophy_num+1)*100)/trophy_num, unlocked_trophy_num+1, %s+1) WHERE (id=%d);\n"
+		"UPDATE tbl_trophy_group SET (progress, unlocked_trophy_num, %s) ="
+		"(((unlocked_trophy_num+1)*100)/trophy_num, unlocked_trophy_num+1, %s+1) WHERE (title_id=%d AND groupid=%d);",
 		game->blocks, trp_id,
-		field, field, game->blocks);
+		field, field, game->blocks,
+		field, field, game->blocks, grp_id);
 
 	if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
 	{
@@ -440,7 +443,7 @@ int trophy_unlock(const save_entry_t* game, int trp_id, int type)
 	return 1;
 }
 
-int trophy_lock(const save_entry_t* game, int trp_id, int type)
+int trophy_lock(const save_entry_t* game, int trp_id, int grp_id, int type)
 {
 	char dbpath[256];
 	sqlite3 *db;
@@ -457,9 +460,12 @@ int trophy_lock(const save_entry_t* game, int trp_id, int type)
 		"((~(hidden&1))&(hidden|1), 0, '0001-01-01T00:00:00.00Z', '0001-01-01T00:00:00.00Z') "
 		"WHERE (title_id = %d AND trophyid = %d);\n"
 		"UPDATE tbl_trophy_title SET (progress, unlocked_trophy_num, %s) ="
-		"(((unlocked_trophy_num-1)*100)/trophy_num, unlocked_trophy_num-1, %s-1) WHERE (id=%d);",
+		"(((unlocked_trophy_num-1)*100)/trophy_num, unlocked_trophy_num-1, %s-1) WHERE (id=%d);\n"
+		"UPDATE tbl_trophy_group SET (progress, unlocked_trophy_num, %s) ="
+		"(((unlocked_trophy_num-1)*100)/trophy_num, unlocked_trophy_num-1, %s-1) WHERE (title_id=%d AND groupid=%d);",
 		game->blocks, trp_id,
-		field, field, game->blocks);
+		field, field, game->blocks,
+		field, field, game->blocks, grp_id);
 
 	if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
 	{
@@ -1088,7 +1094,7 @@ int ReadTrophies(save_entry_t * game)
 	trophy = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Trophies " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(game->codes, trophy);
 
-	snprintf(query, sizeof(query), "SELECT trophyid, trophy_title_id, title, description, grade, unlocked FROM tbl_trophy_flag WHERE title_id = %d", game->blocks);
+	snprintf(query, sizeof(query), "SELECT trophyid, groupid, title, description, grade, unlocked FROM tbl_trophy_flag WHERE title_id = %d", game->blocks);
 
 	if (sqlite3_prepare_v2(db, query, -1, &res, NULL) != SQLITE_OK)
 	{
@@ -1127,8 +1133,10 @@ int ReadTrophies(save_entry_t * game)
 		}
 
 		trop_id = sqlite3_column_int(res, 0);
-		trophy->file = malloc(sizeof(trop_id));
-		memcpy(trophy->file, &trop_id, sizeof(trop_id));
+		trophy->file = malloc(sizeof(int)*2);
+		memcpy(trophy->file, &trop_id, sizeof(int));
+		trop_id = sqlite3_column_int(res, 1);
+		memcpy(trophy->file + sizeof(int), &trop_id, sizeof(int));
 
 		if (!sqlite3_column_int(res, 5))
 			trophy->name[1] = CHAR_TAG_LOCKED;

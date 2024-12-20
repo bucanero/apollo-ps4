@@ -340,7 +340,7 @@ static void exportFingerprint(const save_entry_t* save, int silent)
 static void toggleTrophy(const save_entry_t* entry)
 {
 	int ret = 1;
-	uint32_t trophy_id;
+	int *trophy_id;
 	code_entry_t* code;
 	list_node_t* node;
 
@@ -351,18 +351,18 @@ static void toggleTrophy(const save_entry_t* entry)
 		if (!code->activated || (code->type != PATCH_TROP_UNLOCK && code->type != PATCH_TROP_LOCK))
 			continue;
 
-		trophy_id = *(uint32_t*)(code->file);
-		LOG("Active code: [%d] '%s'", trophy_id, code->name+2);
+		trophy_id = (int*)(code->file);
+		LOG("Active code: [%d] '%s'", trophy_id[0], code->name+2);
 
 		if (code->type == PATCH_TROP_UNLOCK)
 		{
-			ret &= trophy_unlock(entry, trophy_id, code->name[0]);
+			ret &= trophy_unlock(entry, trophy_id[0], trophy_id[1], code->name[0]);
 			code->type = PATCH_TROP_LOCK;
 			code->name[1] = ' ';
 		}
 		else
 		{
-			ret &= trophy_lock(entry, trophy_id, code->name[0]);
+			ret &= trophy_lock(entry, trophy_id[0], trophy_id[1], code->name[0]);
 			code->type = PATCH_TROP_UNLOCK;
 			code->name[1] = CHAR_TAG_LOCKED;
 		}

@@ -25,7 +25,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 
 # Features
 
-* **Easy to use:** no save-mount patches or advanced setup needed. _(GoldHEN or ps4debug payload required)_
+* **Easy to use:** no save-mount patches or advanced setup needed.
 * **Standalone:** no computer required, everything happens on the PS4.
 * **Automatic settings:** auto-detection of PS4 firmware, User ID, and Account-ID settings.
 * **Multi-user:** supports multiple user accounts.
@@ -37,6 +37,12 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Save files patching:** complete support for Save Wizard and [Bruteforce Save Data](https://bruteforcesavedata.forumms.net/) cheat patches to enhance your save-games.
 * **Save import/export:** allows the user to decrypt and export save files, and import decrypted saves from other consoles.
 * **Save downloading:** easy access to an Online Database of save-game files to download straight to your PlayStation.
+
+## Trophy Management
+
+* **Trophy container mounting:** allows to mount secure trophy images for the current user.
+* **Trophy Set exporting:** easy backup of trophy files to `.zip` and raw formats.
+* **Trophy lock/unlock:** fake lock/unlock trophies (XMB only).
 
 ## Account Management
 
@@ -75,7 +81,7 @@ Get the [latest version here][app_latest].
 
 ## Changelog
 
-See the [latest changes here](CHANGELOG.md).
+See the [latest changes here](https://github.com/bucanero/apollo-ps4/blob/main/CHANGELOG.md).
 
 # Donations
 
@@ -163,6 +169,7 @@ Currently, the list of available games and files is limited, but the project aim
 ## Acknowledgments
 
 * [Dnawrkshp](https://github.com/Dnawrkshp/): [Artemis PS3](https://github.com/Dnawrkshp/ArtemisPS3)
+* [hzh](https://github.com/hzhreal)/[Team-Alua](https://github.com/Team-Alua/cecie.nim): [vsh-utils](https://github.com/hzhreal/PS4-vsh-utils)
 * [Berion](https://www.psx-place.com/members/berion.1431/): GUI design
 * [flatz](https://github.com/flatz): [SFO tools](https://github.com/bucanero/pfd_sfo_tools/)
 * [aldostools](https://aldostools.org/): [Bruteforce Save Data](https://bruteforcesavedata.forumms.net/)
@@ -182,6 +189,7 @@ You need to have installed:
 - [SDL2](https://github.com/PacBrew/SDL/tree/ps4) library
 - [libJbc](https://github.com/bucanero/ps4-libjbc) library
 - [libs3m](https://github.com/bucanero/s3mplay) library
+- [libSQLite](https://github.com/bucanero/libSQLite-ps4) library
 - [Mini-XML](https://github.com/bucanero/mxml) library
 - [dbglogger](https://github.com/bucanero/dbglogger) library
 

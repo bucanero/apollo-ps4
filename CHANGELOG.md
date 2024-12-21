@@ -4,6 +4,21 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v2.0.0](https://github.com/bucanero/apollo-ps4/releases/tag/v2.0.0) - 2024-12-22
+
+### Added
+
+* Complete PS4 firmware support (works on all FWs) - thanks to @hzhreal / @Team-Alua
+  - Firmware agnostic
+  - No need for GoldHEN or ps4debug payload
+* Trophy management
+  - List, mount, and export trophies
+  - Fake XMB trophies lock/unlock
+  - Trophy set export and backup
+  - Remove trophy sets
+* Delete PS4 save-games
+* Show date/time of last save-game modification
+
 ---
 
 ## [v1.7.0](https://github.com/bucanero/apollo-ps4/releases/tag/v1.7.0) - 2024-11-16

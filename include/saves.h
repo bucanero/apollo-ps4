@@ -317,6 +317,7 @@ int orbis_UpdateSaveParams(const save_entry_t* save, const char* title, const ch
 
 int trophy_lock(const save_entry_t* game, int trp_id, int grp_id, int type);
 int trophy_unlock(const save_entry_t* game, int trp_id, int grp_id, int type);
+int trophySet_delete(const save_entry_t* game);
 
 int vmc_export_psv(const char* save, const char* out_path);
 int vmc_export_psu(const char* path, const char* output);

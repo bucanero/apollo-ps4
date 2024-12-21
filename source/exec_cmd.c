@@ -945,6 +945,9 @@ static int deleteSave(const save_entry_t* save)
 	else if (save->flags & SAVE_FLAG_PS2)
 		ret = vmc_delete_save(save->dir_name);
 
+	else if (save->flags & SAVE_FLAG_TROPHY)
+		ret = trophySet_delete(save);
+
 	else if (save->flags & SAVE_FLAG_PS4)
 	{
 		if (save->flags & SAVE_FLAG_HDD)

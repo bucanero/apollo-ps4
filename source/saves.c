@@ -1035,7 +1035,7 @@ skip_end:
 
 int ReadTrophies(save_entry_t * game)
 {
-	int trop_id = 0;
+	int *trop_id;
 	code_entry_t * trophy;
 	char query[256];
 	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
@@ -1107,7 +1107,7 @@ int ReadTrophies(save_entry_t * game)
 	{
 		snprintf(query, sizeof(query), "   %s", sqlite3_column_text(res, 2));
 		trophy = _createCmdCode(PATCH_NULL, query, CMD_CODE_NULL);
-
+		trophy->file = malloc(sizeof(int)*2);
 		asprintf(&trophy->codes, "%s\n", sqlite3_column_text(res, 3));
 
 		switch (sqlite3_column_int(res, 4))
@@ -1132,11 +1132,9 @@ int ReadTrophies(save_entry_t * game)
 			break;
 		}
 
-		trop_id = sqlite3_column_int(res, 0);
-		trophy->file = malloc(sizeof(int)*2);
-		memcpy(trophy->file, &trop_id, sizeof(int));
-		trop_id = sqlite3_column_int(res, 1);
-		memcpy(trophy->file + sizeof(int), &trop_id, sizeof(int));
+		trop_id = (int*)trophy->file;
+		trop_id[0] = sqlite3_column_int(res, 0);
+		trop_id[1] = sqlite3_column_int(res, 1);
 
 		if (!sqlite3_column_int(res, 5))
 			trophy->name[1] = CHAR_TAG_LOCKED;
@@ -1147,7 +1145,7 @@ int ReadTrophies(save_entry_t * game)
 		else
 			trophy->type = (sqlite3_column_int(res, 5) ? PATCH_TROP_LOCK : PATCH_TROP_UNLOCK);
 
-		LOG("Trophy=%d [%d] '%s' (%s)", trop_id, trophy->type, trophy->name+2, trophy->codes);
+		LOG("Trophy=%d [%d] '%s' (%s)", trop_id[0], trophy->type, trophy->name+2, trophy->codes);
 		list_append(game->codes, trophy);
 	}
 

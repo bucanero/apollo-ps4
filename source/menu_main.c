@@ -181,6 +181,10 @@ static void SetMenu(int id)
 				case MENU_USB_SAVES:
 					ReloadUserSaves(&usb_saves);
 					break;
+
+				case MENU_TROPHIES:
+					ReloadUserSaves(&trophies);
+					break;
 				}
 
 				selected_entry->flags ^= SAVE_FLAG_UPDATED;

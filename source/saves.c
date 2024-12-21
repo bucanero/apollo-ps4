@@ -483,6 +483,45 @@ int trophy_lock(const save_entry_t* game, int trp_id, int grp_id, int type)
 	return 1;
 }
 
+int trophySet_delete(const save_entry_t* game)
+{
+	char dbpath[256];
+	sqlite3 *db;
+
+	snprintf(dbpath, sizeof(dbpath), TROPHY_DB_PATH, apollo_config.user_id);
+	if ((db = open_sqlite_db(dbpath)) == NULL)
+		return 0;
+
+	char* query = sqlite3_mprintf("DELETE FROM tbl_trophy_title WHERE (id=%d);\n"
+		"DELETE FROM tbl_trophy_title_entry WHERE (id=%d);\n"
+		"DELETE FROM tbl_trophy_flag WHERE (title_id=%d);",
+		game->blocks, game->blocks, game->blocks);
+
+	if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
+	{
+		LOG("Error updating '%s': %s", game->title_id, sqlite3_errmsg(db));
+		sqlite3_free(query);
+		sqlite3_close(db);
+		return 0;
+	}
+
+	LOG("Saving database to %s", dbpath);
+	sqlite3_memvfs_dump(db, NULL, dbpath);
+	sqlite3_free(query);
+	sqlite3_close(db);
+
+	snprintf(dbpath, sizeof(dbpath), TROPHY_PATH_HDD "%s/sealedkey", apollo_config.user_id, game->title_id);
+	unlink_secure(dbpath);
+
+	snprintf(dbpath, sizeof(dbpath), TROPHY_PATH_HDD "%s/trophy.img", apollo_config.user_id, game->title_id);
+	unlink_secure(dbpath);
+
+	*strrchr(dbpath, '/') = 0;
+	rmdir(dbpath);
+
+	return 1;
+}
+
 int orbis_SaveDelete(const save_entry_t *save)
 {
 	OrbisSaveDataDelete del;
@@ -1060,6 +1099,15 @@ int ReadTrophies(save_entry_t * game)
 	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Apply Changes to Trophy Set", CMD_UPDATE_TROPHY);
 	list_append(game->codes, trophy);
 
+	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Trophy Set Details", CMD_VIEW_DETAILS);
+	list_append(game->codes, trophy);
+
+	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Trophy Set", CMD_DELETE_SAVE);
+	list_append(game->codes, trophy);
+
+	trophy = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " File Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	list_append(game->codes, trophy);
+
 	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup Trophy files to USB", CMD_CODE_NULL);
 	trophy->file = strdup(game->path);
 	trophy->options_count = 1;
@@ -1072,9 +1120,6 @@ int ReadTrophies(save_entry_t * game)
 	trophy->options = _createOptions(3, "Save .Zip to USB", CMD_EXPORT_ZIP_USB);
 	asprintf(&trophy->options->name[2], "Save .Zip to HDD");
 	asprintf(&trophy->options->value[2], "%c", CMD_EXPORT_ZIP_HDD);
-	list_append(game->codes, trophy);
-
-	trophy = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " File Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(game->codes, trophy);
 
 	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export decrypted trophy files", CMD_CODE_NULL);

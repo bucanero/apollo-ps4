@@ -73,7 +73,7 @@ enum cmd_code_enum
     CMD_CODE_NULL,
 
 // Trophy commands
-    CMD_RESIGN_TROPHY,
+    CMD_UPDATE_TROPHY,
     CMD_EXP_TROPHY_USB,
     CMD_COPY_TROPHIES_USB,
     CMD_COPY_ALL_TROPHIES_USB,
@@ -314,6 +314,10 @@ int orbis_SaveUmount(const char* mountPath);
 int orbis_SaveMount(const save_entry_t *save, uint32_t mode, char* mountPath);
 int orbis_SaveDelete(const save_entry_t *save);
 int orbis_UpdateSaveParams(const save_entry_t* save, const char* title, const char* subtitle, const char* details, uint32_t up);
+
+int trophy_lock(const save_entry_t* game, int trp_id, int grp_id, int type);
+int trophy_unlock(const save_entry_t* game, int trp_id, int grp_id, int type);
+int trophySet_delete(const save_entry_t* game);
 
 int vmc_export_psv(const char* save, const char* out_path);
 int vmc_export_psu(const char* path, const char* output);

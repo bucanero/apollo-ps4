@@ -308,7 +308,7 @@ void extractArchive(const char* file_path)
 static void exportFingerprint(const save_entry_t* save, int silent)
 {
 	char fpath[256];
-	uint8_t buffer[0x40];
+	uint8_t buffer[0x60];
 
 	snprintf(fpath, sizeof(fpath), "%ssce_sys/keystone", save->path);
 	LOG("Reading '%s' ...", fpath);
@@ -319,22 +319,63 @@ static void exportFingerprint(const save_entry_t* save, int silent)
 		return;
 	}
 
-	snprintf(fpath, sizeof(fpath), APOLLO_PATH "fingerprints.txt");
-	FILE *fp = fopen(fpath, "a");
-	if (!fp)
+	for (int i = 0; i < 0x20; i++)
+		snprintf(((char*)buffer) + (i * 2), 3, "%02x", buffer[i + 0x20]);
+
+	if (!silent)
 	{
-		if (!silent) show_message("Error! Can't open file:\n%s", fpath);
+		show_message("%s keystone fingerprint:\n%s", save->title_id, buffer);
 		return;
 	}
 
-	fprintf(fp, "%s=", save->title_id);
-	for (size_t i = 0x20; i < 0x40; i++)
-		fprintf(fp, "%02x", buffer[i]);
+	snprintf(fpath, sizeof(fpath), APOLLO_PATH "fingerprints.txt");
+	FILE *fp = fopen(fpath, "a");
+	if (!fp)
+		return;
 
-	fprintf(fp, "\n");
+	fprintf(fp, "%s=%s\n", save->title_id, buffer);
 	fclose(fp);
+}
 
-	if (!silent) show_message("%s fingerprint successfully saved to:\n%s", save->title_id, fpath);
+static void toggleTrophy(const save_entry_t* entry)
+{
+	int ret = 1;
+	int *trophy_id;
+	code_entry_t* code;
+	list_node_t* node;
+
+	init_loading_screen("Applying changes...");
+
+	for (node = list_head(entry->codes); (code = list_get(node)); node = list_next(node))
+	{
+		if (!code->activated || (code->type != PATCH_TROP_UNLOCK && code->type != PATCH_TROP_LOCK))
+			continue;
+
+		trophy_id = (int*)(code->file);
+		LOG("Active code: [%d] '%s'", trophy_id[0], code->name+2);
+
+		if (code->type == PATCH_TROP_UNLOCK)
+		{
+			ret &= trophy_unlock(entry, trophy_id[0], trophy_id[1], code->name[0]);
+			code->type = PATCH_TROP_LOCK;
+			code->name[1] = ' ';
+		}
+		else
+		{
+			ret &= trophy_lock(entry, trophy_id[0], trophy_id[1], code->name[0]);
+			code->type = PATCH_TROP_UNLOCK;
+			code->name[1] = CHAR_TAG_LOCKED;
+		}
+
+		code->activated = 0;
+	}
+
+	stop_loading_screen();
+
+	if(ret)
+		show_message("Trophies successfully updated!");
+	else
+		show_message("Error! Couldn't update trophies");
 }
 
 static void exportTrophiesZip(const char* exp_path)
@@ -904,6 +945,9 @@ static int deleteSave(const save_entry_t* save)
 	else if (save->flags & SAVE_FLAG_PS2)
 		ret = vmc_delete_save(save->dir_name);
 
+	else if (save->flags & SAVE_FLAG_TROPHY)
+		ret = trophySet_delete(save);
+
 	else if (save->flags & SAVE_FLAG_PS4)
 	{
 		if (save->flags & SAVE_FLAG_HDD)
@@ -1390,6 +1434,11 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_NET_WEBSERVER:
 			enableWebServer(dbg_simpleWebServerHandler, NULL, 8080);
+			code->activated = 0;
+			break;
+
+		case CMD_UPDATE_TROPHY:
+			toggleTrophy(selected_entry);
 			code->activated = 0;
 			break;
 

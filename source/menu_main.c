@@ -124,7 +124,7 @@ static void SetMenu(int id)
 				if(strncmp(APOLLO_SANDBOX_PATH, vmc1_saves.path, 16) == 0)
 				{
 					*strrchr(vmc1_saves.path, '/') = 0;
-					orbis_SaveUmount(strrchr(vmc1_saves.path, '/'));
+					orbis_SaveUmount(strrchr(vmc1_saves.path, '/')+1);
 				}
 			}
 			break;
@@ -140,7 +140,7 @@ static void SetMenu(int id)
 				if(strncmp(APOLLO_SANDBOX_PATH, vmc2_saves.path, 16) == 0)
 				{
 					*strrchr(vmc2_saves.path, '/') = 0;
-					orbis_SaveUmount(strrchr(vmc2_saves.path, '/'));
+					orbis_SaveUmount(strrchr(vmc2_saves.path, '/')+1);
 				}
 
 				stop_loading_screen();
@@ -180,6 +180,10 @@ static void SetMenu(int id)
 
 				case MENU_USB_SAVES:
 					ReloadUserSaves(&usb_saves);
+					break;
+
+				case MENU_TROPHIES:
+					ReloadUserSaves(&trophies);
 					break;
 				}
 

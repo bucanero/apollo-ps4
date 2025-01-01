@@ -382,6 +382,146 @@ int appdb_rebuild(const char* db_path, uint32_t userid)
 	return 1;
 }
 
+static const char* trophy_type_field(int type)
+{
+	switch (type)
+	{
+	case CHAR_TRP_PLATINUM:
+		return "unlocked_platinum_num";
+
+	case CHAR_TRP_GOLD:
+		return "unlocked_gold_num";
+
+	case CHAR_TRP_SILVER:
+		return "unlocked_silver_num";
+
+	case CHAR_TRP_BRONZE:
+		return "unlocked_bronze_num";
+
+	default:
+		return NULL;
+	}
+}
+
+int trophy_unlock(const save_entry_t* game, int trp_id, int grp_id, int type)
+{
+	char dbpath[256];
+	sqlite3 *db;
+	const char *field = trophy_type_field(type);
+
+	if (!field)
+		return 0;
+
+	snprintf(dbpath, sizeof(dbpath), TROPHY_DB_PATH, apollo_config.user_id);
+	if ((db = open_sqlite_db(dbpath)) == NULL)
+		return 0;
+
+	char* query = sqlite3_mprintf("UPDATE tbl_trophy_flag SET (visible, unlocked, time_unlocked, time_unlocked_uc) ="
+		"(1, 1, strftime('%%Y-%%m-%%dT%%H:%%M:%%S.00Z', CURRENT_TIMESTAMP), strftime('%%Y-%%m-%%dT%%H:%%M:%%S.00Z', CURRENT_TIMESTAMP))"
+		"WHERE (title_id = %d AND trophyid = %d);\n"
+		"UPDATE tbl_trophy_title SET (progress, unlocked_trophy_num, %s) ="
+		"(((unlocked_trophy_num+1)*100)/trophy_num, unlocked_trophy_num+1, %s+1) WHERE (id=%d);\n"
+		"UPDATE tbl_trophy_group SET (progress, unlocked_trophy_num, %s) ="
+		"(((unlocked_trophy_num+1)*100)/trophy_num, unlocked_trophy_num+1, %s+1) WHERE (title_id=%d AND groupid=%d);",
+		game->blocks, trp_id,
+		field, field, game->blocks,
+		field, field, game->blocks, grp_id);
+
+	if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
+	{
+		LOG("Error updating '%s': %s", game->title_id, sqlite3_errmsg(db));
+		sqlite3_free(query);
+		sqlite3_close(db);
+		return 0;
+	}
+
+	LOG("Saving database to %s", dbpath);
+	sqlite3_memvfs_dump(db, NULL, dbpath);
+	sqlite3_free(query);
+	sqlite3_close(db);
+
+	return 1;
+}
+
+int trophy_lock(const save_entry_t* game, int trp_id, int grp_id, int type)
+{
+	char dbpath[256];
+	sqlite3 *db;
+	const char *field = trophy_type_field(type);
+
+	if (!field)
+		return 0;
+
+	snprintf(dbpath, sizeof(dbpath), TROPHY_DB_PATH, apollo_config.user_id);
+	if ((db = open_sqlite_db(dbpath)) == NULL)
+		return 0;
+
+	char* query = sqlite3_mprintf("UPDATE tbl_trophy_flag SET (visible, unlocked, time_unlocked, time_unlocked_uc) ="
+		"((~(hidden&1))&(hidden|1), 0, '0001-01-01T00:00:00.00Z', '0001-01-01T00:00:00.00Z') "
+		"WHERE (title_id = %d AND trophyid = %d);\n"
+		"UPDATE tbl_trophy_title SET (progress, unlocked_trophy_num, %s) ="
+		"(((unlocked_trophy_num-1)*100)/trophy_num, unlocked_trophy_num-1, %s-1) WHERE (id=%d);\n"
+		"UPDATE tbl_trophy_group SET (progress, unlocked_trophy_num, %s) ="
+		"(((unlocked_trophy_num-1)*100)/trophy_num, unlocked_trophy_num-1, %s-1) WHERE (title_id=%d AND groupid=%d);",
+		game->blocks, trp_id,
+		field, field, game->blocks,
+		field, field, game->blocks, grp_id);
+
+	if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
+	{
+		LOG("Error updating '%s': %s", game->title_id, sqlite3_errmsg(db));
+		sqlite3_free(query);
+		sqlite3_close(db);
+		return 0;
+	}
+
+	LOG("Saving database to %s", dbpath);
+	sqlite3_memvfs_dump(db, NULL, dbpath);
+	sqlite3_free(query);
+	sqlite3_close(db);
+
+	return 1;
+}
+
+int trophySet_delete(const save_entry_t* game)
+{
+	char dbpath[256];
+	sqlite3 *db;
+
+	snprintf(dbpath, sizeof(dbpath), TROPHY_DB_PATH, apollo_config.user_id);
+	if ((db = open_sqlite_db(dbpath)) == NULL)
+		return 0;
+
+	char* query = sqlite3_mprintf("DELETE FROM tbl_trophy_title WHERE (id=%d);\n"
+		"DELETE FROM tbl_trophy_title_entry WHERE (id=%d);\n"
+		"DELETE FROM tbl_trophy_flag WHERE (title_id=%d);",
+		game->blocks, game->blocks, game->blocks);
+
+	if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
+	{
+		LOG("Error updating '%s': %s", game->title_id, sqlite3_errmsg(db));
+		sqlite3_free(query);
+		sqlite3_close(db);
+		return 0;
+	}
+
+	LOG("Saving database to %s", dbpath);
+	sqlite3_memvfs_dump(db, NULL, dbpath);
+	sqlite3_free(query);
+	sqlite3_close(db);
+
+	snprintf(dbpath, sizeof(dbpath), TROPHY_PATH_HDD "%s/sealedkey", apollo_config.user_id, game->title_id);
+	unlink_secure(dbpath);
+
+	snprintf(dbpath, sizeof(dbpath), TROPHY_PATH_HDD "%s/trophy.img", apollo_config.user_id, game->title_id);
+	unlink_secure(dbpath);
+
+	*strrchr(dbpath, '/') = 0;
+	rmdir(dbpath);
+
+	return 1;
+}
+
 int orbis_SaveDelete(const save_entry_t *save)
 {
 	OrbisSaveDataDelete del;
@@ -491,6 +631,7 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 	if (mountErrorCode < 0)
 	{
 		LOG("ERROR (%X): can't mount '%s/%s'", mountErrorCode, save->title_id, save->dir_name);
+		rmdir(mountDir);
 		return 0;
 	}
 
@@ -808,7 +949,7 @@ static void _addSfoCommands(save_entry_t* save)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Import Keystone", CMD_IMP_KEYSTONE);
 	list_append(save->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump save Fingerprint", CMD_EXP_FINGERPRINT);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Show Keystone Fingerprint", CMD_EXP_FINGERPRINT);
 	list_append(save->codes, cmd);
 
 	return;
@@ -933,7 +1074,7 @@ skip_end:
 
 int ReadTrophies(save_entry_t * game)
 {
-	int trop_count = 0;
+	int *trop_id;
 	code_entry_t * trophy;
 	char query[256];
 	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
@@ -955,8 +1096,17 @@ int ReadTrophies(save_entry_t * game)
 	tmp = game->path;
 	asprintf(&game->path, APOLLO_SANDBOX_PATH, mount);
 
-//	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Apply Changes & Resign Trophy Set", CMD_RESIGN_TROPHY);
-//	list_append(game->codes, trophy);
+	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Apply Changes to Trophy Set", CMD_UPDATE_TROPHY);
+	list_append(game->codes, trophy);
+
+	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Trophy Set Details", CMD_VIEW_DETAILS);
+	list_append(game->codes, trophy);
+
+	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Trophy Set", CMD_DELETE_SAVE);
+	list_append(game->codes, trophy);
+
+	trophy = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " File Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	list_append(game->codes, trophy);
 
 	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup Trophy files to USB", CMD_CODE_NULL);
 	trophy->file = strdup(game->path);
@@ -970,9 +1120,6 @@ int ReadTrophies(save_entry_t * game)
 	trophy->options = _createOptions(3, "Save .Zip to USB", CMD_EXPORT_ZIP_USB);
 	asprintf(&trophy->options->name[2], "Save .Zip to HDD");
 	asprintf(&trophy->options->value[2], "%c", CMD_EXPORT_ZIP_HDD);
-	list_append(game->codes, trophy);
-
-	trophy = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " File Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(game->codes, trophy);
 
 	trophy = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export decrypted trophy files", CMD_CODE_NULL);
@@ -992,7 +1139,7 @@ int ReadTrophies(save_entry_t * game)
 	trophy = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Trophies " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(game->codes, trophy);
 
-	snprintf(query, sizeof(query), "SELECT title_id, trophy_title_id, title, description, grade, unlocked, id FROM tbl_trophy_flag WHERE title_id = %d", game->blocks);
+	snprintf(query, sizeof(query), "SELECT trophyid, groupid, title, description, grade, unlocked FROM tbl_trophy_flag WHERE title_id = %d", game->blocks);
 
 	if (sqlite3_prepare_v2(db, query, -1, &res, NULL) != SQLITE_OK)
 	{
@@ -1005,7 +1152,7 @@ int ReadTrophies(save_entry_t * game)
 	{
 		snprintf(query, sizeof(query), "   %s", sqlite3_column_text(res, 2));
 		trophy = _createCmdCode(PATCH_NULL, query, CMD_CODE_NULL);
-
+		trophy->file = malloc(sizeof(int)*2);
 		asprintf(&trophy->codes, "%s\n", sqlite3_column_text(res, 3));
 
 		switch (sqlite3_column_int(res, 4))
@@ -1030,9 +1177,9 @@ int ReadTrophies(save_entry_t * game)
 			break;
 		}
 
-		trop_count = sqlite3_column_int(res, 6);
-		trophy->file = malloc(sizeof(trop_count));
-		memcpy(trophy->file, &trop_count, sizeof(trop_count));
+		trop_id = (int*)trophy->file;
+		trop_id[0] = sqlite3_column_int(res, 0);
+		trop_id[1] = sqlite3_column_int(res, 1);
 
 		if (!sqlite3_column_int(res, 5))
 			trophy->name[1] = CHAR_TAG_LOCKED;
@@ -1043,7 +1190,7 @@ int ReadTrophies(save_entry_t * game)
 		else
 			trophy->type = (sqlite3_column_int(res, 5) ? PATCH_TROP_LOCK : PATCH_TROP_UNLOCK);
 
-		LOG("Trophy=%d [%d] '%s' (%s)", trop_count, trophy->type, trophy->name, trophy->codes);
+		LOG("Trophy=%d [%d] '%s' (%s)", trop_id[0], trophy->type, trophy->name+2, trophy->codes);
 		list_append(game->codes, trophy);
 	}
 
@@ -1194,7 +1341,7 @@ static void add_vmc2_import_saves(list_t* list, const char* path, const char* fo
 		}
 		else if (endsWith(dir->d_name, ".XPS") || endsWith(dir->d_name, ".SPS"))
 		{
-			toff = 0x02;
+			toff = 0x15;
 			type = FILE_TYPE_XPS;
 		}
 		else if (endsWith(dir->d_name, ".MAX"))
@@ -1213,6 +1360,14 @@ static void add_vmc2_import_saves(list_t* list, const char* path, const char* fo
 			continue;
 		}
 		fseek(fp, toff, SEEK_SET);
+		if (type == FILE_TYPE_XPS)
+		{
+			// Skip the variable size header
+			fread(&toff, 1, sizeof(int), fp);
+			fseek(fp, toff, SEEK_CUR);
+			fread(&toff, 1, sizeof(int), fp);
+			fseek(fp, toff + 10, SEEK_CUR);
+		}
 		fread(data, 1, sizeof(data), fp);
 		fclose(fp);
 

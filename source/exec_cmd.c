@@ -140,7 +140,7 @@ static void zipSave(const save_entry_t* entry, const char* exp_path)
 
 static void copySave(const save_entry_t* save, const char* exp_path)
 {
-	char* copy_path;
+	char copy_path[256] = {};
 
 	if (strncmp(save->path, exp_path, strlen(exp_path)) == 0)
 	{
@@ -156,12 +156,10 @@ static void copySave(const save_entry_t* save, const char* exp_path)
 
 	init_loading_screen("Copying files...");
 
-	asprintf(&copy_path, "%s%08x_%s_%s/", exp_path, apollo_config.user_id, save->title_id, save->dir_name);
+	snprintf(copy_path, sizeof(copy_path), "%s%08x_%s_%s/", exp_path, apollo_config.user_id, save->title_id, save->dir_name);
 
 	LOG("Copying <%s> to %s...", save->path, copy_path);
 	copy_directory(save->path, save->path, copy_path);
-
-	free(copy_path);
 
 	stop_loading_screen();
 	show_message("Files successfully copied to:\n%s", exp_path);

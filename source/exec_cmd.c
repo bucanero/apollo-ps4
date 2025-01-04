@@ -64,21 +64,6 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 	unlink_secure(APOLLO_LOCAL_CACHE "tmpsave.zip");
 }
 
-static uint32_t get_filename_id(const char* dir, const char* title_id)
-{
-	char path[128];
-	uint32_t tid = 0;
-
-	do
-	{
-		tid++;
-		snprintf(path, sizeof(path), "%s%s-%08d.zip", dir, title_id, tid);
-	}
-	while (file_exists(path) == SUCCESS);
-
-	return tid;
-}
-
 static void zipSave(const save_entry_t* entry, const char* exp_path)
 {
 	char export_file[256];

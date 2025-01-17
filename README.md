@@ -264,5 +264,5 @@ Encrypted saves are saves made from retail/unjailbroken PS4s made via Account Da
 6. Check to see if the save is present in HDD Saves.
 * Note sometimes save files may display a ??? firmware warning in this case try the following.
 7. Delete all savedata of the game and create new savedata.
-8. Export it via the Account Data Management feature from settings. Or for decrypted data `Copy save game` to USB.
+8. Export it via the Account Data Management feature from settings.
 9. Compare the online savedata names and make it match the one you just got from the console then try again.

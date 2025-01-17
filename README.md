@@ -268,7 +268,7 @@ The Account ID a PSN ID assigned to the local user. (Example - abcdef01234556789
 9. Any saves you have can now be transferred via USB to a legit console as long as the title id matches and the game version is the same or higher.
 
 ## To fake activate for use with chiaki and general save management 
-* Ignore if you have done the above Activating offline profiles and go to Getting the ID needed for Chiaki if needed.
+* Ignore if you have done the above option and already have an activated account go to Getting the ID needed for Chiaki if needed.
 1. Open Apollo Save Tool, navigate to User Tools.
 2. Select Activate PS4 Accounts.
 3. Select your profile.
@@ -276,16 +276,17 @@ The Account ID a PSN ID assigned to the local user. (Example - abcdef01234556789
 5. A string of letters and numbers will show up copy them CORRECTLY then press R2 then X and then keep pressing O till you are asked if you want to exit to the XMB accept then restart the console
 *(the string can be found in About in Apollo Save Tool incase you lose it)
 
-==== Getting the ID needed for Chiaki ====
+## Getting the ID needed for Chiaki
 * This works for both the PSN account ID activated profile and for a normal Apollo fake activated account.
-# Download the main.py from here > [https://github.com/DrYenyen/-How-to-use-Apollo-Save-Tool-AIO-and-Fake-account-for-Chiaki-/blob/main/main.py main.py] or copy and paste the code inside it into a website that is able to run python scripts.
-*Websites it can run on or is already loaded on
+1. Download the main.py from here > [https://github.com/DrYenyen/-How-to-use-Apollo-Save-Tool-AIO-and-Fake-account-for-Chiaki-/blob/main/main.py main.py] or copy and paste the code inside it into a website that is able to run python scripts.
+2. Websites it can run on or is already loaded on
 *Copy and paste into > https://www.online-python.com/
 *Copy and paste into > https://www.programiz.com/python-programming/online-compiler/
 *Already loaded here > https://trinket.io/embed/python3/ba2ff26973
 *Alternatively run on your own PC offline if you have Python installed.
-* Once you are ready to run the code paste the string of the ACCOUNT-ID (example > abcdef01234556789) in the user_id = "here" between the 2 "" as seen in the code then run it. (ignore that it is named user-id in the script it is the account-id)
-* You will then receive a new string of letters and numbers (example > CN8aubEclS6=) you can then use that with chiaki to use remote play or utilise the offline activated account in another way you desire.
+3. Once you are ready to run the code paste the string of the ACCOUNT-ID (example > abcdef01234556789) in the user_id = "here" between the 2 "" as seen in the code then run it. (ignore that it is named user-id in the script it is the account-id)
+4. You will then receive a new string of letters and numbers (example > CN8aubEclS6=) you can then use that with chiaki to use remote play or utilise the offline activated account in another way you desire.
+5. Sign out of the user account or restart the console.
 
 
 == Getting saves and or managing them ==

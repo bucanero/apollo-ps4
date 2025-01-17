@@ -277,8 +277,8 @@ The Account ID a PSN ID assigned to the local user. (Example - abcdef01234556789
 *(the string can be found in About in Apollo Save Tool incase you lose it)
 
 ## Getting the ID needed for Chiaki
-* This works for both the PSN account ID activated profile and for a normal Apollo fake activated account.
-1.You will take your Account-ID and convert it on the website below.
+* This works for both the PSN account ID activated profile and for a normal Apollo fake activated account.   
+1. You will take your Account-ID and convert it on the website below.    
 * Already loaded here > https://trinket.io/embed/python3/ba2ff26973    
 3. Once you are ready to run the code paste the string of the ACCOUNT-ID (example > abcdef01234556789) in the user_id = "here" between the 2 "" as seen in the code then run it. (ignore that it is named user-id in the script it is the account-id)
 4. You will then receive a new string of letters and numbers (example > CN8aubEclS6=) you can then use that with chiaki to use remote play or continue to utilise the offline activated account for savedata management.

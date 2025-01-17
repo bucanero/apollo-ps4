@@ -139,3 +139,4 @@ This is a fix if you want to make use of files that are for the same game but di
 8. Then close Apollo and log out of and log in the user account for everything to properly show up.
 * If you cannot see the games and apps on the home screen check in the PS4 Library App.
 * Optionally you can then create a backup of your current database to use in the future with the restore option.
+* NOTICE restoring a database backup when the original users are not present or new ones have been added can cause issues. 

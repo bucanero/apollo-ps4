@@ -257,7 +257,11 @@ The Account ID a PSN ID assigned to the local user. (Example - abcdef01234556789
 2. Plug in the USB Drive into a PC
 * On the USB you will find the following folder path.
 * `PS4/SAVEDATA/abcdef01234556789/CUSAxxxxx`
-* abcdef01234556789 (is an example here) but for you the one you see there is your PSN account ID take note of it for later 
+* abcdef01234556789 (is an example here) but for you the one you see there is your PSN account ID take note of it for the next step.
+* If you don't have a console with your PSN account already activated.
+1. Then go to [https://psn.flipscreen.games/ this website] put in your PSN username and then take the Account ID (for PSPlay) and convert it on [https://www.rapidtables.com/convert/number/decimal-to-hex.html this website] from decimal to hex.
+* abcdef01234556789 (is an example here) but for you the one you see there is your PSN account ID take note of it for the next step.
+
 3. Open Apollo Save Tool, navigate to User Tools.
 4. Select Activate PS4 Accounts.
 5. Select your profile.

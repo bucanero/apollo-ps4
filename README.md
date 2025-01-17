@@ -292,14 +292,12 @@ The online database is a ever growing collection of save files for PS2, PS3 & PS
 2. Navigate to either USB saves or HDD saves, depending on where you chose to save them.
 * If you selected HDD saves, check to see if they appear in the HDD saves section.
 * If you selected USB saves, navigate to USB Saves and select `Copy save game` to HDD.
-3. Open your game.
 
 ## Copying saves between multiple profiles
 This is useful if you have multiple accounts like User1, User2 etc.
 1. Simply navigate to HDD saves  `Copy save game` and select to USB.
 2. Log in to your secondary profile.
 3. Navigate to USB  and select `Copy save game` and select the HDD.
-4. Open your game.
 
 === Managing your Decrypted save data ===
 You can export and import decrypted savedata by using the option `Copy save game` in Apollo. Or the Export/Import Decrypted save files options but they send the data to the internal drive.

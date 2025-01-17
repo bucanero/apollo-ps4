@@ -328,39 +328,39 @@ Encrypted saves are saves made from retail/unjailbroken PS4s made via Account Da
 8. Export it via the Account Data Management feature from settings. Or for decrypted data `Copy save game` to USB.
 9. Compare the online savedata names and make it match the one you just got from the console then try again.
 
-=== Managing Decrypted savedata acquired online  ===
+## Managing Decrypted savedata acquired online
 Decrypted saves are usually your own but sometimes are shared online.
 * Note that Save Wizard is not needed. 
 * Note that the saves must be from 11.00 or lower.
 * If the save file you have has a sce_sys folder with a keystone and param.sfo
-# Put it in the following path on a USB drive formatted as exFAT `/PS4/APOLLO/<title-id` and in Apollo go to USB saves choose the `Copy save game` option and copy it to the HDD.
+1. Put it in the following path on a USB drive formatted as exFAT `/PS4/APOLLO/<title-id` and in Apollo go to USB saves choose the `Copy save game` option and copy it to the HDD.
 * If the save file is a file on it's own.
-# Plug in a USB drive formatted as exFAT into the PS4.
-# You will need to create a save in the game and then from Apollo in HDD saves use the `Copy save game` to copy the savedata to the USB.
-# Then in this path on the USB `/PS4/APOLLO/<USER-ID><title-id><Save-name` find and replace the file inside with the file you alread have then back in Apollo in USB saves use the `Copy save game` option and copy it to the HDD.
+2. Plug in a USB drive formatted as exFAT into the PS4.
+3. You will need to create a save in the game and then from Apollo in HDD saves use the `Copy save game` to copy the savedata to the USB.
+4. Then in this path on the USB `/PS4/APOLLO/<USER-ID><title-id><Save-name` find and replace the file inside with the file you alread have then back in Apollo in USB saves use the `Copy save game` option and copy it to the HDD.
 
-===Managing save files from different CUSA IDs===
+## Managing save files from different CUSA IDs
 This is a fix if you want to make use of files that are for the same game but different CUSA IDs or versions (such as standard vs deluxe/GOTY editions).
-# On the game you want the save to be applied to, make a new save.
-# Open Apollo Save Tool, select HDD saves. Select your save and select Export decrypted save files. Export all the files one by one.
-# Open PS4Xplorer, navigate to `/data/apollo/yourprofileid/` and simply rename the folder of the CUSA ID to the version of the game you need to have the game to.
-# Back to Apollo Save Tool, select HDD saves. Select your new game title ID, select Import decrypted save files. Import them one by one. Select Apply Changes & Resign.
-# Open your game. You should see the same name as before, but a different size or at a different point in the game.
+1. On the game you want the save to be applied to, make a new save.
+2. Open Apollo Save Tool, select HDD saves. Select your save and select Export decrypted save files. Export all the files one by one.
+3. Open PS4Xplorer, navigate to `/data/apollo/yourprofileid/` and simply rename the folder of the CUSA ID to the version of the game you need to have the game to.
+4. Back to Apollo Save Tool, select HDD saves. Select your new game title ID, select Import decrypted save files. Import them one by one. Select Apply Changes & Resign.
+5. Open your game. You should see the same name as before, but a different size or at a different point in the game.
 
-=== Fixing Keystone issues with savedata ===
+## Fixing Keystone issues with savedata 
 *Assuming the title id of the game or game version are not the issue sometimes you may do everything right but savedata always shows as corrupted. 
 *This usually means the game you have or the game the save came from does not have a matching keystone this is usually an issue with dumped games as they are not rebuilt with the original keystone.
-# To fix this export the keystone from an already working save file and import it into the save file that you want to fix then copy the save file to the HDD and try it out.
+1. To fix this export the keystone from an already working save file and import it into the save file that you want to fix then copy the save file to the HDD and try it out.
 
-== I rebuilt my database and now all my homebrew and games are gone how do i get them back? ==
-# Download the latest version Apollo Save Tool from Pkg Zone or Github and put it in the root of a USB drive ( Has to be formatted in Exfat) then plug it into your PS4. 
-# Jailbreak your console as you usually do.
-# In GoldHEN Debug Settings before entering the Package Installer under it are some options make sure Enable Background Installation is NOT enabled.
-# Install Apollo and select yes to reinstall it if it asks you to ( This happens only if it was previously installed)
-# Open Apollo Save Tool and go to User Tools.
-# Then select App.db Database Management.
-# There you can select Rebuild App.db Database (Restore missing XMB items) and you can also select Rebuild DLC Database (addcont.db)
-# Then close Apollo and log out of and log in the user account for everything to properly show up.
+# I rebuilt my database and now all my homebrew and games are gone how do i get them back? ==
+1. Download the latest version Apollo Save Tool and put it in the root of a USB drive ( Has to be formatted in Exfat) then plug it into your PS4. 
+2. Jailbreak your console as you usually do.
+3. In GoldHEN Debug Settings before entering the Package Installer under it are some options make sure Enable Background Installation is NOT enabled.
+4. Install Apollo and select yes to reinstall it if it asks you to ( This happens only if it was previously installed)
+5. Open Apollo Save Tool and go to User Tools.
+6. Then select App.db Database Management.
+7. There you can select Rebuild App.db Database (Restore missing XMB items) and you can also select Rebuild DLC Database (addcont.db)
+8. Then close Apollo and log out of and log in the user account for everything to properly show up.
 * If you cannot see the games and apps on the home screen check in the PS4 Library App.
 * Optionally you can then create a backup of your current database to use in the future with the restore option.
 * If you are not using GoldHEN or cannot see the app after it has been reinstalled try one of the other ones in this guide. Or if all apps have not been recovered try using one of the other apps in this guide

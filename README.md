@@ -299,7 +299,7 @@ This is useful if you have multiple accounts like User1, User2 etc.
 3. Navigate to USB  and select `Copy save game` and select the HDD.
 
 ## Managing your Decrypted save data 
-1. You can export and import decrypted savedata by using the option `Copy save game` in Apollo. Or the Export/Import Decrypted save files options but they send the data to the internal drive.
+1. You can export and import decrypted savedata by using the option `Copy save game` in Apollo. Or the Export/Import Decrypted save files options but they send the data to the internal drive. Or the Export to Zip option.
 2. When using the `Copy save game` option Apollo copies decrypted savadata to the following path
 *  `/PS4/APOLLO/ <USER-ID><title-id><Save-name`       
 with files and a sce_sys folder inside.   

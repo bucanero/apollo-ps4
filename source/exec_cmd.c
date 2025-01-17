@@ -91,8 +91,8 @@ static struct tm get_local_time(void)
 
 static void zipSave(const save_entry_t* entry, const char* exp_path)
 {
-	char export_file[256] = {};
-	char zip_file[256] = {};
+	char export_file[256];
+	char zip_file[256];
 	struct tm t = get_local_time();
 	char* tmp;
 	int ret;

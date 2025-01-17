@@ -305,7 +305,7 @@ with files and a sce_sys folder inside.
 3. When importing it not needed for the folder path to end with  
 * `<USER-ID><title-id><Save-name` the `title-id` is enough.      
 But a proper structure with savedata and a sce_sys folder is needed.
-When you decrypt a save file you are then one step closer to editing it if tools or documented methods exist for the specific game.
+4. When you decrypt a save file you are then one step closer to editing it if tools or documented methods exist for the specific game.
 To copy it back to the HDD select `Copy save game` and select the HDD.
 
 ## Managing Encrypted save data tied to your account

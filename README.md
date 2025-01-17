@@ -284,22 +284,22 @@ The Account ID a PSN ID assigned to the local user. (Example - abcdef01234556789
 4. You will then receive a new string of letters and numbers (example > CN8aubEclS6=) you can then use that with chiaki to use remote play or continue to utilise the offline activated account for savedata management.
 
 
-## Getting saves and or managing them 
+# Getting saves and or managing them 
 There are many ways to download or manage savedata here are some of the easiest ways.   
 ## Online database  
-The online database is a ever growing collection of save files for PS2, PS3 & PS4 games. Users can submit their own save file [https://github.com/bucanero/apollo-saves on their GitHub].
-# Simply navigate to online database section, select your game, and download to a USB drive or to your internal HDD.
-# Navigate to either USB saves or HDD saves, depending on where you chose to save them.
-#* If you selected HDD saves, check to see if they appear in the HDD saves section.
-#* If you selected USB saves, navigate to USB Saves and select `Copy save game` to HDD.
-# Open your game.
+The online database is a ever growing collection of save files for PS2, PS3 & PS4 games. Users can submit their own save files too.
+1. Simply navigate to online database section, select your game, and download to a USB drive or to your internal HDD.
+2. Navigate to either USB saves or HDD saves, depending on where you chose to save them.
+* If you selected HDD saves, check to see if they appear in the HDD saves section.
+* If you selected USB saves, navigate to USB Saves and select `Copy save game` to HDD.
+3. Open your game.
 
-===Copying saves between multiple profiles===
+## Copying saves between multiple profiles
 This is useful if you have multiple accounts like User1, User2 etc.
-# Simply navigate to HDD saves  `Copy save game` and select to USB.
-# Log in to your secondary profile.
-# Navigate to USB  and select `Copy save game` and select the HDD.
-# Open your game.
+1. Simply navigate to HDD saves  `Copy save game` and select to USB.
+2. Log in to your secondary profile.
+3. Navigate to USB  and select `Copy save game` and select the HDD.
+4. Open your game.
 
 === Managing your Decrypted save data ===
 You can export and import decrypted savedata by using the option `Copy save game` in Apollo. Or the Export/Import Decrypted save files options but they send the data to the internal drive.

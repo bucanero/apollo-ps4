@@ -278,21 +278,15 @@ The Account ID a PSN ID assigned to the local user. (Example - abcdef01234556789
 
 ## Getting the ID needed for Chiaki
 * This works for both the PSN account ID activated profile and for a normal Apollo fake activated account.
-1. Download the main.py from here > [https://github.com/DrYenyen/-How-to-use-Apollo-Save-Tool-AIO-and-Fake-account-for-Chiaki-/blob/main/main.py main.py] or copy and paste the code inside it into a website that is able to run python scripts.
-2. Websites it can run on or is already loaded on     
-* Copy and paste into > https://www.online-python.com/   
-* Copy and paste into > https://www.programiz.com/python-programming/online-compiler/   
-* Already loaded here > https://trinket.io/embed/python3/ba2ff26973   
-* Alternatively run on your own PC offline if you have Python installed.   
+1.You will take your Account-ID and convert it on the website below.
+* Already loaded here > https://trinket.io/embed/python3/ba2ff26973    
 3. Once you are ready to run the code paste the string of the ACCOUNT-ID (example > abcdef01234556789) in the user_id = "here" between the 2 "" as seen in the code then run it. (ignore that it is named user-id in the script it is the account-id)
-4. You will then receive a new string of letters and numbers (example > CN8aubEclS6=) you can then use that with chiaki to use remote play or utilise the offline activated account in another way you desire.
-5. Sign out of the user account or restart the console.
+4. You will then receive a new string of letters and numbers (example > CN8aubEclS6=) you can then use that with chiaki to use remote play or continue to utilise the offline activated account for savedata management.
 
 
-== Getting saves and or managing them ==
-There are many ways to download or manage savedata here are some of the easiest ways.
-
-===Online database===
+## Getting saves and or managing them 
+There are many ways to download or manage savedata here are some of the easiest ways.   
+## Online database  
 The online database is a ever growing collection of save files for PS2, PS3 & PS4 games. Users can submit their own save file [https://github.com/bucanero/apollo-saves on their GitHub].
 # Simply navigate to online database section, select your game, and download to a USB drive or to your internal HDD.
 # Navigate to either USB saves or HDD saves, depending on where you chose to save them.

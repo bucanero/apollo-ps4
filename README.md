@@ -225,8 +225,6 @@ the Free Software Foundation, either version 3 of the License, or
 [img_latest]: https://img.shields.io/github/release/bucanero/apollo-ps4.svg?maxAge=3600
 [img_license]: https://img.shields.io/github/license/bucanero/apollo-ps4.svg?maxAge=2592000
 
-
-
 # NOTICE you must have a fake activated account or already have a real PSN account on the console to use saves from other users and properly export savedata.
 * See `Activating offline profiles` on how to do it by using your real PSN ID or allow Apollo to create one.
 
@@ -300,11 +298,11 @@ This is useful if you have multiple accounts like User1, User2 etc.
 3. Navigate to USB  and select `Copy save game` and select the HDD.
 
 ## Managing your Decrypted save data 
-You can export and import decrypted savedata by using the option `Copy save game` in Apollo. Or the Export/Import Decrypted save files options but they send the data to the internal drive.
-When using the `Copy save game` option Apollo copies decrypted savadata to the following path  `/PS4/APOLLO/ <USER-ID><title-id><Save-name` with files and a sce_sys folder inside.
-When importing it is not manditory for the folder path to end with  `<USER-ID><title-id><Save-name` the `title-id` is enough but a proper structure with savedata and a sce_sys folder is needed.
-When you decrypt a save file you are then one step closer to editing it if tools or documented methods exist for the specific game.
-To copy it back to the HDD select `Copy save game` and select the HDD.
+1. You can export and import decrypted savedata by using the option `Copy save game` in Apollo. Or the Export/Import Decrypted save files options but they send the data to the internal drive.
+2. When using the `Copy save game` option Apollo copies decrypted savadata to the following path  `/PS4/APOLLO/ <USER-ID><title-id><Save-name` with files and a sce_sys folder inside.
+3. When importing it is not manditory for the folder path to end with  `<USER-ID><title-id><Save-name` the `title-id` is enough but a proper structure with savedata and a sce_sys folder is needed.
+4. When you decrypt a save file you are then one step closer to editing it if tools or documented methods exist for the specific game.
+5. To copy it back to the HDD select `Copy save game` and select the HDD.
 
 ## Managing Encrypted save data tied to your account
 You can import and export savadata by using the Application Saved Data Management option in Settings on the PS4.

@@ -224,3 +224,22 @@ the Free Software Foundation, either version 3 of the License, or
 [img_downloads]: https://img.shields.io/github/downloads/bucanero/apollo-ps4/total.svg?maxAge=3600
 [img_latest]: https://img.shields.io/github/release/bucanero/apollo-ps4.svg?maxAge=3600
 [img_license]: https://img.shields.io/github/license/bucanero/apollo-ps4.svg?maxAge=2592000
+
+
+# Test edit 
+# Managing Encrypted savedata acquired online Encrypted 
+Encrypted saves are saves made from retail/unjailbroken PS4s made via Account Data Management feature or come from Save Wizard. 
+* Note that Save Wizard is not needed. 
+* Note that the saves must be from 11.00 or lower.
+1. On a USB drive formatted as exFAT, put the saves in the following structure: `/PS4/SAVEDATA/ <ACCOUNT-ID> / <title-id` and inside the folder with 0s should be a folder with the title id of the game CUSAxxxxx and inside it the save files.
+* The ACCOUNT-ID can be  `0000000000000000` or `abcdef01234556789` or any 16 hex characters. 
+* The title-id is that of the game for example `CUSA09193`. 
+2. Back to the PS4, open the game the save was made for, and make a brand new save. 
+3. Open Apollo Save Tool.
+4. Navigate to USB Saves. Select the save.
+5. Select copy to HDD. Select yes to resign it.
+6. Check to see if the save is present in HDD Saves.
+* Note sometimes save files may display a ??? firmware warning in this case try the following.
+7. Delete all savedata of the game and create new savedata.
+8. Export it via the Account Data Management feature from settings. Or for decrypted data `Copy save game` to USB.
+9. Compare the online savedata names and make it match the one you just got from the console then try again.

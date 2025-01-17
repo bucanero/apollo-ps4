@@ -236,7 +236,7 @@ the Free Software Foundation, either version 3 of the License, or
 **R2 Europe-CUSA
 **R3 Asia-PLAS, PCAS
 
-*The product code is followed by a 5 digit unique number identifier.
+* The product code is followed by a 5 digit unique number identifier.
 
 * The Title ID is the Product code along with the unique numerical identifier of the game.
 **For example Minecraft USA is CUSA00744 while Minecraft EU is CUSA00265

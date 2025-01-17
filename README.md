@@ -301,7 +301,7 @@ This is useful if you have multiple accounts like User1, User2 etc.
 1. You can export and import decrypted savedata by using the option `Copy save game` in Apollo. Or the Export/Import Decrypted save files options but they send the data to the internal drive.
 2. When using the `Copy save game` option Apollo copies decrypted savadata to the following path
 *  `/PS4/APOLLO/ <USER-ID><title-id><Save-name`       
-with files and a sce_sys folder inside.
+with files and a sce_sys folder inside.   
 When importing it not needed for the folder path to end with  
 * `<USER-ID><title-id><Save-name` the `title-id` is enough.      
 But a proper structure with savedata and a sce_sys folder is needed.

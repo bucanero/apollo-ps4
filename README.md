@@ -352,7 +352,7 @@ This is a fix if you want to make use of files that are for the same game but di
 *This usually means the game you have or the game the save came from does not have a matching keystone this is usually an issue with dumped games as they are not rebuilt with the original keystone.
 1. To fix this export the keystone from an already working save file and import it into the save file that you want to fix then copy the save file to the HDD and try it out.
 
-# I rebuilt my database and now all my homebrew and games are gone how do i get them back? ==
+# I rebuilt my database and now all my homebrew and games are gone how do i get them back?
 1. Download the latest version Apollo Save Tool and put it in the root of a USB drive ( Has to be formatted in Exfat) then plug it into your PS4. 
 2. Jailbreak your console as you usually do.
 3. In GoldHEN Debug Settings before entering the Package Installer under it are some options make sure Enable Background Installation is NOT enabled.

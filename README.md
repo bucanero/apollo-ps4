@@ -267,14 +267,14 @@ The Account ID a PSN ID assigned to the local user. (Example - abcdef01234556789
 8. Then press R2 then X and then keep pressing O till you are asked if you want to exit to the XMB accept then restart the console or sign out and back in.
 9. Any saves you have can now be transferred via USB to a legit console as long as the title id matches and the game version is the same or higher.
 
-==== To fake activate for use with chiaki and general save management ====
-* Ignore if you have done the above Activating offline profiles and go to Getting the ID needed for Chiaki.
-# Open Apollo Save Tool, navigate to User Tools.
-# Select Activate PS4 Accounts.
-# Select your profile.
-# Select the account you want to activate and press X.
-# A string of letters and numbers will show up copy them CORRECTLY then press R2 then X and then keep pressing O till you are asked if you want to exit to the XMB accept then restart the console
-**(the string can be found in About in Apollo Save Tool incase you lose it)
+## To fake activate for use with chiaki and general save management 
+* Ignore if you have done the above Activating offline profiles and go to Getting the ID needed for Chiaki if needed.
+1. Open Apollo Save Tool, navigate to User Tools.
+2. Select Activate PS4 Accounts.
+3. Select your profile.
+4. Select the account you want to activate and press X.
+5. A string of letters and numbers will show up copy them CORRECTLY then press R2 then X and then keep pressing O till you are asked if you want to exit to the XMB accept then restart the console
+*(the string can be found in About in Apollo Save Tool incase you lose it)
 
 ==== Getting the ID needed for Chiaki ====
 * This works for both the PSN account ID activated profile and for a normal Apollo fake activated account.

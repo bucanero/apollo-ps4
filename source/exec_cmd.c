@@ -140,7 +140,7 @@ static void zipSave(const save_entry_t* entry, const char* exp_path)
 
 static void copySave(const save_entry_t* save, const char* exp_path)
 {
-	char copy_path[256] = {};
+	char copy_path[256];
 
 	if (strncmp(save->path, exp_path, strlen(exp_path)) == 0)
 	{

@@ -231,16 +231,16 @@ the Free Software Foundation, either version 3 of the License, or
 
 # Title ID, User ID and Account ID 
 ## What is a Title ID 
-*The product code is distinct to a region, and the common codes you’ll see are CUSA, PCAS, and PLAS.
-**R1 USA-CUSA
-**R2 Europe-CUSA
-**R3 Asia-PLAS, PCAS
+* The product code is distinct to a region, and the common codes you’ll see are CUSA, PCAS, and PLAS.
+** R1 USA-CUSA    
+** R2 Europe-CUSA   
+** R3 Asia-PLAS, PCAS     
 
 * The product code is followed by a 5 digit unique number identifier.
 
 * The Title ID is the Product code along with the unique numerical identifier of the game.
-**For example Minecraft USA is CUSA00744 while Minecraft EU is CUSA00265
-**Another example Resident Evil 2, USA is CUSA09193 while Asia is PLAS10335
+** For example Minecraft USA is CUSA00744 while Minecraft EU is CUSA00265
+** Another example Resident Evil 2, USA is CUSA09193 while Asia is PLAS10335
 ** The majority of games you come across will use CUSA.
 
 ## What is a User-ID 
@@ -248,7 +248,7 @@ The user ID is the internal description for the local user account. (Example - 1
 
 ## What is an Account-ID
 The Account ID a PSN ID assigned to the local user. (Example - abcdef01234556789) but must be 16 hex characters.
-*To see yours and active your offline console's user account with it or to generate a fake one for fake activation read below.
+* To see yours and active your offline console's user account with it or to generate a fake one for fake activation read below.
 
 
 # Managing Encrypted savedata acquired online Encrypted 

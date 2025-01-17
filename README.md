@@ -225,7 +225,8 @@ the Free Software Foundation, either version 3 of the License, or
 [img_latest]: https://img.shields.io/github/release/bucanero/apollo-ps4.svg?maxAge=3600
 [img_license]: https://img.shields.io/github/license/bucanero/apollo-ps4.svg?maxAge=2592000
 
-# NOTICE you must have a fake activated account or already have a real PSN account on the console to use saves from other users and properly export savedata.
+# Usage Instructions
+# NOTICE you must have a fake activated account or already have a real PSN account on the console to use saves from other users and properly export savedata. 
 * See `Activating offline profiles` on how to do it by using your real PSN ID or allow Apollo to create one.
 
 # Title ID, User ID and Account ID 

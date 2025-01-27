@@ -791,6 +791,44 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int 
 	show_message("All Saves copied to:\n%s", dst_path);
 }
 
+static void copyAllEncSavesHDD(const save_entry_t* save, int all)
+{
+    int err_count = 0;
+    uint64_t progress = 0;
+    list_node_t *node;
+    save_entry_t *item;
+    // This pointer holds the entire saves list:
+    list_t *list = ((void**)save->dir_name)[0];
+
+    init_progress_bar("Copying all encrypted saves to HDD...");
+
+    LOG("Copying all encrypted saves from '%s' to HDD...", save->path);
+    for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+    {
+        update_progress_bar(progress++, list_count(list), item->name);
+
+        // only copy encrypted PS4 saves
+        // if "all=1" or the user flagged it selected.
+        if (item->type == FILE_TYPE_PS4 &&
+            (item->flags & SAVE_FLAG_LOCKED) &&
+            (all || (item->flags & SAVE_FLAG_SELECTED)))
+        {
+	    // copySavePFS() actually performs the single encrypted-save copy to HDD
+            // If you care about errors, I guess it's better to make copySavePFS() return int instead of void as in copyAllSavesUSB
+            // Alternatively I could just call copySavePFS(item); directly (no check), and the function will always “report success or fail” with a message box
+            if (!copySavePFS_return(item))
+                err_count++;
+        }
+    }
+    end_progress_bar();
+
+    if (err_count)
+        show_message("Error: %d Saves couldn't be copied to HDD", err_count);
+    else
+        show_message("All encrypted saves copied to HDD!");
+}
+
+
 static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
 {
 	char outPath[256];
@@ -1503,6 +1541,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			copyAllSavesHDD(selected_entry, codecmd[0] == CMD_COPY_ALL_SAVES_HDD);
 			code->activated = 0;
 			break;
+		
+		case CMD_COPY_ALL_ENCRYPTED_SAVES_HDD:
+    			copyAllEncSavesHDD(selected_entry, 1); // "1" means copy all
+    			code->activated = 0;
+   			 break;
+
 
 		case CMD_SAVE_WEBSERVER:
 			enableWebServer(webReqHandler, ((void**)selected_entry->dir_name)[0], 8080);

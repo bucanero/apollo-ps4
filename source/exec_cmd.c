@@ -18,6 +18,7 @@
 #include "ps1card.h"
 
 static char host_buf[256];
+static int copySavePFS(const save_entry_t* save);
 
 static void _set_dest_path(char* path, int dest, const char* folder)
 {

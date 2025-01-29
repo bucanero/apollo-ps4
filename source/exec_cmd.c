@@ -251,29 +251,44 @@ static void copySaveHDD(const save_entry_t* save)
 
 static void copyAllSavesHDD(const save_entry_t* save, int all)
 {
-	int err_count = 0;
-	list_node_t *node;
-	save_entry_t *item;
-	uint64_t progress = 0;
-	list_t *list = ((void**)save->dir_name)[0];
+    int err_count = 0;
+    list_node_t *node;
+    save_entry_t *item;
+    uint64_t progress = 0;
+    list_t *list = ((void**)save->dir_name)[0];
 
-	init_progress_bar("Copying all saves...");
+    init_progress_bar("Copying all saves...");
 
-	LOG("Copying all saves from '%s' to HDD...", save->path);
-	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
-	{
-		update_progress_bar(progress++, list_count(list), item->name);
-		if (item->type == FILE_TYPE_PS4 && !(item->flags & SAVE_FLAG_LOCKED) && (all || item->flags & SAVE_FLAG_SELECTED))
-			err_count += ! _copy_save_hdd(item);
-	}
+    LOG("Copying all saves from '%s' to HDD...", save->path);
 
-	end_progress_bar();
+    for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+    {
+        update_progress_bar(progress++, list_count(list), item->name);
 
-	if (err_count)
-		show_message("Error: %d Saves couldn't be copied to HDD", err_count);
-	else
-		show_message("All Saves copied to HDD");
+        // Modified logic to handle both locked & unlocked saves
+        if (item->type == FILE_TYPE_PS4 && (all || (item->flags & SAVE_FLAG_SELECTED)))
+        {
+            if (item->flags & SAVE_FLAG_LOCKED)
+            {
+                // Now handles encrypted (locked) saves
+                err_count += ! copySavePFS(item);
+            }
+            else
+            {
+                // Existing function for decrypted (unlocked) saves
+                err_count += ! _copy_save_hdd(item);
+            }
+        }
+    }
+
+    end_progress_bar();
+
+    if (err_count)
+        show_message("Error: %d Saves couldn't be copied to HDD", err_count);
+    else
+        show_message("All Saves copied to HDD");
 }
+
 
 void extractArchive(const char* file_path)
 {

@@ -495,7 +495,7 @@ static void activateAccount(int user)
 	show_message("Account successfully activated!\nA system reboot might be required");
 }
 
-static void copySavePFS(const save_entry_t* save)
+static int copySavePFS(const save_entry_t* save)
 {
 	char src_path[256];
 	char hdd_path[256];

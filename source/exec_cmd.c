@@ -1086,7 +1086,7 @@ static void* orbis_host_callback(int id, int* size)
 
 static int apply_sfo_patches(save_entry_t* entry, sfo_patch_t* patch)
 {
-	option_value_t* optval;
+    option_value_t* optval;
     code_entry_t* code;
     char in_file_path[256];
     char tmp_dir[SFO_DIRECTORY_SIZE];

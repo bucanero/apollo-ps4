@@ -139,7 +139,7 @@ int copy_file(const char* input, const char* output)
 
 uint32_t file_crc32(const char* input)
 {
-    char buffer[TMP_BUFF_SIZE];
+    Bytef *buffer;
     uLong crc = crc32(0L, Z_NULL, 0);
     size_t read;
 
@@ -148,6 +148,7 @@ uint32_t file_crc32(const char* input)
     if (!in)
         return FAILED;
 
+    buffer = malloc(TMP_BUFF_SIZE);
     do
     {
         read = fread(buffer, 1, TMP_BUFF_SIZE, in);
@@ -155,6 +156,7 @@ uint32_t file_crc32(const char* input)
     }
     while (read == TMP_BUFF_SIZE);
 
+    free(buffer);
     fclose(in);
 
     return crc;

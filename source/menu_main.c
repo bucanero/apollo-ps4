@@ -147,11 +147,18 @@ static void SetMenu(int id)
 			}
 			break;
 
+		case MENU_ONLINE_DB: //Cheats Online Menu
+			if (apollo_config.online_opt && id == MENU_MAIN_SCREEN)
+			{
+				UnloadGameList(online_saves.list);
+				online_saves.list = NULL;
+			}
+			break;
+
 		case MENU_MAIN_SCREEN: //Main Menu
 		case MENU_TROPHIES:
 		case MENU_USB_SAVES: //USB Saves Menu
 		case MENU_HDD_SAVES: //HHD Saves Menu
-		case MENU_ONLINE_DB: //Cheats Online Menu
 		case MENU_USER_BACKUP: //Backup Menu
 			menu_textures[icon_png_file_index].size = 0;
 			break;

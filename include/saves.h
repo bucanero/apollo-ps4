@@ -159,13 +159,14 @@ enum cmd_code_enum
 enum save_type_enum
 {
     FILE_TYPE_NULL,
+    FILE_TYPE_PS1,
+    FILE_TYPE_PS2,
     FILE_TYPE_MENU,
     FILE_TYPE_PS4,
     FILE_TYPE_TRP,
     FILE_TYPE_VMC,
 
     // PS1 File Types
-    FILE_TYPE_PS1,
     FILE_TYPE_PSX,
     FILE_TYPE_MCS,
 
@@ -180,7 +181,6 @@ enum save_type_enum
     FILE_TYPE_ACT,
 
     // PS2 File Types
-    FILE_TYPE_PS2,
     FILE_TYPE_PSU,
     FILE_TYPE_MAX,
     FILE_TYPE_CBS,

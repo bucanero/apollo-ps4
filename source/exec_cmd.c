@@ -16,6 +16,7 @@
 #include "sfo.h"
 #include "mcio.h"
 #include "ps1card.h"
+#include "svpng.h"
 
 static char host_buf[256];
 
@@ -918,14 +919,17 @@ static void import_save2vmc(const char* src, int type)
 
 	case FILE_TYPE_XPS:
 		ret = ps2_xps2psv(src, APOLLO_LOCAL_CACHE "TEMP.PSV") && vmc_import_psv(APOLLO_LOCAL_CACHE "TEMP.PSV");
+		unlink_secure(APOLLO_LOCAL_CACHE "TEMP.PSV");
 		break;
 
 	case FILE_TYPE_CBS:
 		ret = ps2_cbs2psv(src, APOLLO_LOCAL_CACHE "TEMP.PSV") && vmc_import_psv(APOLLO_LOCAL_CACHE "TEMP.PSV");
+		unlink_secure(APOLLO_LOCAL_CACHE "TEMP.PSV");
 		break;
 
 	case FILE_TYPE_MAX:
 		ret = ps2_max2psv(src, APOLLO_LOCAL_CACHE "TEMP.PSV") && vmc_import_psv(APOLLO_LOCAL_CACHE "TEMP.PSV");
+		unlink_secure(APOLLO_LOCAL_CACHE "TEMP.PSV");
 		break;
 
 	default:
@@ -970,7 +974,7 @@ static int deleteSave(const save_entry_t* save)
 			ret &= (unlink_secure(fpath) == SUCCESS);
 		}
 		else
-			ret = (clean_directory(save->path) == SUCCESS);
+			ret = (clean_directory(save->path, "") == SUCCESS);
 	}
 
 	if (ret)

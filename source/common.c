@@ -139,7 +139,7 @@ int copy_file(const char* input, const char* output)
 
 uint32_t file_crc32(const char* input)
 {
-    char buffer[TMP_BUFF_SIZE];
+    Bytef *buffer;
     uLong crc = crc32(0L, Z_NULL, 0);
     size_t read;
 
@@ -148,13 +148,15 @@ uint32_t file_crc32(const char* input)
     if (!in)
         return FAILED;
 
+    buffer = malloc(TMP_BUFF_SIZE);
     do
     {
         read = fread(buffer, 1, TMP_BUFF_SIZE, in);
-        crc = crc32(crc, (u8*)buffer, read);
+        crc = crc32(crc, buffer, read);
     }
     while (read == TMP_BUFF_SIZE);
 
+    free(buffer);
     fclose(in);
 
     return crc;
@@ -192,7 +194,7 @@ int copy_directory(const char* startdir, const char* inputdir, const char* outpu
     return SUCCESS;
 }
 
-int clean_directory(const char* inputdir)
+int clean_directory(const char* inputdir, const char* filter)
 {
 	DIR *d;
 	struct dirent *dir;
@@ -204,13 +206,13 @@ int clean_directory(const char* inputdir)
 
 	while ((dir = readdir(d)) != NULL)
 	{
-		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0)
+		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0 && strstr(dir->d_name, filter) != NULL)
 		{
 			snprintf(dataPath, sizeof(dataPath), "%s" "%s", inputdir, dir->d_name);
 
 			if (dir->d_type == DT_DIR) {
 				strcat(dataPath, "/");
-				clean_directory(dataPath);
+				clean_directory(dataPath, filter);
 				rmdir(dataPath);
 			}
 

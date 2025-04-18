@@ -96,6 +96,7 @@ enum cmd_code_enum
     CMD_COPY_PFS,
     CMD_IMPORT_DATA_FILE,
     CMD_DELETE_SAVE,
+    CMD_UPLOAD_SAVE,
 
 // Bulk commands
     CMD_RESIGN_SAVES,
@@ -158,13 +159,14 @@ enum cmd_code_enum
 enum save_type_enum
 {
     FILE_TYPE_NULL,
+    FILE_TYPE_PS1,
+    FILE_TYPE_PS2,
     FILE_TYPE_MENU,
     FILE_TYPE_PS4,
     FILE_TYPE_TRP,
     FILE_TYPE_VMC,
 
     // PS1 File Types
-    FILE_TYPE_PS1,
     FILE_TYPE_PSX,
     FILE_TYPE_MCS,
 
@@ -179,7 +181,6 @@ enum save_type_enum
     FILE_TYPE_ACT,
 
     // PS2 File Types
-    FILE_TYPE_PS2,
     FILE_TYPE_PSU,
     FILE_TYPE_MAX,
     FILE_TYPE_CBS,
@@ -239,11 +240,11 @@ enum save_sort_enum
 typedef struct save_entry
 {
     char * name;
-	char * title_id;
-	char * path;
-	char * dir_name;
+    char * title_id;
+    char * path;
+    char * dir_name;
     uint32_t blocks;
-	uint16_t flags;
+    uint16_t flags;
     uint16_t type;
     list_t * codes;
 } save_entry_t;
@@ -253,7 +254,7 @@ typedef struct
     list_t * list;
     char path[128];
     char* title;
-    uint8_t icon_id;
+    uint8_t id;
     void (*UpdatePath)(char *);
     int (*ReadCodes)(save_entry_t *);
     list_t* (*ReadList)(const char*);
@@ -282,11 +283,14 @@ int ReadVmc2Codes(save_entry_t * save);
 int http_init(void);
 void http_end(void);
 int http_download(const char* url, const char* filename, const char* local_dst, int show_progress);
+int ftp_upload(const char* local_file, const char* url, const char* filename, int show_progress);
 
 int extract_7zip(const char* zip_file, const char* dest_path);
 int extract_rar(const char* rar_file, const char* dest_path);
 int extract_zip(const char* zip_file, const char* dest_path);
 int zip_directory(const char* basedir, const char* inputdir, const char* output_zipfile);
+int zip_file(const char* input, const char* output_zipfile);
+int extract_sfo(const char* zip_file, const char* dest_path);
 
 int show_dialog(int dialog_type, const char * format, ...);
 int osk_dialog_get_text(const char* title, char* text, uint32_t size);
@@ -300,6 +304,10 @@ void stop_loading_screen(void);
 
 void execCodeCommand(code_entry_t* code, const char* codecmd);
 
+void* open_sqlite_db(const char* db_path);
+int save_sqlite_db(void* db, const char* db_path);
+int get_appdb_title(void* db, const char* titleid, char* name);
+int get_name_title_id(const char* titleid, char* name);
 int appdb_rebuild(const char* db_path, uint32_t userid);
 int appdb_fix_delete(const char* db_path, uint32_t userid);
 int addcont_dlc_rebuild(const char* db_path);

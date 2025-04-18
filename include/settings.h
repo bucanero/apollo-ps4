@@ -33,11 +33,13 @@ typedef struct
     uint8_t doAni;
     uint8_t update;
     uint8_t usb_dev;
+    uint8_t online_opt;
     uint8_t dbglog;
     uint32_t user_id;
     uint64_t psid[2];
     uint64_t account_id;
     char save_db[256];
+    char ftp_url[512];
 } app_config_t;
 
 extern menu_option_t menu_options[];

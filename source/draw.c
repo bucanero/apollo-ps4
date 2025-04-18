@@ -372,7 +372,7 @@ static void drawJars(uint8_t alpha)
 	drawJar(jar_hdd_png_index, jar_hdd_png_x, jar_hdd_png_y, (alpha == 0xFF ? "HDD Saves" : ""), alpha);
 
 	//Online cheats
-	drawJar(jar_db_png_index, jar_db_png_x, jar_db_png_y, (alpha == 0xFF ? "Online DB" : ""), alpha);
+	drawJar(jar_db_png_index, jar_db_png_x, jar_db_png_y, (alpha == 0xFF ? (apollo_config.online_opt ? "FTP Server" : "Online DB") : ""), alpha);
 	
 	//User Backup
 	drawJar(jar_bup_png_index, jar_bup_png_x, jar_bup_png_y, (alpha == 0xFF ? "User Tools" : ""), alpha);

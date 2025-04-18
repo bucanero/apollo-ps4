@@ -451,6 +451,12 @@ void update_trophy_path(char* path)
 
 void update_db_path(char* path)
 {
+	if (apollo_config.online_opt)
+	{
+		sprintf(path, "%s%016lX/", apollo_config.ftp_url, apollo_config.account_id);
+		return;
+	}
+
 	strcpy(path, apollo_config.save_db);
 }
 

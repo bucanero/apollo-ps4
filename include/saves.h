@@ -304,6 +304,10 @@ void stop_loading_screen(void);
 
 void execCodeCommand(code_entry_t* code, const char* codecmd);
 
+void* open_sqlite_db(const char* db_path);
+int save_sqlite_db(void* db, const char* db_path);
+int get_appdb_title(void* db, const char* titleid, char* name);
+int get_name_title_id(const char* titleid, char* name);
 int appdb_rebuild(const char* db_path, uint32_t userid);
 int appdb_fix_delete(const char* db_path, uint32_t userid);
 int addcont_dlc_rebuild(const char* db_path);

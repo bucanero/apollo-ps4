@@ -111,6 +111,7 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 	snprintf(full_url, sizeof(full_url), "%s%s", url, filename);
 	LOG("URL: %s >> %s", full_url, local_dst);
 
+	set_curl_opts(curl);
 	curl_easy_setopt(curl, CURLOPT_URL, full_url);
 	// The function that will be used to write the data 
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fwrite);
@@ -128,6 +129,13 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 
 	// Perform the request
 	res = curl_easy_perform(curl);
+
+	if (res == CURLE_SSL_CONNECT_ERROR)
+	{
+		curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_NONE);
+		res = curl_easy_perform(curl);
+	}
+
 	// close file descriptor
 	fclose(fd);
 	// cleanup

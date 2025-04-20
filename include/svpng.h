@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     and/or inline in C99/C++, etc.
 */
 #ifndef SVPNG_LINKAGE
-#define SVPNG_LINKAGE
+#define SVPNG_LINKAGE static
 #endif
 
 /*! \def SVPNG_OUTPUT
@@ -99,8 +99,13 @@ SVPNG_LINKAGE void svpng(SVPNG_OUTPUT, unsigned w, unsigned h, const unsigned ch
         SVPNG_U8C(y == h - 1);                  /*   1 for the last block, 0 for others (1 byte) */
         SVPNG_U16LC(p); SVPNG_U16LC(~p);        /*   Size of block in little endian and its 1's complement (4 bytes) */
         SVPNG_U8ADLER(0);                       /*   No filter prefix (1 byte) */
-        for (x = 0; x < p - 1; x++, img++)
-            SVPNG_U8ADLER(*img);                /*   Image pixel data */
+        for (x = 0; x < p - 1; x += 4, img += 4)
+        {
+            SVPNG_U8ADLER(img[3]);                /*   Image pixel data */
+            SVPNG_U8ADLER(img[2]);                /*   Image pixel data */
+            SVPNG_U8ADLER(img[1]);                /*   Image pixel data */
+            SVPNG_U8ADLER(img[0]);                /*   Image pixel data */
+        }
     }
     SVPNG_U32C((b << 16) | a);                  /*   Deflate block end with adler (4 bytes) */
     SVPNG_END();                                /* } */

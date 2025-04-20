@@ -81,7 +81,7 @@ int get_appdb_title(void* db, const char* titleid, char* name)
         return 0;
     }
 
-    strncpy(name, (const char*) sqlite3_column_text(res, 1), ORBIS_SAVE_DATA_DETAIL_MAXSIZE);
+    strncpy(name, (const char*) sqlite3_column_text(res, 1), ORBIS_SAVE_DATA_TITLE_MAXSIZE);
     sqlite3_free(query);
     return 1;
 }
@@ -89,13 +89,11 @@ int get_appdb_title(void* db, const char* titleid, char* name)
 int get_name_title_id(const char* titleid, char* name)
 {
     int ret;
-    char dbPath[256];
-	sqlite3 *db;
-    
-	snprintf(dbPath, sizeof(dbPath), SAVES_DB_PATH, apollo_config.user_id);
-    db = open_sqlite_db(dbPath);
-	if (!db)
-		return 0;
+    sqlite3 *db;
+
+    db = open_sqlite_db(APP_DB_PATH_HDD);
+    if (!db)
+        return 0;
 
     ret = get_appdb_title(db, titleid, name);
     sqlite3_close(db);

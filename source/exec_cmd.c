@@ -993,25 +993,9 @@ static char* get_title_name_icon(const save_entry_t* item)
 
 	LOG("Getting data for '%s'...", item->title_id);
 	if (get_name_title_id(item->title_id, tmdb_url))
-	{
 		ret = strdup(tmdb_url);
-	}
 	else
-	{
-/*
-		char json_name[32];
-		uint8_t hmac[20];
-		snprintf(json_name, sizeof(json_name), "%.9s_00.json", item->title_id);
-		calculate_hmac_hash((uint8_t*) json_name, 12, TMDB_HMAC_Key, sizeof(TMDB_HMAC_Key), hmac);
-	
-		snprintf(tmdb_url, sizeof(tmdb_url), "http://tmdb.np.dl.playstation.net/tmdb2/%.9s_00_%016" PRIX64 "%016" PRIX64 "%08" PRIX32 "/", 
-			item->title_id, ES64(((uint64_t*)hmac)[0]), ES64(((uint64_t*)hmac)[1]), ES32(((uint32_t*)hmac)[4]));
-
-		snprintf(local_file, sizeof(local_file), APOLLO_LOCAL_CACHE "json.ftp");
-		if (!http_download(tmdb_url, json_name, local_file, 0) || (ret = get_json_title_name(local_file)) == NULL)
-*/
-			ret = strdup(item->name);
-	}
+		ret = strdup(item->name);
 
 	LOG("Get PS%d icon %s (%s)", item->type, item->title_id, ret);
 	snprintf(local_file, sizeof(local_file), APOLLO_LOCAL_CACHE "%.9s.PNG", item->title_id);
@@ -1163,7 +1147,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 		tmp = (save->type == FILE_TYPE_PS4) ? get_title_name_icon(save) : get_title_icon_psx(save);
 
 		snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%.9s.PNG", save->title_id);
-		ret &= ftp_upload(local, remote, "ICON0.PNG", 1);
+		ret &= ftp_upload(local, remote, "icon0.png", 1);
 
 		fp = fopen(APOLLO_LOCAL_CACHE "games.ftp", "a");
 		if (fp)

@@ -1853,15 +1853,6 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			code->activated = 0;
 			break;
 
-		case CMD_DB_DEL_FIX:
-			if (appdb_fix_delete(code->file, apollo_config.user_id))
-				show_message("User %x database fixed successfully!\nLog out for changes to take effect", apollo_config.user_id);
-			else
-				show_message("Database fix failed!");
-
-			code->activated = 0;
-			break;
-
 		case CMD_DB_DLC_REBUILD:
 			if (addcont_dlc_rebuild(code->file))
 				show_message("DLC database fixed successfully!\nLog out for changes to take effect");

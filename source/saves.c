@@ -1157,10 +1157,6 @@ int ReadBackupCodes(save_entry_t * bup)
 		asprintf(&cmd->file, "%saddcont.db", bup->path);
 		list_append(bup->codes, cmd);
 
-		cmd = _createCmdCode(PATCH_COMMAND, "\x18 Restore Delete option to XMB items (app.db fix)", CMD_DB_DEL_FIX);
-		asprintf(&cmd->file, "%sapp.db", bup->path);
-		list_append(bup->codes, cmd);
-
 		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup System Database Folder", CMD_EXP_DATABASE);
 		list_append(bup->codes, cmd);
 

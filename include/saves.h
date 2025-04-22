@@ -120,7 +120,6 @@ enum cmd_code_enum
     CMD_EXP_PS1_VM1,
     CMD_EXP_DATABASE,
     CMD_DB_REBUILD,
-    CMD_DB_DEL_FIX,
     CMD_DB_DLC_REBUILD,
 
 // Import commands

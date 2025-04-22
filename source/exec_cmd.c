@@ -1062,6 +1062,25 @@ static int deleteSave(const save_entry_t* save)
 	return ret;
 }
 
+static char* get_json_title_name(const char *fname)
+{
+	char *ptr, *ret = NULL;
+	char *json = readTextFile(fname, NULL);
+
+	if (!json)
+		return NULL;
+
+	ptr = strstr(json, "\"name\":");
+	if (ptr && (ret = strchr(ptr + 8, '"')) != NULL)
+	{
+		*ret = 0;
+		ret = strdup(ptr + 8);
+	}
+
+	free(json);
+	return ret;
+}
+
 static char* get_title_name_icon(const save_entry_t* item)
 {
 	char *ret = NULL;
@@ -1069,9 +1088,12 @@ static char* get_title_name_icon(const save_entry_t* item)
 	char local_file[256];
 
 	LOG("Getting data for '%s'...", item->title_id);
+
 	if (get_name_title_id(item->title_id, tmdb_url))
 		ret = strdup(tmdb_url);
-	else
+	else if (!snprintf(local_file, sizeof(local_file), APOLLO_LOCAL_CACHE "json.ftp") ||
+		!snprintf(tmdb_url, sizeof(tmdb_url), "https://bucanero.github.io/psndb/%s/%s_00.json", item->title_id, item->title_id) ||
+		!http_download(tmdb_url, "", local_file, 0) || (ret = get_json_title_name(local_file)) == NULL)
 	{
 		sfo_context_t* sfo = sfo_alloc();
 		snprintf(local_file, sizeof(local_file), "%ssce_sys/param.sfo", item->path);

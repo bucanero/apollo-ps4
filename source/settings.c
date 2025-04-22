@@ -47,11 +47,17 @@ menu_option_t menu_options[] = {
 		.value = &apollo_config.doSort,
 		.callback = sort_callback
 	},
-	{ .name = "\nUSB Saves Source",
+	{ .name = "USB Saves Source",
 		.options = (char**) usb_src,
 		.type = APP_OPTION_LIST,
 		.value = &apollo_config.usb_dev,
 		.callback = usb_callback
+	},
+	{ .name = "Version Update Check", 
+		.options = NULL, 
+		.type = APP_OPTION_BOOL, 
+		.value = &apollo_config.update, 
+		.callback = update_callback 
 	},
 	{ .name = "\nSet User FTP Server URL",
 		.options = NULL,
@@ -65,11 +71,11 @@ menu_option_t menu_options[] = {
 		.value = &apollo_config.online_opt,
 		.callback = server_callback
 	},
-	{ .name = "\nVersion Update Check", 
+	{ .name = "Update Application Data", 
 		.options = NULL, 
-		.type = APP_OPTION_BOOL, 
-		.value = &apollo_config.update, 
-		.callback = update_callback 
+		.type = APP_OPTION_CALL, 
+		.value = NULL, 
+		.callback = upd_appdata_callback 
 	},
 	{ .name = "Change Online Database URL",
 		.options = NULL,
@@ -77,19 +83,13 @@ menu_option_t menu_options[] = {
 		.value = NULL,
 		.callback = db_url_callback 
 	},
-	{ .name = "Clear Local Cache", 
+	{ .name = "\nClear Local Cache", 
 		.options = NULL, 
 		.type = APP_OPTION_CALL, 
 		.value = NULL, 
 		.callback = clearcache_callback 
 	},
-	{ .name = "Update Application Data", 
-		.options = NULL, 
-		.type = APP_OPTION_CALL, 
-		.value = NULL, 
-		.callback = upd_appdata_callback 
-	},
-	{ .name = "\nEnable Debug Log",
+	{ .name = "Enable Debug Log",
 		.options = NULL,
 		.type = APP_OPTION_BOOL,
 		.value = &apollo_config.dbglog,

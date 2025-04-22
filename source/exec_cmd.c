@@ -16,6 +16,7 @@
 #include "sfo.h"
 #include "mcio.h"
 #include "ps1card.h"
+#include "svpng.h"
 
 static char host_buf[256];
 static int copySavePFS(const save_entry_t* save);
@@ -176,14 +177,19 @@ static int _update_save_details(const char* sys_path, const save_entry_t* save)
 	LOG("Update Save Details :: Reading %s...", file_path);
 
 	sfo_context_t* sfo = sfo_alloc();
-	if (sfo_read(sfo, file_path) == SUCCESS)
+	if (sfo_read(sfo, file_path) < 0)
 	{
-		orbis_UpdateSaveParams(save,
+		LOG("Unable to read from '%s'", file_path);
+		sfo_free(sfo);
+		return 0;
+	}
+
+	orbis_UpdateSaveParams(save,
 			(char*) sfo_get_param_value(sfo, "MAINTITLE"),
 			(char*) sfo_get_param_value(sfo, "SUBTITLE"),
 			(char*) sfo_get_param_value(sfo, "DETAIL"),
 			*(uint32_t*) sfo_get_param_value(sfo, "SAVEDATA_LIST_PARAM"));
-	}
+
 	sfo_free(sfo);
 
 	snprintf(file_path, sizeof(file_path), "%s" "icon0.png", sys_path);
@@ -202,6 +208,78 @@ static int _update_save_details(const char* sys_path, const save_entry_t* save)
 	}
 
 	return 1;
+}
+
+static void downloadSaveHDD(const save_entry_t* entry, const char* file)
+{
+	save_entry_t save;
+	char path[256];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	char titleid[0x10];
+	char dirname[0x30];
+	sfo_context_t* sfo;
+
+	if (!http_download(entry->path, file, APOLLO_LOCAL_CACHE "tmpsave.zip", 1))
+	{
+		show_message("Error downloading save game from:\n%s%s", entry->path, file);
+		return;
+	}
+
+	sfo = sfo_alloc();
+	if (!extract_sfo(APOLLO_LOCAL_CACHE "tmpsave.zip", APOLLO_LOCAL_CACHE) ||
+		sfo_read(sfo, APOLLO_LOCAL_CACHE "param.sfo") < 0)
+	{
+		LOG("Unable to read from '%s'", APOLLO_LOCAL_CACHE);
+		sfo_free(sfo);
+
+		show_message("Error extracting save game!");
+		return;
+	}
+
+	memset(&save, 0, sizeof(save_entry_t));
+	strncpy(titleid, (char*) sfo_get_param_value(sfo, "TITLE_ID"), sizeof(titleid));
+	strncpy(dirname, (char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY"), sizeof(dirname));
+	save.blocks = *((uint32_t*) sfo_get_param_value(sfo, "SAVEDATA_BLOCKS"));
+	save.title_id = titleid;
+	save.dir_name = dirname;
+	sfo_free(sfo);
+
+	snprintf(path, sizeof(path), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save.title_id, save.dir_name);
+	if (file_exists(path) == SUCCESS)
+	{
+		if (!show_dialog(DIALOG_TYPE_YESNO, "Save game already exists:\n%s/%s\n\nOverwrite?", save.title_id, save.dir_name))
+			return;
+
+		if (!orbis_SaveMount(&save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
+		{
+			show_message("Error mounting save game folder!");
+			return;
+		}
+	}
+	else if (!orbis_SaveMount(&save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
+	{
+		show_message("Error creating save game folder!");
+		return;
+	}
+
+	snprintf(path, sizeof(path), APOLLO_SANDBOX_PATH, "~");
+	*strrchr(path, '~') = 0;
+
+	if (!extract_zip(APOLLO_LOCAL_CACHE "tmpsave.zip", path))
+	{
+		show_message("Error extracting save game!");
+		return;
+	}
+
+	unlink_secure(APOLLO_LOCAL_CACHE "tmpsave.zip");
+
+	snprintf(path, sizeof(path), APOLLO_SANDBOX_PATH "sce_sys/", mount);
+	if (_update_save_details(path, &save))
+		show_message("Save game successfully downloaded to:\n%s/%s", save.title_id, save.dir_name);
+	else
+		show_message("Error! Can't update save game:\n%s/%s", save.title_id, save.dir_name);
+
+	orbis_SaveUmount(mount);
 }
 
 static int _copy_save_hdd(const save_entry_t* save)
@@ -956,14 +1034,17 @@ static void import_save2vmc(const char* src, int type)
 
 	case FILE_TYPE_XPS:
 		ret = ps2_xps2psv(src, APOLLO_LOCAL_CACHE "TEMP.PSV") && vmc_import_psv(APOLLO_LOCAL_CACHE "TEMP.PSV");
+		unlink_secure(APOLLO_LOCAL_CACHE "TEMP.PSV");
 		break;
 
 	case FILE_TYPE_CBS:
 		ret = ps2_cbs2psv(src, APOLLO_LOCAL_CACHE "TEMP.PSV") && vmc_import_psv(APOLLO_LOCAL_CACHE "TEMP.PSV");
+		unlink_secure(APOLLO_LOCAL_CACHE "TEMP.PSV");
 		break;
 
 	case FILE_TYPE_MAX:
 		ret = ps2_max2psv(src, APOLLO_LOCAL_CACHE "TEMP.PSV") && vmc_import_psv(APOLLO_LOCAL_CACHE "TEMP.PSV");
+		unlink_secure(APOLLO_LOCAL_CACHE "TEMP.PSV");
 		break;
 
 	default:
@@ -1008,7 +1089,7 @@ static int deleteSave(const save_entry_t* save)
 			ret &= (unlink_secure(fpath) == SUCCESS);
 		}
 		else
-			ret = (clean_directory(save->path) == SUCCESS);
+			ret = (clean_directory(save->path, "") == SUCCESS);
 	}
 
 	if (ret)
@@ -1017,6 +1098,218 @@ static int deleteSave(const save_entry_t* save)
 		show_message("Error! Couldn't delete save:\n%s", save->dir_name);
 
 	return ret;
+}
+
+static char* get_json_title_name(const char *fname)
+{
+	char *ptr, *ret = NULL;
+	char *json = readTextFile(fname, NULL);
+
+	if (!json)
+		return NULL;
+
+	ptr = strstr(json, "\"name\":");
+	if (ptr && (ret = strchr(ptr + 8, '"')) != NULL)
+	{
+		*ret = 0;
+		ret = strdup(ptr + 8);
+	}
+
+	free(json);
+	return ret;
+}
+
+static char* get_title_name_icon(const save_entry_t* item)
+{
+	char *ret = NULL;
+	char tmdb_url[256];
+	char local_file[256];
+
+	LOG("Getting data for '%s'...", item->title_id);
+
+	if (get_name_title_id(item->title_id, tmdb_url))
+		ret = strdup(tmdb_url);
+	else if (!snprintf(local_file, sizeof(local_file), APOLLO_LOCAL_CACHE "json.ftp") ||
+		!snprintf(tmdb_url, sizeof(tmdb_url), "https://bucanero.github.io/psndb/%s/%s_00.json", item->title_id, item->title_id) ||
+		!http_download(tmdb_url, "", local_file, 0) || (ret = get_json_title_name(local_file)) == NULL)
+	{
+		sfo_context_t* sfo = sfo_alloc();
+		snprintf(local_file, sizeof(local_file), "%ssce_sys/param.sfo", item->path);
+
+		// get the title name from the SFO
+		ret = strdup((sfo_read(sfo, local_file) < 0) ? item->name : (char*) sfo_get_param_value(sfo, "MAINTITLE"));
+		sfo_free(sfo);
+	}
+
+	LOG("Get PS%d icon %s (%s)", item->type, item->title_id, ret);
+	snprintf(local_file, sizeof(local_file), APOLLO_LOCAL_CACHE "%.9s.PNG", item->title_id);
+	if (file_exists(local_file) == SUCCESS)
+		return ret;
+
+	snprintf(tmdb_url, sizeof(tmdb_url), SAVE_ICON_PATH_HDD "%s/%s_icon0.png", apollo_config.user_id, item->title_id, item->dir_name);
+	copy_file(tmdb_url, local_file);
+
+	return ret;
+}
+
+static char* get_title_icon_psx(const save_entry_t* entry)
+{
+	FILE* fp;
+	uint8_t* icon = NULL;
+	char *ret = NULL;
+	char path[256];
+
+	LOG("Getting data for '%s'...", entry->title_id);
+	snprintf(path, sizeof(path), APOLLO_DATA_PATH "ps%dtitleid.txt", entry->type);
+	fp = fopen(path, "r");
+	if (fp)
+	{
+		while(!ret && fgets(path, sizeof(path), fp))
+		{
+			if (strncmp(path, entry->title_id, 9) != 0)
+				continue;
+
+			path[strlen(path)-1] = 0;
+			ret = strdup(path+10);
+		}
+		fclose(fp);
+	}
+
+	if (!ret)
+		ret = strdup(entry->name);
+
+	LOG("Get PS%d icon %s (%s)", entry->type, entry->title_id, ret);
+	snprintf(path, sizeof(path), APOLLO_LOCAL_CACHE "%.9s.PNG", entry->title_id);
+	if (file_exists(path) == SUCCESS)
+		return ret;
+
+	fp = fopen(path, "wb");
+	if (entry->type == FILE_TYPE_PS1)
+	{
+		icon = getIconRGBA(entry->blocks, 0);
+		svpng(fp, 16, 16, icon, 1);
+	}
+	else
+	{
+		icon = getIconPS2(entry->dir_name, strrchr(entry->path, '\n')+1);
+		svpng(fp, 128, 128, icon, 1);
+	}
+	free(icon);
+	fclose(fp);
+
+	return ret;
+}
+
+static void uploadSaveFTP(const save_entry_t* save)
+{
+	FILE* fp;
+	char *tmp;
+	char remote[256];
+	char local[256];
+	int ret = 0;
+	struct tm t = get_local_time();
+
+	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to upload %s?", save->dir_name))
+		return;
+
+	init_loading_screen("Sync with FTP Server...");
+
+	snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, save->type);
+	http_download(remote, "games.txt", APOLLO_LOCAL_CACHE "games.ftp", 0);
+
+	snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/%s/", apollo_config.ftp_url, apollo_config.account_id, save->type, save->title_id);
+	http_download(remote, "saves.txt", APOLLO_LOCAL_CACHE "saves.ftp", 0);
+	http_download(remote, "checksum.sfv", APOLLO_LOCAL_CACHE "sfv.ftp", 0);
+
+	snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%s_%d-%02d-%02d-%02d%02d%02d.zip",
+			(save->type == FILE_TYPE_PS4) ? save->dir_name : save->title_id,
+			t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+
+	if (save->type == FILE_TYPE_PS4)
+	{
+		tmp = strdup(save->path);
+		*strrchr(tmp, '/') = 0;
+		*strrchr(tmp, '/') = 0;
+	
+		ret = zip_directory(tmp, save->path, local);
+		free(tmp);
+	}
+	else
+	{
+		tmp = malloc(256);
+		if (save->type == FILE_TYPE_PS2)
+			ret = vmc_export_psv(save->dir_name, APOLLO_LOCAL_CACHE);
+		else
+			ret = saveSingleSave(APOLLO_LOCAL_CACHE, save->blocks, PS1SAVE_PSV);
+
+		get_psv_filename(tmp, APOLLO_LOCAL_CACHE, save->dir_name);
+		ret &= zip_file(tmp, local);
+		unlink_secure(tmp);
+		free(tmp);
+	}
+
+	stop_loading_screen();
+	if (!ret)
+	{
+		show_message("Error! Couldn't zip save:\n%s", save->dir_name);
+		return;
+	}
+
+	tmp = strrchr(local, '/')+1;
+	uint32_t crc = file_crc32(local);
+
+	LOG("Updating %s save index...", save->title_id);
+	fp = fopen(APOLLO_LOCAL_CACHE "saves.ftp", "a");
+	if (fp)
+	{
+		fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s (CRC: %08X)\r\n", tmp, save->dir_name, 
+				t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, save->name, crc);
+		fclose(fp);
+	}
+
+	LOG("Updating .sfv CRC32: %08X", crc);
+	fp = fopen(APOLLO_LOCAL_CACHE "sfv.ftp", "a");
+	if (fp)
+	{
+		fprintf(fp, "%s %08X\n", tmp, crc);
+		fclose(fp);
+	}
+
+	ret = ftp_upload(local, remote, tmp, 1);
+	ret &= ftp_upload(APOLLO_LOCAL_CACHE "saves.ftp", remote, "saves.txt", 1);
+	ret &= ftp_upload(APOLLO_LOCAL_CACHE "sfv.ftp", remote, "checksum.sfv", 1);
+
+	unlink_secure(local);
+	tmp = readTextFile(APOLLO_LOCAL_CACHE "games.ftp", NULL);
+	if (!tmp)
+		tmp = strdup("");
+
+	if (strstr(tmp, save->title_id) == NULL)
+	{
+		LOG("Updating games index...");
+		free(tmp);
+		tmp = (save->type == FILE_TYPE_PS4) ? get_title_name_icon(save) : get_title_icon_psx(save);
+
+		snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%.9s.PNG", save->title_id);
+		ret &= ftp_upload(local, remote, "icon0.png", 1);
+
+		fp = fopen(APOLLO_LOCAL_CACHE "games.ftp", "a");
+		if (fp)
+		{
+			fprintf(fp, "%s=%s\r\n", save->title_id, tmp);
+			fclose(fp);
+		}
+
+		snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, save->type);
+		ret &= ftp_upload(APOLLO_LOCAL_CACHE "games.ftp", remote, "games.txt", 1);
+	}
+	free(tmp);
+	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
+
+	if (ret)
+		show_message("Save successfully uploaded:\n%s", save->dir_name);
+	else
+		show_message("Error! Couldn't upload save:\n%s", save->dir_name);
 }
 
 static void exportVM2raw(const char* vm2_file, int dst, int ecc)
@@ -1443,7 +1736,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_DOWNLOAD_USB:
-			downloadSave(selected_entry, code->file, codecmd[1]);			
+			downloadSave(selected_entry, code->file, codecmd[1]);
+			code->activated = 0;
+			break;
+
+		case CMD_DOWNLOAD_HDD:
+			downloadSaveHDD(selected_entry, code->file);
 			code->activated = 0;
 			break;
 
@@ -1562,6 +1860,11 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			code->activated = 0;
 			break;
 
+		case CMD_UPLOAD_SAVE:
+			uploadSaveFTP(selected_entry);
+			code->activated = 0;
+			break;
+
 		case CMD_COPY_PFS:
 			copySavePFS(selected_entry);
 			code->activated = 0;
@@ -1585,15 +1888,6 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_DB_REBUILD:
 			rebuildAppDB(code->file);
-			code->activated = 0;
-			break;
-
-		case CMD_DB_DEL_FIX:
-			if (appdb_fix_delete(code->file, apollo_config.user_id))
-				show_message("User %x database fixed successfully!\nLog out for changes to take effect", apollo_config.user_id);
-			else
-				show_message("Database fix failed!");
-
 			code->activated = 0;
 			break;
 

@@ -233,14 +233,20 @@ static void SetMenu(int id)
 			break;
 
 		case MENU_HDD_SAVES: //HDD saves Menu
-			if (!hdd_saves.list)
-				ReloadUserSaves(&hdd_saves);
+			if (!hdd_saves.list && !ReloadUserSaves(&hdd_saves))
+				return;
 			
 			if (apollo_config.doAni)
 				Draw_UserCheatsMenu_Ani(&hdd_saves);
 			break;
 
 		case MENU_ONLINE_DB: //Cheats Online Menu
+			if (apollo_config.online_opt && online_saves.list && menu_id == MENU_MAIN_SCREEN)
+			{
+				UnloadGameList(online_saves.list);
+				online_saves.list = NULL;
+			}
+
 			if (!online_saves.list && !ReloadUserSaves(&online_saves))
 				return;
 
@@ -454,7 +460,7 @@ static void doSaveMenu(save_list_t * save_list)
 		}
 
 		if (apollo_config.doSort && 
-			((save_list->icon_id == cat_bup_png_index) || (save_list->icon_id == cat_db_png_index)))
+			((save_list->id == MENU_USER_BACKUP) || (save_list->id == MENU_ONLINE_DB)))
 			list_bubbleSort(selected_entry->codes, &sortCodeList_Compare);
 
 		SetMenu(MENU_PATCHES);
@@ -471,10 +477,10 @@ static void doSaveMenu(save_list_t * save_list)
 		}
 	}
 	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TOUCH_PAD) && 
-		(save_list->icon_id == cat_hdd_png_index || save_list->icon_id == cat_usb_png_index))
+		(save_list->id != MENU_ONLINE_DB && save_list->id != MENU_USER_BACKUP))
 	{
 		selected_entry = list_get_item(save_list->list, menu_sel);
-		if (selected_entry->type != FILE_TYPE_MENU)
+		if (selected_entry->type != FILE_TYPE_MENU && selected_entry->type != FILE_TYPE_VMC)
 			selected_entry->flags ^= SAVE_FLAG_SELECTED;
 	}
 	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_SQUARE))

@@ -1370,13 +1370,13 @@ int sortSaveList_Compare_TitleID(const void* a, const void* b)
 static int parseTypeFlags(int flags)
 {
 	if (flags & SAVE_FLAG_PS4)
-		return FILE_TYPE_PS4;
+		return 1;
 	else if (flags & SAVE_FLAG_PS1)
-		return FILE_TYPE_PS1;
+		return 2;
 	else if (flags & SAVE_FLAG_PS2)
-		return FILE_TYPE_PS2;
+		return 3;
 	else if (flags & SAVE_FLAG_VMC)
-		return FILE_TYPE_VMC;
+		return 4;
 
 	return 0;
 }

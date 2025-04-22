@@ -1072,7 +1072,14 @@ static char* get_title_name_icon(const save_entry_t* item)
 	if (get_name_title_id(item->title_id, tmdb_url))
 		ret = strdup(tmdb_url);
 	else
-		ret = strdup(item->name);
+	{
+		sfo_context_t* sfo = sfo_alloc();
+		snprintf(local_file, sizeof(local_file), "%ssce_sys/param.sfo", item->path);
+
+		// get the title name from the SFO
+		ret = strdup((sfo_read(sfo, local_file) < 0) ? item->name : (char*) sfo_get_param_value(sfo, "MAINTITLE"));
+		sfo_free(sfo);
+	}
 
 	LOG("Get PS%d icon %s (%s)", item->type, item->title_id, ret);
 	snprintf(local_file, sizeof(local_file), APOLLO_LOCAL_CACHE "%.9s.PNG", item->title_id);

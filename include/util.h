@@ -10,6 +10,7 @@
 #define ALIGN(_value, _alignment) (((_value) + (_alignment) - 1) & ~((_alignment) - 1))
 
 void dump_data(const u8 *data, u64 size);
+void get_psv_filename(char* psvName, const char* path, const char* dirName);
 
 int get_file_size(const char *file_path, u64 *size);
 int read_file(const char *file_path, u8 *data, u64 size);

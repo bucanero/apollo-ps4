@@ -10,12 +10,8 @@
 #include "saves.h"
 #include "common.h"
 
-#define UNZIP_BUF_SIZE 0x20000
+#define UNZIP_BUF_SIZE 0x40000
 
-static inline uint64_t min64(uint64_t a, uint64_t b)
-{
-    return a < b ? a : b;
-}
 
 static void walk_zip_directory(const char* startdir, const char* inputdir, struct zip *zipper)
 {
@@ -82,6 +78,72 @@ int zip_directory(const char* basedir, const char* inputdir, const char* output_
     return (file_exists(output_filename) == SUCCESS);
 }
 
+int zip_file(const char* input_file, const char* output_filename)
+{
+	char *fname;
+	struct zip* archive;
+
+	unlink_secure(output_filename);
+	archive = zip_open(output_filename, ZIP_CREATE, NULL);
+	if (!archive) {
+		LOG("Failed to create zip file '%s'", output_filename);
+		return 0;
+	}
+
+	LOG("Zipping <%s> to %s...", input_file, output_filename);
+	struct zip_source *source = zip_source_file(archive, input_file, 0, 0);
+	if (!source) {
+		LOG("Failed to source file to zip: %s", input_file);
+		return 0;
+	}
+
+	fname = strrchr(input_file, '/');
+	if (!fname)
+		fname = (char*)input_file;
+	else
+		fname++;
+
+	LOG("Adding file '%s'", fname);
+	if (zip_add(archive, fname, source) < 0) {
+		zip_source_free(source);
+		LOG("Failed to add file to zip: %s", input_file);
+	}
+
+	return (zip_close(archive) == ZIP_ER_OK);
+}
+
+static int unpack_zip_file(struct zip_file* zfd, const char* path, uint8_t* buf)
+{
+	FILE* tfd;
+	ssize_t read;
+
+	if (!zfd) {
+		LOG("Unable to open file in zip.");
+		return 0;
+	}
+
+	tfd = fopen(path, "wb");
+	if(!tfd) {
+		zip_fclose(zfd);
+		LOG("Error opening file '%s'.", path);
+		return 0;
+	}
+
+	for(read = zip_fread(zfd, buf, UNZIP_BUF_SIZE); read > 0; read = zip_fread(zfd, buf, UNZIP_BUF_SIZE)) {
+		fwrite(buf, read, 1, tfd);
+	}
+
+	fclose(tfd);
+	zip_fclose(zfd);
+
+	if (read < 0) {
+		LOG("Error reading from zip.");
+		return 0;
+	}
+
+	return 1;
+}
+
 int extract_zip(const char* zip_file, const char* dest_path)
 {
 	char path[256];
@@ -97,20 +159,21 @@ int extract_zip(const char* zip_file, const char* dest_path)
 
 	buffer = malloc(UNZIP_BUF_SIZE);
 	if (!buffer)
+	{
+		zip_close(archive);
 		return 0;
+	}
 
 	init_progress_bar("Extracting files...");
-
 	LOG("Extracting %s to <%s>...", zip_file, dest_path);
 
 	for (int i = 0; i < files; i++) {
 		const char* filename = zip_get_name(archive, i, 0);
+		if (!filename)
+			continue;
 
 		update_progress_bar(i+1, files, filename);
 		LOG("Unzip [%d/%d] '%s'...", i+1, files, filename);
-
-		if (!filename)
-			continue;
 
 		if (filename[0] == '/')
 			filename++;
@@ -121,56 +184,54 @@ int extract_zip(const char* zip_file, const char* dest_path)
 		if (filename[strlen(filename) - 1] == '/')
 			continue;
 
-		struct zip_stat st;
-		if (zip_stat_index(archive, i, 0, &st)) {
-			LOG("Unable to access file %s in zip.", filename);
-			continue;
-		}
-		struct zip_file* zfd = zip_fopen_index(archive, i, 0);
-		if (!zfd) {
-			LOG("Unable to open file %s in zip.", filename);
-			continue;
-		}
-
-		FILE* tfd = fopen(path, "wb");
-		if(!tfd) {
+		if(!unpack_zip_file(zip_fopen_index(archive, i, 0), path, buffer)) {
 			free(buffer);
-			zip_fclose(zfd);
 			zip_close(archive);
 			end_progress_bar();
-			LOG("Error opening temporary file '%s'.", path);
 			return 0;
 		}
-
-		uint64_t pos = 0, count;
-		while (pos < st.size) {
-			count = min64(UNZIP_BUF_SIZE, st.size - pos);
-			if (zip_fread(zfd, buffer, count) != count) {
-				free(buffer);
-				fclose(tfd);
-				zip_fclose(zfd);
-				zip_close(archive);
-				end_progress_bar();
-				LOG("Error reading from zip.");
-				return 0;
-			}
-
-			fwrite(buffer, count, 1, tfd);
-			pos += count;
-		}
-
-		zip_fclose(zfd);
-		fclose(tfd);
 	}
 
-	if (archive) {
-		zip_close(archive);
-	}
-
-	end_progress_bar();
 	free(buffer);
+	zip_close(archive);
+	end_progress_bar();
 
 	return files;
+}
+
+int extract_sfo(const char* zip_file, const char* dest_path)
+{
+	char path[256];
+	uint8_t* buffer;
+	struct zip* archive = zip_open(zip_file, ZIP_CHECKCONS, NULL);
+	int file = zip_name_locate(archive, "param.sfo", ZIP_FL_NODIR);
+
+	if (file < 0) {
+		LOG("PARAM.SFO not found!");
+		zip_close(archive);
+		return 0;
+	}
+
+	buffer = malloc(UNZIP_BUF_SIZE);
+	if (!buffer)
+	{
+		zip_close(archive);
+		return 0;
+	}
+
+	snprintf(path, sizeof(path), "%s%s", dest_path, "param.sfo");
+	LOG("Extracting %s to <%s>...", zip_file, path);
+
+	if(!unpack_zip_file(zip_fopen_index(archive, file, 0), path, buffer)) {
+		free(buffer);
+		zip_close(archive);
+		return 0;
+	}
+
+	free(buffer);
+	zip_close(archive);
+
+	return 1;
 }
 
 static void callback_7z(const char* fileName, unsigned long fileSize, unsigned fileNum, unsigned numFiles)
@@ -187,7 +248,7 @@ int extract_7zip(const char* fpath, const char* dest_path)
 	init_progress_bar("Extracting files...");
 
 	// Extract 7-Zip archive contents
-	ret = Extract7zFileEx(fpath, dest_path, &callback_7z, 0x40000);
+	ret = un7z_ExtractArchive(fpath, dest_path, &callback_7z, 0x40000);
 	end_progress_bar();
 
 	return (ret == SUCCESS);

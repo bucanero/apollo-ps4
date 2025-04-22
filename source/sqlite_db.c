@@ -238,7 +238,7 @@ static void insert_appinfo_sfo_value_int(sqlite3* db, const char* titleId, const
 
 int appdb_rebuild(const char* db_path, uint32_t userid)
 {
-    int fw, i;
+    int i;
     DIR *dp;
     struct dirent *dirp;
     char path[256];
@@ -246,9 +246,6 @@ int appdb_rebuild(const char* db_path, uint32_t userid)
     sqlite3_stmt* res;
     sfo_context_t* sfo;
     uint64_t pkg_size;
-
-    if ((fw = get_firmware_version()) < 0)
-        return 0;
 
     dp = opendir("/user/app");
     if (!dp)
@@ -297,13 +294,20 @@ int appdb_rebuild(const char* db_path, uint32_t userid)
             sfo_category = "gd";
 
         LOG("Adding (%s) %s '%s' to tbl_appbrowse_%010d...", sfo_titleid, sfo_content, sfo_title, userid);
-        char* query = sqlite3_mprintf("INSERT INTO tbl_appbrowse_%010d VALUES (%Q, %Q, %Q, '/user/appmeta/%s',"
+        char* query = sqlite3_mprintf("INSERT INTO tbl_appbrowse_%010d (titleId, contentId, titleName,"
+            "metaDataPath, lastAccessTime, contentStatus, onDisc, parentalLevel, visible,"
+            "sortPriority, pathInfo, lastAccessIndex, dispLocation, canRemove, category, contentType, pathInfo2,"
+            "presentBoxStatus, entitlement, thumbnailUrl, lastUpdateTime, playableDate, contentSize,"
+            "installDate, platform, uiCategory, skuId, disableLiveDetail, linkType, linkUri,"
+            "serviceIdAddCont1, serviceIdAddCont2, serviceIdAddCont3, serviceIdAddCont4,"
+            "serviceIdAddCont5, serviceIdAddCont6, serviceIdAddCont7, folderType, folderInfo,"
+            "parentFolderId, positionInFolder, activeDate, entitlementTitleName, hddLocation,"
+            "externalHddAppStatus, entitlementIdKamaji, mTime) VALUES (%Q, %Q, %Q, '/user/appmeta/%s',"
             "'2020-01-01 20:20:03.000', 0, 0, 5, 1, 100, 0, 1, 5, 1, %Q, 0, 0, 0, 0, NULL, NULL, NULL, %ld,"
             "'2020-01-01 20:20:01.000', 0, %Q, NULL, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,"
-            "0, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2020-01-01 20:20:02.000'%s)",
+            "0, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2020-01-01 20:20:02.000')",
             userid, sfo_titleid, sfo_content, sfo_title, dirp->d_name, sfo_category, pkg_size,
-            (strcmp(sfo_category, "gde") == 0) ? "app" : "game",
-            (fw <= 0x555) ? "" : ",0,0,0,0,0,NULL");
+            (strcmp(sfo_category, "gde") == 0) ? "app" : "game");
 
         if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
         {

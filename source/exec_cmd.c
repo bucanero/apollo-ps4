@@ -176,14 +176,19 @@ static int _update_save_details(const char* sys_path, const save_entry_t* save)
 	LOG("Update Save Details :: Reading %s...", file_path);
 
 	sfo_context_t* sfo = sfo_alloc();
-	if (sfo_read(sfo, file_path) == SUCCESS)
+	if (sfo_read(sfo, file_path) < 0)
 	{
-		orbis_UpdateSaveParams(save,
+		LOG("Unable to read from '%s'", file_path);
+		sfo_free(sfo);
+		return 0;
+	}
+
+	orbis_UpdateSaveParams(save,
 			(char*) sfo_get_param_value(sfo, "MAINTITLE"),
 			(char*) sfo_get_param_value(sfo, "SUBTITLE"),
 			(char*) sfo_get_param_value(sfo, "DETAIL"),
 			*(uint32_t*) sfo_get_param_value(sfo, "SAVEDATA_LIST_PARAM"));
-	}
+
 	sfo_free(sfo);
 
 	snprintf(file_path, sizeof(file_path), "%s" "icon0.png", sys_path);
@@ -202,6 +207,78 @@ static int _update_save_details(const char* sys_path, const save_entry_t* save)
 	}
 
 	return 1;
+}
+
+static void downloadSaveHDD(const save_entry_t* entry, const char* file)
+{
+	save_entry_t save;
+	char path[256];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	char titleid[0x10];
+	char dirname[0x30];
+	sfo_context_t* sfo;
+
+	if (!http_download(entry->path, file, APOLLO_LOCAL_CACHE "tmpsave.zip", 1))
+	{
+		show_message("Error downloading save game from:\n%s%s", entry->path, file);
+		return;
+	}
+
+	sfo = sfo_alloc();
+	if (!extract_sfo(APOLLO_LOCAL_CACHE "tmpsave.zip", APOLLO_LOCAL_CACHE) ||
+		sfo_read(sfo, APOLLO_LOCAL_CACHE "param.sfo") < 0)
+	{
+		LOG("Unable to read from '%s'", APOLLO_LOCAL_CACHE);
+		sfo_free(sfo);
+
+		show_message("Error extracting save game!");
+		return;
+	}
+
+	memset(&save, 0, sizeof(save_entry_t));
+	strncpy(titleid, (char*) sfo_get_param_value(sfo, "TITLE_ID"), sizeof(titleid));
+	strncpy(dirname, (char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY"), sizeof(dirname));
+	save.blocks = *((uint32_t*) sfo_get_param_value(sfo, "SAVEDATA_BLOCKS"));
+	save.title_id = titleid;
+	save.dir_name = dirname;
+	sfo_free(sfo);
+
+	snprintf(path, sizeof(path), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save.title_id, save.dir_name);
+	if (file_exists(path) == SUCCESS)
+	{
+		if (!show_dialog(DIALOG_TYPE_YESNO, "Save game already exists:\n%s/%s\n\nOverwrite?", save.title_id, save.dir_name))
+			return;
+
+		if (!orbis_SaveMount(&save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
+		{
+			show_message("Error mounting save game folder!");
+			return;
+		}
+	}
+	else if (!orbis_SaveMount(&save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
+	{
+		show_message("Error creating save game folder!");
+		return;
+	}
+
+	snprintf(path, sizeof(path), APOLLO_SANDBOX_PATH, "~");
+	*strrchr(path, '~') = 0;
+
+	if (!extract_zip(APOLLO_LOCAL_CACHE "tmpsave.zip", path))
+	{
+		show_message("Error extracting save game!");
+		return;
+	}
+
+	unlink_secure(APOLLO_LOCAL_CACHE "tmpsave.zip");
+
+	snprintf(path, sizeof(path), APOLLO_SANDBOX_PATH "sce_sys/", mount);
+	if (_update_save_details(path, &save))
+		show_message("Save game successfully downloaded to:\n%s/%s", save.title_id, save.dir_name);
+	else
+		show_message("Error! Can't update save game:\n%s/%s", save.title_id, save.dir_name);
+
+	orbis_SaveUmount(mount);
 }
 
 static int _copy_save_hdd(const save_entry_t* save)
@@ -1592,7 +1669,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_DOWNLOAD_USB:
-			downloadSave(selected_entry, code->file, codecmd[1]);			
+			downloadSave(selected_entry, code->file, codecmd[1]);
+			code->activated = 0;
+			break;
+
+		case CMD_DOWNLOAD_HDD:
+			downloadSaveHDD(selected_entry, code->file);
 			code->activated = 0;
 			break;
 

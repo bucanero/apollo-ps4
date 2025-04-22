@@ -63,7 +63,7 @@ int orbis_SaveUmount(const char* mountPath)
 	if (umountErrorCode < 0)
 	{
 		LOG("UMOUNT_ERROR (%X)", umountErrorCode);
-		notify_popup(NULL, "Warning! Save couldn't be unmounted!");
+		notify_popup(NOTIFICATION_ICON_BAN, "Warning! Save couldn't be unmounted!");
 	}
 
 	rmdir(mountDir);
@@ -1041,7 +1041,7 @@ int ReadOnlineSaves(save_entry_t * game)
 			_createOptions(item, "Download to USB", CMD_DOWNLOAD_USB);
 			optval = malloc(sizeof(option_value_t));
 			asprintf(&optval->name, "Download to HDD");
-			asprintf(&optval->value, "%c%c", CMD_DOWNLOAD_USB, STORAGE_HDD);
+			asprintf(&optval->value, "%c%c", (apollo_config.online_opt && game->flags & SAVE_FLAG_PS4) ? CMD_DOWNLOAD_HDD : CMD_DOWNLOAD_USB, STORAGE_HDD);
 			list_append(item->options[0].opts, optval);
 			list_append(game->codes, item);
 

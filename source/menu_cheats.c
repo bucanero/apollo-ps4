@@ -54,7 +54,9 @@ u8 CalculateAlphaList(int curIndex, int selIndex, int max)
  */
 void DrawOptions(option_entry_t* option, u8 alpha, int y_inc, int selIndex)
 {
-    if (!option->name || !option->value)
+    option_value_t* optval;
+
+    if (!option->opts)
         return;
     
     int c = 0, yOff = 80;
@@ -67,12 +69,13 @@ void DrawOptions(option_entry_t* option, u8 alpha, int y_inc, int selIndex)
 
     for (c = startDrawX; c < max; c++)
     {
-        if (c >= 0 && c < option->size)
+        if (c >= 0 && c < list_count(option->opts))
         {
             SetFontColor(APP_FONT_COLOR | ((alpha * CalculateAlphaList(c, selIndex, maxPerPage)) / 0xFF), 0);
             
-            if (option->name[c])
-                DrawString(MENU_SPLIT_OFF + MENU_ICON_OFF + 20, yOff, option->name[c]);
+            optval = list_get_item(option->opts, c);
+            if (optval->name)
+                DrawString(MENU_SPLIT_OFF + MENU_ICON_OFF + 20, yOff, optval->name);
             
             //Selector
             if (c == selIndex)
@@ -138,7 +141,7 @@ void Draw_CheatsMenu_Options_Ani(void)
         
 		u8 game_a = (u8)(icon_a < 0x8F ? 0 : icon_a);
 		DrawOptions(&selected_centry->options[option_index], game_a, APP_LINE_OFFSET, menu_old_sel[7]);
-        DrawScrollBar(menu_old_sel[7], selected_centry->options[option_index].size, APP_LINE_OFFSET, SCREEN_WIDTH - 125, game_a);
+        DrawScrollBar(menu_old_sel[7], list_count(selected_centry->options[option_index].opts), APP_LINE_OFFSET, SCREEN_WIDTH - 125, game_a);
         
 		SDL_RenderPresent(renderer);
         
@@ -157,7 +160,7 @@ void Draw_CheatsMenu_Options(void)
 	DrawHeader(cat_cheats_png_index, MENU_SPLIT_OFF, selected_centry->name, "Options", APP_FONT_TITLE_COLOR | 0xFF, 0xffffffff, 1);
 
 	DrawOptions(&selected_centry->options[option_index], 0xFF, APP_LINE_OFFSET, menu_sel);
-	DrawScrollBar(menu_sel, selected_centry->options[option_index].size, APP_LINE_OFFSET, SCREEN_WIDTH - 125, 0xFF);
+	DrawScrollBar(menu_sel, list_count(selected_centry->options[option_index].opts), APP_LINE_OFFSET, SCREEN_WIDTH - 125, 0xFF);
 }
 
 int DrawCodes(code_entry_t* code, u8 alpha, int y_inc, int xOff, int selIndex)
@@ -381,6 +384,7 @@ void DrawCheatsList(int selIndex, save_entry_t* game, u8 alpha)
     
     list_node_t *node;
     code_entry_t *code;
+    option_value_t *optval;
     int game_y = help_png_y, y_inc = APP_LINE_OFFSET;
     int maxPerPage = (SCREEN_HEIGHT - (game_y * 2) - 30) / y_inc;
     
@@ -428,13 +432,14 @@ void DrawCheatsList(int selIndex, save_entry_t* game, u8 alpha)
                 {
                     for (int od = 0; od < code->options_count; od++)
                     {
-                        if (code->options[od].sel >= 0 && code->options[od].name && code->options[od].name[code->options[od].sel])
+                        optval = list_get_item(code->options[od].opts, code->options[od].sel);
+                        if (code->options[od].sel >= 0 && optval && optval->name)
                         {
                             //Allocate option
-                            char * option = calloc(1, strlen(code->options[od].name[code->options[od].sel]) + 4);
+                            char * option = calloc(1, strlen(optval->name) + 4);
 
                             //If first print "(NAME", else add to list of names ", NAME"
-                            sprintf(option, (od == 0) ? " (%s" : ", %s", code->options[od].name[code->options[od].sel]);
+                            sprintf(option, (od == 0) ? " (%s" : ", %s", optval->name);
                             
                             //If it's the last one then end the list
                             if (od == (code->options_count - 1))

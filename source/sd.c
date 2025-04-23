@@ -77,7 +77,7 @@ int generateSealedKey(uint8_t data[ENC_SEALEDKEY_LEN]) {
     return 0;
 }
 
-int decryptSealedKey(uint8_t enc_key[ENC_SEALEDKEY_LEN], uint8_t dec_key[DEC_SEALEDKEY_LEN]) {
+int decryptSealedKey(const uint8_t enc_key[ENC_SEALEDKEY_LEN], uint8_t dec_key[DEC_SEALEDKEY_LEN]) {
     uint8_t dummy[0x10];
     uint8_t data[ENC_SEALEDKEY_LEN + DEC_SEALEDKEY_LEN];
     int fd;
@@ -188,7 +188,7 @@ int createSave(const char *volumePath, const char *volumeKeyPath, int blocks) {
 
 int mountSave(const char *volumePath, const char *volumeKeyPath, const char *mountPath) {
     int ret;
-    uint8_t decryptedSealedKey[DEC_SEALEDKEY_LEN] = {0};
+    uint8_t decryptedSealedKey[DEC_SEALEDKEY_LEN];
     MountSaveDataOpt opt;
 
     memset(&opt, 0, sizeof(MountSaveDataOpt));

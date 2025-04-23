@@ -53,9 +53,12 @@ int loadPrivLibs(void) {
 }
 
 int generateSealedKey(uint8_t data[ENC_SEALEDKEY_LEN]) {
-    uint8_t dummy[0x30]; UNUSED(dummy);
-    uint8_t sealedKey[ENC_SEALEDKEY_LEN] = {0};
+    uint8_t dummy[0x30];
+    uint8_t sealedKey[ENC_SEALEDKEY_LEN];
     int fd;
+
+    UNUSED(dummy);
+    memset(sealedKey, 0, sizeof(sealedKey));
 
     fd = open("/dev/sbl_srv", O_RDWR);
     if (fd == -1) {
@@ -75,9 +78,12 @@ int generateSealedKey(uint8_t data[ENC_SEALEDKEY_LEN]) {
 }
 
 int decryptSealedKey(uint8_t enc_key[ENC_SEALEDKEY_LEN], uint8_t dec_key[DEC_SEALEDKEY_LEN]) {
-    uint8_t dummy[0x10]; UNUSED(dummy);
-    uint8_t data[ENC_SEALEDKEY_LEN + DEC_SEALEDKEY_LEN] = {0};
+    uint8_t dummy[0x10];
+    uint8_t data[ENC_SEALEDKEY_LEN + DEC_SEALEDKEY_LEN];
     int fd;
+
+    UNUSED(dummy);
+    memset(data, 0, sizeof(data));
 
     fd = open("/dev/sbl_srv", O_RDWR);
     if (fd == -1) {
@@ -121,12 +127,14 @@ int decryptSealedKeyAtPath(const char *keyPath, uint8_t decryptedSealedKey[DEC_S
 }
 
 int createSave(const char *volumePath, const char *volumeKeyPath, int blocks) {
-    uint8_t sealedKey[ENC_SEALEDKEY_LEN] = {0};
-    uint8_t decryptedSealedKey[DEC_SEALEDKEY_LEN] = {0};
+    uint8_t sealedKey[ENC_SEALEDKEY_LEN];
+    uint8_t decryptedSealedKey[DEC_SEALEDKEY_LEN];
     uint64_t volumeSize;
     int fd;
     CreatePfsSaveDataOpt opt;
-    
+
+    memset(&opt, 0, sizeof(CreatePfsSaveDataOpt));
+
     // generate a key
     if (generateSealedKey(sealedKey) != 0) {
         return -1;
@@ -179,10 +187,13 @@ int createSave(const char *volumePath, const char *volumeKeyPath, int blocks) {
 }
 
 int mountSave(const char *volumePath, const char *volumeKeyPath, const char *mountPath) {
+    int ret;
     uint8_t decryptedSealedKey[DEC_SEALEDKEY_LEN] = {0};
     MountSaveDataOpt opt;
 
-    int ret = decryptSealedKeyAtPath(volumeKeyPath, decryptedSealedKey);
+    memset(&opt, 0, sizeof(MountSaveDataOpt));
+
+    ret = decryptSealedKeyAtPath(volumeKeyPath, decryptedSealedKey);
     if (ret < 0) {
         return ret;
     }
@@ -200,6 +211,8 @@ int mountSave(const char *volumePath, const char *volumeKeyPath, const char *mou
 
 int umountSave(const char *mountPath, int handle, bool ignoreErrors) {
     UmountSaveDataOpt opt;
+
+    memset(&opt, 0, sizeof(UmountSaveDataOpt));
     sceFsInitUmountSaveDataOpt(&opt);
     return sceFsUmountSaveData(&opt, mountPath, handle, ignoreErrors);
 }

@@ -29,7 +29,7 @@ typedef struct {
 
 int loadPrivLibs(void);
 int generateSealedKey(uint8_t data[ENC_SEALEDKEY_LEN]);
-int decryptSealedKey(uint8_t enc_key[ENC_SEALEDKEY_LEN], uint8_t dec_key[DEC_SEALEDKEY_LEN]);
+int decryptSealedKey(const uint8_t enc_key[ENC_SEALEDKEY_LEN], uint8_t dec_key[DEC_SEALEDKEY_LEN]);
 int decryptSealedKeyAtPath(const char *keyPath, uint8_t decryptedSealedKey[DEC_SEALEDKEY_LEN]);
 int createSave(const char *folder, const char *saveName, int blocks);
 int mountSave(const char *folder, const char *saveName, const char *mountPath);

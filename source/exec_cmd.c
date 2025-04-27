@@ -330,44 +330,43 @@ static void copySaveHDD(const save_entry_t* save)
 
 static void copyAllSavesHDD(const save_entry_t* save, int all)
 {
-    int err_count = 0;
-    list_node_t *node;
-    save_entry_t *item;
-    uint64_t progress = 0;
-    list_t *list = ((void**)save->dir_name)[0];
+	int err_count = 0;
+	list_node_t *node;
+	save_entry_t *item;
+	uint64_t progress = 0;
+	list_t *list = ((void**)save->dir_name)[0];
 
-    init_progress_bar("Copying all saves...");
+	init_progress_bar("Copying all saves...");
 
-    LOG("Copying all saves from '%s' to HDD...", save->path);
+	LOG("Copying all saves from '%s' to HDD...", save->path);
 
-    for (node = list_head(list); (item = list_get(node)); node = list_next(node))
-    {
-        update_progress_bar(progress++, list_count(list), item->name);
+	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+	{
+		update_progress_bar(progress++, list_count(list), item->name);
 
-        // Modified logic to handle both locked & unlocked saves
-        if (item->type == FILE_TYPE_PS4 && (all || (item->flags & SAVE_FLAG_SELECTED)))
-        {
-            if (item->flags & SAVE_FLAG_LOCKED)
-            {
-                // Now handles encrypted (locked) saves
-                err_count += ! copySavePFS(item);
-            }
-            else
-            {
-                // Existing function for decrypted (unlocked) saves
-                err_count += ! _copy_save_hdd(item);
-            }
-        }
-    }
+		// Modified logic to handle both locked & unlocked saves
+		if (item->type == FILE_TYPE_PS4 && (all || (item->flags & SAVE_FLAG_SELECTED)))
+		{
+			if (item->flags & SAVE_FLAG_LOCKED)
+			{
+				// Now handles encrypted (locked) saves
+				err_count += ! copySavePFS(item);
+			}
+			else
+			{
+				// Existing function for decrypted (unlocked) saves
+				err_count += ! _copy_save_hdd(item);
+			}
+		}
+	}
 
-    end_progress_bar();
+	end_progress_bar();
 
-    if (err_count)
-        show_message("Error: %d Saves couldn't be copied to HDD", err_count);
-    else
-        show_message("All Saves copied to HDD");
+	if (err_count)
+		show_message("Error: %d Saves couldn't be copied to HDD", err_count);
+	else
+		show_message("All Saves copied to HDD");
 }
-
 
 void extractArchive(const char* file_path)
 {
@@ -576,84 +575,84 @@ static void activateAccount(int user)
 
 static int copySavePFS(const save_entry_t* save)
 {
-    char src_path[256];
-    char hdd_path[256];
-    char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
-    sfo_patch_t patch = {
-        .user_id = apollo_config.user_id,
-        .account_id = apollo_config.account_id,
-    };
+	char src_path[256];
+	char hdd_path[256];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	sfo_patch_t patch = {
+		.user_id = apollo_config.user_id,
+		.account_id = apollo_config.account_id,
+	};
 
-    snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
-    if ((read_file(src_path, (uint8_t*) mount, 0x10) < 0) || get_max_pfskey_ver() < mount[8])
-    {
-        show_message("Error: Encrypted save from a newer firmware version!\n\n"
-            "Required firmware: %s", get_fw_by_pfskey_ver(mount[8]));
-        return 0;  // <-- Return 0 on error
-    }
+	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
+	if ((read_file(src_path, (uint8_t*) mount, 0x10) < 0) || get_max_pfskey_ver() < mount[8])
+	{
+		show_message("Error: Encrypted save from a newer firmware version!\n\n"
+			"Required firmware: %s", get_fw_by_pfskey_ver(mount[8]));
+		return 0;  // <-- Return 0 on error
+	}
 
-    // Attempt to mount a fresh HDD save
-    if (!orbis_SaveMount(save,
-                         ORBIS_SAVE_DATA_MOUNT_MODE_RDWR
-                       | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2
-                       | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON,
-                         mount))
-    {
-        show_message("Error: can't create HDD save");
-        return 0;  // <-- Return 0 on error
-    }
-    orbis_SaveUmount(mount);
+	// Attempt to mount a fresh HDD save
+	if (!orbis_SaveMount(save,
+						 ORBIS_SAVE_DATA_MOUNT_MODE_RDWR
+					   | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2
+					   | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON,
+						 mount))
+	{
+		show_message("Error: can't create HDD save");
+		return 0;  // <-- Return 0 on error
+	}
+	orbis_SaveUmount(mount);
 
-    // Copy the .bin-free filename
-    snprintf(src_path, sizeof(src_path), "%s%s", save->path, save->dir_name);
-    snprintf(hdd_path, sizeof(hdd_path),
-             SAVES_PATH_HDD "%s/sdimg_%s",
-             apollo_config.user_id,
-             save->title_id,
-             save->dir_name);
-    LOG("Copying <%s> to %s...", src_path, hdd_path);
+	// Copy the .bin-free filename
+	snprintf(src_path, sizeof(src_path), "%s%s", save->path, save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path),
+			 SAVES_PATH_HDD "%s/sdimg_%s",
+			 apollo_config.user_id,
+			 save->title_id,
+			 save->dir_name);
+	LOG("Copying <%s> to %s...", src_path, hdd_path);
 
-    if (copy_file(src_path, hdd_path) != SUCCESS)
-    {
-        show_message("Error: can't copy %s", hdd_path);
-        return 0;
-    }
+	if (copy_file(src_path, hdd_path) != SUCCESS)
+	{
+		show_message("Error: can't copy %s", hdd_path);
+		return 0;
+	}
 
-    // Copy the .bin file
-    snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
-    snprintf(hdd_path, sizeof(hdd_path),
-             SAVES_PATH_HDD "%s/%s.bin",
-             apollo_config.user_id,
-             save->title_id,
-             save->dir_name);
-    LOG("Copying <%s> to %s...", src_path, hdd_path);
+	// Copy the .bin file
+	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path),
+			 SAVES_PATH_HDD "%s/%s.bin",
+			 apollo_config.user_id,
+			 save->title_id,
+			 save->dir_name);
+	LOG("Copying <%s> to %s...", src_path, hdd_path);
 
-    if (copy_file(src_path, hdd_path) != SUCCESS)
-    {
-        show_message("Error: can't copy %s", hdd_path);
-        return 0;
-    }
+	if (copy_file(src_path, hdd_path) != SUCCESS)
+	{
+		show_message("Error: can't copy %s", hdd_path);
+		return 0;
+	}
 
-    // Now remount from HDD to patch SFO
-    if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
-    {
-        show_message("Error! Can't mount encrypted save.\n(incompatible save-game firmware version)");
-        return 0;
-    }
+	// Now remount from HDD to patch SFO
+	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
+	{
+		show_message("Error! Can't mount encrypted save.\n(incompatible save-game firmware version)");
+		return 0;
+	}
 
-    snprintf(hdd_path, sizeof(hdd_path),
-             APOLLO_SANDBOX_PATH "sce_sys/param.sfo",
-             mount);
-    patch_sfo(hdd_path, &patch);
+	snprintf(hdd_path, sizeof(hdd_path),
+			 APOLLO_SANDBOX_PATH "sce_sys/param.sfo",
+			 mount);
+	patch_sfo(hdd_path, &patch);
 
-    *strrchr(hdd_path, 'p') = 0;
-    _update_save_details(hdd_path, save);
-    orbis_SaveUmount(mount);
+	*strrchr(hdd_path, 'p') = 0;
+	_update_save_details(hdd_path, save);
+	orbis_SaveUmount(mount);
 
-    show_message("Encrypted save copied successfully!\n%s/%s",
-                 save->title_id, save->dir_name);
+	show_message("Encrypted save copied successfully!\n%s/%s",
+				 save->title_id, save->dir_name);
 
-    return 1;  // <-- Return 1 on success
+	return 1;  // <-- Return 1 on success
 }
 
 static void copyKeystone(const save_entry_t* entry, int import)

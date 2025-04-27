@@ -544,6 +544,7 @@ option_entry_t* get_file_entries(const char* path, const char* mask)
  */
 int ReadCodes(save_entry_t * save)
 {
+	list_node_t* node;
 	code_entry_t * code;
 	char filePath[256];
 	char * buffer = NULL;
@@ -580,9 +581,24 @@ int ReadCodes(save_entry_t * save)
 	code = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Raw Patch File", CMD_VIEW_RAW_PATCH);
 	list_append(save->codes, code);
 
+	node = list_tail(save->codes);
 	LOG("Loading BSD codes '%s'...", filePath);
 	load_patch_code_list(buffer, save->codes, &get_file_entries, save->path);
 	free (buffer);
+
+	// Check for any codes that are not valid for this game
+	for (node = list_next(node); (code = list_get(node)); node = list_next(node))
+		if (strchr(code->file, '\\') != NULL && code->file[1] != '~')
+		{
+			buffer = strdup(code->file);
+			strchr(buffer, '\\')[0] = 0;
+			if(!wildcard_match_icase(save->dir_name, buffer))
+			{
+				LOG("(%s) Disabled code '%s'", buffer, code->name);
+				code->flags |= (APOLLO_CODE_FLAG_ALERT | APOLLO_CODE_FLAG_DISABLED);
+			}
+			free(buffer);
+		}
 
 	LOG("Loaded %zu codes", list_count(save->codes));
 

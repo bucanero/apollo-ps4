@@ -339,7 +339,6 @@ static void copyAllSavesHDD(const save_entry_t* save, int all)
 	init_progress_bar("Copying all saves...");
 
 	LOG("Copying all saves from '%s' to HDD...", save->path);
-
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
@@ -588,13 +587,13 @@ static int copySavePFS(const save_entry_t* save)
 	{
 		show_message("Error: Encrypted save from a newer firmware version!\n\n"
 			"Required firmware: %s", get_fw_by_pfskey_ver(mount[8]));
-		return 0;  // <-- Return 0 on error
+		return 0;
 	}
 
 	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
 	{
 		show_message("Error: can't create HDD save");
-		return 0;  // <-- Return 0 on error
+		return 0;
 	}
 	orbis_SaveUmount(mount);
 

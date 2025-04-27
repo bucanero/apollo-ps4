@@ -139,6 +139,7 @@ static void db_url_callback(int sel)
 static void ftp_url_callback(int sel)
 {
 	int ret;
+	char *data;
 	char tmp[512];
 
 	strncpy(tmp, apollo_config.ftp_url[0] ? apollo_config.ftp_url : "ftp://user:pass@192.168.0.10:21/folder/", sizeof(tmp));
@@ -153,9 +154,9 @@ static void ftp_url_callback(int sel)
 	// test the connection
 	init_loading_screen("Testing connection...");
 	ret = http_download(apollo_config.ftp_url, "apollo.txt", APOLLO_LOCAL_CACHE "users.ftp", 0);
-	char *data = readTextFile(APOLLO_LOCAL_CACHE "users.ftp", NULL);
+	data = ret ? readTextFile(APOLLO_LOCAL_CACHE "users.ftp", NULL) : NULL;
 	if (!data)
-		data = strdup("; Apollo Save Tool (PS3) v" APOLLO_VERSION "\r\n");
+		data = strdup("; Apollo Save Tool (" APOLLO_PLATFORM ") v" APOLLO_VERSION "\r\n");
 
 	snprintf(tmp, sizeof(tmp), "%016lX", apollo_config.account_id);
 	if (strstr(data, tmp) == NULL)
@@ -164,8 +165,7 @@ static void ftp_url_callback(int sel)
 		FILE* fp = fopen(APOLLO_LOCAL_CACHE "users.ftp", "w");
 		if (fp)
 		{
-			fwrite(data, 1, strlen(data), fp);
-			fprintf(fp, "%s\r\n", tmp);
+			fprintf(fp, "%s%s\r\n", data, tmp);
 			fclose(fp);
 		}
 
@@ -338,7 +338,7 @@ int save_app_settings(app_config_t* config)
 	mount.blocks = ORBIS_SAVE_DATA_BLOCKS_MIN2;
 	mount.mountMode = (ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON);
 
-	LOG("Apollo Save Tool v%s - Patch Engine v%s", APOLLO_VERSION, APOLLO_LIB_VERSION);
+	LOG("Apollo Save Tool %s v%s - Patch Engine v%s", APOLLO_PLATFORM, APOLLO_VERSION, APOLLO_LIB_VERSION);
 	if (sceSaveDataMount2(&mount, &mountResult) < 0) {
 		LOG("sceSaveDataMount2 ERROR");
 		return 0;

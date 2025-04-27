@@ -1268,9 +1268,10 @@ static void uploadSaveFTP(const save_entry_t* save)
 
 	if (strstr(tmp, save->title_id) == NULL)
 	{
-		LOG("Updating games index...");
+		init_loading_screen("Updating games index...");
 		free(tmp);
 		tmp = (save->type == FILE_TYPE_PS4) ? get_title_name_icon(save) : get_title_icon_psx(save);
+		stop_loading_screen();
 
 		snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%.9s.PNG", save->title_id);
 		ret &= ftp_upload(local, remote, "icon0.png", 1);

@@ -635,7 +635,7 @@ static int copySavePFS(const save_entry_t* save)
 
 	show_message("Encrypted save copied successfully!\n%s/%s", save->title_id, save->dir_name);
 
-	return 1;  // <-- Return 1 on success
+	return 1;
 }
 
 static void copyKeystone(const save_entry_t* entry, int import)

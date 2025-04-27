@@ -167,38 +167,6 @@ int addcont_dlc_rebuild(const char* db_path)
     return 1;
 }
 
-int appdb_fix_delete(const char* db_path, uint32_t userid)
-{
-    sqlite3* db;
-    char* query;
-    char where[] = "WHERE titleId != 'CUSA00001' AND metaDataPath LIKE '/user/appmeta/_________'";
-
-    db = open_sqlite_db(db_path);
-    if (!db)
-        return 0;
-
-    LOG("Fixing %s (tbl_appbrowse_%010d) delete...", db_path, userid);
-    query = sqlite3_mprintf("UPDATE tbl_appbrowse_%010d SET canRemove=1 %s;"
-        "UPDATE tbl_appinfo SET val=1 WHERE key='_uninstallable' AND titleId IN (SELECT titleId FROM tbl_appbrowse_%010d %s);"
-        "UPDATE tbl_appinfo SET val=100 WHERE key='_sort_priority' AND titleId IN (SELECT titleId FROM tbl_appbrowse_%010d %s);",
-        userid, where, userid, where, userid, where);
-
-    if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK)
-    {
-        LOG("Failed to execute query: %s", sqlite3_errmsg(db));
-        sqlite3_free(query);
-        sqlite3_close(db);
-        return 0;
-    }
-
-    LOG("Saving database to %s", db_path);
-    sqlite3_memvfs_dump(db, NULL, db_path);
-    sqlite3_free(query);
-    sqlite3_close(db);
-
-    return 1;
-}
-
 static void insert_appinfo_row(sqlite3* db, const char* titleId, const char* key, const char* value)
 {
     char* query = sqlite3_mprintf("INSERT OR IGNORE INTO tbl_appinfo(titleId, key, val) VALUES(%Q, %Q, %Q)", titleId, key, value);

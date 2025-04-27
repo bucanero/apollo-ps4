@@ -389,7 +389,7 @@ static void copySaveHDD(const save_entry_t* save)
 
 static void copyAllSavesHDD(const save_entry_t* save, int all)
 {
-	int err_count = 0;
+	int done = 0, err_count = 0;
 	list_node_t *node;
 	save_entry_t *item;
 	uint64_t progress = 0;
@@ -402,16 +402,18 @@ static void copyAllSavesHDD(const save_entry_t* save, int all)
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
 
-		if (item->type == FILE_TYPE_PS4 && (all || (item->flags & SAVE_FLAG_SELECTED)))
-			err_count += (item->flags & SAVE_FLAG_LOCKED) ? (_copy_save_pfs(item) < 0) : !_copy_save_hdd(item);
+		if (item->type != FILE_TYPE_PS4 || !(all || (item->flags & SAVE_FLAG_SELECTED)))
+			continue;
+
+		if (item->flags & SAVE_FLAG_LOCKED)
+			(_copy_save_pfs(item) == SUCCESS) ? done++ : err_count++;
+		else
+			_copy_save_hdd(item) ? done++ : err_count++;
 	}
 
 	end_progress_bar();
 
-	if (err_count)
-		show_message("Error: %d Saves couldn't be copied to HDD", err_count);
-	else
-		show_message("All Saves copied to HDD");
+	show_message("%d/%d Saves copied to HDD", done, done+err_count);
 }
 
 void extractArchive(const char* file_path)
@@ -869,6 +871,7 @@ static void enableWebServer(dWebReqHandler_t handler, void* data, int port)
 
 static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int all)
 {
+	int done = 0, err_count = 0;
 	char copy_path[256];
 	char save_path[256];
 	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
@@ -898,13 +901,13 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int 
 		snprintf(copy_path, sizeof(copy_path), "%s%08x_%s_%s/", dst_path, apollo_config.user_id, item->title_id, item->dir_name);
 
 		LOG("Copying <%s> to %s...", save_path, copy_path);
-		copy_directory(save_path, save_path, copy_path);
+		(copy_directory(save_path, save_path, copy_path) == SUCCESS) ? done++ : err_count++;
 
 		orbis_SaveUmount(mount);
 	}
 
 	end_progress_bar();
-	show_message("All Saves copied to:\n%s", dst_path);
+	show_message("%d/%d Saves copied to:\n%s", done, done+err_count, dst_path);
 }
 
 static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)

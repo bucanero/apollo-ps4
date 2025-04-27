@@ -19,7 +19,6 @@
 #include "svpng.h"
 
 static char host_buf[256];
-static int copySavePFS(const save_entry_t* save);
 
 static void _set_dest_path(char* path, int dest, const char* folder)
 {
@@ -177,18 +176,14 @@ static int _update_save_details(const char* sys_path, const save_entry_t* save)
 	LOG("Update Save Details :: Reading %s...", file_path);
 
 	sfo_context_t* sfo = sfo_alloc();
-	if (sfo_read(sfo, file_path) < 0)
+	if ((sfo_read(sfo, file_path) < 0) || !orbis_UpdateSaveParams(save,
+		(char*) sfo_get_param_value(sfo, "MAINTITLE"), (char*) sfo_get_param_value(sfo, "SUBTITLE"),
+		(char*) sfo_get_param_value(sfo, "DETAIL"), *(uint32_t*) sfo_get_param_value(sfo, "SAVEDATA_LIST_PARAM")))
 	{
 		LOG("Unable to read from '%s'", file_path);
 		sfo_free(sfo);
 		return 0;
 	}
-
-	orbis_UpdateSaveParams(save,
-			(char*) sfo_get_param_value(sfo, "MAINTITLE"),
-			(char*) sfo_get_param_value(sfo, "SUBTITLE"),
-			(char*) sfo_get_param_value(sfo, "DETAIL"),
-			*(uint32_t*) sfo_get_param_value(sfo, "SAVEDATA_LIST_PARAM"));
 
 	sfo_free(sfo);
 
@@ -309,6 +304,70 @@ static int _copy_save_hdd(const save_entry_t* save)
 	return 1;
 }
 
+static int _copy_save_pfs(const save_entry_t* save)
+{
+	char src_path[256];
+	char hdd_path[256];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	sfo_patch_t patch = {
+		.user_id = apollo_config.user_id,
+		.account_id = apollo_config.account_id,
+	};
+
+	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
+	if ((read_file(src_path, (uint8_t*) mount, 0x10) < 0) || get_max_pfskey_ver() < mount[8])
+	{
+		LOG("Error: Encrypted save Required firmware: %s", get_fw_by_pfskey_ver(mount[8]));
+		return (0x80001000 | mount[8]);
+	}
+
+	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
+	{
+		LOG("Error: can't create HDD save");
+		return -1;
+	}
+	orbis_SaveUmount(mount);
+
+	// Copy the sdimg file
+	snprintf(src_path, sizeof(src_path), "%s%s", save->path, save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
+	LOG("Copying <%s> to %s...", src_path, hdd_path);
+
+	if (copy_file(src_path, hdd_path) != SUCCESS)
+	{
+		LOG("Error: can't copy %s", hdd_path);
+		return -2;
+	}
+
+	// Copy the .bin file
+	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
+	LOG("Copying <%s> to %s...", src_path, hdd_path);
+
+	if (copy_file(src_path, hdd_path) != SUCCESS)
+	{
+		LOG("Error: can't copy %s", hdd_path);
+		return -3;
+	}
+
+	// Now remount from HDD to patch SFO
+	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
+	{
+		LOG("Error! Can't mount encrypted save.");
+		return -4;
+	}
+
+	snprintf(hdd_path, sizeof(hdd_path), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
+	patch_sfo(hdd_path, &patch);
+
+	*strrchr(hdd_path, 'p') = 0;
+	_update_save_details(hdd_path, save);
+	orbis_SaveUmount(mount);
+
+	LOG("Encrypted save copied: %s/%s", save->title_id, save->dir_name);
+	return SUCCESS;
+}
+
 static void copySaveHDD(const save_entry_t* save)
 {
 	//source save is already on HDD
@@ -343,20 +402,8 @@ static void copyAllSavesHDD(const save_entry_t* save, int all)
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
 
-		// Modified logic to handle both locked & unlocked saves
 		if (item->type == FILE_TYPE_PS4 && (all || (item->flags & SAVE_FLAG_SELECTED)))
-		{
-			if (item->flags & SAVE_FLAG_LOCKED)
-			{
-				// Now handles encrypted (locked) saves
-				err_count += ! copySavePFS(item);
-			}
-			else
-			{
-				// Existing function for decrypted (unlocked) saves
-				err_count += ! _copy_save_hdd(item);
-			}
-		}
+			err_count += (item->flags & SAVE_FLAG_LOCKED) ? (_copy_save_pfs(item) < 0) : !_copy_save_hdd(item);
 	}
 
 	end_progress_bar();
@@ -572,70 +619,34 @@ static void activateAccount(int user)
 	show_message("Account successfully activated!\nA system reboot might be required");
 }
 
-static int copySavePFS(const save_entry_t* save)
+static void copySavePFS(const save_entry_t* save)
 {
-	char src_path[256];
-	char hdd_path[256];
-	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
-	sfo_patch_t patch = {
-		.user_id = apollo_config.user_id,
-		.account_id = apollo_config.account_id,
-	};
-
-	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
-	if ((read_file(src_path, (uint8_t*) mount, 0x10) < 0) || get_max_pfskey_ver() < mount[8])
+	switch (_copy_save_pfs(save))
 	{
-		show_message("Error: Encrypted save from a newer firmware version!\n\n"
-			"Required firmware: %s", get_fw_by_pfskey_ver(mount[8]));
-		return 0;
-	}
-
-	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
-	{
+	case SUCCESS:
+		show_message("Encrypted save copied successfully!\n%s/%s", save->title_id, save->dir_name);
+		return;
+	
+	case -1:
 		show_message("Error: can't create HDD save");
-		return 0;
-	}
-	orbis_SaveUmount(mount);
+		return;
 
-	// Copy the .bin-free filename
-	snprintf(src_path, sizeof(src_path), "%s%s", save->path, save->dir_name);
-	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
-	LOG("Copying <%s> to %s...", src_path, hdd_path);
+	case -2:
+		show_message("Error: can't copy file\n%s%s", save->path, save->dir_name);
+		return;
 
-	if (copy_file(src_path, hdd_path) != SUCCESS)
-	{
-		show_message("Error: can't copy %s", hdd_path);
-		return 0;
-	}
+	case -3:
+		show_message("Error: can't copy file\n%s%s.bin", save->path, save->dir_name);
+		return;
 
-	// Copy the .bin file
-	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
-	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
-	LOG("Copying <%s> to %s...", src_path, hdd_path);
-
-	if (copy_file(src_path, hdd_path) != SUCCESS)
-	{
-		show_message("Error: can't copy %s", hdd_path);
-		return 0;
-	}
-
-	// Now remount from HDD to patch SFO
-	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
-	{
+	case -4:
 		show_message("Error! Can't mount encrypted save.\n(incompatible save-game firmware version)");
-		return 0;
+		return;
+
+	default:
+		show_message("Error: can't copy save %s", save->title_id);
+		return;
 	}
-
-	snprintf(hdd_path, sizeof(hdd_path), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
-	patch_sfo(hdd_path, &patch);
-
-	*strrchr(hdd_path, 'p') = 0;
-	_update_save_details(hdd_path, save);
-	orbis_SaveUmount(mount);
-
-	show_message("Encrypted save copied successfully!\n%s/%s", save->title_id, save->dir_name);
-
-	return 1;
 }
 
 static void copyKeystone(const save_entry_t* entry, int import)

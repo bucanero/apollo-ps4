@@ -621,6 +621,13 @@ static void activateAccount(int user)
 
 static void copySavePFS(const save_entry_t* save)
 {
+	char hdd_path[256];
+
+	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
+	if (file_exists(hdd_path) == SUCCESS && !show_dialog(DIALOG_TYPE_YESNO, 
+		"Save game already exists:\n%s/%s\n\nOverwrite?", save->title_id, save->dir_name))
+		return;
+
 	switch (_copy_save_pfs(save))
 	{
 	case SUCCESS:

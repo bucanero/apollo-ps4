@@ -591,12 +591,7 @@ static int copySavePFS(const save_entry_t* save)
 		return 0;  // <-- Return 0 on error
 	}
 
-	// Attempt to mount a fresh HDD save
-	if (!orbis_SaveMount(save,
-						 ORBIS_SAVE_DATA_MOUNT_MODE_RDWR
-					   | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2
-					   | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON,
-						 mount))
+	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
 	{
 		show_message("Error: can't create HDD save");
 		return 0;  // <-- Return 0 on error
@@ -605,11 +600,7 @@ static int copySavePFS(const save_entry_t* save)
 
 	// Copy the .bin-free filename
 	snprintf(src_path, sizeof(src_path), "%s%s", save->path, save->dir_name);
-	snprintf(hdd_path, sizeof(hdd_path),
-			 SAVES_PATH_HDD "%s/sdimg_%s",
-			 apollo_config.user_id,
-			 save->title_id,
-			 save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
 	LOG("Copying <%s> to %s...", src_path, hdd_path);
 
 	if (copy_file(src_path, hdd_path) != SUCCESS)
@@ -620,11 +611,7 @@ static int copySavePFS(const save_entry_t* save)
 
 	// Copy the .bin file
 	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
-	snprintf(hdd_path, sizeof(hdd_path),
-			 SAVES_PATH_HDD "%s/%s.bin",
-			 apollo_config.user_id,
-			 save->title_id,
-			 save->dir_name);
+	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
 	LOG("Copying <%s> to %s...", src_path, hdd_path);
 
 	if (copy_file(src_path, hdd_path) != SUCCESS)
@@ -640,17 +627,14 @@ static int copySavePFS(const save_entry_t* save)
 		return 0;
 	}
 
-	snprintf(hdd_path, sizeof(hdd_path),
-			 APOLLO_SANDBOX_PATH "sce_sys/param.sfo",
-			 mount);
+	snprintf(hdd_path, sizeof(hdd_path), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
 	patch_sfo(hdd_path, &patch);
 
 	*strrchr(hdd_path, 'p') = 0;
 	_update_save_details(hdd_path, save);
 	orbis_SaveUmount(mount);
 
-	show_message("Encrypted save copied successfully!\n%s/%s",
-				 save->title_id, save->dir_name);
+	show_message("Encrypted save copied successfully!\n%s/%s", save->title_id, save->dir_name);
 
 	return 1;  // <-- Return 1 on success
 }

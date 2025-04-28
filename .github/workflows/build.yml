@@ -197,12 +197,12 @@ jobs:
         cmake --toolchain ../cmake/openorbis.cmake ..
         make
 
-    - name: Cache curl
-      id: cache-curl
-      uses: actions/cache@v4
-      with:
-        path: ${{ env.curl_path }}/orbis/lib/libcurl.a
-        key: ${{ runner.os }}-curl
+#    - name: Cache curl
+#      id: cache-curl
+#      uses: actions/cache@v4
+#      with:
+#        path: ${{ env.curl_path }}/orbis/lib/libcurl.a
+#        key: ${{ runner.os }}-curl
 
     - name: Install libcurl library
 #      if: steps.cache-curl.outputs.cache-hit != 'true'

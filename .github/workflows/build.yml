@@ -143,6 +143,7 @@ jobs:
     - name: Install mbedTLS library
       working-directory: mbedtls-2.16.12
       run: |
+        sed -i '114s/.*/#define MBEDTLS_NO_UDBL_DIVISION/' include/mbedtls/config.h
         mkdir orbis && cd orbis
         cmake --toolchain ../../SDL-PS4/cmake/openorbis.cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=FALSE -DENABLE_PROGRAMS=FALSE
         make
@@ -204,7 +205,7 @@ jobs:
         key: ${{ runner.os }}-curl
 
     - name: Install libcurl library
-      if: steps.cache-curl.outputs.cache-hit != 'true'
+#      if: steps.cache-curl.outputs.cache-hit != 'true'
       working-directory: ${{ env.curl_path }}
       run: |
         mkdir orbis && cd orbis

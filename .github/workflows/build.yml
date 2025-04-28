@@ -38,6 +38,9 @@ jobs:
     - name: Download OpenOrbis Toolchain
       run: curl -sL https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/download/0.0.1.416/toolchain.tar.gz | tar xz -C ./
 
+    - name: Download mbedTLS
+      run: curl -sL "https://src.fedoraproject.org/repo/pkgs/mbedtls/mbedtls-2.16.12.tar.gz/sha512/8d96d8cd906cc0999134320e4e1f550631426d166eab5da6e65469ee7286093810fcc6ac4bd5500ee55972d159f8bef7f9e53245f7f0eec72f72c35265b4313b/mbedtls-2.16.12.tar.gz" | tar xz -C ./
+
     - name: Checkout oosdk_libraries
       uses: actions/checkout@v4
       with:
@@ -137,6 +140,16 @@ jobs:
         cp lib/zip.h ${OO_PS4_TOOLCHAIN}/include/zip.h
         cp lib/libzip.a ${OO_PS4_TOOLCHAIN}/lib/libzip.a
 
+    - name: Install mbedTLS library
+      working-directory: mbedtls-2.16.12
+      run: |
+        sed -i '114s/.*/#define MBEDTLS_NO_UDBL_DIVISION/' include/mbedtls/config.h
+        mkdir orbis && cd orbis
+        cmake --toolchain ../../SDL-PS4/cmake/openorbis.cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=FALSE -DENABLE_PROGRAMS=FALSE
+        make
+        cp -R ../include/mbedtls ${OO_PS4_TOOLCHAIN}/include/
+        cp library/libmbed*.a ${OO_PS4_TOOLCHAIN}/lib/
+
     - name: Install dbglogger
       working-directory: dbglogger
       run: make -f Makefile.PS4 install
@@ -196,7 +209,7 @@ jobs:
       working-directory: ${{ env.curl_path }}
       run: |
         mkdir orbis && cd orbis
-        cmake --toolchain ../../../SDL-PS4/cmake/openorbis.cmake .. -DCMAKE_USE_POLARSSL=1 -DUSE_UNIX_SOCKETS=0 -DENABLE_THREADED_RESOLVER=0 -DENABLE_IPV6=0
+        cmake --toolchain ../../../SDL-PS4/cmake/openorbis.cmake .. -DCMAKE_USE_MBEDTLS=1 -DUSE_UNIX_SOCKETS=0 -DENABLE_THREADED_RESOLVER=0 -DENABLE_IPV6=0
         make libcurl
 
     - name: Copy cached libraries

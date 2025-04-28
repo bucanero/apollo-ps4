@@ -144,7 +144,7 @@ jobs:
       working-directory: mbedtls-2.16.12
       run: |
         mkdir orbis && cd orbis
-        cmake --toolchain ../../../SDL-PS4/cmake/openorbis.cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=FALSE -DENABLE_PROGRAMS=FALSE
+        cmake --toolchain ../../SDL-PS4/cmake/openorbis.cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=FALSE -DENABLE_PROGRAMS=FALSE
         make
         cp -R ../include/mbedtls ${OO_PS4_TOOLCHAIN}/include/
         cp library/libmbed*.a ${OO_PS4_TOOLCHAIN}/lib/

@@ -193,6 +193,9 @@ You need to have installed:
 - [Mini-XML](https://github.com/bucanero/mxml) library
 - [dbglogger](https://github.com/bucanero/dbglogger) library
 
+> [!TIP]
+> **Developers:** You can find detailed technical documentation about the project in [this Wiki page](https://deepwiki.com/bucanero/apollo-ps4/).
+
 Run `make` to create a release build. If you want to include the latest save patches in your `.pkg` file, run `make createzip`.
 
 You can also set the `PS3LOAD` environment variable to your PS4 IP address: `export PS3LOAD=tcp:x.x.x.x`.
@@ -201,7 +204,9 @@ This will allow you to use a [ps3load client](https://github.com/bucanero/ps4loa
 To enable debug logging, build Apollo Save Tool with `make DEBUGLOG=1`. The application will send debug messages to
 UDP multicast address `239.255.0.100:30000`. To receive them you can use [socat][] on your computer:
 
-    $ socat udp4-recv:30000,ip-add-membership=239.255.0.100:0.0.0.0 -
+```sh
+$ socat udp4-recv:30000,ip-add-membership=239.255.0.100:0.0.0.0 -
+```
 
 # License
 

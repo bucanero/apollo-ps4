@@ -4,6 +4,48 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+---
+
+## [v2.2.0](https://github.com/bucanero/apollo-ps4/releases/tag/v2.2.0) - 2024-04-30
+
+### Added
+
+* FTP Server support (Saves Cloud Backup)
+  - Zip, Upload, and backup saves to a user-defined FTP server
+  - List, Download, and restore saves from a user-defined FTP server
+  - Backup PS1, PS2, and PS4 saves
+* Bulk management support for encrypted saves (USB)
+* Improved `Copy save to HDD` option
+* Settings Menu:
+  - Added `FTP Server URL` option
+  - Added selector option (`FTP/Online DB`) for save-game downloads
+* Improved `.zip` filename generation for save exporting
+* New cheat codes
+  - Lunar 1 Remastered
+  - Lunar 2 Remastered
+  - Metaphor: ReFantazio
+  - Resident Evil 7: Biohazard
+* Custom checksum support
+  - Lunar 1 Remastered
+  - Lunar 2 Remastered
+  - Resident Evil 7: Biohazard
+
+### Fixed
+
+* Fixed `app.db` rebuild process on 11.00+ FW
+
+### Misc
+
+* Updated SSL library to mbedTLS v2.16.12
+* Updated Apollo Patch Engine to v1.3.0
+  - Add `djb2` hash function
+  - Add tag support for user-selected options on `.savepatch` files
+    - E.g., `{ZZ}val=name;03E7=999 gold;...;270F=9999 gold{/ZZ}`
+    - Support for SaveWizard and BSD codes with multiple options
+* Updated save data mount process
+
+---
+
 ## [v2.0.0](https://github.com/bucanero/apollo-ps4/releases/tag/v2.0.0) - 2024-12-22
 
 ### Added

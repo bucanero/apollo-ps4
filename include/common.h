@@ -20,7 +20,7 @@ int unlink_secure(const char *path);
 int mkdirs(const char* dir);
 int copy_file(const char* input, const char* output);
 int copy_directory(const char* startdir, const char* inputdir, const char* outputdir);
-int clean_directory(const char* inputdir);
+int clean_directory(const char* inputdir, const char* filter);
 uint32_t file_crc32(const char* input);
 
 #endif

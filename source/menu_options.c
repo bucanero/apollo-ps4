@@ -14,7 +14,7 @@ static void _draw_OptionsMenu(u8 alpha)
 	char *option_name;
 
     SetFontSize(APP_FONT_SIZE_SELECTION);
-    int ind = 0, y_off = 120;
+    int ind = 0, y_off = 160;
     while ((option_name = menu_options[ind].name))
     {
         if (option_name[0] == '\n')

@@ -13,7 +13,7 @@ You must have a fake activated account or already have a real PSN account on the
 4. [Activating offline profiles](#activating-offline-profiles)  
 5. [Getting saves and or managing them](#getting-saves-and-or-managing-them)    
 6. [Fixing Keystone issues with savedata](#fixing-keystone-issues-with-savedata)
-7. [Rebuidling Database for lost XMB entries](#i-rebuilt-my-database-and-now-all-my-homebrew-and-games-are-gone-how-do-i-get-them-back)
+7. [Rebuilding Database for lost XMB entries](#i-rebuilt-my-database-and-now-all-my-homebrew-and-games-are-gone-how-do-i-get-them-back)
 8. [Using FTP to Manage Saves](#using-ftp-to-manage-saves)    
 
 ## Title ID, User ID, and Account ID 
@@ -54,7 +54,7 @@ The Apollo Main Menu has the following options.
 #### Activate PS4 Accounts.
 * This option allows you to fake activate accounts on your PS4 with either an auto generated ID or with your real PSN Account-ID for use with savedata transfers. See: [Activating offline profiles](#activating-offline-profiles)
 #### App.db Database Management.
-* This opton allows you to backuup, restore or rebuild your database. 
+* This option allows you to backuup, restore or rebuild your database. 
 1. Backup System Database Folder.
 * This option creates a backup of your whole database. It is saved in `/data/apollo/export/db/dbXXXX.zip`.
 2. Restore System Database Backup. 
@@ -68,7 +68,7 @@ The Apollo Main Menu has the following options.
 #### Network Tools (Downloader, Web Server)
 1. Local Web Server (full system access)
 * This option allows you to browse the internal storage and download files. The address is http://yourps4ip:8080. 
-2. Toggel Web Browser history. 
+2. Toggle Web Browser history. 
 * This option disables Browser history. 
 3. URL link Downloader (http, https, ftp, ftps)
 * This option allows you to download a file from a URL to the `/data/` path.
@@ -270,7 +270,7 @@ Decrypted saves are usually your own but sometimes are shared online.
    * If the save file is a file on it's own.
 2. Plug in a USB drive formatted as exFAT into the PS4.
 3. You will need to create a save in the game and then from Apollo in HDD saves use the `Copy save game` to copy the savedata to the USB.
-4. Then in this path on the USB `/PS4/APOLLO/<USER-ID>_<title-id>_<Save-name>` find and replace the file inside with the file you alread have then back in Apollo in USB saves use the `Copy save game` option and copy it to the HDD.
+4. Then in this path on the USB `/PS4/APOLLO/<USER-ID>_<title-id>_<Save-name>` find and replace the file inside with the file you already have then back in Apollo in USB saves use the `Copy save game` option and copy it to the HDD.
 
 ### Managing save files from different CUSA IDs
 This is a fix if you want to make use of files that are for the same game but different CUSA IDs or versions (such as standard vs deluxe/GOTY editions).
@@ -320,8 +320,8 @@ This is a fix if you want to make use of files that are for the same game but di
 2. Open it and create a host user and password. 
 3. Go to "Server" then "Configure" and in "Users" add a user and set a password for it from the right side under "Authentication:".
 4. Go to "Mount points:" set the "Virtual path" as / and set the folder where you want the saves to be stored by pasting it's path or writing it manually.
-5. To ther right of "Mount points:" make sure "Acess mode:" is set to "Read + Write" and that the first 2 boxes are ticked then press "Apply". 
-6. Go to "Server listeners" and set the Protocol for all entries to "Explicits FTP over TLS and insecure plain FTP". 
+5. To the right of "Mount points:" make sure "Access mode:" is set to "Read + Write" and that the first 2 boxes are ticked then press "Apply". 
+6. Go to "Server listeners" and set the Protocol for all entries to "Explicit FTP over TLS and insecure plain FTP". 
 7. Open the search bar and type in "Windows Defender Firewall with Advanced Security" go to Inbound Rules.
 8. Choose "New Rule", set it to "Port" then press "Next". Set it to "TCP" and set the port to 21, then press "Next".
 9. Leave "Action" at "Allow the Connection" and press "Next".

@@ -54,7 +54,7 @@ The Apollo Main Menu has the following options.
 #### Activate PS4 Accounts.
 * This option allows you to fake activate accounts on your PS4 with either an auto generated ID or with your real PSN Account-ID for use with savedata transfers. See: [Activating offline profiles](#activating-offline-profiles)
 #### App.db Database Management.
-* This option allows you to backuup, restore or rebuild your database. 
+* This option allows you to backup, restore or rebuild your database. 
 1. Backup System Database Folder.
 * This option creates a backup of your whole database. It is saved in `/data/apollo/export/db/dbXXXX.zip`.
 2. Restore System Database Backup. 
@@ -111,7 +111,7 @@ Has credits, current Account-ID and console details.
 3. The star. (Located on the left when applicable)
 * The star shows up on the left of a save by clicking the touchpad while a save is highlighted which selects it, multiple saves can be selected.
 4. Warning sign in red with "!"
-* This usually indicates that the savedata is not in the appropriate folder structure and or location or is from higher firmware on which the keys have changed. (--- Encrypted save requires fimrware ???---)
+* This usually indicates that the savedata is not in the appropriate folder structure and or location or is from higher firmware on which the keys have changed. (--- Encrypted save requires firmware ???---)
 
 ## Save Data Options
 * While accessing  USB Saves/HDD Saves submenus and Save file submenus you will see the following options. 

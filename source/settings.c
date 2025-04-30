@@ -175,7 +175,10 @@ static void ftp_url_callback(int sel)
 	stop_loading_screen();
 
 	if (ret)
+	{
+		server_callback(1);
 		show_message("FTP server URL changed to:\n%s", apollo_config.ftp_url);
+	}
 	else
 		show_message("Error! Couldn't connect to FTP server\n%s\n\nCheck debug logs for more information", apollo_config.ftp_url);
 }

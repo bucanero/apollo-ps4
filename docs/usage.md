@@ -329,9 +329,12 @@ This works for both the PSN account ID activated profile and for a normal Apollo
 3. You will then receive a new string of letters and numbers (example > `CN8aubEclS6=`) you can then use that with Chiaki to use remote play or continue to utilise the offline activated account for savedata management.
 
 ## Fake USB
+
 * Fake USB allows you to import savedata directly from the HDD as if it is on a USB drive but from a specific folder on the HDD. 
-* The folder path is `/data/fakeusb` it requires the same folder structure as a normal USB drive as seen in the instructions below. The files will show up in "USB Saves" as if it is a real USB. It can be toggled in Apollo Settings>USB Saves Sources to be the only thing displayed even while a real USB is plugged in. 
-* Place any save files in the correct folder structure and then go into USB Saves to import them. 
+* The folder path is `/data/fakeusb` it requires the same folder structure as a normal USB drive as seen in the instructions below. The files will show up in `USB Saves` as if it is a real USB. It can be toggled in Apollo Settings>USB Saves Sources to be the only thing displayed even while a real USB is plugged in. 
+* Place any save files in the correct folder structure and then go into USB Saves to import them.
+* Example For Encrypted save data `/data/fakeusb/PS4/APOLLO/<USER-ID>_<title-id>_<Save-name>`
+* Example for Decrypted save data `/data/fakeusb/PS4/APOLLO/<USER-ID>_<title-id>_<Save-name>`    
 
 ## Getting saves and or managing them 
 

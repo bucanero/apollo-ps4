@@ -18,7 +18,7 @@
 6. [Getting saves and or managing them](#getting-saves-and-or-managing-them)    
 7. [Fixing Keystone issues with savedata](#fixing-keystone-issues-with-savedata)
 8. [Rebuilding Database for lost XMB entries](#i-rebuilt-my-database-and-now-all-my-homebrew-and-games-are-gone-how-do-i-get-them-back)
-9. [Using FTP to Manage Saves](#using-ftp-to-manage-saves)    
+9. [Using FTP to Manage Saves](#using-ftp-to-backup-saves)    
 
 ## Title ID, User ID, and Account ID 
 

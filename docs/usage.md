@@ -14,10 +14,11 @@
 2. [Apollo Save Tool Features and Options Overview](#apollo-save-tool-features-and-options-overview)
 3. [Save Data Options](#save-data-options)
 4. [Activating offline profiles](#activating-offline-profiles)  
-5. [Getting saves and or managing them](#getting-saves-and-or-managing-them)    
-6. [Fixing Keystone issues with savedata](#fixing-keystone-issues-with-savedata)
-7. [Rebuilding Database for lost XMB entries](#i-rebuilt-my-database-and-now-all-my-homebrew-and-games-are-gone-how-do-i-get-them-back)
-8. [Using FTP to Manage Saves](#using-ftp-to-manage-saves)    
+5. [Fake USB](#fake-usb)  
+6. [Getting saves and or managing them](#getting-saves-and-or-managing-them)    
+7. [Fixing Keystone issues with savedata](#fixing-keystone-issues-with-savedata)
+8. [Rebuilding Database for lost XMB entries](#i-rebuilt-my-database-and-now-all-my-homebrew-and-games-are-gone-how-do-i-get-them-back)
+9. [Using FTP to Manage Saves](#using-ftp-to-manage-saves)    
 
 ## Title ID, User ID, and Account ID 
 
@@ -327,6 +328,11 @@ This works for both the PSN account ID activated profile and for a normal Apollo
 2. Once you are ready to run the code paste the string of the ACCOUNT-ID (example > `abcdef01234556789`) in the `user_id = "here"` between the 2 "" as seen in the code then run it. (ignore that it is named user-id in the script it is the account-id)
 3. You will then receive a new string of letters and numbers (example > `CN8aubEclS6=`) you can then use that with Chiaki to use remote play or continue to utilise the offline activated account for savedata management.
 
+## Fake USB
+* Fake USB allows you to import savedata directly from the HDD as if it is on a USB drive but from a specific folder on the HDD. 
+* The folder path is `/data/fakeusb` it requires the same folder structure as a normal USB drive as seen in the instructions below. The files will show up in "USB Saves" as if it is a real USB. It can be toggled in Apollo Settings>USB Saves Sources to be the only thing displayed even while a real USB is plugged in. 
+* Place any save files in the correct folder structure and then go into USB Saves to import them. 
+
 ## Getting saves and or managing them 
 
 There are many ways to download or manage savedata here are some of the easiest ways.   
@@ -486,8 +492,8 @@ This is a fix if you want to make use of files that are for the same game but di
 20. Under Data "Channel Range:" set it to 5000-51000.
 21. Under "External IP Address of Firewall" set it to your current IP then press "Apply" on the right side of the window. (Open CMD and type in "ipconfig" if needed)
 22. Open the search bar and type in "Windows Defender Firewall with Advanced Security" go to both Inbound and Outbound Rules and enable the FTP rules as seen in the pictures below.   
-![-](docs/imgs/1.PNG) 
-![-](docs/imgs/2.PNG) 
+![-](imgs/1.PNG) 
+![-](imgs/2.PNG) 
 23. Back in "Internet Information Services (IIS)" right click on the FTP Site you created and go to "Manage FTP Site" and choose to restart it.
 24. Restart the PC if you cannot connect from Apollo.
 

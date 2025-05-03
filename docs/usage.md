@@ -501,10 +501,13 @@ This is a fix if you want to make use of files that are for the same game but di
 
 ### Other FTP Servers
 
-There are many 3rd party FTP servers for Windows, for example:
+There are many third-party FTP servers, for example:
 
 - [Xlight FTP Server](https://www.xlightftpd.com/download.htm): Windows 32-bit and 64-bit, tested and works ok.
 - [Serv-U FTP Server](https://web.archive.org/web/20070129085010/http://files1.rhinosoft.com/files/susetup.exe): Windows 32-bit server, tested and works ok.
+- [Wing FTP Server](https://www.wftpserver.com/download.htm): Windows, Linux, and macOS server, untested.
+- [ProFTPD](http://www.proftpd.org/): Linux and macOS server, untested.
+- [Pure-FTPd](https://www.pureftpd.org/): Linux and macOS server, untested.
 - [FileZilla Server](https://filezilla.org): this server is **not recommended**, you'll find compatibility issues with TLS settings. Use and set up at your own risk.
 
 ### Connecting to the Server from Apollo

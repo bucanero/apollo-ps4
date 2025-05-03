@@ -456,6 +456,20 @@ This is a fix if you want to make use of files that are for the same game but di
 > - Optionally if you have an FTP server from a webhost provider `ftp://mywebhost.com` you can connect to the external server. 
 > - Local LAN is faster.
 
+### FileZilla FTP Server
+
+1. Download and install FileZilla Server.
+2. Open it and create a host user and password. 
+3. Go to "Server" then "Configure" and in "Users" add a user and set a password for it from the right side under "Authentication:".
+4. Go to "Mount points:" set the "Virtual path" as / and set the folder where you want the saves to be stored by pasting it's path or writing it manually.
+5. To the right of "Mount points:" make sure "Access mode:" is set to "Read + Write" and that the first 2 boxes are ticked then press "Apply". 
+6. Go to "Server listeners" and set the Protocol for all entries to "Explicit FTP over TLS and insecure plain FTP". 
+7. Open the search bar and type in "Windows Defender Firewall with Advanced Security" go to Inbound Rules.
+8. Choose "New Rule", set it to "Port" then press "Next". Set it to "TCP" and set the port to 21, then press "Next".
+9. Leave "Action" at "Allow the Connection" and press "Next".
+10. Tick all the boxes for "Where does this rule apply?" and press "Next" 
+11. Finally name the rule and press "Finish"
+
 ### Native Windows FTP Server
 
 * For Windows one of the best options is the FTP server that comes with it. Here is how to enable it.
@@ -498,23 +512,6 @@ This is a fix if you want to make use of files that are for the same game but di
 1. Add a new Dataset and name it whatever you want. For example: PS3saves
 2. Go to "Credentials and make a new User and set a password and set the user directory as the Dataset you just created. 
 3. Go to "System Settings" then "Services" and enable the FTP service, setting its path to the Dataset. 
-
-
-### FileZilla FTP Server
-
-#### This option is not recommended
-1. Download and install FileZilla Server.
-2. Open it and create a host user and password. 
-3. Go to "Server" then "Configure" and in "Users" add a user and set a password for it from the right side under "Authentication:".
-4. Go to "Mount points:" set the "Virtual path" as / and set the folder where you want the saves to be stored by pasting it's path or writing it manually.
-5. To the right of "Mount points:" make sure "Access mode:" is set to "Read + Write" and that the first 2 boxes are ticked.  
-6. Go to "Server listeners" and set the Protocol for all entries to "Explicit FTP over TLS and insecure plain FTP". 
-7. Go to "FTP and FTP over TLS (FTPS) and set the "Minimum allowed TLS version" to 1.3 then press "Apply".
-8. Open the search bar and type in "Windows Defender Firewall with Advanced Security" go to Inbound Rules.
-9. Choose "New Rule", set it to "Port" then press "Next". Set it to "TCP" and set the port to 21, then press "Next".
-10. Leave "Action" at "Allow the Connection" and press "Next".
-11. Tick all the boxes for "Where does this rule apply?" and press "Next" 
-12. Finally name the rule and press "Finish"
 
 ### Connecting to the Server from Apollo
 

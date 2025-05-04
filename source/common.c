@@ -164,32 +164,34 @@ uint32_t file_crc32(const char* input)
 
 int copy_directory(const char* startdir, const char* inputdir, const char* outputdir)
 {
-	char fullname[256];
+    char fullname[256];
     char out_name[256];
-	struct dirent *dirp;
-	int len = strlen(startdir);
-	DIR *dp = opendir(inputdir);
+    struct dirent *dirp;
+    int len = strlen(startdir);
+    DIR *dp = opendir(inputdir);
 
-	if (!dp) {
-		return FAILED;
-	}
+    if (!dp) {
+        return FAILED;
+    }
 
-	while ((dirp = readdir(dp)) != NULL) {
-		if ((strcmp(dirp->d_name, ".")  != 0) && (strcmp(dirp->d_name, "..") != 0)) {
-  			snprintf(fullname, sizeof(fullname), "%s%s", inputdir, dirp->d_name);
+    while ((dirp = readdir(dp)) != NULL) {
+        if ((strcmp(dirp->d_name, ".")  != 0) && (strcmp(dirp->d_name, "..") != 0)) {
+            snprintf(fullname, sizeof(fullname), "%s%s", inputdir, dirp->d_name);
 
-  			if (dirp->d_type == DT_DIR) {
+            if (dirp->d_type == DT_DIR) {
                 strcat(fullname, "/");
-    			copy_directory(startdir, fullname, outputdir);
-  			} else {
-  			    snprintf(out_name, sizeof(out_name), "%s%s", outputdir, &fullname[len]);
-    			if (copy_file(fullname, out_name) != SUCCESS) {
-     				return FAILED;
-    			}
-  			}
-		}
-	}
-	closedir(dp);
+                if (copy_directory(startdir, fullname, outputdir) != SUCCESS) {
+                    return FAILED;
+                }
+            } else {
+                snprintf(out_name, sizeof(out_name), "%s%s", outputdir, &fullname[len]);
+                if (copy_file(fullname, out_name) != SUCCESS) {
+                    return FAILED;
+                }
+            }
+        }
+    }
+    closedir(dp);
 
     return SUCCESS;
 }

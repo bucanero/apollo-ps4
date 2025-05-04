@@ -104,6 +104,7 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 	fd = fopen(local_dst, "wb");
 	if (!fd) {
 		LOG("fopen Error: File path '%s'", local_dst);
+		curl_easy_cleanup(curl);
 		return HTTP_FAILED;
 	}
 
@@ -184,6 +185,7 @@ int ftp_upload(const char* local_file, const char* url, const char* filename, in
 	if(!fd)
 	{
 		LOG("Couldn't open '%s'", local_file);
+		curl_easy_cleanup(curl);
 		return HTTP_FAILED;
 	}
 

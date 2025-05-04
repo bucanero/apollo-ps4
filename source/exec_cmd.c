@@ -141,6 +141,7 @@ static void zipSave(const save_entry_t* entry, const char* exp_path)
 
 static void copySave(const save_entry_t* save, const char* exp_path)
 {
+	int ret;
 	char copy_path[256];
 
 	if (strncmp(save->path, exp_path, strlen(exp_path)) == 0)
@@ -158,12 +159,15 @@ static void copySave(const save_entry_t* save, const char* exp_path)
 	init_loading_screen("Copying files...");
 
 	snprintf(copy_path, sizeof(copy_path), "%s%08x_%s_%s/", exp_path, apollo_config.user_id, save->title_id, save->dir_name);
-
 	LOG("Copying <%s> to %s...", save->path, copy_path);
-	copy_directory(save->path, save->path, copy_path);
 
+	ret = copy_directory(save->path, save->path, copy_path);
 	stop_loading_screen();
-	show_message("Files successfully copied to:\n%s", exp_path);
+
+	if (ret == SUCCESS)
+		show_message("Files successfully copied to:\n%s", exp_path);
+	else
+		show_message("Error! Can't copy save game to:\n%s", exp_path);
 }
 
 static int _update_save_details(const char* sys_path, const save_entry_t* save)
@@ -263,6 +267,7 @@ static void downloadSaveHDD(const save_entry_t* entry, const char* file)
 	if (!extract_zip(APOLLO_LOCAL_CACHE "tmpsave.zip", path))
 	{
 		show_message("Error extracting save game!");
+		orbis_SaveUmount(mount);
 		return;
 	}
 
@@ -279,6 +284,7 @@ static void downloadSaveHDD(const save_entry_t* entry, const char* file)
 
 static int _copy_save_hdd(const save_entry_t* save)
 {
+	int ret;
 	char copy_path[256];
 	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 	sfo_patch_t patch = {
@@ -292,7 +298,7 @@ static int _copy_save_hdd(const save_entry_t* save)
 	snprintf(copy_path, sizeof(copy_path), APOLLO_SANDBOX_PATH, mount);
 
 	LOG("Copying <%s> to %s...", save->path, copy_path);
-	copy_directory(save->path, save->path, copy_path);
+	ret = copy_directory(save->path, save->path, copy_path);
 
 	snprintf(copy_path, sizeof(copy_path), "%s" "sce_sys/", save->path);
 	_update_save_details(copy_path, save);
@@ -301,7 +307,7 @@ static int _copy_save_hdd(const save_entry_t* save)
 	patch_sfo(copy_path, &patch);
 	orbis_SaveUmount(mount);
 
-	return 1;
+	return (ret == SUCCESS);
 }
 
 static int _copy_save_pfs(const save_entry_t* save)

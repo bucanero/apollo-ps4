@@ -508,7 +508,7 @@ There are many third-party FTP servers, for example:
 - [Wing FTP Server](https://www.wftpserver.com/download.htm): Windows, Linux, and macOS server, untested.
 - [ProFTPD](http://www.proftpd.org/): Linux and macOS server, untested.
 - [Pure-FTPd](https://www.pureftpd.org/): Linux and macOS server, untested.
-- [FileZilla Server](https://filezilla.org): this server is **not recommended**, you'll find compatibility issues with TLS settings. Use and set up at your own risk.
+- [FileZilla Server](https://filezilla-project.org/): this server is **not recommended**, you'll find compatibility issues with TLS settings. Use and set up at your own risk.
 
 ### Connecting to the Server from Apollo
 

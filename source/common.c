@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <zlib.h>
+#include <orbis/SystemService.h>
 
 #include "types.h"
 #include "common.h"
@@ -28,6 +29,28 @@ int is_char_letter(char c)
 	if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
 		return SUCCESS;
 	return FAILED;
+}
+
+char * safe_strncpy(char *dst, const char* src, size_t size)
+{
+    strncpy(dst, src, size);
+    dst[size - 1] = '\0';
+    return dst;
+}
+
+char * rstrip(char *s)
+{
+    char *p = s + strlen(s);
+    while (p > s && isspace(*--p))
+        *p = '\0';
+    return s;
+}
+
+char * lskip(const char *s)
+{
+    while (*s != '\0' && isspace(*s))
+        ++s;
+    return (char *)s;
 }
 
 //----------------------------------------
@@ -224,4 +247,76 @@ int clean_directory(const char* inputdir, const char* filter)
 	closedir(d);
 
     return SUCCESS;
+}
+
+const char * get_user_language(void)
+{
+    int language;
+
+    if(sceSystemServiceParamGetInt(ORBIS_SYSTEM_SERVICE_PARAM_ID_LANG, &language) < 0)
+        return "en";
+
+    switch (language)
+    {
+    case ORBIS_SYSTEM_PARAM_LANG_JAPANESE:             //  0   Japanese
+        return "ja";
+
+    case ORBIS_SYSTEM_PARAM_LANG_ENGLISH_US:           //  1   English (United States)
+    case ORBIS_SYSTEM_PARAM_LANG_ENGLISH_GB:           // 18   English (United Kingdom)
+        return "en";
+
+    case ORBIS_SYSTEM_PARAM_LANG_FRENCH:               //  2   French
+    case ORBIS_SYSTEM_PARAM_LANG_FRENCH_CA:            // 22   French (Canada)
+        return "fr";
+
+    case ORBIS_SYSTEM_PARAM_LANG_SPANISH:              //  3   Spanish
+    case ORBIS_SYSTEM_PARAM_LANG_SPANISH_LA:           // 20   Spanish (Latin America)
+        return "es";
+
+    case ORBIS_SYSTEM_PARAM_LANG_GERMAN:               //  4   German
+        return "de";
+
+    case ORBIS_SYSTEM_PARAM_LANG_ITALIAN:              //  5   Italian
+        return "it";
+
+    case ORBIS_SYSTEM_PARAM_LANG_DUTCH:                //  6   Dutch
+        return "nl";
+
+    case ORBIS_SYSTEM_PARAM_LANG_RUSSIAN:              //  8   Russian
+        return "ru";
+
+    case ORBIS_SYSTEM_PARAM_LANG_KOREAN:               //  9   Korean
+        return "ko";
+
+    case ORBIS_SYSTEM_PARAM_LANG_CHINESE_T:            // 10   Chinese (traditional)
+    case ORBIS_SYSTEM_PARAM_LANG_CHINESE_S:            // 11   Chinese (simplified)
+        return "zh";
+
+    case ORBIS_SYSTEM_PARAM_LANG_FINNISH:              // 12   Finnish
+        return "fi";
+
+    case ORBIS_SYSTEM_PARAM_LANG_SWEDISH:              // 13   Swedish
+        return "sv";
+
+    case ORBIS_SYSTEM_PARAM_LANG_DANISH:               // 14   Danish
+        return "da";
+
+    case ORBIS_SYSTEM_PARAM_LANG_NORWEGIAN:            // 15   Norwegian
+        return "no";
+
+    case ORBIS_SYSTEM_PARAM_LANG_POLISH:               // 16   Polish
+        return "pl";
+
+    case ORBIS_SYSTEM_PARAM_LANG_PORTUGUESE_PT:        //  7   Portuguese (Portugal)
+    case ORBIS_SYSTEM_PARAM_LANG_PORTUGUESE_BR:        // 17   Portuguese (Brazil)
+        return "pt";
+
+    case ORBIS_SYSTEM_PARAM_LANG_TURKISH:              // 19   Turkish
+        return "tr";
+
+    default:
+        break;
+    }
+
+    return "en";
 }

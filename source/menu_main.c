@@ -2,6 +2,7 @@
 #include <string.h>
 #include <time.h>
 #include <orbis/SaveData.h>
+#include <mini18n.h>
 
 #include "orbisPad.h"
 #include "saves.h"

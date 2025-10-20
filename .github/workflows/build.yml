@@ -110,6 +110,12 @@ jobs:
         repository: bucanero/s3mplay
         path: s3mplay
 
+    - name: Checkout mini18n
+      uses: actions/checkout@v4
+      with:
+        repository: bucanero/mini18n
+        path: mini18n
+
     - name: Cache LLVM and Clang
       id: cache-llvm
       uses: actions/cache@v4
@@ -149,6 +155,14 @@ jobs:
         make
         cp -R ../include/mbedtls ${OO_PS4_TOOLCHAIN}/include/
         cp library/libmbed*.a ${OO_PS4_TOOLCHAIN}/lib/
+
+    - name: Install mini18n
+      working-directory: mini18n
+      run: |
+        cmake --toolchain ../../SDL-PS4/cmake/openorbis.cmake .
+        make mini18n-static
+        cp src/mini18n.h ${OO_PS4_TOOLCHAIN}/include/mini18n.h
+        cp src/libmini18n.a ${OO_PS4_TOOLCHAIN}/lib/libmini18n.a
 
     - name: Install dbglogger
       working-directory: dbglogger

@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
+#include <mini18n.h>
 
 #include "saves.h"
 #include "menu.h"

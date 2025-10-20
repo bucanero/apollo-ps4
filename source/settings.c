@@ -6,6 +6,7 @@
 #include <orbis/libkernel.h>
 #include <orbis/SaveData.h>
 #include <orbis/UserService.h>
+#include <mini18n.h>
 
 #include "types.h"
 #include "menu.h"

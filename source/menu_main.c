@@ -95,7 +95,7 @@ static code_entry_t* LoadRawPatch(void)
 
 	centry->name = strdup(selected_entry->title_id);
 	snprintf(patchPath, sizeof(patchPath), APOLLO_DATA_PATH "%s.savepatch", selected_entry->title_id);
-	centry->codes = readTextFile(patchPath, NULL);
+	centry->codes = readTextFile(patchPath);
 
 	return centry;
 }

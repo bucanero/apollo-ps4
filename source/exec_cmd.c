@@ -1112,7 +1112,7 @@ static int deleteSave(const save_entry_t* save)
 static char* get_json_title_name(const char *fname)
 {
 	char *ptr, *ret = NULL;
-	char *json = readTextFile(fname, NULL);
+	char *json = readTextFile(fname);
 
 	if (!json)
 		return NULL;
@@ -1289,7 +1289,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 	ret &= ftp_upload(APOLLO_LOCAL_CACHE "sfv.ftp", remote, "checksum.sfv", 1);
 
 	unlink_secure(local);
-	tmp = readTextFile(APOLLO_LOCAL_CACHE "games.ftp", NULL);
+	tmp = readTextFile(APOLLO_LOCAL_CACHE "games.ftp");
 	if (!tmp)
 		tmp = strdup("");
 

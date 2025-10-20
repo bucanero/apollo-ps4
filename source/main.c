@@ -13,6 +13,7 @@
 #include <orbis/CommonDialog.h>
 #include <orbis/Sysmodule.h>
 #include <orbis/SystemService.h>
+#include <mini18n.h>
 
 #include "saves.h"
 #include "sfo.h"

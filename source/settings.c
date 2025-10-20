@@ -13,11 +13,12 @@
 #include "saves.h"
 #include "common.h"
 
+#define _i18n(str) (str)
 #define ORBIS_USER_SERVICE_USER_ID_INVALID	-1
 
-static char * db_opt[] = {"Online DB", "FTP Server", NULL};
-static char * sort_opt[] = {"Disabled", "by Name", "by Title ID", "by Type", NULL};
-static char * usb_src[] = {"USB 0", "USB 1", "USB 2", "USB 3", "USB 4", "USB 5", "USB 6", "USB 7", "Fake USB", "Auto-detect", NULL};
+static const char * db_opt[] = {_i18n("Online DB"), _i18n("FTP Server"), NULL};
+static const char * sort_opt[] = {_i18n("Disabled"), _i18n("by Name"), _i18n("by Title ID"), _i18n("by Type"), NULL};
+static const char * usb_src[] = {"USB 0", "USB 1", "USB 2", "USB 3", "USB 4", "USB 5", "USB 6", "USB 7", _i18n("Fake USB"), _i18n("Auto-detect"), NULL};
 
 static void usb_callback(int sel);
 static void log_callback(int sel);
@@ -30,67 +31,67 @@ static void server_callback(int sel);
 static void ftp_url_callback(int sel);
 
 menu_option_t menu_options[] = {
-	{ .name = "\nBackground Music", 
+	{ .name = _i18n("\nBackground Music"), 
 		.options = NULL, 
 		.type = APP_OPTION_BOOL, 
 		.value = &apollo_config.music, 
 		.callback = music_callback 
 	},
-	{ .name = "Menu Animations", 
+	{ .name = _i18n("Menu Animations"),
 		.options = NULL, 
 		.type = APP_OPTION_BOOL, 
 		.value = &apollo_config.doAni, 
 		.callback = ani_callback 
 	},
-	{ .name = "Sort Saves",
+	{ .name = _i18n("Sort Saves"),
 		.options = sort_opt,
 		.type = APP_OPTION_LIST,
 		.value = &apollo_config.doSort,
 		.callback = sort_callback
 	},
-	{ .name = "USB Saves Source",
-		.options = (char**) usb_src,
+	{ .name = _i18n("USB Saves Source"),
+		.options = usb_src,
 		.type = APP_OPTION_LIST,
 		.value = &apollo_config.usb_dev,
 		.callback = usb_callback
 	},
-	{ .name = "Version Update Check", 
+	{ .name = _i18n("Version Update Check"),
 		.options = NULL, 
 		.type = APP_OPTION_BOOL, 
 		.value = &apollo_config.update, 
 		.callback = update_callback 
 	},
-	{ .name = "\nSet User FTP Server URL",
+	{ .name = _i18n("Set User FTP Server URL"),
 		.options = NULL,
-		.type = APP_OPTION_CALL,
+		.type = APP_OPTION_CALL | OPTION_SPACER,
 		.value = NULL,
 		.callback = ftp_url_callback
 	},
-	{ .name = "Online Saves Server",
+	{ .name = _i18n("Online Saves Server"),
 		.options = db_opt,
 		.type = APP_OPTION_LIST,
 		.value = &apollo_config.online_opt,
 		.callback = server_callback
 	},
-	{ .name = "Update Application Data", 
+	{ .name = _i18n("Update Application Data"),
 		.options = NULL, 
 		.type = APP_OPTION_CALL, 
 		.value = NULL, 
 		.callback = upd_appdata_callback 
 	},
-	{ .name = "Change Online Database URL",
+	{ .name = _i18n("Change Online Database URL"),
 		.options = NULL,
 		.type = APP_OPTION_CALL,
 		.value = NULL,
 		.callback = db_url_callback 
 	},
-	{ .name = "\nClear Local Cache", 
+	{ .name = _i18n("Clear Local Cache"),
 		.options = NULL, 
-		.type = APP_OPTION_CALL, 
+		.type = APP_OPTION_CALL | OPTION_SPACER, 
 		.value = NULL, 
 		.callback = clearcache_callback 
 	},
-	{ .name = "Enable Debug Log",
+	{ .name = _i18n("Enable Debug Log"),
 		.options = NULL,
 		.type = APP_OPTION_BOOL,
 		.value = &apollo_config.dbglog,
@@ -128,13 +129,13 @@ static void server_callback(int sel)
 
 static void db_url_callback(int sel)
 {
-	if (!osk_dialog_get_text("Enter the URL of the online database", apollo_config.save_db, sizeof(apollo_config.save_db)))
+	if (!osk_dialog_get_text(_("Enter the Online Database URL"), apollo_config.save_db, sizeof(apollo_config.save_db)))
 		return;
 
 	if (apollo_config.save_db[strlen(apollo_config.save_db)-1] != '/')
 		strcat(apollo_config.save_db, "/");
 
-	show_message("Online database URL changed to:\n%s", apollo_config.save_db);
+	show_message("%s\n%s", _("Online database URL changed to:"), apollo_config.save_db);
 }
 
 static void ftp_url_callback(int sel)
@@ -144,7 +145,7 @@ static void ftp_url_callback(int sel)
 	char tmp[512];
 
 	strncpy(tmp, apollo_config.ftp_url[0] ? apollo_config.ftp_url : "ftp://user:pass@192.168.0.10:21/folder/", sizeof(tmp));
-	if (!osk_dialog_get_text("Enter the URL of the FTP server", tmp, sizeof(tmp)))
+	if (!osk_dialog_get_text(_("Enter the FTP server URL"), tmp, sizeof(tmp)))
 		return;
 
 	strncpy(apollo_config.ftp_url, tmp, sizeof(apollo_config.ftp_url));
@@ -155,7 +156,7 @@ static void ftp_url_callback(int sel)
 	// test the connection
 	init_loading_screen("Testing connection...");
 	ret = http_download(apollo_config.ftp_url, "apollo.txt", APOLLO_LOCAL_CACHE "users.ftp", 0);
-	data = ret ? readTextFile(APOLLO_LOCAL_CACHE "users.ftp", NULL) : NULL;
+	data = ret ? readTextFile(APOLLO_LOCAL_CACHE "users.ftp") : NULL;
 	if (!data)
 		data = strdup("; Apollo Save Tool (" APOLLO_PLATFORM ") v" APOLLO_VERSION "\r\n");
 
@@ -178,10 +179,10 @@ static void ftp_url_callback(int sel)
 	if (ret)
 	{
 		server_callback(1);
-		show_message("FTP server URL changed to:\n%s", apollo_config.ftp_url);
+		show_message("%s\n%s", _("FTP server URL changed to:"), apollo_config.ftp_url);
 	}
 	else
-		show_message("Error! Couldn't connect to FTP server\n%s\n\nCheck debug logs for more information", apollo_config.ftp_url);
+		show_message("%s\n%s\n\n%s", _("Error! Couldn't connect to FTP server"), apollo_config.ftp_url, _("Check debug logs for more information"));
 }
 
 static void clearcache_callback(int sel)
@@ -189,7 +190,7 @@ static void clearcache_callback(int sel)
 	LOG("Cleaning folder '%s'...", APOLLO_LOCAL_CACHE);
 	clean_directory(APOLLO_LOCAL_CACHE, "");
 
-	show_message("Local cache folder cleaned:\n" APOLLO_LOCAL_CACHE);
+	show_message("%s\n%s", _("Local cache folder cleaned:"), APOLLO_LOCAL_CACHE);
 }
 
 static void upd_appdata_callback(int sel)
@@ -197,12 +198,12 @@ static void upd_appdata_callback(int sel)
 	int i;
 
 	if (!http_download(ONLINE_PATCH_URL, "apollo-ps4-update.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
-		show_message("Error! Can't download data update file!");
+		show_message(_("Error! Can't download data update file!"));
 
 	if ((i = extract_zip(APOLLO_LOCAL_CACHE "appdata.zip", APOLLO_DATA_PATH)) > 0)
-		show_message("Successfully updated %d save patch files!", i);
+		show_message(_("Successfully updated %d save patch files!"), i);
 	else
-		show_message("Error! Can't extract data update file!");
+		show_message(_("Error! Can't extract data update file!"));
 
 	unlink_secure(APOLLO_LOCAL_CACHE "appdata.zip");
 }
@@ -222,15 +223,11 @@ void update_callback(int sel)
 		return;
 	}
 
-	char *buffer;
-	long size = 0;
-
-	buffer = readTextFile(APOLLO_LOCAL_CACHE "ver.check", &size);
-
+	char *buffer = readTextFile(APOLLO_LOCAL_CACHE "ver.check");
 	if (!buffer)
 		return;
 
-	LOG("received %ld bytes", size);
+	LOG("received %ld bytes", strlen(buffer));
 
 	static const char find[] = "\"name\":\"Apollo Save Tool v";
 	const char* start = strstr(buffer, find);
@@ -273,13 +270,13 @@ void update_callback(int sel)
 	*end = 0;
 	LOG("download URL is %s", start);
 
-	if (show_dialog(DIALOG_TYPE_YESNO, "New version available! Download update?"))
+	if (show_dialog(DIALOG_TYPE_YESNO, _("New version available! Download update?")))
 	{
 		char* pkg_path = (dir_exists("/data/pkg") == SUCCESS) ? "/data/pkg/apollo-ps4.pkg" : "/data/apollo-ps4.pkg";
 		if (http_download(start, NULL, pkg_path, 1))
-			show_message("Update downloaded to %s", pkg_path);
+			show_message(_("Update downloaded to %s"), pkg_path);
 		else
-			show_message("Download error!");
+			show_message(_("Download error!"));
 	}
 
 end_update:
@@ -294,12 +291,12 @@ static void log_callback(int sel)
 	if (!apollo_config.dbglog)
 	{
 		dbglogger_stop();
-		show_message("Debug Logging Disabled");
+		show_message(_("Debug Logging Disabled"));
 		return;
 	}
 
 	dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 0);
-	show_message("Debug Logging Enabled\n\n%s", APOLLO_PATH "apollo.log");
+	show_message("%s\n\n%s", _("Debug Logging Enabled!"), APOLLO_PATH "apollo.log");
 }
 
 static int updateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details, uint32_t userParam)
@@ -352,7 +349,7 @@ int save_app_settings(app_config_t* config)
 	snprintf(filePath, sizeof(filePath), APOLLO_SETTING_PATH "settings.bin", mountResult.mountPathName);
 	write_buffer(filePath, (uint8_t*) config, sizeof(app_config_t));
 
-	updateSaveParams(mountResult.mountPathName, "Apollo Save Tool", "User Settings", "www.bucanero.com.ar", 0);
+	updateSaveParams(mountResult.mountPathName, "Apollo Save Tool", _("User Settings"), "www.bucanero.com.ar", 0);
 	if (sceSaveDataUmount((void*)&mountResult.mountPathName) < 0)
 	{
 		LOG("UMOUNT ERROR");

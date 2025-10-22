@@ -41,7 +41,10 @@ void initMenuOptions(void)
 {
 	menu_options_maxopt = 0;
 	while (menu_options[menu_options_maxopt].name)
+	{
+		menu_options[menu_options_maxopt].name = mini18n(menu_options[menu_options_maxopt].name);
 		menu_options_maxopt++;
+	}
 
 	menu_options_maxsel = (int *)calloc(1, menu_options_maxopt * sizeof(int));
 
@@ -51,7 +54,10 @@ void initMenuOptions(void)
 		if (menu_options[i].type == APP_OPTION_LIST)
 		{
 			while (menu_options[i].options[menu_options_maxsel[i]])
+			{
+				menu_options[i].options[menu_options_maxsel[i]] = mini18n(menu_options[i].options[menu_options_maxsel[i]]);
 				menu_options_maxsel[i]++;
+			}
 		}
 	}
 }
@@ -81,7 +87,7 @@ static int ReloadUserSaves(save_list_t* save_list)
 
 	if (!save_list->list)
 	{
-		show_message("No save-games found");
+		show_message(_("No save-games found"));
 		return 0;
 	}
 
@@ -463,7 +469,7 @@ static void doSaveMenu(save_list_t * save_list)
 
 		if (!selected_entry->codes && !save_list->ReadCodes(selected_entry))
 		{
-			show_message("No data found in folder:\n%s", selected_entry->path);
+			show_message("%s\n%s", _("No data found in folder:"), selected_entry->path);
 			return;
 		}
 
@@ -515,7 +521,7 @@ static void doMainMenu(void)
 		return;
 	}
 
-	else if(orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE) && show_dialog(DIALOG_TYPE_YESNO, "Exit to XMB?"))
+	else if(orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE) && show_dialog(DIALOG_TYPE_YESNO, _("Exit to XMB?")))
 		close_app = 1;
 	
 	Draw_MainMenu();
@@ -655,7 +661,7 @@ static void doHexEditor(void)
 
 	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 	{
-		if (show_dialog(DIALOG_TYPE_YESNO, "Save changes to %s?", strrchr(hex_data.filepath, '/') + 1) &&
+		if (show_dialog(DIALOG_TYPE_YESNO, _("Save changes to %s?"), strrchr(hex_data.filepath, '/') + 1) &&
 			(write_buffer(hex_data.filepath, hex_data.data, hex_data.size) == SUCCESS))
 		{
 			option_value_t* optval = list_get_item(selected_centry->options[option_index].opts, menu_sel);
@@ -751,7 +757,7 @@ static void doCodeOptionsMenu(void)
 				snprintf(hex_data.filepath, sizeof(hex_data.filepath), APOLLO_USER_PATH "%s_%s/%s", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name, optval->name);
 				if (read_buffer(hex_data.filepath, &hex_data.data, &hex_data.size) < 0)
 				{
-					show_message("Unable to load\n%s", hex_data.filepath);
+					show_message("%s\n%s", _("Failed to load:"), hex_data.filepath);
 					SetMenu(last_menu_id[MENU_CODE_OPTIONS]);
 					return;
 				}

@@ -31,7 +31,7 @@ static void server_callback(int sel);
 static void ftp_url_callback(int sel);
 
 menu_option_t menu_options[] = {
-	{ .name = _i18n("\nBackground Music"), 
+	{ .name = _i18n("Background Music"), 
 		.options = NULL, 
 		.type = APP_OPTION_BOOL, 
 		.value = &apollo_config.music, 

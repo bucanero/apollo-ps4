@@ -8,6 +8,7 @@
 #include <orbis/UserService.h>
 #include <orbis/SystemService.h>
 #include <polarssl/md5.h>
+#include <mini18n.h>
 
 #include "saves.h"
 #include "menu.h"
@@ -401,7 +402,7 @@ static void copyAllSavesHDD(const save_entry_t* save, int all)
 	uint64_t progress = 0;
 	list_t *list = ((void**)save->dir_name)[0];
 
-	init_progress_bar("Copying all saves...");
+	init_progress_bar(_("Copying all saves..."));
 
 	LOG("Copying all saves from '%s' to HDD...", save->path);
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
@@ -574,7 +575,7 @@ static void dumpAllFingerprints(const save_entry_t* save)
 	save_entry_t *item;
 	list_t *list = ((void**)save->dir_name)[0];
 
-	init_progress_bar("Dumping all fingerprints...");
+	init_progress_bar(_("Dumping all fingerprints..."));
 
 	LOG("Dumping all fingerprints from '%s'...", save->path);
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
@@ -892,7 +893,7 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int 
 		return;
 	}
 
-	init_progress_bar("Copying all saves...");
+	init_progress_bar(_("Copying all saves..."));
 
 	LOG("Copying all saves to '%s'...", dst_path);
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
@@ -925,7 +926,7 @@ static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
 	uint64_t progress = 0;
 	list_t *list = ((void**)save->dir_name)[0];
 
-	init_progress_bar("Exporting all VMC saves...");
+	init_progress_bar(_("Exporting all VMC saves..."));
 	_set_dest_path(outPath, dev, PS1_SAVES_PATH_USB);
 	mkdirs(outPath);
 
@@ -1569,7 +1570,7 @@ static void resignAllSaves(const save_entry_t* save, int all)
 		.account_id = apollo_config.account_id,
 	};
 
-	init_progress_bar("Resigning all saves...");
+	init_progress_bar(_("Resigning all saves..."));
 
 	LOG("Resigning all saves from '%s'...", save->path);
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))

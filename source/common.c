@@ -314,6 +314,30 @@ const char * get_user_language(void)
     case ORBIS_SYSTEM_PARAM_LANG_TURKISH:              // 19   Turkish
         return "tr";
 
+    case ORBIS_SYSTEM_PARAM_LANG_ARABIC:               // 21   Arabic
+        return "ar";
+
+    case ORBIS_SYSTEM_PARAM_LANG_CZECH:                // 23   Czech
+        return "cs";
+
+    case ORBIS_SYSTEM_PARAM_LANG_HUNGARIAN:            // 24   Hungarian
+        return "hu";
+
+    case ORBIS_SYSTEM_PARAM_LANG_GREEK:                // 25   Greek
+        return "el";
+
+    case ORBIS_SYSTEM_PARAM_LANG_ROMANIAN:             // 26   Romanian
+        return "ro";
+
+    case ORBIS_SYSTEM_PARAM_LANG_THAI:                 // 27   Thai
+        return "th";
+
+    case ORBIS_SYSTEM_PARAM_LANG_VIETNAMESE:           // 28   Vietnamese
+        return "vi";
+
+    case ORBIS_SYSTEM_PARAM_LANG_INDONESIAN:           // 29   Indonesian
+        return "id";
+
     default:
         break;
     }

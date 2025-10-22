@@ -342,7 +342,7 @@ static void SetMenu(int id)
 		case MENU_PATCH_VIEW: //Cheat View Menu
 			menu_old_sel[MENU_PATCH_VIEW] = 0;
 			if (apollo_config.doAni)
-				Draw_CheatsMenu_View_Ani("Patch view");
+				Draw_CheatsMenu_View_Ani(_("Patch view"));
 			break;
 
 		case MENU_SAVE_DETAILS: //Save Detail View Menu
@@ -720,7 +720,7 @@ static void doPatchViewMenu(void)
 		return;
 	}
 	
-	Draw_CheatsMenu_View("Patch view");
+	Draw_CheatsMenu_View(_("Patch view"));
 }
 
 static void doCodeOptionsMenu(void)

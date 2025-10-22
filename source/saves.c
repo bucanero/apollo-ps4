@@ -242,7 +242,7 @@ static code_entry_t* _createCmdCode(uint8_t type, const char* icon, const char* 
 	entry->type = type;
 	asprintf(&entry->codes, "%c", code);
 	if (name)
-		asprintf(&entry->name, "%s%s", icon, name);
+		asprintf(&entry->name, "%s%s", (icon ? icon : ""), name);
 
 	return entry;
 }

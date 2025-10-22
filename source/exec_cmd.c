@@ -49,20 +49,20 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 	_set_dest_path(path, dst, (entry->flags & SAVE_FLAG_PS4) ? PS4_SAVES_PATH_USB : PSV_SAVES_PATH_USB);
 	if (mkdirs(path) != SUCCESS)
 	{
-		show_message("Error! Export folder is not available:\n%s", path);
+		show_message("%s\n%s", _("Error! Export folder is not available:"), path);
 		return;
 	}
 
 	if (!http_download(entry->path, file, APOLLO_LOCAL_CACHE "tmpsave.zip", 1))
 	{
-		show_message("Error downloading save game from:\n%s%s", entry->path, file);
+		show_message("%s\n%s%s", _("Error downloading save game from:"), entry->path, file);
 		return;
 	}
 
 	if (extract_zip(APOLLO_LOCAL_CACHE "tmpsave.zip", path))
-		show_message("Save game successfully downloaded to:\n%s", path);
+		show_message("%s\n%s", _("Save game successfully downloaded to:"), path);
 	else
-		show_message("Error extracting save game!");
+		show_message("%s", _("Error extracting save game!"));
 
 	unlink_secure(APOLLO_LOCAL_CACHE "tmpsave.zip");
 }
@@ -101,7 +101,7 @@ static void zipSave(const save_entry_t* entry, const char* exp_path)
 
 	if (mkdirs(exp_path) != SUCCESS)
 	{
-		show_message("Error! Export folder is not available:\n%s", exp_path);
+		show_message("%s\n%s", _("Error! Export folder is not available:"), exp_path);
 		return;
 	}
 
@@ -133,11 +133,11 @@ static void zipSave(const save_entry_t* entry, const char* exp_path)
 	stop_loading_screen();
 	if (!ret)
 	{
-		show_message("Error! Can't export save game to:\n%s", exp_path);
+		show_message("%s\n%s", _("Error! Can't export save game to:"), exp_path);
 		return;
 	}
 
-	show_message("Zip file successfully saved to:\n%s", zip_file);
+	show_message("%s\n%s", _("Zip file successfully saved to:"), zip_file);
 }
 
 static void copySave(const save_entry_t* save, const char* exp_path)
@@ -147,13 +147,13 @@ static void copySave(const save_entry_t* save, const char* exp_path)
 
 	if (strncmp(save->path, exp_path, strlen(exp_path)) == 0)
 	{
-		show_message("Copy operation cancelled!\nSame source and destination.");
+		show_message("%s\n%s", _("Copy operation cancelled!"), _("Same source and destination."));
 		return;
 	}
 
 	if (mkdirs(exp_path) != SUCCESS)
 	{
-		show_message("Error! Export folder is not available:\n%s", exp_path);
+		show_message("%s\n%s", _("Error! Export folder is not available:"), exp_path);
 		return;
 	}
 
@@ -166,9 +166,9 @@ static void copySave(const save_entry_t* save, const char* exp_path)
 	stop_loading_screen();
 
 	if (ret == SUCCESS)
-		show_message("Files successfully copied to:\n%s", exp_path);
+		show_message("%s\n%s", _("Files successfully copied to:"), exp_path);
 	else
-		show_message("Error! Can't copy save game to:\n%s", exp_path);
+		show_message("%s\n%s", _("Error! Can't copy save game to:"), exp_path);
 }
 
 static int _update_save_details(const char* sys_path, const save_entry_t* save)
@@ -221,7 +221,7 @@ static void downloadSaveHDD(const save_entry_t* entry, const char* file)
 
 	if (!http_download(entry->path, file, APOLLO_LOCAL_CACHE "tmpsave.zip", 1))
 	{
-		show_message("Error downloading save game from:\n%s%s", entry->path, file);
+		show_message("%s\n%s%s", _("Error downloading save game from:"), entry->path, file);
 		return;
 	}
 
@@ -232,7 +232,7 @@ static void downloadSaveHDD(const save_entry_t* entry, const char* file)
 		LOG("Unable to read from '%s'", APOLLO_LOCAL_CACHE);
 		sfo_free(sfo);
 
-		show_message("Error extracting save game!");
+		show_message("%s", _("Error extracting save game!"));
 		return;
 	}
 
@@ -247,18 +247,18 @@ static void downloadSaveHDD(const save_entry_t* entry, const char* file)
 	snprintf(path, sizeof(path), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save.title_id, save.dir_name);
 	if (file_exists(path) == SUCCESS)
 	{
-		if (!show_dialog(DIALOG_TYPE_YESNO, "Save game already exists:\n%s/%s\n\nOverwrite?", save.title_id, save.dir_name))
+		if (!show_dialog(DIALOG_TYPE_YESNO, "%s\n%s/%s\n\n%s", _("Save game already exists:"), save.title_id, save.dir_name, _("Overwrite?")))
 			return;
 
 		if (!orbis_SaveMount(&save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR, mount))
 		{
-			show_message("Error mounting save game folder!");
+			show_message(_("Error mounting save game folder!"));
 			return;
 		}
 	}
 	else if (!orbis_SaveMount(&save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
 	{
-		show_message("Error creating save game folder!");
+		show_message(_("Error creating save game folder!"));
 		return;
 	}
 
@@ -267,7 +267,7 @@ static void downloadSaveHDD(const save_entry_t* entry, const char* file)
 
 	if (!extract_zip(APOLLO_LOCAL_CACHE "tmpsave.zip", path))
 	{
-		show_message("Error extracting save game!");
+		show_message(_("Error extracting save game!"));
 		orbis_SaveUmount(mount);
 		return;
 	}
@@ -276,9 +276,9 @@ static void downloadSaveHDD(const save_entry_t* entry, const char* file)
 
 	snprintf(path, sizeof(path), APOLLO_SANDBOX_PATH "sce_sys/", mount);
 	if (_update_save_details(path, &save))
-		show_message("Save game successfully downloaded to:\n%s/%s", save.title_id, save.dir_name);
+		show_message("%s\n%s/%s", _("Save game successfully downloaded to:"), save.title_id, save.dir_name);
 	else
-		show_message("Error! Can't update save game:\n%s/%s", save.title_id, save.dir_name);
+		show_message("%s\n%s/%s", _("Error! Can't update save game:"), save.title_id, save.dir_name);
 
 	orbis_SaveUmount(mount);
 }
@@ -380,7 +380,7 @@ static void copySaveHDD(const save_entry_t* save)
 	//source save is already on HDD
 	if (save->flags & SAVE_FLAG_HDD)
 	{
-		show_message("Copy operation cancelled!\nSame source and destination.");
+		show_message("%s\n%s", _("Copy operation cancelled!"), _("Same source and destination."));
 		return;
 	}
 
@@ -389,9 +389,9 @@ static void copySaveHDD(const save_entry_t* save)
 	stop_loading_screen();
 
 	if (ret)
-		show_message("Files successfully copied to:\n%s/%s", save->title_id, save->dir_name);
+		show_message("%s\n%s/%s", _("Files successfully copied to:"), save->title_id, save->dir_name);
 	else
-		show_message("Error! Can't copy Save-game folder:\n%s/%s", save->title_id, save->dir_name);
+		show_message("%s\n%s/%s", _("Error! Can't copy Save-game folder:"), save->title_id, save->dir_name);
 }
 
 static void copyAllSavesHDD(const save_entry_t* save, int all)
@@ -420,7 +420,7 @@ static void copyAllSavesHDD(const save_entry_t* save, int all)
 
 	end_progress_bar();
 
-	show_message("%d/%d Saves copied to HDD", done, done+err_count);
+	show_message("%d/%d %s", done, done+err_count, _("Saves copied to HDD"));
 }
 
 void extractArchive(const char* file_path)
@@ -456,9 +456,9 @@ void extractArchive(const char* file_path)
 	}
 
 	if (ret)
-		show_message("All files extracted to:\n%s", exp_path);
+		show_message("%s\n%s", _("All files extracted to:"), exp_path);
 	else
-		show_message("Error: %s couldn't be extracted", file_path);
+		show_message(_("Error: %s couldn't be extracted"), file_path);
 }
 
 static void exportFingerprint(const save_entry_t* save, int silent)
@@ -471,7 +471,7 @@ static void exportFingerprint(const save_entry_t* save, int silent)
 
 	if (read_file(fpath, buffer, sizeof(buffer)) != SUCCESS)
 	{
-		if (!silent) show_message("Error! Keystone file is not available:\n%s", fpath);
+		if (!silent) show_message("%s\n%s", _("Error! Keystone file is not available:"), fpath);
 		return;
 	}
 
@@ -480,7 +480,7 @@ static void exportFingerprint(const save_entry_t* save, int silent)
 
 	if (!silent)
 	{
-		show_message("%s keystone fingerprint:\n%s", save->title_id, buffer);
+		show_message("%s %s\n%s", save->title_id, _("keystone fingerprint:"), buffer);
 		return;
 	}
 
@@ -529,9 +529,9 @@ static void toggleTrophy(const save_entry_t* entry)
 	stop_loading_screen();
 
 	if(ret)
-		show_message("Trophies successfully updated!");
+		show_message(_("Trophies successfully updated!"));
 	else
-		show_message("Error! Couldn't update trophies");
+		show_message(_("Error! Couldn't update trophies"));
 }
 
 static void exportTrophiesZip(const char* exp_path)
@@ -542,7 +542,7 @@ static void exportTrophiesZip(const char* exp_path)
 
 	if (mkdirs(exp_path) != SUCCESS)
 	{
-		show_message("Error! Export folder is not available:\n%s", exp_path);
+		show_message("%s\n%s", _("Error! Export folder is not available:"), exp_path);
 		return;
 	}
 
@@ -564,7 +564,7 @@ static void exportTrophiesZip(const char* exp_path)
 	free(tmp);
 
 	stop_loading_screen();
-	show_message("Trophies successfully saved to:\n%strophies_%08d.zip", exp_path, apollo_config.user_id);
+	show_message("%s\n%strophies_%08d.zip", _("Trophies successfully saved to:"), exp_path, apollo_config.user_id);
 }
 
 static void dumpAllFingerprints(const save_entry_t* save)
@@ -600,7 +600,7 @@ static void dumpAllFingerprints(const save_entry_t* save)
 	}
 
 	end_progress_bar();
-	show_message("All fingerprints dumped to:\n%sfingerprints.txt", APOLLO_PATH);
+	show_message("%s\n%sfingerprints.txt", _("All fingerprints dumped to:"), APOLLO_PATH);
 }
 
 static void activateAccount(int user)
@@ -609,23 +609,23 @@ static void activateAccount(int user)
 	char value[SFO_ACCOUNT_ID_SIZE*2+1];
 
 	snprintf(value, sizeof(value), "%016lx", 0x6F6C6C6F70610000 + (~apollo_config.user_id & 0xFFFF));
-	if (!osk_dialog_get_text("Enter the Account ID", value, sizeof(value)))
+	if (!osk_dialog_get_text(_("Enter the Account ID"), value, sizeof(value)))
 		return;
 
 	if (!sscanf(value, "%lx", &account))
 	{
-		show_message("Error! Account ID is not valid");
+		show_message(_("Error! Account ID is not valid"));
 		return;
 	};
 
 	LOG("Activating user=%d (%lx)...", user, account);
 	if (regMgr_SetAccountId(user, &account) != SUCCESS)
 	{
-		show_message("Error! Couldn't activate user account");
+		show_message(_("Error! Couldn't activate user account"));
 		return;
 	}
 
-	show_message("Account successfully activated!\nA system reboot might be required");
+	show_message("%s\n%s", _("Account successfully activated!"), _("A system reboot is required"));
 }
 
 static void copySavePFS(const save_entry_t* save)
@@ -634,33 +634,33 @@ static void copySavePFS(const save_entry_t* save)
 
 	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
 	if (file_exists(hdd_path) == SUCCESS && !show_dialog(DIALOG_TYPE_YESNO, 
-		"Save game already exists:\n%s/%s\n\nOverwrite?", save->title_id, save->dir_name))
+		"%s\n%s/%s\n\n%s", _("Save game already exists:"), save->title_id, save->dir_name, _("Overwrite?")))
 		return;
 
 	switch (_copy_save_pfs(save))
 	{
 	case SUCCESS:
-		show_message("Encrypted save copied successfully!\n%s/%s", save->title_id, save->dir_name);
+		show_message("%s\n%s/%s", _("Encrypted save copied successfully!"), save->title_id, save->dir_name);
 		return;
 	
 	case -1:
-		show_message("Error: can't create HDD save");
+		show_message(_("Error: can't create HDD save"));
 		return;
 
 	case -2:
-		show_message("Error: can't copy file\n%s%s", save->path, save->dir_name);
+		show_message("%s\n%s%s", _("Error: can't copy file"), save->path, save->dir_name);
 		return;
 
 	case -3:
-		show_message("Error: can't copy file\n%s%s.bin", save->path, save->dir_name);
+		show_message("%s\n%s%s.bin", _("Error: can't copy file"), save->path, save->dir_name);
 		return;
 
 	case -4:
-		show_message("Error! Can't mount encrypted save.\n(incompatible save-game firmware version)");
+		show_message("%s\n%s", _("Error! Can't mount encrypted save."), _("(incompatible save-game firmware version)"));
 		return;
 
 	default:
-		show_message("Error: can't copy save %s", save->title_id);
+		show_message(_("Error: can't copy save %s"), save->title_id);
 		return;
 	}
 }
@@ -681,9 +681,9 @@ static void copyKeystone(const save_entry_t* entry, int import)
 	LOG("Copy '%s' <-> '%s'...", path_save, path_data);
 
 	if (copy_file(import ? path_data : path_save, import ? path_save : path_data) == SUCCESS)
-		show_message("Keystone successfully copied to:\n%s", import ? path_save : path_data);
+		show_message("%s\n%s", _("Keystone successfully copied to:"), import ? path_save : path_data);
 	else
-		show_message("Error! Keystone couldn't be copied");
+		show_message(_("Error! Keystone couldn't be copied"));
 }
 
 static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
@@ -870,10 +870,10 @@ static void enableWebServer(dWebReqHandler_t handler, void* data, int port)
 
 	if (dbg_webserver_start(port, handler, data))
 	{
-		show_message("Web Server listening on http://%s:%d\nPress OK to stop the Server.", info.ip_address, port);
+		show_message("%s http://%s:%d\n%s", _("Web Server listening on:"), info.ip_address, port, _("Press OK to stop the Server."));
 		dbg_webserver_stop();
 	}
-	else show_message("Error starting Web Server!");
+	else show_message(_("Error starting Web Server!"));
 }
 
 static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int all)
@@ -889,7 +889,7 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int 
 
 	if (!list || mkdirs(dst_path) != SUCCESS)
 	{
-		show_message("Error! Folder is not available:\n%s", dst_path);
+		show_message("%s\n%s", _("Error! Export folder is not available:"), dst_path);
 		return;
 	}
 
@@ -914,7 +914,7 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int 
 	}
 
 	end_progress_bar();
-	show_message("%d/%d Saves copied to:\n%s", done, done+err_count, dst_path);
+	show_message("%d/%d %s\n%s", done, done+err_count, _("Saves copied to:"), dst_path);
 }
 
 static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
@@ -946,7 +946,7 @@ static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
 
 	end_progress_bar();
 
-	show_message("%d/%d Saves exported to\n%s", done, done+err_count, outPath);
+	show_message("%d/%d %s\n%s", done, done+err_count, _("Saves exported to:"), outPath);
 }
 
 static void exportVmcSave(const save_entry_t* save, int type, int dst_id)
@@ -966,9 +966,9 @@ static void exportVmcSave(const save_entry_t* save, int type, int dst_id)
 	}
 
 	if (saveSingleSave(outPath, save->blocks, type))
-		show_message("Save successfully exported to:\n%s", outPath);
+		show_message("%s\n%s", _("Save successfully exported to:"), outPath);
 	else
-		show_message("Error exporting save:\n%s", save->path);
+		show_message("%s\n%s", _("Error exporting save:"), save->path);
 }
 
 static void export_ps1vmc(const char* vm1_file, int dst, int vmp)
@@ -979,16 +979,16 @@ static void export_ps1vmc(const char* vm1_file, int dst, int vmp)
 	_set_dest_path(dst_path, dst, VMC_PS1_PATH_USB);
 	if (mkdirs(dst_path) != SUCCESS)
 	{
-		show_message("Error! Export folder is not available:\n%s", dst_path);
+		show_message("%s\n%s", _("Error! Export folder is not available:"), dst_path);
 		return;
 	}
 
 	snprintf(dstfile, sizeof(dstfile), "%s%s.%s", dst_path, vm1_file, vmp ? "VMP" : "VM1");
 
 	if (saveMemoryCard(dstfile, vmp ? PS1CARD_VMP : PS1CARD_RAW, 0))
-		show_message("Memory card successfully exported to:\n%s", dstfile);
+		show_message("%s\n%s", _("Memory card successfully exported to:"), dstfile);
 	else
-		show_message("Error! Failed to export PS1 memory card");
+		show_message(_("Error! Failed to export PS1 memory card"));
 }
 
 static void export_vmc2save(const save_entry_t* save, int type, int dst_id)
@@ -1022,9 +1022,9 @@ static void export_vmc2save(const save_entry_t* save, int type, int dst_id)
 	}
 
 	if (ret)
-		show_message("Save successfully exported to:\n%s", outPath);
+		show_message("%s\n%s", _("Save successfully exported to:"), outPath);
 	else
-		show_message("Error exporting save:\n%s", save->path);
+		show_message("%s\n%s", _("Error exporting save:"), save->path);
 }
 
 static void import_save2vmc(const char* src, int type)
@@ -1063,9 +1063,9 @@ static void import_save2vmc(const char* src, int type)
 	stop_loading_screen();
 
 	if (ret)
-		show_message("Successfully imported to VMC:\n%s", src);
+		show_message("%s\n%s", _("Successfully imported to VMC:"), src);
 	else
-		show_message("Error importing save:\n%s", src);
+		show_message("%s\n%s", _("Error importing save:"), src);
 }
 
 static int deleteSave(const save_entry_t* save)
@@ -1073,7 +1073,7 @@ static int deleteSave(const save_entry_t* save)
 	int ret = 0;
 	char fpath[256];
 
-	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to delete %s?", save->dir_name))
+	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to delete %s?"), save->dir_name))
 		return 0;
 
 	if (save->flags & SAVE_FLAG_PS1)
@@ -1103,9 +1103,9 @@ static int deleteSave(const save_entry_t* save)
 	}
 
 	if (ret)
-		show_message("Save successfully deleted:\n%s", save->dir_name);
+		show_message("%s\n%s", _("Save successfully deleted:"), save->dir_name);
 	else
-		show_message("Error! Couldn't delete save:\n%s", save->dir_name);
+		show_message("%s\n%s", _("Error! Couldn't delete save:"), save->dir_name);
 
 	return ret;
 }
@@ -1219,7 +1219,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 	int ret = 0;
 	struct tm t = get_local_time();
 
-	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to upload %s?", save->dir_name))
+	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload %s?"), save->dir_name))
 		return;
 
 	init_loading_screen("Sync with FTP Server...");
@@ -1261,7 +1261,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 	stop_loading_screen();
 	if (!ret)
 	{
-		show_message("Error! Couldn't zip save:\n%s", save->dir_name);
+		show_message("%s\n%s", _("Error! Couldn't zip save:"), save->dir_name);
 		return;
 	}
 
@@ -1318,9 +1318,9 @@ static void uploadSaveFTP(const save_entry_t* save)
 	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
 
 	if (ret)
-		show_message("Save successfully uploaded:\n%s", save->dir_name);
+		show_message("%s\n%s", _("Save successfully uploaded:"), save->dir_name);
 	else
-		show_message("Error! Couldn't upload save:\n%s", save->dir_name);
+		show_message("%s\n%s", _("Error! Couldn't upload save:"), save->dir_name);
 }
 
 static void exportVM2raw(const char* vm2_file, int dst, int ecc)
@@ -1332,7 +1332,7 @@ static void exportVM2raw(const char* vm2_file, int dst, int ecc)
 	_set_dest_path(dst_path, dst, VMC_PS2_PATH_USB);
 	if (mkdirs(dst_path) != SUCCESS)
 	{
-		show_message("Error! Export folder is not available:\n%s", dst_path);
+		show_message("%s\n%s", _("Error! Export folder is not available:"), dst_path);
 		return;
 	}
 
@@ -1343,9 +1343,9 @@ static void exportVM2raw(const char* vm2_file, int dst, int ecc)
 	stop_loading_screen();
 
 	if (ret == sceMcResSucceed)
-		show_message("File successfully saved to:\n%s", dstfile);
+		show_message("%s\n%s", _("File successfully saved to:"), dstfile);
 	else
-		show_message("Error! Failed to export PS2 memory card");
+		show_message(_("Error! Failed to export PS2 memory card"));
 }
 
 static void rebuildAppDB(const char* path)
@@ -1357,7 +1357,7 @@ static void rebuildAppDB(const char* path)
 	memset(&userIdList, 0, sizeof(userIdList));
 	if (sceUserServiceGetRegisteredUserIdList(&userIdList) < 0)
 	{
-		show_message("Error getting PS4 user list!");
+		show_message(_("Error getting PS4 user list!"));
 		return;
 	}
 
@@ -1366,12 +1366,12 @@ static void rebuildAppDB(const char* path)
 		{
 			memset(name, 0, sizeof(name));
 			sceUserServiceGetUserName(userIdList.userId[i], name, sizeof(name));
-			show_message("Database rebuild for user %s failed!", name);
+			show_message(_("Database rebuild for user %s failed!"), name);
 			error++;
 		}
 
 	if(!error)
-		show_message("Database rebuilt successfully!\nLog out for changes to take effect");
+		show_message("%s\n%s", _("Database rebuilt successfully!"), _("Log out for changes to take effect"));
 }
 
 static void* orbis_host_callback(int id, int* size)
@@ -1547,13 +1547,13 @@ static void resignSave(save_entry_t* entry)
     LOG("Resigning save '%s'...", entry->name);
 
     if (!apply_sfo_patches(entry, &patch))
-        show_message("Error! Account changes couldn't be applied");
+        show_message(_("Error! Account changes couldn't be applied"));
 
     LOG("Applying cheats to '%s'...", entry->name);
     if (!apply_cheat_patches(entry))
-        show_message("Error! Cheat codes couldn't be applied");
+        show_message(_("Error! Cheat codes couldn't be applied"));
 
-    show_message("Save %s successfully modified!", entry->title_id);
+    show_message(_("Save %s successfully modified!"), entry->title_id);
 }
 
 static void resignAllSaves(const save_entry_t* save, int all)
@@ -1590,9 +1590,9 @@ static void resignAllSaves(const save_entry_t* save, int all)
 	end_progress_bar();
 
 	if (err_count)
-		show_message("Error: %d Saves couldn't be resigned", err_count);
+		show_message(_("Error: %d Saves couldn't be resigned"), err_count);
 	else
-		show_message("All saves successfully resigned!");
+		show_message(_("All saves successfully resigned!"));
 }
 
 static void exportZipDB(const char* path)
@@ -1603,7 +1603,7 @@ static void exportZipDB(const char* path)
 
 	if (mkdirs(EXPORT_DB_PATH) != SUCCESS)
 	{
-		show_message("Error! Export folder is not available:\n%s", EXPORT_DB_PATH);
+		show_message("%s\n%s", _("Error! Export folder is not available:"), EXPORT_DB_PATH);
 		return;
 	}
 
@@ -1618,7 +1618,7 @@ static void exportZipDB(const char* path)
 	stop_loading_screen();
 	free(tmp);
 
-	show_message("Zip file successfully saved to:\n%s", zipfile);
+	show_message("%s\n%s", _("Zip file successfully saved to:"), zipfile);
 }
 
 static void importZipDB(const char* dst_path, const char* zipfile)
@@ -1629,9 +1629,9 @@ static void importZipDB(const char* dst_path, const char* zipfile)
 	LOG("Importing Backup %s ...", path);
 
 	if (extract_zip(path, dst_path))
-        show_message("DB Backup %s successfully restored!", zipfile);
+        show_message(_("DB Backup %s successfully restored!"), zipfile);
     else
-        show_message("Error! Backup %s couldn't be restored", zipfile);
+        show_message(_("Error! Backup %s couldn't be restored"), zipfile);
 }
 
 static int _copy_save_file(const char* src_path, const char* dst_path, const char* filename)
@@ -1654,9 +1654,9 @@ static void decryptSaveFile(const save_entry_t* entry, const char* filename)
 	LOG("Decrypt '%s%s' to '%s'...", entry->path, filename, path);
 
 	if (_copy_save_file(entry->path, path, filename))
-		show_message("File successfully exported to:\n%s%s", path, filename);
+		show_message("%s\n%s%s", _("File successfully exported to:"), path, filename);
 	else
-		show_message("Error! File %s couldn't be exported", filename);
+		show_message(_("Error! File %s couldn't be exported"), filename);
 }
 
 static void encryptSaveFile(const save_entry_t* entry, const char* filename)
@@ -1666,7 +1666,7 @@ static void encryptSaveFile(const save_entry_t* entry, const char* filename)
 	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s_%s/%s", apollo_config.user_id, entry->title_id, entry->dir_name, filename);
 	if (file_exists(path) != SUCCESS)
 	{
-		show_message("Error! Can't find decrypted save-game file:\n%s", path);
+		show_message("%s\n%s", _("Error! Can't find decrypted save-game file:"), path);
 		return;
 	}
 
@@ -1674,9 +1674,9 @@ static void encryptSaveFile(const save_entry_t* entry, const char* filename)
 	LOG("Encrypt '%s%s' to '%s'...", path, filename, entry->path);
 
 	if (_copy_save_file(path, entry->path, filename))
-		show_message("File successfully imported to:\n%s%s", entry->path, filename);
+		show_message("%s\n%s%s", _("File successfully imported to:"), entry->path, filename);
 	else
-		show_message("Error! File %s couldn't be imported", filename);
+		show_message(_("Error! File %s couldn't be imported"), filename);
 }
 
 static void downloadLink(const char* path)
@@ -1684,16 +1684,16 @@ static void downloadLink(const char* path)
 	char url[256] = "http://";
 	char out_path[256];
 
-	if (!osk_dialog_get_text("Download URL", url, sizeof(url)))
+	if (!osk_dialog_get_text(_("Download URL"), url, sizeof(url)))
 		return;
 
 	char *fname = strrchr(url, '/');
 	snprintf(out_path, sizeof(out_path), "%s%s", path, fname ? ++fname : "download.bin");
 
 	if (http_download(url, NULL, out_path, 1))
-		show_message("File successfully downloaded to:\n%s", out_path);
+		show_message("%s\n%s", _("File successfully downloaded to:"), out_path);
 	else
-		show_message("Error! File couldn't be downloaded");
+		show_message(_("Error! File couldn't be downloaded"));
 }
 
 static void toggleBrowserHistory(int usr)
@@ -1703,18 +1703,18 @@ static void toggleBrowserHistory(int usr)
 	snprintf(path, sizeof(path), "/user/home/%08x/webbrowser/endhistory.txt", usr);
 	if (dir_exists(path) == SUCCESS)
 	{
-		if (show_dialog(DIALOG_TYPE_YESNO, "Enable Browser history?") && rmdir(path) == SUCCESS)
-			show_message("Browser history enabled\n%s", path);
+		if (show_dialog(DIALOG_TYPE_YESNO, _("Enable Browser history?")) && rmdir(path) == SUCCESS)
+			show_message("%s\n%s", _("Browser history enabled"), path);
 
 		return;
 	}
 
-	if (show_dialog(DIALOG_TYPE_YESNO, "Disable Browser history?"))
+	if (show_dialog(DIALOG_TYPE_YESNO, _("Disable Browser history?")))
 	{
 		unlink_secure(path);
 		strcat(path, "/");
 		if (mkdirs(path) == SUCCESS)
-			show_message("Browser history disabled\n%s", path);
+			show_message("%s\n%s", _("Browser history disabled"), path);
 	}
 }
 
@@ -1904,9 +1904,9 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_DB_DLC_REBUILD:
 			if (addcont_dlc_rebuild(code->file))
-				show_message("DLC database fixed successfully!\nLog out for changes to take effect");
+				show_message("%s\n%s", _("DLC database fixed successfully!"), _("Log out for changes to take effect"));
 			else
-				show_message("DLC Database rebuild failed!");
+				show_message(_("DLC Database rebuild failed!"));
 
 			code->activated = 0;
 			break;
@@ -1948,9 +1948,9 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_IMP_VMC1SAVE:
 			if (openSingleSave(code->file, (int*) host_buf))
-				show_message("Save successfully imported:\n%s", code->file);
+				show_message("%s\n%s", _("Save successfully imported:"), code->file);
 			else
-				show_message("Error! Couldn't import save:\n%s", code->file);
+				show_message("%s\n%s", _("Error! Couldn't import save:"), code->file);
 
 			selected_entry->flags |= SAVE_FLAG_UPDATED;
 			code->activated = 0;

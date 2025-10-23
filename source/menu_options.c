@@ -22,20 +22,23 @@ static void _draw_OptionsMenu(u8 alpha)
         SetFontColor(APP_FONT_COLOR | alpha, 0);
         DrawString(MENU_ICON_OFF + MENU_TITLE_OFF + 50, y_off, menu_options[ind].name);
 
-		switch (menu_options[ind].type & 0xFFFF)
+		switch (menu_options[ind].type)
 		{
 			case APP_OPTION_BOOL:
 				c = (*menu_options[ind].value == 1) ? opt_on_png_index : opt_off_png_index;
 				DrawTexture(&menu_textures[c], OPTION_ITEM_OFF - 29, y_off, 0, menu_textures[c].width, menu_textures[c].height, 0xFFFFFF00 | alpha);
 				break;
+
 			case APP_OPTION_CALL:
 				DrawTexture(&menu_textures[orbisPadGetConf()->crossButtonOK ? footer_ico_cross_png_index : footer_ico_circle_png_index], OPTION_ITEM_OFF - 29, y_off+2, 0, menu_textures[footer_ico_cross_png_index].width, menu_textures[footer_ico_cross_png_index].height, 0xFFFFFF00 | alpha);
 				break;
+
 			case APP_OPTION_LIST:
 				SetFontAlign(FONT_ALIGN_CENTER);
 				DrawFormatString(OPTION_ITEM_OFF - 18, y_off, "< %s >", menu_options[ind].options[*menu_options[ind].value]);
 				SetFontAlign(FONT_ALIGN_LEFT);
 				break;
+
 			case APP_OPTION_INC:
 				SetFontAlign(FONT_ALIGN_CENTER);
 				DrawFormatString(OPTION_ITEM_OFF - 18, y_off, "- %d +", *menu_options[ind].value);

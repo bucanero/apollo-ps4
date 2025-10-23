@@ -304,7 +304,7 @@ static void SetMenu(int id)
 
 		case MENU_PATCHES: //Cheat Selection Menu
 			//if entering from game list, don't keep index, otherwise keep
-			if (menu_id == MENU_USB_SAVES || menu_id == MENU_HDD_SAVES || menu_id == MENU_ONLINE_DB ||
+			if (menu_id == MENU_USB_SAVES || menu_id == MENU_HDD_SAVES || menu_id == MENU_ONLINE_DB || menu_id == MENU_USER_BACKUP ||
 				menu_id == MENU_TROPHIES || menu_id == MENU_PS1VMC_SAVES || menu_id == MENU_PS2VMC_SAVES)
 				menu_old_sel[MENU_PATCHES] = 0;
 
@@ -346,6 +346,7 @@ static void SetMenu(int id)
 			break;
 
 		case MENU_SAVE_DETAILS: //Save Detail View Menu
+			menu_old_sel[MENU_SAVE_DETAILS] = 0;
 			if (apollo_config.doAni)
 				Draw_CheatsMenu_View_Ani(selected_entry->name);
 			break;

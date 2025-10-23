@@ -44,6 +44,9 @@ static void _draw_OptionsMenu(u8 alpha)
 				DrawFormatString(OPTION_ITEM_OFF - 18, y_off, "- %d +", *menu_options[ind].value);
 				SetFontAlign(FONT_ALIGN_LEFT);
 				break;
+
+			default:
+				break;
 		}
         
         if (menu_sel == ind)

@@ -16,7 +16,7 @@ static void _draw_OptionsMenu(u8 alpha)
     SetFontSize(APP_FONT_SIZE_SELECTION);
     for (int ind = 0, y_off = 200; menu_options[ind].name; ind++, y_off += APP_LINE_OFFSET)
     {
-        if (menu_options[ind].type & OPTION_SPACER)
+        if (menu_options[ind].spacer)
             y_off += APP_LINE_OFFSET;
 
         SetFontColor(APP_FONT_COLOR | alpha, 0);

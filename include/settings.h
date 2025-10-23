@@ -14,16 +14,16 @@ enum app_option_type
     APP_OPTION_LIST,
     APP_OPTION_INC,
     APP_OPTION_CALL,
-    OPTION_SPACER = 0x10000
 };
 
 typedef struct
 {
-	const char * name;
-	const char * * options;
-	int type;
-	uint8_t * value;
-	void(*callback)(int);
+    const char * name;
+    const char * * options;
+    enum app_option_type type;
+    char spacer;
+    uint8_t * value;
+    void(*callback)(int);
 } menu_option_t;
 
 typedef struct

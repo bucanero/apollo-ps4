@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Apollo Save Tool\n"
+"Project-Id-Version: Apollo Save Tool (PS4)\n"
 "POT-Creation-Date: 2025-10-22 16:23-0300\n"
 "PO-Revision-Date: 2025-10-22 17:39-0300\n"
 "Last-Translator: bucanero\n"

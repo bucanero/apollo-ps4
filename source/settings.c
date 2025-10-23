@@ -63,7 +63,8 @@ menu_option_t menu_options[] = {
 	},
 	{ .name = _i18n("Set User FTP Server URL"),
 		.options = NULL,
-		.type = APP_OPTION_CALL | OPTION_SPACER,
+		.type = APP_OPTION_CALL,
+		.spacer = 1,
 		.value = NULL,
 		.callback = ftp_url_callback
 	},
@@ -87,7 +88,8 @@ menu_option_t menu_options[] = {
 	},
 	{ .name = _i18n("Clear Local Cache"),
 		.options = NULL, 
-		.type = APP_OPTION_CALL | OPTION_SPACER, 
+		.type = APP_OPTION_CALL,
+		.spacer = 1,
 		.value = NULL, 
 		.callback = clearcache_callback 
 	},

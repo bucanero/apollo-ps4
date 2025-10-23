@@ -105,7 +105,7 @@ static void zipSave(const save_entry_t* entry, const char* exp_path)
 		return;
 	}
 
-	init_loading_screen("Exporting save game...");
+	init_loading_screen(_("Exporting save game..."));
 
 	snprintf(zip_file, sizeof(zip_file), "%s%s-%s_%d-%02d-%02d_%02d%02d%02d.zip", exp_path, entry->title_id, entry->dir_name, t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
 
@@ -157,7 +157,7 @@ static void copySave(const save_entry_t* save, const char* exp_path)
 		return;
 	}
 
-	init_loading_screen("Copying files...");
+	init_loading_screen(_("Copying files..."));
 
 	snprintf(copy_path, sizeof(copy_path), "%s%08x_%s_%s/", exp_path, apollo_config.user_id, save->title_id, save->dir_name);
 	LOG("Copying <%s> to %s...", save->path, copy_path);
@@ -384,7 +384,7 @@ static void copySaveHDD(const save_entry_t* save)
 		return;
 	}
 
-	init_loading_screen("Copying save game...");
+	init_loading_screen(_("Copying save game..."));
 	int ret = _copy_save_hdd(save);
 	stop_loading_screen();
 
@@ -500,7 +500,7 @@ static void toggleTrophy(const save_entry_t* entry)
 	code_entry_t* code;
 	list_node_t* node;
 
-	init_loading_screen("Applying changes...");
+	init_loading_screen(_("Applying changes..."));
 
 	for (node = list_head(entry->codes); (code = list_get(node)); node = list_next(node))
 	{
@@ -546,7 +546,7 @@ static void exportTrophiesZip(const char* exp_path)
 		return;
 	}
 
-	init_loading_screen("Exporting Trophies ...");
+	init_loading_screen(_("Exporting Trophies..."));
 
 	asprintf(&export_file, "%s" "trophies_%08x.zip", exp_path, apollo_config.user_id);
 	asprintf(&trp_path, TROPHY_PATH_HDD, apollo_config.user_id);
@@ -1031,7 +1031,7 @@ static void import_save2vmc(const char* src, int type)
 {
 	int ret = 0;
 
-	init_loading_screen("Importing PS2 save...");
+	init_loading_screen(_("Importing PS2 save..."));
 	switch (type)
 	{
 	case FILE_TYPE_PSV:
@@ -1222,7 +1222,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload %s?"), save->dir_name))
 		return;
 
-	init_loading_screen("Sync with FTP Server...");
+	init_loading_screen(_("Sync with FTP Server..."));
 
 	snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, save->type);
 	http_download(remote, "games.txt", APOLLO_LOCAL_CACHE "games.ftp", 0);
@@ -1296,7 +1296,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 
 	if (strstr(tmp, save->title_id) == NULL)
 	{
-		init_loading_screen("Updating games index...");
+		init_loading_screen(_("Updating games index..."));
 		free(tmp);
 		tmp = (save->type == FILE_TYPE_PS4) ? get_title_name_icon(save) : get_title_icon_psx(save);
 		stop_loading_screen();
@@ -1338,7 +1338,7 @@ static void exportVM2raw(const char* vm2_file, int dst, int ecc)
 
 	snprintf(dstfile, sizeof(dstfile), "%s%s.%s", dst_path, vm2_file, ecc ? "VM2" : "VMC");
 
-	init_loading_screen("Exporting PS2 memory card...");
+	init_loading_screen(_("Exporting PS2 memory card..."));
 	ret = mcio_vmcExportImage(dstfile, ecc);
 	stop_loading_screen();
 
@@ -1494,7 +1494,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 	code_entry_t* code;
 	list_node_t* node;
 
-	init_loading_screen("Applying changes...");
+	init_loading_screen(_("Applying changes..."));
 
 	for (node = list_head(entry->codes); (code = list_get(node)); node = list_next(node))
 	{
@@ -1613,7 +1613,7 @@ static void exportZipDB(const char* path)
 	tmp = strdup(path);
 	*strrchr(tmp, '/') = 0;
 
-	init_loading_screen("Exporting system database...");
+	init_loading_screen(_("Exporting system database..."));
 	zip_directory(tmp, path, zipfile);
 	stop_loading_screen();
 	free(tmp);

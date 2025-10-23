@@ -156,7 +156,7 @@ static void ftp_url_callback(int sel)
 		strcat(apollo_config.ftp_url, "/");
 
 	// test the connection
-	init_loading_screen("Testing connection...");
+	init_loading_screen(_("Testing connection..."));
 	ret = http_download(apollo_config.ftp_url, "apollo.txt", APOLLO_LOCAL_CACHE "users.ftp", 0);
 	data = ret ? readTextFile(APOLLO_LOCAL_CACHE "users.ftp") : NULL;
 	if (!data)

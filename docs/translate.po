@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Apollo Save Tool\n"
-"POT-Creation-Date: 2025-10-22 17:39-0300\n"
-"PO-Revision-Date: 2025-10-22 17:40-0300\n"
+"POT-Creation-Date: 2025-10-23 19:16-0300\n"
+"PO-Revision-Date: 2025-10-23 19:16-0300\n"
 "Last-Translator: \n"
 "Language-Team: github.com/bucanero\n"
 "Language: en\n"
@@ -31,6 +31,10 @@ msgstr ""
 msgid "Error extracting save game!"
 msgstr ""
 
+#: exec_cmd.c:108
+msgid "Exporting save game..."
+msgstr ""
+
 #: exec_cmd.c:136
 msgid "Error! Can't export save game to:"
 msgstr ""
@@ -45,6 +49,10 @@ msgstr ""
 
 #: exec_cmd.c:150 exec_cmd.c:383
 msgid "Same source and destination."
+msgstr ""
+
+#: exec_cmd.c:160
+msgid "Copying files..."
 msgstr ""
 
 #: exec_cmd.c:169 exec_cmd.c:392
@@ -73,6 +81,10 @@ msgstr ""
 
 #: exec_cmd.c:281
 msgid "Error! Can't update save game:"
+msgstr ""
+
+#: exec_cmd.c:387
+msgid "Copying save game..."
 msgstr ""
 
 #: exec_cmd.c:394
@@ -104,12 +116,20 @@ msgstr ""
 msgid "keystone fingerprint:"
 msgstr ""
 
+#: exec_cmd.c:503 exec_cmd.c:1497
+msgid "Applying changes..."
+msgstr ""
+
 #: exec_cmd.c:532
 msgid "Trophies successfully updated!"
 msgstr ""
 
 #: exec_cmd.c:534
 msgid "Error! Couldn't update trophies"
+msgstr ""
+
+#: exec_cmd.c:549
+msgid "Exporting Trophies ..."
 msgstr ""
 
 #: exec_cmd.c:567
@@ -217,6 +237,10 @@ msgstr ""
 msgid "Error! Failed to export PS1 memory card"
 msgstr ""
 
+#: exec_cmd.c:1034
+msgid "Importing PS2 save..."
+msgstr ""
+
 #: exec_cmd.c:1066
 msgid "Successfully imported to VMC:"
 msgstr ""
@@ -243,8 +267,16 @@ msgstr ""
 msgid "Do you want to upload %s?"
 msgstr ""
 
+#: exec_cmd.c:1225
+msgid "Sync with FTP Server..."
+msgstr ""
+
 #: exec_cmd.c:1264
 msgid "Error! Couldn't zip save:"
+msgstr ""
+
+#: exec_cmd.c:1299
+msgid "Updating games index..."
 msgstr ""
 
 #: exec_cmd.c:1321
@@ -253,6 +285,10 @@ msgstr ""
 
 #: exec_cmd.c:1323
 msgid "Error! Couldn't upload save:"
+msgstr ""
+
+#: exec_cmd.c:1341
+msgid "Exporting PS2 memory card..."
 msgstr ""
 
 #: exec_cmd.c:1346
@@ -304,6 +340,10 @@ msgstr ""
 
 #: exec_cmd.c:1595
 msgid "All saves successfully resigned!"
+msgstr ""
+
+#: exec_cmd.c:1616
+msgid "Exporting system database..."
 msgstr ""
 
 #: exec_cmd.c:1632
@@ -422,39 +462,39 @@ msgstr ""
 msgid "Exit"
 msgstr ""
 
-#: main.c:479
+#: main.c:483
 msgid "HDD Saves"
 msgstr ""
 
-#: main.c:480
+#: main.c:484
 msgid "USB Saves"
 msgstr ""
 
-#: main.c:481 saves.c:688
+#: main.c:485 saves.c:688
 msgid "Trophies"
 msgstr ""
 
-#: main.c:482
+#: main.c:486
 msgid "User Tools"
 msgstr ""
 
-#: main.c:483
+#: main.c:487
 msgid "Online Database"
 msgstr ""
 
-#: main.c:484
+#: main.c:488
 msgid "PS1 Virtual Memory Card"
 msgstr ""
 
-#: main.c:485
+#: main.c:489
 msgid "PS2 Virtual Memory Card"
 msgstr ""
 
-#: main.c:712
+#: main.c:716
 msgid "Debug Logging Enabled"
 msgstr ""
 
-#: main.c:721
+#: main.c:725
 msgid "Successfully installed local application data"
 msgstr ""
 
@@ -502,32 +542,40 @@ msgstr ""
 msgid "Hex Editor"
 msgstr ""
 
+#: menu_main.c:67
+msgid "Loading save games..."
+msgstr ""
+
 #: menu_main.c:90
 msgid "No save-games found"
 msgstr ""
 
-#: menu_main.c:345 menu_main.c:723
+#: menu_main.c:142
+msgid "Saving PS2 Memory Card..."
+msgstr ""
+
+#: menu_main.c:345 menu_main.c:724
 msgid "Patch view"
 msgstr ""
 
-#: menu_main.c:472
+#: menu_main.c:473
 msgid "No data found in folder:"
 msgstr ""
 
-#: menu_main.c:524
+#: menu_main.c:525
 msgid "Exit to XMB?"
 msgstr ""
 
-#: menu_main.c:664
+#: menu_main.c:665
 #, c-format
 msgid "Save changes to %s?"
 msgstr ""
 
-#: menu_main.c:760
+#: menu_main.c:761
 msgid "Failed to load:"
 msgstr ""
 
-#: menu_options.c:60 menu_options.c:80
+#: menu_options.c:66 menu_options.c:86
 msgid "Settings"
 msgstr ""
 
@@ -979,89 +1027,93 @@ msgstr ""
 msgid "Set User FTP Server URL"
 msgstr ""
 
-#: settings.c:70
+#: settings.c:71
 msgid "Online Saves Server"
 msgstr ""
 
-#: settings.c:76
+#: settings.c:77
 msgid "Update Application Data"
 msgstr ""
 
-#: settings.c:82
+#: settings.c:83
 msgid "Change Online Database URL"
 msgstr ""
 
-#: settings.c:88
+#: settings.c:89
 msgid "Clear Local Cache"
 msgstr ""
 
-#: settings.c:94
+#: settings.c:96
 msgid "Enable Debug Log"
 msgstr ""
 
-#: settings.c:132
+#: settings.c:134
 msgid "Enter the Online Database URL"
 msgstr ""
 
-#: settings.c:138
+#: settings.c:140
 msgid "Online database URL changed to:"
 msgstr ""
 
-#: settings.c:148
+#: settings.c:150
 msgid "Enter the FTP server URL"
 msgstr ""
 
-#: settings.c:182
+#: settings.c:159
+msgid "Testing connection..."
+msgstr ""
+
+#: settings.c:184
 msgid "FTP server URL changed to:"
 msgstr ""
 
-#: settings.c:185
+#: settings.c:187
 msgid "Error! Couldn't connect to FTP server"
 msgstr ""
 
-#: settings.c:185
+#: settings.c:187
 msgid "Check debug logs for more information"
 msgstr ""
 
-#: settings.c:193
+#: settings.c:195
 msgid "Local cache folder cleaned:"
 msgstr ""
 
-#: settings.c:201
+#: settings.c:203
 msgid "Error! Can't download data update file!"
 msgstr ""
 
-#: settings.c:204
+#: settings.c:206
 #, c-format
 msgid "Successfully updated %d save patch files!"
 msgstr ""
 
-#: settings.c:206
+#: settings.c:208
 msgid "Error! Can't extract data update file!"
 msgstr ""
 
-#: settings.c:273
+#: settings.c:275
 msgid "New version available! Download update?"
 msgstr ""
 
-#: settings.c:277
+#: settings.c:279
 #, c-format
 msgid "Update downloaded to %s"
 msgstr ""
 
-#: settings.c:279
+#: settings.c:281
 msgid "Download error!"
 msgstr ""
 
-#: settings.c:294
+#: settings.c:296
 msgid "Debug Logging Disabled"
 msgstr ""
 
-#: settings.c:299
+#: settings.c:301
 msgid "Debug Logging Enabled!"
 msgstr ""
 
-#: settings.c:352
+#: settings.c:354
 msgid "User Settings"
 msgstr ""
 

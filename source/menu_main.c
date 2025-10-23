@@ -64,7 +64,7 @@ void initMenuOptions(void)
 
 static int ReloadUserSaves(save_list_t* save_list)
 {
-	init_loading_screen("Loading save games...");
+	init_loading_screen(_("Loading save games..."));
 
 	if (save_list->list)
 	{
@@ -139,7 +139,7 @@ static void SetMenu(int id)
 		case MENU_PS2VMC_SAVES:
 			if (id == MENU_MAIN_SCREEN)
 			{
-				init_loading_screen("Saving PS2 Memory Card...");
+				init_loading_screen(_("Saving PS2 Memory Card..."));
 				UnloadGameList(vmc2_saves.list);
 				vmc2_saves.list = NULL;
 				mcio_vmcFinish();

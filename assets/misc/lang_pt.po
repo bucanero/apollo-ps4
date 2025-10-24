@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Apollo Save Tool (PS4)\n"
-"POT-Creation-Date: 2025-10-22 17:39-0300\n"
-"PO-Revision-Date: 2025-10-22 20:53-0300\n"
+"Project-Id-Version: Apollo Save Tool\n"
+"POT-Creation-Date: 2025-10-23 19:16-0300\n"
+"PO-Revision-Date: 2025-10-23 23:52-0300\n"
 "Last-Translator: Phoenixx1202\n"
 "Language-Team: github.com/Phoenixx1202\n"
 "Language: pt_BR\n"
@@ -31,6 +31,10 @@ msgstr "Jogo salvo baixado com sucesso em:"
 msgid "Error extracting save game!"
 msgstr "Erro ao extrair jogo salvo!"
 
+#: exec_cmd.c:108
+msgid "Exporting save game..."
+msgstr "Exportando jogo salvo..."
+
 #: exec_cmd.c:136
 msgid "Error! Can't export save game to:"
 msgstr "Erro! Não é possível exportar o jogo salvo para:"
@@ -46,6 +50,10 @@ msgstr "Operação de cópia cancelada!"
 #: exec_cmd.c:150 exec_cmd.c:383
 msgid "Same source and destination."
 msgstr "Mesma origem e destino."
+
+#: exec_cmd.c:160
+msgid "Copying files..."
+msgstr "Copiando arquivos..."
 
 #: exec_cmd.c:169 exec_cmd.c:392
 msgid "Files successfully copied to:"
@@ -74,6 +82,10 @@ msgstr "Erro ao criar pasta do jogo salvo!"
 #: exec_cmd.c:281
 msgid "Error! Can't update save game:"
 msgstr "Erro! Não é possível atualizar o jogo salvo:"
+
+#: exec_cmd.c:387
+msgid "Copying save game..."
+msgstr "Copiando jogo salvo..."
 
 #: exec_cmd.c:394
 msgid "Error! Can't copy Save-game folder:"
@@ -104,6 +116,10 @@ msgstr "Erro! Arquivo de Chave Mestra indisponível:"
 msgid "keystone fingerprint:"
 msgstr "impressão digital da Chave Mestra:"
 
+#: exec_cmd.c:503 exec_cmd.c:1497
+msgid "Applying changes..."
+msgstr "Aplicando alterações..."
+
 #: exec_cmd.c:532
 msgid "Trophies successfully updated!"
 msgstr "Troféus atualizados com sucesso!"
@@ -111,6 +127,10 @@ msgstr "Troféus atualizados com sucesso!"
 #: exec_cmd.c:534
 msgid "Error! Couldn't update trophies"
 msgstr "Erro! Não foi possível atualizar os troféus"
+
+#: exec_cmd.c:549
+msgid "Exporting Trophies ..."
+msgstr "Exportando troféus..."
 
 #: exec_cmd.c:567
 msgid "Trophies successfully saved to:"
@@ -217,6 +237,10 @@ msgstr "Memory card exportado com sucesso para:"
 msgid "Error! Failed to export PS1 memory card"
 msgstr "Erro! Falha ao exportar memory card do PS1"
 
+#: exec_cmd.c:1034
+msgid "Importing PS2 save..."
+msgstr "Importando dado salvo do PS2..."
+
 #: exec_cmd.c:1066
 msgid "Successfully imported to VMC:"
 msgstr "Importado com sucesso para VMC:"
@@ -243,9 +267,17 @@ msgstr "Erro! Não foi possível excluir o jogo salvo:"
 msgid "Do you want to upload %s?"
 msgstr "Você deseja fazer upload de %s?"
 
+#: exec_cmd.c:1225
+msgid "Sync with FTP Server..."
+msgstr "Sincronizando com servidor FTP..."
+
 #: exec_cmd.c:1264
 msgid "Error! Couldn't zip save:"
 msgstr "Erro! Não foi possível compactar o jogo salvo:"
+
+#: exec_cmd.c:1299
+msgid "Updating games index..."
+msgstr "Atualizando índice de jogos..."
 
 #: exec_cmd.c:1321
 msgid "Save successfully uploaded:"
@@ -254,6 +286,10 @@ msgstr "Jogo salvo enviado com sucesso:"
 #: exec_cmd.c:1323
 msgid "Error! Couldn't upload save:"
 msgstr "Erro! Não foi possível enviar o jogo salvo:"
+
+#: exec_cmd.c:1341
+msgid "Exporting PS2 memory card..."
+msgstr "Exportando Memory Card do PS2..."
 
 #: exec_cmd.c:1346
 msgid "File successfully saved to:"
@@ -305,6 +341,10 @@ msgstr "Erro: %d Jogos Salvos não puderam ser re-assinados"
 #: exec_cmd.c:1595
 msgid "All saves successfully resigned!"
 msgstr "Todos os jogos salvos re-assinados com sucesso!"
+
+#: exec_cmd.c:1616
+msgid "Exporting system database..."
+msgstr "Exportando banco de dados do sistema..."
 
 #: exec_cmd.c:1632
 #, c-format
@@ -422,39 +462,39 @@ msgstr "Diminuir Valor"
 msgid "Exit"
 msgstr "Sair"
 
-#: main.c:479
+#: main.c:483
 msgid "HDD Saves"
 msgstr "Jogos Salvos no HDD"
 
-#: main.c:480
+#: main.c:484
 msgid "USB Saves"
 msgstr "Jogos Salvos no USB"
 
-#: main.c:481 saves.c:688
+#: main.c:485 saves.c:688
 msgid "Trophies"
 msgstr "Troféus"
 
-#: main.c:482
+#: main.c:486
 msgid "User Tools"
 msgstr "Ferramentas do Usuário"
 
-#: main.c:483
+#: main.c:487
 msgid "Online Database"
 msgstr "Banco de Dados Online"
 
-#: main.c:484
+#: main.c:488
 msgid "PS1 Virtual Memory Card"
 msgstr "Memory Card Virtual do PS1"
 
-#: main.c:485
+#: main.c:489
 msgid "PS2 Virtual Memory Card"
 msgstr "Memory Card Virtual do PS2"
 
-#: main.c:712
+#: main.c:716
 msgid "Debug Logging Enabled"
 msgstr "Registro de Depuração Habilitado"
 
-#: main.c:721
+#: main.c:725
 msgid "Successfully installed local application data"
 msgstr "Dados de aplicativo local instalados com sucesso"
 
@@ -502,32 +542,40 @@ msgstr "Jogos Salvos PS2"
 msgid "Hex Editor"
 msgstr "Editor Hexadecimal"
 
+#: menu_main.c:67
+msgid "Loading save games..."
+msgstr "Carregando jogos salvos..."
+
 #: menu_main.c:90
 msgid "No save-games found"
 msgstr "Nenhum jogo salvo encontrado"
 
-#: menu_main.c:345 menu_main.c:723
+#: menu_main.c:142
+msgid "Saving PS2 Memory Card..."
+msgstr "Salvando Memory Card do PS2..."
+
+#: menu_main.c:345 menu_main.c:724
 msgid "Patch view"
 msgstr "Visualização de patch"
 
-#: menu_main.c:472
+#: menu_main.c:473
 msgid "No data found in folder:"
 msgstr "Nenhum dado encontrado na pasta:"
 
-#: menu_main.c:524
+#: menu_main.c:525
 msgid "Exit to XMB?"
 msgstr "Sair para o XMB?"
 
-#: menu_main.c:664
+#: menu_main.c:665
 #, c-format
 msgid "Save changes to %s?"
 msgstr "Salvar alterações em %s?"
 
-#: menu_main.c:760
+#: menu_main.c:761
 msgid "Failed to load:"
 msgstr "Falha ao carregar:"
 
-#: menu_options.c:60 menu_options.c:80
+#: menu_options.c:66 menu_options.c:86
 msgid "Settings"
 msgstr "Configurações"
 
@@ -979,89 +1027,93 @@ msgstr "Verificar Atualização da Versão"
 msgid "Set User FTP Server URL"
 msgstr "Definir URL do Servidor FTP do Usuário"
 
-#: settings.c:70
+#: settings.c:71
 msgid "Online Saves Server"
 msgstr "Servidor de Dados Salvos Online"
 
-#: settings.c:76
+#: settings.c:77
 msgid "Update Application Data"
 msgstr "Atualizar Dados do Aplicativo"
 
-#: settings.c:82
+#: settings.c:83
 msgid "Change Online Database URL"
 msgstr "Alterar URL do Banco de Dados Online"
 
-#: settings.c:88
+#: settings.c:89
 msgid "Clear Local Cache"
 msgstr "Limpar Cache Local"
 
-#: settings.c:94
+#: settings.c:96
 msgid "Enable Debug Log"
 msgstr "Habilitar Log de Depuração"
 
-#: settings.c:132
+#: settings.c:134
 msgid "Enter the Online Database URL"
 msgstr "Insira a URL do Banco de Dados Online"
 
-#: settings.c:138
+#: settings.c:140
 msgid "Online database URL changed to:"
 msgstr "URL do Banco de Dados Online alterada para:"
 
-#: settings.c:148
+#: settings.c:150
 msgid "Enter the FTP server URL"
 msgstr "Insira a URL do Servidor FTP"
 
-#: settings.c:182
+#: settings.c:159
+msgid "Testing connection..."
+msgstr "Testando conexão..."
+
+#: settings.c:184
 msgid "FTP server URL changed to:"
 msgstr "URL do Servidor FTP alterada para:"
 
-#: settings.c:185
+#: settings.c:187
 msgid "Error! Couldn't connect to FTP server"
 msgstr "Erro! Não foi possível conectar ao Servidor FTP"
 
-#: settings.c:185
+#: settings.c:187
 msgid "Check debug logs for more information"
 msgstr "Verifique os logs de depuração para mais informações"
 
-#: settings.c:193
+#: settings.c:195
 msgid "Local cache folder cleaned:"
 msgstr "Pasta de cache local limpa:"
 
-#: settings.c:201
+#: settings.c:203
 msgid "Error! Can't download data update file!"
 msgstr "Erro! Não é possível baixar o arquivo de atualização de dados!"
 
-#: settings.c:204
+#: settings.c:206
 #, c-format
 msgid "Successfully updated %d save patch files!"
 msgstr "%d arquivos de patch de dado salvo atualizados com sucesso!"
 
-#: settings.c:206
+#: settings.c:208
 msgid "Error! Can't extract data update file!"
 msgstr "Erro! Não é possível extrair o arquivo de atualização de dados!"
 
-#: settings.c:273
+#: settings.c:275
 msgid "New version available! Download update?"
 msgstr "Nova versão disponível! Baixar atualização?"
 
-#: settings.c:277
+#: settings.c:279
 #, c-format
 msgid "Update downloaded to %s"
 msgstr "Atualização baixada para %s"
 
-#: settings.c:279
+#: settings.c:281
 msgid "Download error!"
 msgstr "Erro de Download!"
 
-#: settings.c:294
+#: settings.c:296
 msgid "Debug Logging Disabled"
 msgstr "Registro de Depuração Desativado"
 
-#: settings.c:299
+#: settings.c:301
 msgid "Debug Logging Enabled!"
 msgstr "Registro de Depuração Habilitado!"
 
-#: settings.c:352
+#: settings.c:354
 msgid "User Settings"
 msgstr "Configurações do usuário"
 

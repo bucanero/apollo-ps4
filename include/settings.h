@@ -21,7 +21,7 @@ typedef struct
     const char * name;
     const char * * options;
     enum app_option_type type;
-    char spacer;
+    uint8_t spacer;
     uint8_t * value;
     void(*callback)(int);
 } menu_option_t;

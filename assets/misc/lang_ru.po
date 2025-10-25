@@ -129,8 +129,8 @@ msgid "Error! Couldn't update trophies"
 msgstr "Ошибка! Не удалось обновить трофеи"
 
 #: exec_cmd.c:549
-msgid "Exporting Trophies ..."
-msgstr "Экспорт трофеев ..."
+msgid "Exporting Trophies..."
+msgstr "Экспорт трофеев..."
 
 #: exec_cmd.c:567
 msgid "Trophies successfully saved to:"

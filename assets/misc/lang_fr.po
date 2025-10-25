@@ -32,7 +32,6 @@ msgid "Error extracting save game!"
 msgstr "Erreur lors de l'extraction de la sauvegarde !"
 
 #: exec_cmd.c:108
-#| msgid "Export save game to Zip"
 msgid "Exporting save game..."
 msgstr ""
 
@@ -61,12 +60,10 @@ msgid "Files successfully copied to:"
 msgstr "Fichiers copiés avec succès vers :"
 
 #: exec_cmd.c:171
-#| msgid "Error! Can't export save game to:"
 msgid "Error! Can't copy save game to:"
 msgstr ""
 
 #: exec_cmd.c:250 exec_cmd.c:637
-#| msgid "Save game already exists in:"
 msgid "Save game already exists:"
 msgstr ""
 
@@ -75,7 +72,6 @@ msgid "Overwrite?"
 msgstr "Écraser ?"
 
 #: exec_cmd.c:255
-#| msgid "Error creating save game folder!"
 msgid "Error mounting save game folder!"
 msgstr ""
 
@@ -84,22 +80,18 @@ msgid "Error creating save game folder!"
 msgstr "Erreur lors de la Création du Dossier de Sauvegarde du jeu !"
 
 #: exec_cmd.c:281
-#| msgid "Error! Can't export save game to:"
 msgid "Error! Can't update save game:"
 msgstr ""
 
 #: exec_cmd.c:387
-#| msgid "Copy save game to USB"
 msgid "Copying save game..."
 msgstr ""
 
 #: exec_cmd.c:394
-#| msgid "Error! Can't find decrypted save-game file:"
 msgid "Error! Can't copy Save-game folder:"
 msgstr ""
 
 #: exec_cmd.c:405 exec_cmd.c:896
-#| msgid "Copy all Saves to USB"
 msgid "Copying all saves..."
 msgstr ""
 
@@ -117,7 +109,6 @@ msgid "Error: %s couldn't be extracted"
 msgstr "Erreur : %s n'a pas pu être extrait"
 
 #: exec_cmd.c:474
-#| msgid "Error! Folder is not available:"
 msgid "Error! Keystone file is not available:"
 msgstr ""
 
@@ -130,17 +121,14 @@ msgid "Applying changes..."
 msgstr ""
 
 #: exec_cmd.c:532
-#| msgid "Trophies successfully saved to:"
 msgid "Trophies successfully updated!"
 msgstr ""
 
 #: exec_cmd.c:534
-#| msgid "Error! Couldn't upload save:"
 msgid "Error! Couldn't update trophies"
 msgstr ""
 
 #: exec_cmd.c:549
-#| msgid "Export Trophies"
 msgid "Exporting Trophies..."
 msgstr ""
 
@@ -153,7 +141,6 @@ msgid "Dumping all fingerprints..."
 msgstr ""
 
 #: exec_cmd.c:603
-#| msgid "All files extracted to:"
 msgid "All fingerprints dumped to:"
 msgstr ""
 
@@ -166,7 +153,6 @@ msgid "Error! Account ID is not valid"
 msgstr "Erreur ! L'identifiant de compte n'est pas valide"
 
 #: exec_cmd.c:624
-#| msgid "Error! Couldn't delete save:"
 msgid "Error! Couldn't activate user account"
 msgstr ""
 
@@ -183,7 +169,6 @@ msgid "Encrypted save copied successfully!"
 msgstr ""
 
 #: exec_cmd.c:647
-#| msgid "Error! Couldn't delete save:"
 msgid "Error: can't create HDD save"
 msgstr ""
 
@@ -192,7 +177,6 @@ msgid "Error: can't copy file"
 msgstr ""
 
 #: exec_cmd.c:659
-#| msgid "Error! Can't find decrypted save-game file:"
 msgid "Error! Can't mount encrypted save."
 msgstr ""
 
@@ -202,17 +186,14 @@ msgstr ""
 
 #: exec_cmd.c:663
 #, c-format
-#| msgid "Error! Failed to copy Save-game %s"
 msgid "Error: can't copy save %s"
 msgstr ""
 
 #: exec_cmd.c:684
-#| msgid "Files successfully copied to:"
 msgid "Keystone successfully copied to:"
 msgstr ""
 
 #: exec_cmd.c:686
-#| msgid "Error! Cheat codes couldn't be applied"
 msgid "Error! Keystone couldn't be copied"
 msgstr ""
 
@@ -229,12 +210,10 @@ msgid "Error starting Web Server!"
 msgstr "Erreur lors du démarrage du serveur Web !"
 
 #: exec_cmd.c:917
-#| msgid "Saves copied to USB"
 msgid "Saves copied to:"
 msgstr ""
 
 #: exec_cmd.c:929
-#| msgid "Export all Saves to USB"
 msgid "Exporting all VMC saves..."
 msgstr ""
 
@@ -255,12 +234,10 @@ msgid "Memory card successfully exported to:"
 msgstr "Carte Mémoire exportée avec succès vers :"
 
 #: exec_cmd.c:991
-#| msgid "Error! Failed to export PS2 memory card"
 msgid "Error! Failed to export PS1 memory card"
 msgstr ""
 
 #: exec_cmd.c:1034
-#| msgid "Error importing save:"
 msgid "Importing PS2 save..."
 msgstr ""
 
@@ -291,7 +268,6 @@ msgid "Do you want to upload %s?"
 msgstr "Voulez-vous UpLoader %s ?"
 
 #: exec_cmd.c:1225
-#| msgid "FTP Server"
 msgid "Sync with FTP Server..."
 msgstr ""
 
@@ -312,7 +288,6 @@ msgid "Error! Couldn't upload save:"
 msgstr "Erreur ! Impossible de UpLoader la Sauvegarde :"
 
 #: exec_cmd.c:1341
-#| msgid "Error exporting memory card:"
 msgid "Exporting PS2 memory card..."
 msgstr ""
 
@@ -325,7 +300,6 @@ msgid "Error! Failed to export PS2 memory card"
 msgstr "Erreur ! Échec de l'exportation de la carte mémoire PS2"
 
 #: exec_cmd.c:1360
-#| msgid "Error extracting save game!"
 msgid "Error getting PS4 user list!"
 msgstr ""
 
@@ -356,7 +330,6 @@ msgid "Save %s successfully modified!"
 msgstr "Sauvegarde %s modifiée avec succès !"
 
 #: exec_cmd.c:1573
-#| msgid "Resign & Unlock all Saves"
 msgid "Resigning all saves..."
 msgstr ""
 
@@ -375,24 +348,20 @@ msgstr ""
 
 #: exec_cmd.c:1632
 #, c-format
-#| msgid "All saves successfully resigned!"
 msgid "DB Backup %s successfully restored!"
 msgstr ""
 
 #: exec_cmd.c:1634
 #, c-format
-#| msgid "Error! Save %s couldn't be resigned"
 msgid "Error! Backup %s couldn't be restored"
 msgstr ""
 
 #: exec_cmd.c:1657
-#| msgid "File successfully imported to:"
 msgid "File successfully exported to:"
 msgstr ""
 
 #: exec_cmd.c:1659
 #, c-format
-#| msgid "Error! File %s couldn't be encrypted"
 msgid "Error! File %s couldn't be exported"
 msgstr ""
 
@@ -406,7 +375,6 @@ msgstr "Fichier importé avec succès vers :"
 
 #: exec_cmd.c:1679
 #, c-format
-#| msgid "Error! File %s couldn't be decrypted"
 msgid "Error! File %s couldn't be imported"
 msgstr ""
 
@@ -455,7 +423,6 @@ msgid "Error! Couldn't import save:"
 msgstr "Erreur ! Impossible d'importer la Sauvegarde :"
 
 #: http.c:124
-#| msgid "Download URL"
 msgid "Downloading..."
 msgstr ""
 
@@ -576,7 +543,6 @@ msgid "Hex Editor"
 msgstr "Éditeur Hexadécimal"
 
 #: menu_main.c:67
-#| msgid "Error extracting save game!"
 msgid "Loading save games..."
 msgstr ""
 
@@ -585,7 +551,6 @@ msgid "No save-games found"
 msgstr "Aucune Sauvegarde Trouvée"
 
 #: menu_main.c:142
-#| msgid "Resign Memory Card"
 msgid "Saving PS2 Memory Card..."
 msgstr ""
 
@@ -615,7 +580,6 @@ msgid "Settings"
 msgstr "Paramètres"
 
 #: saves.c:67
-#| msgid "Error! Save %s couldn't be resigned"
 msgid "Warning! Save couldn't be unmounted!"
 msgstr ""
 
@@ -676,17 +640,14 @@ msgid "Hex Edit save game files"
 msgstr "Éditer en Hexadécimal le Fichier de Sauvegarde du Jeu"
 
 #: saves.c:470
-#| msgid "File Backup"
 msgid "Keystone Backup"
 msgstr ""
 
 #: saves.c:473
-#| msgid "Export Licenses"
 msgid "Export Keystone"
 msgstr ""
 
 #: saves.c:476
-#| msgid "Import Licenses"
 msgid "Import Keystone"
 msgstr ""
 
@@ -699,7 +660,6 @@ msgid "Encrypted save requires firmware"
 msgstr ""
 
 #: saves.c:566
-#| msgid "Error exporting save:"
 msgid "Error Mounting Save!"
 msgstr ""
 
@@ -712,27 +672,22 @@ msgid "View Raw Patch File"
 msgstr "Afficher le fichier de correctif brut"
 
 #: saves.c:639
-#| msgid "Export Trophy Set to Zip"
 msgid "Error Mounting Trophy Set!"
 msgstr ""
 
 #: saves.c:646
-#| msgid "Apply Changes & Resign Trophy Set"
 msgid "Apply Changes to Trophy Set"
 msgstr ""
 
 #: saves.c:649
-#| msgid "View Save Details"
 msgid "View Trophy Set Details"
 msgstr ""
 
 #: saves.c:652
-#| msgid "Trophy-Sets"
 msgid "Delete Trophy Set"
 msgstr ""
 
 #: saves.c:659
-#| msgid "Backup Trophy Set to USB"
 msgid "Backup Trophy files to USB"
 msgstr ""
 
@@ -741,7 +696,6 @@ msgid "Copy Trophy to USB"
 msgstr "Copier le Trophée sur USB"
 
 #: saves.c:664
-#| msgid "Export Trophy Set to Zip"
 msgid "Export Trophy files to Zip"
 msgstr ""
 
@@ -754,12 +708,10 @@ msgid "Save .Zip to HDD"
 msgstr "Enregistrer le fichier .Zip sur HDD"
 
 #: saves.c:673
-#| msgid "Import decrypted save files"
 msgid "Export decrypted trophy files"
 msgstr ""
 
 #: saves.c:678
-#| msgid "Import decrypted save files"
 msgid "Import decrypted trophy files"
 msgstr ""
 
@@ -840,7 +792,6 @@ msgid "Activate PS4 Accounts"
 msgstr "Activer le compte PS4"
 
 #: saves.c:1095
-#| msgid "Bulk Save Management"
 msgid "App.db Database Management"
 msgstr ""
 
@@ -881,7 +832,6 @@ msgid "Restore System Database Backup"
 msgstr ""
 
 #: saves.c:1188
-#| msgid "Activate PS3 Account"
 msgid "Activate Offline Account"
 msgstr ""
 
@@ -894,12 +844,10 @@ msgid "Bulk Save Management"
 msgstr "Gestion des Sauvegardes en masse"
 
 #: saves.c:1739
-#| msgid "Resign & Unlock selected Saves"
 msgid "Resign selected Saves"
 msgstr ""
 
 #: saves.c:1742
-#| msgid "Resign & Unlock selected Saves"
 msgid "Resign all decrypted Saves"
 msgstr ""
 
@@ -916,7 +864,6 @@ msgid "Start local Web Server"
 msgstr "Démarrer le serveur Web local"
 
 #: saves.c:1754
-#| msgid "Import decrypted save files"
 msgid "Dump all decrypted Save Fingerprints"
 msgstr ""
 
@@ -953,37 +900,30 @@ msgid "Virtual Memory Card"
 msgstr "Carte Mémoire Virtuelle"
 
 #: saves.c:1939
-#| msgid "Export Memory Card to .VM2 format"
 msgid "Export Memory Card to .VM1 format"
 msgstr ""
 
 #: saves.c:1941
-#| msgid "Save .VM2 Memory Card to USB"
 msgid "Save .VM1 Memory Card to USB"
 msgstr ""
 
 #: saves.c:1943
-#| msgid "Save .VM2 Memory Card to HDD"
 msgid "Save .VM1 Memory Card to HDD"
 msgstr ""
 
 #: saves.c:1948
-#| msgid "Export Memory Card to .VM2 format"
 msgid "Export Memory Card to .VMP format"
 msgstr ""
 
 #: saves.c:1950
-#| msgid "Save .VM2 Memory Card to USB"
 msgid "Save .VMP Memory Card to USB"
 msgstr ""
 
 #: saves.c:1952
-#| msgid "Save .VM2 Memory Card to HDD"
 msgid "Save .VMP Memory Card to HDD"
 msgstr ""
 
 #: saves.c:1958 saves.c:1971 saves.c:2063 saves.c:2075
-#| msgid "Import Saves to Virtual Card"
 msgid "Import Saves to Virtual MemCard"
 msgstr ""
 
@@ -1028,7 +968,6 @@ msgid "Backup all Trophies to USB"
 msgstr "Sauvegarder tous les Trophées sur USB"
 
 #: saves.c:2167
-#| msgid "Export All Trophies to .Zip"
 msgid "Export all encrypted Trophies to .Zip"
 msgstr ""
 
@@ -1141,7 +1080,6 @@ msgid "Local cache folder cleaned:"
 msgstr "Dossier de Cache Local nettoyé :"
 
 #: settings.c:203
-#| msgid "Error! Can't find decrypted save-game file:"
 msgid "Error! Can't download data update file!"
 msgstr ""
 
@@ -1151,7 +1089,6 @@ msgid "Successfully updated %d save patch files!"
 msgstr ""
 
 #: settings.c:208
-#| msgid "Error! Can't export save game to:"
 msgid "Error! Can't extract data update file!"
 msgstr ""
 
@@ -1161,7 +1098,6 @@ msgstr "Nouvelle version disponible ! Télécharger la mise à jour ?"
 
 #: settings.c:279
 #, c-format
-#| msgid "Update downloaded to:"
 msgid "Update downloaded to %s"
 msgstr ""
 
@@ -1178,7 +1114,6 @@ msgid "Debug Logging Enabled!"
 msgstr "Journalisation de débogage Activée !"
 
 #: settings.c:354
-#| msgid "Settings"
 msgid "User Settings"
 msgstr ""
 

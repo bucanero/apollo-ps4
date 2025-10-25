@@ -129,7 +129,7 @@ msgid "Error! Couldn't update trophies"
 msgstr "Errore! Impossibile aggiornare i trofei"
 
 #: exec_cmd.c:549
-msgid "Exporting Trophies ..."
+msgid "Exporting Trophies..."
 msgstr "Esportazione dei trofei in corso..."
 
 #: exec_cmd.c:567

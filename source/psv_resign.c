@@ -37,7 +37,7 @@ static const char SJIS_REPLACEMENT_TABLE[] =
     "*******T><^_'='";
 
 static const uint8_t psv_ps2key[0x10] = {
-	0xFA, 0x72, 0xCE, 0xEF, 0x59, 0xB4, 0xD2, 0x98, 0x9F, 0x11, 0x19, 0x13, 0x28, 0x7F, 0x51, 0xC7
+	0xEA, 0x02, 0xCE, 0xEF, 0x5B, 0xB4, 0xD2, 0x99, 0x8F, 0x61, 0x19, 0x10, 0xD7, 0x7F, 0x51, 0xC6
 }; 
 
 static const uint8_t psv_ps1key[0x10] = {
@@ -98,14 +98,10 @@ static void generateHash(const uint8_t *input, const uint8_t *salt_seed, uint8_t
 	else if(type == PSV_TYPE_PS2)
 	{	//PS2
 		LOG("PS2 Save File");
-		uint8_t laid_paid[16]  = {	
-			0x10, 0x70, 0x00, 0x00, 0x02, 0x00, 0x00, 0x01, 0x10, 0x70, 0x00, 0x03, 0xFF, 0x00, 0x00, 0x01 };
-
 		memcpy(salt, salt_seed, 0x14);
 		memcpy(iv, psv_iv, sizeof(iv));
-		XorWithIv(laid_paid, psv_ps2key);
 
-		aes_setkey_dec(&aes_ctx, laid_paid, 128);
+		aes_setkey_dec(&aes_ctx, psv_ps2key, 128);
 		aes_crypt_cbc(&aes_ctx, AES_DECRYPT, sizeof(salt), iv, salt, salt);
 	}
 	else
@@ -417,7 +413,10 @@ int vmc_import_psu(const char *input)
 
 	FILE *fh = fopen(input, "rb");
 	if (fh == NULL)
+	{
+		LOG("ERROR! Could not open PSU file: %s", input);
 		return 0;
+	}
 
 	fseek(fh, 0, SEEK_END);
 	r = ftell(fh);

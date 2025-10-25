@@ -106,8 +106,7 @@ static int isMAXFile(const char *path)
            (header.decompressedSize > 0) &&
            (header.numFiles > 0) &&
            strncmp(header.magic, MAX_HEADER_MAGIC, sizeof(header.magic)) == 0 &&
-           strlen(header.dirName) > 0 &&
-           strlen(header.iconSysName) > 0;
+           strlen(header.dirName) > 0;
 }
 
 static void setMcDateTime(sceMcStDateTime* mc, struct tm *ftm)
@@ -150,26 +149,34 @@ static void set_ps2header_values(ps2_header_t *ps2h, const ps2_FileInfo_t *ps2fi
 
 int ps2_max2psv(const char *save, const char* psv_path)
 {
-    if (!isMAXFile(save))
-        return 0;
-    
-    FILE *f = fopen(save, "rb");
-    if(!f)
-        return 0;
-
     struct stat st;
     sceMcStDateTime fctime, fmtime;
+    maxHeader_t header;
+    FILE *f, *psv;
+
+    if (!isMAXFile(save))
+    {
+        LOG("ERROR! Not a valid AR Max save: %s", save);
+        return 0;
+    }
+
+    f = fopen(save, "rb");
+    if(!f)
+        return 0;
 
     fstat(fileno(f), &st);
     setMcDateTime(&fctime, gmtime(&st.st_ctime));
     setMcDateTime(&fmtime, gmtime(&st.st_mtime));
 
-    maxHeader_t header;
     fread(&header, 1, sizeof(maxHeader_t), f);
 
-    FILE* psv = fopen(psv_path, "wb");
+    psv = fopen(psv_path, "wb");
     if (!psv)
+    {
+        LOG("ERROR! Could not create PSV file: %s", psv_path);
+        fclose(f);
         return 0;
+    }
 
     // Get compressed file entries
     u8 *compressed = malloc(header.compressedSize);
@@ -179,24 +186,21 @@ int ps2_max2psv(const char *save, const char* psv_path)
     if(ret != header.compressedSize)
     {
         LOG("Compressed size: actual=%d, expected=%d\n", ret, header.compressedSize);
-        free(compressed);
-        return 0;
+        header.compressedSize = ret;
     }
 
     fclose(f);
     u8 *decompressed = malloc(header.decompressedSize);
 
     ret = unlzari(compressed, header.compressedSize, decompressed, header.decompressedSize);
+    free(compressed);
     // As with other save formats, decompressedSize isn't acccurate.
     if(ret == 0)
     {
-        LOG("Decompression failed.\n");
+        LOG("Decompression failed.");
         free(decompressed);
-        free(compressed);
         return 0;
     }
-
-    free(compressed);
 
     int i;
     u32 offset = 0;
@@ -335,7 +339,7 @@ int ps2_cbs2psv(const char *save, const char *psv_path)
     u8 *cbsData;
     u8 *compressed;
     u8 *decompressed;
-    cbsHeader_t *header;
+    cbsHeader_t header;
     cbsEntry_t *entryHeader;
     unsigned long decompressedSize;
     size_t cbsLen;
@@ -343,31 +347,38 @@ int ps2_cbs2psv(const char *save, const char *psv_path)
     u32 dataPos = 0, offset = 0;
 
     if(!isCBSFile(save))
+    {
+        LOG("Not a valid CodeBreaker file: %s", save);
         return 0;
+    }
 
     if(read_buffer(save, &cbsData, &cbsLen) < 0)
         return 0;
 
-    header = (cbsHeader_t *)cbsData;
+    memcpy(&header, cbsData, sizeof(cbsHeader_t));
     dstFile = fopen(psv_path, "wb");
 
     if (!dstFile)
+    {
+        LOG("ERROR! Could not create PSV file: %s", psv_path);
+        free(cbsData);
         return 0;
+    }
 
     // Get data for file entries
     compressed = cbsData + sizeof(cbsHeader_t);
     // Some tools create .CBS saves with an incorrect compressed size in the header.
     // It can't be trusted!
     cbsCrypt(compressed, cbsLen - sizeof(cbsHeader_t));
-    decompressedSize = header->decompressedSize;
+    decompressedSize = header.decompressedSize;
     decompressed = malloc(decompressedSize);
     int z_ret = uncompress(decompressed, &decompressedSize, compressed, cbsLen - sizeof(cbsHeader_t));
+    free(cbsData);
     
     if(z_ret != Z_OK)
     {
         // Compression failed.
         LOG("Decompression failed! (Z_ERR = %d)", z_ret);
-        free(cbsData);
         free(decompressed);
         return 0;
     }
@@ -379,11 +390,11 @@ int ps2_cbs2psv(const char *save, const char *psv_path)
     memset(&ps2h, 0, sizeof(ps2_header_t));
     memset(&ps2md, 0, sizeof(ps2_MainDirInfo_t));
 
-    ps2md.attribute = header->mode;
-    memcpy(&ps2md.created, &header->created, sizeof(sceMcStDateTime));
-    memcpy(&ps2md.modified, &header->modified, sizeof(sceMcStDateTime));
-    memcpy(ps2md.filename, header->name, sizeof(ps2md.filename));
-    
+    ps2md.attribute = header.mode;
+    memcpy(&ps2md.created, &header.created, sizeof(sceMcStDateTime));
+    memcpy(&ps2md.modified, &header.modified, sizeof(sceMcStDateTime));
+    memcpy(ps2md.filename, header.name, sizeof(ps2md.filename));
+
     write_psv_header(dstFile, 2);
 
     LOG("Save contents:\n");
@@ -457,7 +468,6 @@ int ps2_cbs2psv(const char *save, const char *psv_path)
 
     fclose(dstFile);
     free(decompressed);
-    free(cbsData);
 
     return 1;
 }
@@ -479,6 +489,7 @@ int ps2_xps2psv(const char *save, const char *psv_path)
 
     if (memcmp(&tmp[4], XPS_HEADER_MAGIC, 16) != 0)
     {
+        LOG("Not a valid XPS file: %s", save);
         fclose(xpsFile);
         return 0;
     }
@@ -501,6 +512,7 @@ int ps2_xps2psv(const char *save, const char *psv_path)
     psvFile = fopen(psv_path, "wb");
     if(!psvFile)
     {
+        LOG("ERROR! Could not create PSV file: %s", psv_path);
         fclose(xpsFile);
         return 0;
     }

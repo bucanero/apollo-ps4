@@ -1,0 +1,1122 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Apollo Save Tool (PS4)\n"
+"POT-Creation-Date: 2025-10-24 19:22-0300\n"
+"PO-Revision-Date: 2025-10-24 19:30-0300\n"
+"Last-Translator: bucanero\n"
+"Language-Team: github.com/bucanero\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+"X-Poedit-Basepath: source\n"
+"X-Poedit-KeywordsList: _;_i18n\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: exec_cmd.c:52 exec_cmd.c:104 exec_cmd.c:156 exec_cmd.c:545 exec_cmd.c:892
+#: exec_cmd.c:982 exec_cmd.c:1335 exec_cmd.c:1606
+msgid "Error! Export folder is not available:"
+msgstr "¡Error! La carpeta de exportación no está disponible:"
+
+#: exec_cmd.c:58 exec_cmd.c:224
+msgid "Error downloading save game from:"
+msgstr "Error descargando partida guardada desde:"
+
+#: exec_cmd.c:63 exec_cmd.c:279
+msgid "Save game successfully downloaded to:"
+msgstr "Partida guardada descargada exitosamente a:"
+
+#: exec_cmd.c:65 exec_cmd.c:235 exec_cmd.c:270
+msgid "Error extracting save game!"
+msgstr "¡Error extrayendo partida guardada!"
+
+#: exec_cmd.c:108
+msgid "Exporting save game..."
+msgstr "Exportando partida guardada…"
+
+#: exec_cmd.c:136
+msgid "Error! Can't export save game to:"
+msgstr "¡Error! No se puede exportar partida guardada a:"
+
+#: exec_cmd.c:140 exec_cmd.c:1621
+msgid "Zip file successfully saved to:"
+msgstr "Archivo Zip guardado exitosamente en:"
+
+#: exec_cmd.c:150 exec_cmd.c:383
+msgid "Copy operation cancelled!"
+msgstr "Operación de copia cancelada!"
+
+#: exec_cmd.c:150 exec_cmd.c:383
+msgid "Same source and destination."
+msgstr "Mismo origen y destino."
+
+#: exec_cmd.c:160
+msgid "Copying files..."
+msgstr "Copiando archivos…"
+
+#: exec_cmd.c:169 exec_cmd.c:392
+msgid "Files successfully copied to:"
+msgstr "Archivos copiados exitosamente a:"
+
+#: exec_cmd.c:171
+msgid "Error! Can't copy save game to:"
+msgstr "¡Error! No se puede copiar partida guardada a:"
+
+#: exec_cmd.c:250 exec_cmd.c:637
+msgid "Save game already exists:"
+msgstr "La partida guardada ya existe:"
+
+#: exec_cmd.c:250 exec_cmd.c:637
+msgid "Overwrite?"
+msgstr "¿Sobrescribir?"
+
+#: exec_cmd.c:255
+msgid "Error mounting save game folder!"
+msgstr "¡Error montando carpeta de partidas guardadas!"
+
+#: exec_cmd.c:261
+msgid "Error creating save game folder!"
+msgstr "¡Error creando carpeta de partidas guardadas!"
+
+#: exec_cmd.c:281
+msgid "Error! Can't update save game:"
+msgstr "¡Error! No se puede actualizar partida guardada:"
+
+#: exec_cmd.c:387
+msgid "Copying save game..."
+msgstr "Copiando Partida guardada…"
+
+#: exec_cmd.c:394
+msgid "Error! Can't copy Save-game folder:"
+msgstr "¡Error! No se puede copiar carpeta de partida:"
+
+#: exec_cmd.c:405 exec_cmd.c:896
+msgid "Copying all saves..."
+msgstr "Copiar Todas las Partidas…"
+
+#: exec_cmd.c:423
+msgid "Saves copied to HDD"
+msgstr "Partidas copiadas al HDD"
+
+#: exec_cmd.c:459
+msgid "All files extracted to:"
+msgstr "Todos los archivos extraídos a:"
+
+#: exec_cmd.c:461
+#, c-format
+msgid "Error: %s couldn't be extracted"
+msgstr "Error: %s no pudo ser extraído"
+
+#: exec_cmd.c:474
+msgid "Error! Keystone file is not available:"
+msgstr "¡Error! El Keystone no está disponible:"
+
+#: exec_cmd.c:483
+msgid "keystone fingerprint:"
+msgstr "fingerprint de keystone:"
+
+#: exec_cmd.c:503 exec_cmd.c:1497
+msgid "Applying changes..."
+msgstr "Aplicando Cambios…"
+
+#: exec_cmd.c:532
+msgid "Trophies successfully updated!"
+msgstr "Trofeos actualizados exitosamente!"
+
+#: exec_cmd.c:534
+msgid "Error! Couldn't update trophies"
+msgstr "¡Error! No se pudo actualizar trofeos"
+
+#: exec_cmd.c:549
+msgid "Exporting Trophies..."
+msgstr "Exportando Trofeos..."
+
+#: exec_cmd.c:567
+msgid "Trophies successfully saved to:"
+msgstr "Trofeos guardados exitosamente en:"
+
+#: exec_cmd.c:578
+msgid "Dumping all fingerprints..."
+msgstr "Volcando todos los fingerprints…"
+
+#: exec_cmd.c:603
+msgid "All fingerprints dumped to:"
+msgstr "Todos los fingerprints extraídos a:"
+
+#: exec_cmd.c:612
+msgid "Enter the Account ID"
+msgstr "Ingrese el ID de Cuenta"
+
+#: exec_cmd.c:617
+msgid "Error! Account ID is not valid"
+msgstr "¡Error! El ID de Cuenta no es válido"
+
+#: exec_cmd.c:624
+msgid "Error! Couldn't activate user account"
+msgstr "¡Error! No se pudo activar la cuenta de usuario"
+
+#: exec_cmd.c:628
+msgid "Account successfully activated!"
+msgstr "¡Cuenta activada exitosamente!"
+
+#: exec_cmd.c:628
+msgid "A system reboot is required"
+msgstr "Se requiere un reinicio del sistema"
+
+#: exec_cmd.c:643
+msgid "Encrypted save copied successfully!"
+msgstr "Partida encriptada copiada correctamente!"
+
+#: exec_cmd.c:647
+msgid "Error: can't create HDD save"
+msgstr "¡Error! No se pudo crear partida en el HDD"
+
+#: exec_cmd.c:651 exec_cmd.c:655
+msgid "Error: can't copy file"
+msgstr "Error: no se puede copiar el archivo"
+
+#: exec_cmd.c:659
+msgid "Error! Can't mount encrypted save."
+msgstr "¡Error! No se puede montar archivo de partida encriptado."
+
+#: exec_cmd.c:659
+msgid "(incompatible save-game firmware version)"
+msgstr "(versión de firmware incompatible)"
+
+#: exec_cmd.c:663
+#, c-format
+msgid "Error: can't copy save %s"
+msgstr "¡Error! Fallo al copiar partida guardada %s"
+
+#: exec_cmd.c:684
+msgid "Keystone successfully copied to:"
+msgstr "Keystone copiado exitosamente a:"
+
+#: exec_cmd.c:686
+msgid "Error! Keystone couldn't be copied"
+msgstr "¡Error! No se pudo copiar el Keystone"
+
+#: exec_cmd.c:873
+msgid "Web Server listening on:"
+msgstr "Servidor Web escuchando en:"
+
+#: exec_cmd.c:873
+msgid "Press OK to stop the Server."
+msgstr "Presione OK para detener el Servidor."
+
+#: exec_cmd.c:876
+msgid "Error starting Web Server!"
+msgstr "¡Error iniciando Servidor Web!"
+
+#: exec_cmd.c:917
+msgid "Saves copied to:"
+msgstr "Partidas copiadas a:"
+
+#: exec_cmd.c:929
+msgid "Exporting all VMC saves..."
+msgstr "Exportar Todas las Partidas de VMC…"
+
+#: exec_cmd.c:949
+msgid "Saves exported to:"
+msgstr "Partidas exportadas a:"
+
+#: exec_cmd.c:969 exec_cmd.c:1025
+msgid "Save successfully exported to:"
+msgstr "Partida exportada exitosamente a:"
+
+#: exec_cmd.c:971 exec_cmd.c:1027
+msgid "Error exporting save:"
+msgstr "Error exportando partida:"
+
+#: exec_cmd.c:989
+msgid "Memory card successfully exported to:"
+msgstr "Tarjeta de memoria exportada exitosamente a:"
+
+#: exec_cmd.c:991
+msgid "Error! Failed to export PS1 memory card"
+msgstr "¡Error! Fallo al exportar tarjeta de memoria PS1"
+
+#: exec_cmd.c:1034
+msgid "Importing PS2 save..."
+msgstr "Importando Partida PS2…"
+
+#: exec_cmd.c:1066
+msgid "Successfully imported to VMC:"
+msgstr "Importado exitosamente a VMC:"
+
+#: exec_cmd.c:1068
+msgid "Error importing save:"
+msgstr "Error importando partida:"
+
+#: exec_cmd.c:1076
+#, c-format
+msgid "Do you want to delete %s?"
+msgstr "¿Desea eliminar %s?"
+
+#: exec_cmd.c:1106
+msgid "Save successfully deleted:"
+msgstr "Partida eliminada exitosamente:"
+
+#: exec_cmd.c:1108
+msgid "Error! Couldn't delete save:"
+msgstr "¡Error! No se pudo eliminar partida:"
+
+#: exec_cmd.c:1222
+#, c-format
+msgid "Do you want to upload %s?"
+msgstr "¿Desea subir %s?"
+
+#: exec_cmd.c:1225
+msgid "Sync with FTP Server..."
+msgstr "Sincronizando con Servidor FTP..."
+
+#: exec_cmd.c:1264
+msgid "Error! Couldn't zip save:"
+msgstr "¡Error! No se pudo comprimir partida:"
+
+#: exec_cmd.c:1299
+msgid "Updating games index..."
+msgstr "Actualizando indice de juegos..."
+
+#: exec_cmd.c:1321
+msgid "Save successfully uploaded:"
+msgstr "Partida subida exitosamente:"
+
+#: exec_cmd.c:1323
+msgid "Error! Couldn't upload save:"
+msgstr "¡Error! No se pudo subir partida:"
+
+#: exec_cmd.c:1341
+msgid "Exporting PS2 memory card..."
+msgstr "Exportando tarjeta de memoria PS2..."
+
+#: exec_cmd.c:1346
+msgid "File successfully saved to:"
+msgstr "Archivo guardado exitosamente en:"
+
+#: exec_cmd.c:1348
+msgid "Error! Failed to export PS2 memory card"
+msgstr "¡Error! Falló al exportar tarjeta de memoria PS2"
+
+#: exec_cmd.c:1360
+msgid "Error getting PS4 user list!"
+msgstr "¡Error obteniendo lista de usuarios!"
+
+#: exec_cmd.c:1369
+#, c-format
+msgid "Database rebuild for user %s failed!"
+msgstr "Fallo al reconstruir de Base de datos del usuario %s!"
+
+#: exec_cmd.c:1374
+msgid "Database rebuilt successfully!"
+msgstr "Base de datos reconstruida correctamente!"
+
+#: exec_cmd.c:1374 exec_cmd.c:1907
+msgid "Log out for changes to take effect"
+msgstr "Cierre la sesión para que los cambios tengan efecto"
+
+#: exec_cmd.c:1550
+msgid "Error! Account changes couldn't be applied"
+msgstr "¡Error! No se pudieron aplicar los cambios de cuenta"
+
+#: exec_cmd.c:1554
+msgid "Error! Cheat codes couldn't be applied"
+msgstr "¡Error! No se pudieron aplicar los códigos de trucos"
+
+#: exec_cmd.c:1556
+#, c-format
+msgid "Save %s successfully modified!"
+msgstr "¡Partida %s modificada exitosamente!"
+
+#: exec_cmd.c:1573
+msgid "Resigning all saves..."
+msgstr "Refirmar todas las partidas…"
+
+#: exec_cmd.c:1593
+#, c-format
+msgid "Error: %d Saves couldn't be resigned"
+msgstr "Error: %d Partidas no pudieron ser resignadas"
+
+#: exec_cmd.c:1595
+msgid "All saves successfully resigned!"
+msgstr "¡Todas las partidas resignadas exitosamente!"
+
+#: exec_cmd.c:1616
+msgid "Exporting system database..."
+msgstr "Exportando base de datos de sistema..."
+
+#: exec_cmd.c:1632
+#, c-format
+msgid "DB Backup %s successfully restored!"
+msgstr "¡Copia de Base de datos %s restaurada exitosamente!"
+
+#: exec_cmd.c:1634
+#, c-format
+msgid "Error! Backup %s couldn't be restored"
+msgstr "¡Error! No se pudo restaurar copia de seguridad %s"
+
+#: exec_cmd.c:1657
+msgid "File successfully exported to:"
+msgstr "Archivo exportado exitosamente a:"
+
+#: exec_cmd.c:1659
+#, c-format
+msgid "Error! File %s couldn't be exported"
+msgstr "¡Error! El archivo %s no pudo ser exportado"
+
+#: exec_cmd.c:1669
+msgid "Error! Can't find decrypted save-game file:"
+msgstr "¡Error! No se puede encontrar archivo de partida desencriptado:"
+
+#: exec_cmd.c:1677
+msgid "File successfully imported to:"
+msgstr "Archivo importado exitosamente a:"
+
+#: exec_cmd.c:1679
+#, c-format
+msgid "Error! File %s couldn't be imported"
+msgstr "¡Error! El archivo %s no pudo ser importado"
+
+#: exec_cmd.c:1687
+msgid "Download URL"
+msgstr "URL de Descarga"
+
+#: exec_cmd.c:1694
+msgid "File successfully downloaded to:"
+msgstr "Archivo descargado exitosamente a:"
+
+#: exec_cmd.c:1696
+msgid "Error! File couldn't be downloaded"
+msgstr "¡Error! No se pudo descargar el archivo"
+
+#: exec_cmd.c:1706
+msgid "Enable Browser history?"
+msgstr "Activar Historial del Navegador?"
+
+#: exec_cmd.c:1707
+msgid "Browser history enabled"
+msgstr "Historial del Navegador activado"
+
+#: exec_cmd.c:1712
+msgid "Disable Browser history?"
+msgstr "Desactivar Historial del Navegador?"
+
+#: exec_cmd.c:1717
+msgid "Browser history disabled"
+msgstr "Historial del Navegador desactivado"
+
+#: exec_cmd.c:1907
+msgid "DLC database fixed successfully!"
+msgstr "Base de datos DLC reparada correctamente!"
+
+#: exec_cmd.c:1909
+msgid "DLC Database rebuild failed!"
+msgstr "Fallo al reparar Base de datos DLC!"
+
+#: exec_cmd.c:1951
+msgid "Save successfully imported:"
+msgstr "Partida importada exitosamente:"
+
+#: exec_cmd.c:1953
+msgid "Error! Couldn't import save:"
+msgstr "¡Error! No se pudo importar partida:"
+
+#: http.c:124
+msgid "Downloading..."
+msgstr "Descargando…"
+
+#: http.c:226
+msgid "Uploading..."
+msgstr "Subiendo…"
+
+#: main.c:180 main.c:184 main.c:189 main.c:199
+msgid "Select"
+msgstr "Seleccionar"
+
+#: main.c:180 main.c:184 main.c:189 main.c:195 main.c:199
+msgid "Back"
+msgstr "Atrás"
+
+#: main.c:180 menu_cheats.c:253
+msgid "Details"
+msgstr "Detalles"
+
+#: main.c:180 main.c:184
+msgid "Refresh"
+msgstr "Actualizar"
+
+#: main.c:199
+msgid "View Code"
+msgstr "Ver Código"
+
+#: main.c:203
+msgid "Value Up"
+msgstr "Valor Arriba"
+
+#: main.c:203
+msgid "Value Down"
+msgstr "Valor Abajo"
+
+#: main.c:203
+msgid "Exit"
+msgstr "Salir"
+
+#: main.c:483
+msgid "HDD Saves"
+msgstr "Partidas HDD"
+
+#: main.c:484
+msgid "USB Saves"
+msgstr "Partidas USB"
+
+#: main.c:485 saves.c:688
+msgid "Trophies"
+msgstr "Trofeos"
+
+#: main.c:486
+msgid "User Tools"
+msgstr "Herramientas de Usuario"
+
+#: main.c:487
+msgid "Online Database"
+msgstr "Base de Datos Online"
+
+#: main.c:488
+msgid "PS1 Virtual Memory Card"
+msgstr "Tarjeta de Memoria Virtual PS1"
+
+#: main.c:489
+msgid "PS2 Virtual Memory Card"
+msgstr "Tarjeta de Memoria Virtual PS2"
+
+#: main.c:716
+msgid "Debug Logging Enabled"
+msgstr "Registro de Depuración Activado"
+
+#: main.c:725
+msgid "Successfully installed local application data"
+msgstr "Datos de aplicación local instalados exitosamente"
+
+#: menu_about.c:103
+msgid "Console details:"
+msgstr "Detalles de la consola:"
+
+#: menu_about.c:142 menu_about.c:166
+msgid "About"
+msgstr "Acerca de"
+
+#: menu_cheats.c:111 menu_cheats.c:141 menu_cheats.c:161
+msgid "Options"
+msgstr "Opciones"
+
+#: menu_cheats.c:207
+msgid "Target File:"
+msgstr "Archivo Objetivo:"
+
+#: menu_cheats.c:512
+msgid "Saves"
+msgstr "Partidas"
+
+#: menu_cheats.c:516
+msgid "Games"
+msgstr "Juegos"
+
+#: menu_cheats.c:520
+msgid "Trophy Sets"
+msgstr "Sets de Trofeos"
+
+#: menu_cheats.c:524
+msgid "Tools"
+msgstr "Herramientas"
+
+#: menu_cheats.c:528
+msgid "PS1 Saves"
+msgstr "Partidas PS1"
+
+#: menu_cheats.c:532
+msgid "PS2 Saves"
+msgstr "Partidas PS2"
+
+#: menu_hex.c:52 menu_hex.c:72
+msgid "Hex Editor"
+msgstr "Editor Hexadecimal"
+
+#: menu_main.c:67
+msgid "Loading save games..."
+msgstr "Cargando las Partidas…"
+
+#: menu_main.c:90
+msgid "No save-games found"
+msgstr "No se encontraron partidas guardadas"
+
+#: menu_main.c:142
+msgid "Saving PS2 Memory Card..."
+msgstr "Guardando Tarjeta de Memoria PS2..."
+
+#: menu_main.c:345 menu_main.c:724
+msgid "Patch view"
+msgstr "Vista de parches"
+
+#: menu_main.c:473
+msgid "No data found in folder:"
+msgstr "No se encontraron datos en la carpeta:"
+
+#: menu_main.c:525
+msgid "Exit to XMB?"
+msgstr "Salir al XMB?"
+
+#: menu_main.c:665
+#, c-format
+msgid "Save changes to %s?"
+msgstr "¿Guardar cambios en %s?"
+
+#: menu_main.c:761
+msgid "Failed to load:"
+msgstr "Falló al cargar:"
+
+#: menu_options.c:66 menu_options.c:86
+msgid "Settings"
+msgstr "Configuración"
+
+#: saves.c:67
+msgid "Warning! Save couldn't be unmounted!"
+msgstr "¡Error! No se pudo desmontar la partida!"
+
+#: saves.c:373
+msgid "Apply Changes & Resign"
+msgstr "Aplicar Cambios y Resignar"
+
+#: saves.c:376 saves.c:519 saves.c:813 saves.c:968
+msgid "View Save Details"
+msgstr "Ver Detalles de Partida"
+
+#: saves.c:379 saves.c:816 saves.c:971
+msgid "Delete Save Game"
+msgstr "Eliminar Partida Guardada"
+
+#: saves.c:383 saves.c:656
+msgid "File Backup"
+msgstr "Copia de Seguridad de Archivo"
+
+#: saves.c:388
+msgid "Copy save game to USB"
+msgstr "Copiar partida guardada a USB"
+
+#: saves.c:389
+msgid "Copy Save to USB"
+msgstr "Copiar Partida a USB"
+
+#: saves.c:394 saves.c:825 saves.c:980
+msgid "Upload save backup to FTP"
+msgstr "Subir copia de seguridad de partida a FTP"
+
+#: saves.c:400
+msgid "Copy save game to HDD"
+msgstr "Copiar partida guardada a HDD"
+
+#: saves.c:404
+msgid "Export save game to Zip"
+msgstr "Exportar partida guardada a Zip"
+
+#: saves.c:405
+msgid "Export Zip to USB"
+msgstr "Exportar Zip a USB"
+
+#: saves.c:407
+msgid "Export Zip to HDD"
+msgstr "Exportar Zip a HDD"
+
+#: saves.c:412
+msgid "Export decrypted save files"
+msgstr "Exportar archivos de partida desencriptados"
+
+#: saves.c:417
+msgid "Import decrypted save files"
+msgstr "Importar archivos de partida desencriptados"
+
+#: saves.c:422
+msgid "Hex Edit save game files"
+msgstr "Editar hexadecimalmente archivos de partida"
+
+#: saves.c:470
+msgid "Keystone Backup"
+msgstr "Copia de Seguridad de Keystone"
+
+#: saves.c:473
+msgid "Export Keystone"
+msgstr "Exportar Keystone"
+
+#: saves.c:476
+msgid "Import Keystone"
+msgstr "Importar Keystone"
+
+#: saves.c:479
+msgid "Show Keystone Fingerprint"
+msgstr "Ver Fingerprint del Keystone"
+
+#: saves.c:524
+msgid "Encrypted save requires firmware"
+msgstr "Partida encriptada requiere firmware"
+
+#: saves.c:566
+msgid "Error Mounting Save!"
+msgstr "Error montando partida!"
+
+#: saves.c:582
+msgid "Cheats"
+msgstr "Trucos"
+
+#: saves.c:585
+msgid "View Raw Patch File"
+msgstr "Ver Archivo de Parche en Bruto"
+
+#: saves.c:639
+msgid "Error Mounting Trophy Set!"
+msgstr "Error montando Set de Trofeos!"
+
+#: saves.c:646
+msgid "Apply Changes to Trophy Set"
+msgstr "Aplicar Cambios al Set de Trofeos"
+
+#: saves.c:649
+msgid "View Trophy Set Details"
+msgstr "Ver Detalles de Set de Trofeos"
+
+#: saves.c:652
+msgid "Delete Trophy Set"
+msgstr "Borrar Set de Trofeos"
+
+#: saves.c:659
+msgid "Backup Trophy files to USB"
+msgstr "Respaldar archivos de Trofeos a USB"
+
+#: saves.c:661
+msgid "Copy Trophy to USB"
+msgstr "Copiar Trofeo a USB"
+
+#: saves.c:664
+msgid "Export Trophy files to Zip"
+msgstr "Exportar archivos de Trofeos a Zip"
+
+#: saves.c:666 saves.c:2168
+msgid "Save .Zip to USB"
+msgstr "Guardar .Zip en USB"
+
+#: saves.c:668
+msgid "Save .Zip to HDD"
+msgstr "Guardar .Zip en HDD"
+
+#: saves.c:673
+msgid "Export decrypted trophy files"
+msgstr "Exportar archivos de trofeos desencriptados"
+
+#: saves.c:678
+msgid "Import decrypted trophy files"
+msgstr "Importar archivos de trofeos desencriptados"
+
+#: saves.c:820 saves.c:975
+msgid "Save Game Backup"
+msgstr "Copia de Seguridad de Partida"
+
+#: saves.c:829
+msgid "Export save game to .MCS format"
+msgstr "Exportar partida guardada a formato .MCS"
+
+#: saves.c:830
+msgid "Copy .MCS Save to USB"
+msgstr "Copiar Partida .MCS a USB"
+
+#: saves.c:832
+msgid "Copy .MCS Save to HDD"
+msgstr "Copiar Partida .MCS a HDD"
+
+#: saves.c:838 saves.c:993
+msgid "Export save game to .PSV format"
+msgstr "Exportar partida guardada a formato .PSV"
+
+#: saves.c:839
+msgid "Copy .PSV Save to USB"
+msgstr "Copiar Partida .PSV a USB"
+
+#: saves.c:841
+msgid "Copy .PSV Save to HDD"
+msgstr "Copiar Partida .PSV a HDD"
+
+#: saves.c:847
+msgid "Export save game to .PSX format"
+msgstr "Exportar partida guardada a formato .PSX"
+
+#: saves.c:848
+msgid "Copy .PSX Save to USB"
+msgstr "Copiar Partida .PSX a USB"
+
+#: saves.c:850
+msgid "Copy .PSX Save to HDD"
+msgstr "Copiar Partida .PSX a HDD"
+
+#: saves.c:984
+msgid "Export save game to .PSU format"
+msgstr "Exportar partida guardada a formato .PSU"
+
+#: saves.c:985
+msgid "Export .PSU save to USB"
+msgstr "Exportar partida .PSU a USB"
+
+#: saves.c:987
+msgid "Export .PSU save to HDD"
+msgstr "Exportar partida .PSU a HDD"
+
+#: saves.c:994
+msgid "Export .PSV save to USB"
+msgstr "Exportar partida .PSV a USB"
+
+#: saves.c:996
+msgid "Export .PSV save to HDD"
+msgstr "Exportar partida .PSV a HDD"
+
+#: saves.c:1055
+msgid "Download to USB"
+msgstr "Descargar a USB"
+
+#: saves.c:1057
+msgid "Download to HDD"
+msgstr "Descargar a HDD"
+
+#: saves.c:1085
+msgid "Extract Archives (RAR, Zip, 7z)"
+msgstr "Extraer Archivos (RAR, Zip, 7z)"
+
+#: saves.c:1090
+msgid "Activate PS4 Accounts"
+msgstr "Activar Cuentas PS4"
+
+#: saves.c:1095
+msgid "App.db Database Management"
+msgstr "Gestión de Base de Datos App.db"
+
+#: saves.c:1101
+msgid "Network Tools (Downloader, Web Server)"
+msgstr "Herramientas de Red (Descargador, Servidor Web)"
+
+#: saves.c:1106
+msgid "Show Parental Security Passcode"
+msgstr "Ver Código de Seguridad Parental"
+
+#: saves.c:1145
+msgid "URL link Downloader (http, https, ftp, ftps)"
+msgstr "Descargador de enlaces URL (http, https, ftp, ftps)"
+
+#: saves.c:1147
+msgid "Local Web Server (full system access)"
+msgstr "Servidor Web Local (acceso completo al sistema)"
+
+#: saves.c:1149
+msgid "Toggle Web Browser history"
+msgstr "Cambiar historial del Navegador"
+
+#: saves.c:1156
+msgid "Rebuild App.db Database (Restore missing XMB items)"
+msgstr "Reconstrucción de Base de datos App.db (restaura contenido del XMB)"
+
+#: saves.c:1160
+msgid "Rebuild DLC Database (addcont.db)"
+msgstr "Reconstrucción de Base de datos DLC (addcont.db)"
+
+#: saves.c:1164
+msgid "Backup System Database Folder"
+msgstr "Copia de Seguridad de carpeta de Base de datos"
+
+#: saves.c:1167
+msgid "Restore System Database Backup"
+msgstr "Restaurar Respaldo de Base de datos"
+
+#: saves.c:1188
+msgid "Activate Offline Account"
+msgstr "Activar Cuenta Offline"
+
+#: saves.c:1218
+msgid "Extract"
+msgstr "Extraer"
+
+#: saves.c:1731 saves.c:1786
+msgid "Bulk Save Management"
+msgstr "Gestión Masiva de Partidas"
+
+#: saves.c:1739
+msgid "Resign selected Saves"
+msgstr "Resignar Partidas Seleccionadas"
+
+#: saves.c:1742
+msgid "Resign all decrypted Saves"
+msgstr "Resignar todas las Partidas desencriptadas"
+
+#: saves.c:1745
+msgid "Copy selected Saves to HDD"
+msgstr "Copiar Partidas Seleccionadas a HDD"
+
+#: saves.c:1748
+msgid "Copy all Saves to HDD"
+msgstr "Copiar Todas las Partidas a HDD"
+
+#: saves.c:1751 saves.c:1802
+msgid "Start local Web Server"
+msgstr "Iniciar Servidor Web Local"
+
+#: saves.c:1754
+msgid "Dump all decrypted Save Fingerprints"
+msgstr "Volcar todos los Fingerprint de Partidas desencriptadas"
+
+#: saves.c:1794 saves.c:1929 saves.c:2034
+msgid "Copy selected Saves to USB"
+msgstr "Copiar Partidas Seleccionadas a USB"
+
+#: saves.c:1795 saves.c:1799
+msgid "Copy Saves to USB"
+msgstr "Copiar Partidas a USB"
+
+#: saves.c:1798 saves.c:1932 saves.c:2037
+msgid "Copy all Saves to USB"
+msgstr "Copiar Todas las Partidas a USB"
+
+#: saves.c:1805
+msgid "Dump all Save Fingerprints"
+msgstr "Volcar todos los Fingerprint de Partidas"
+
+#: saves.c:1919 saves.c:2024
+msgid "Memory Card Management"
+msgstr "Gestión de Tarjeta de Memoria"
+
+#: saves.c:1928 saves.c:2033
+msgid "Export selected Saves to USB"
+msgstr "Exportar Partidas Seleccionadas a USB"
+
+#: saves.c:1931 saves.c:2036
+msgid "Export all Saves to USB"
+msgstr "Exportar Todas las Partidas a USB"
+
+#: saves.c:1936 saves.c:2042
+msgid "Virtual Memory Card"
+msgstr "Tarjeta de Memoria Virtual"
+
+#: saves.c:1939
+msgid "Export Memory Card to .VM1 format"
+msgstr "Exportar Tarjeta de Memoria a formato .VM1"
+
+#: saves.c:1941
+msgid "Save .VM1 Memory Card to USB"
+msgstr "Guardar Tarjeta de Memoria .VM1 en USB"
+
+#: saves.c:1943
+msgid "Save .VM1 Memory Card to HDD"
+msgstr "Guardar Tarjeta de Memoria .VM1 en HDD"
+
+#: saves.c:1948
+msgid "Export Memory Card to .VMP format"
+msgstr "Exportar Tarjeta de Memoria a formato .VMP"
+
+#: saves.c:1950
+msgid "Save .VMP Memory Card to USB"
+msgstr "Guardar Tarjeta de Memoria .VMP en USB"
+
+#: saves.c:1952
+msgid "Save .VMP Memory Card to HDD"
+msgstr "Guardar Tarjeta de Memoria .VMP en HDD"
+
+#: saves.c:1958 saves.c:1971 saves.c:2063 saves.c:2075
+msgid "Import Saves to Virtual MemCard"
+msgstr "Importar Partidas a Tarjeta Virtual"
+
+#: saves.c:2045
+msgid "Export Memory Card to .VM2 format"
+msgstr "Exportar Tarjeta de Memoria a formato .VM2"
+
+#: saves.c:2047
+msgid "Save .VM2 Memory Card to USB"
+msgstr "Guardar Tarjeta de Memoria .VM2 en USB"
+
+#: saves.c:2049
+msgid "Save .VM2 Memory Card to HDD"
+msgstr "Guardar Tarjeta de Memoria .VM2 en HDD"
+
+#: saves.c:2054
+msgid "Export Memory Card to .VMC format (No ECC)"
+msgstr "Exportar Tarjeta de Memoria a formato .VMC (Sin ECC)"
+
+#: saves.c:2056
+msgid "Save .VMC Memory Card to USB"
+msgstr "Guardar Tarjeta de Memoria .VMC en USB"
+
+#: saves.c:2058
+msgid "Save .VMC Memory Card to HDD"
+msgstr "Guardar Tarjeta de Memoria .VMC en HDD"
+
+#: saves.c:2151
+msgid "Export Trophies"
+msgstr "Exportar Trofeos"
+
+#: saves.c:2159
+msgid "Backup selected Trophies to USB"
+msgstr "Respaldar Trofeos Seleccionados a USB"
+
+#: saves.c:2160 saves.c:2164
+msgid "Save Trophies to USB"
+msgstr "Guardar Trofeos en USB"
+
+#: saves.c:2163
+msgid "Backup all Trophies to USB"
+msgstr "Respaldar Todos los Trofeos a USB"
+
+#: saves.c:2167
+msgid "Export all encrypted Trophies to .Zip"
+msgstr "Exportar Todos los Trofeos encriptados a .Zip"
+
+#: settings.c:19
+msgid "Online DB"
+msgstr "DB Online"
+
+#: settings.c:19
+msgid "FTP Server"
+msgstr "Servidor FTP"
+
+#: settings.c:20
+msgid "Disabled"
+msgstr "Deshabilitado"
+
+#: settings.c:20
+msgid "by Name"
+msgstr "por Nombre"
+
+#: settings.c:20
+msgid "by Title ID"
+msgstr "por ID de Título"
+
+#: settings.c:20
+msgid "by Type"
+msgstr "por Tipo"
+
+#: settings.c:21
+msgid "Fake USB"
+msgstr "USB Falso"
+
+#: settings.c:21
+msgid "Auto-detect"
+msgstr "Auto-detectar"
+
+#: settings.c:34
+msgid "Background Music"
+msgstr "Música de Fondo"
+
+#: settings.c:40
+msgid "Menu Animations"
+msgstr "Animaciones de Menú"
+
+#: settings.c:46
+msgid "Sort Saves"
+msgstr "Ordenar Partidas"
+
+#: settings.c:52
+msgid "USB Saves Source"
+msgstr "Fuente de Partidas USB"
+
+#: settings.c:58
+msgid "Version Update Check"
+msgstr "Verificación de Actualización de Versión"
+
+#: settings.c:64
+msgid "Set User FTP Server URL"
+msgstr "Establecer URL del Servidor FTP"
+
+#: settings.c:71
+msgid "Online Saves Server"
+msgstr "Servidor de Partidas Online"
+
+#: settings.c:77
+msgid "Update Application Data"
+msgstr "Actualizar Datos de Aplicación"
+
+#: settings.c:83
+msgid "Change Online Database URL"
+msgstr "Cambiar URL de Base de Datos Online"
+
+#: settings.c:89
+msgid "Clear Local Cache"
+msgstr "Limpiar Caché Local"
+
+#: settings.c:96
+msgid "Enable Debug Log"
+msgstr "Habilitar Registro de Depuración"
+
+#: settings.c:134
+msgid "Enter the Online Database URL"
+msgstr "Ingrese la URL de la Base de Datos Online"
+
+#: settings.c:140
+msgid "Online database URL changed to:"
+msgstr "Nueva URL de Base de Datos Online:"
+
+#: settings.c:150
+msgid "Enter the FTP server URL"
+msgstr "Ingrese la URL del Servidor FTP"
+
+#: settings.c:159
+msgid "Testing connection..."
+msgstr "Probando la conexión..."
+
+#: settings.c:184
+msgid "FTP server URL changed to:"
+msgstr "Nueva URL del Servidor FTP:"
+
+#: settings.c:187
+msgid "Error! Couldn't connect to FTP server"
+msgstr "¡Error! No se pudo conectar al servidor FTP"
+
+#: settings.c:187
+msgid "Check debug logs for more information"
+msgstr "Revise los registros de depuración para más información"
+
+#: settings.c:195
+msgid "Local cache folder cleaned:"
+msgstr "Carpeta de caché local limpiada:"
+
+#: settings.c:203
+msgid "Error! Can't download data update file!"
+msgstr "¡Error! No se puede descargar el archivo de actualización!"
+
+#: settings.c:206
+#, c-format
+msgid "Successfully updated %d save patch files!"
+msgstr "Actualizados %d archivos de trucos correctamente!"
+
+#: settings.c:208
+msgid "Error! Can't extract data update file!"
+msgstr "¡Error! No se puede extraer el archivo de actualización!"
+
+#: settings.c:275
+msgid "New version available! Download update?"
+msgstr "¡Nueva versión disponible! ¿Descargar actualización?"
+
+#: settings.c:279
+#, c-format
+msgid "Update downloaded to %s"
+msgstr "Actualización descargada en %s"
+
+#: settings.c:281
+msgid "Download error!"
+msgstr "¡Error de descarga!"
+
+#: settings.c:296
+msgid "Debug Logging Disabled"
+msgstr "Registro de Depuración Desactivado"
+
+#: settings.c:301
+msgid "Debug Logging Enabled!"
+msgstr "Registro de Depuración Activado!"
+
+#: settings.c:354
+msgid "User Settings"
+msgstr "Configuración"
+
+#: zip_util.c:168 zip_util.c:249 zip_util.c:289
+msgid "Extracting files..."
+msgstr "Extrayendo archivos…"

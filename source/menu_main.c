@@ -2,6 +2,7 @@
 #include <string.h>
 #include <time.h>
 #include <orbis/SaveData.h>
+#include <mini18n.h>
 
 #include "orbisPad.h"
 #include "saves.h"
@@ -40,7 +41,10 @@ void initMenuOptions(void)
 {
 	menu_options_maxopt = 0;
 	while (menu_options[menu_options_maxopt].name)
+	{
+		menu_options[menu_options_maxopt].name = mini18n(menu_options[menu_options_maxopt].name);
 		menu_options_maxopt++;
+	}
 
 	menu_options_maxsel = (int *)calloc(1, menu_options_maxopt * sizeof(int));
 
@@ -50,14 +54,17 @@ void initMenuOptions(void)
 		if (menu_options[i].type == APP_OPTION_LIST)
 		{
 			while (menu_options[i].options[menu_options_maxsel[i]])
+			{
+				menu_options[i].options[menu_options_maxsel[i]] = mini18n(menu_options[i].options[menu_options_maxsel[i]]);
 				menu_options_maxsel[i]++;
+			}
 		}
 	}
 }
 
 static int ReloadUserSaves(save_list_t* save_list)
 {
-	init_loading_screen("Loading save games...");
+	init_loading_screen(_("Loading save games..."));
 
 	if (save_list->list)
 	{
@@ -80,7 +87,7 @@ static int ReloadUserSaves(save_list_t* save_list)
 
 	if (!save_list->list)
 	{
-		show_message("No save-games found");
+		show_message(_("No save-games found"));
 		return 0;
 	}
 
@@ -94,7 +101,7 @@ static code_entry_t* LoadRawPatch(void)
 
 	centry->name = strdup(selected_entry->title_id);
 	snprintf(patchPath, sizeof(patchPath), APOLLO_DATA_PATH "%s.savepatch", selected_entry->title_id);
-	centry->codes = readTextFile(patchPath, NULL);
+	centry->codes = readTextFile(patchPath);
 
 	return centry;
 }
@@ -132,7 +139,7 @@ static void SetMenu(int id)
 		case MENU_PS2VMC_SAVES:
 			if (id == MENU_MAIN_SCREEN)
 			{
-				init_loading_screen("Saving PS2 Memory Card...");
+				init_loading_screen(_("Saving PS2 Memory Card..."));
 				UnloadGameList(vmc2_saves.list);
 				vmc2_saves.list = NULL;
 				mcio_vmcFinish();
@@ -297,7 +304,7 @@ static void SetMenu(int id)
 
 		case MENU_PATCHES: //Cheat Selection Menu
 			//if entering from game list, don't keep index, otherwise keep
-			if (menu_id == MENU_USB_SAVES || menu_id == MENU_HDD_SAVES || menu_id == MENU_ONLINE_DB ||
+			if (menu_id == MENU_USB_SAVES || menu_id == MENU_HDD_SAVES || menu_id == MENU_ONLINE_DB || menu_id == MENU_USER_BACKUP ||
 				menu_id == MENU_TROPHIES || menu_id == MENU_PS1VMC_SAVES || menu_id == MENU_PS2VMC_SAVES)
 				menu_old_sel[MENU_PATCHES] = 0;
 
@@ -335,10 +342,11 @@ static void SetMenu(int id)
 		case MENU_PATCH_VIEW: //Cheat View Menu
 			menu_old_sel[MENU_PATCH_VIEW] = 0;
 			if (apollo_config.doAni)
-				Draw_CheatsMenu_View_Ani("Patch view");
+				Draw_CheatsMenu_View_Ani(_("Patch view"));
 			break;
 
 		case MENU_SAVE_DETAILS: //Save Detail View Menu
+			menu_old_sel[MENU_SAVE_DETAILS] = 0;
 			if (apollo_config.doAni)
 				Draw_CheatsMenu_View_Ani(selected_entry->name);
 			break;
@@ -462,7 +470,7 @@ static void doSaveMenu(save_list_t * save_list)
 
 		if (!selected_entry->codes && !save_list->ReadCodes(selected_entry))
 		{
-			show_message("No data found in folder:\n%s", selected_entry->path);
+			show_message("%s\n%s", _("No data found in folder:"), selected_entry->path);
 			return;
 		}
 
@@ -514,7 +522,7 @@ static void doMainMenu(void)
 		return;
 	}
 
-	else if(orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE) && show_dialog(DIALOG_TYPE_YESNO, "Exit to XMB?"))
+	else if(orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE) && show_dialog(DIALOG_TYPE_YESNO, _("Exit to XMB?")))
 		close_app = 1;
 	
 	Draw_MainMenu();
@@ -654,7 +662,7 @@ static void doHexEditor(void)
 
 	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 	{
-		if (show_dialog(DIALOG_TYPE_YESNO, "Save changes to %s?", strrchr(hex_data.filepath, '/') + 1) &&
+		if (show_dialog(DIALOG_TYPE_YESNO, _("Save changes to %s?"), strrchr(hex_data.filepath, '/') + 1) &&
 			(write_buffer(hex_data.filepath, hex_data.data, hex_data.size) == SUCCESS))
 		{
 			option_value_t* optval = list_get_item(selected_centry->options[option_index].opts, menu_sel);
@@ -713,7 +721,7 @@ static void doPatchViewMenu(void)
 		return;
 	}
 	
-	Draw_CheatsMenu_View("Patch view");
+	Draw_CheatsMenu_View(_("Patch view"));
 }
 
 static void doCodeOptionsMenu(void)
@@ -750,7 +758,7 @@ static void doCodeOptionsMenu(void)
 				snprintf(hex_data.filepath, sizeof(hex_data.filepath), APOLLO_USER_PATH "%s_%s/%s", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name, optval->name);
 				if (read_buffer(hex_data.filepath, &hex_data.data, &hex_data.size) < 0)
 				{
-					show_message("Unable to load\n%s", hex_data.filepath);
+					show_message("%s\n%s", _("Failed to load:"), hex_data.filepath);
 					SetMenu(last_menu_id[MENU_CODE_OPTIONS]);
 					return;
 				}

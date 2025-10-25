@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <mini18n.h>
 
 #include "saves.h"
 #include "menu.h"
@@ -48,7 +49,7 @@ void Draw_HexEditor_Ani(const hexedit_data_t* hex)
     for (int ani = 0; ani < MENU_ANI_MAX; ani++)
     {
         SDL_RenderClear(renderer);
-        DrawHeader_Ani(cat_opt_png_index, "Hex Editor", strrchr(hex->filepath, '/')+1, APP_FONT_TITLE_COLOR, 0xffffffff, ani, 12);
+        DrawHeader_Ani(cat_opt_png_index, _("Hex Editor"), strrchr(hex->filepath, '/')+1, APP_FONT_TITLE_COLOR, 0xffffffff, ani, 12);
 
         u8 icon_a = (u8)(((ani * 2) > 0xFF) ? 0xFF : (ani * 2));
         int _game_a = (int)(icon_a - (MENU_ANI_MAX / 2)) * 2;
@@ -68,6 +69,6 @@ void Draw_HexEditor_Ani(const hexedit_data_t* hex)
 
 void Draw_HexEditor(const hexedit_data_t* hex)
 {
-    DrawHeader(cat_opt_png_index, 0, "Hex Editor", strrchr(hex->filepath, '/')+1, APP_FONT_TITLE_COLOR | 0xFF, 0xffffffff, 0);
+    DrawHeader(cat_opt_png_index, 0, _("Hex Editor"), strrchr(hex->filepath, '/')+1, APP_FONT_TITLE_COLOR | 0xFF, 0xffffffff, 0);
     _draw_HexEditor(hex, 0xFF);
 }

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-
+#include <mini18n.h>
 #include <curl/curl.h>
 #include <orbis/NetCtl.h>
 #include <orbis/Sysmodule.h>
@@ -121,7 +121,7 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 
 	if (show_progress)
 	{
-		init_progress_bar("Downloading...");
+		init_progress_bar(_("Downloading..."));
 		/* pass the struct pointer into the xferinfo function */
 		curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, &update_progress);
 		curl_easy_setopt(curl, CURLOPT_XFERINFODATA, full_url);
@@ -223,7 +223,7 @@ int ftp_upload(const char* local_file, const char* url, const char* filename, in
 
 	if (show_progress)
 	{
-		init_progress_bar("Uploading...");
+		init_progress_bar(_("Uploading..."));
 		/* pass the struct pointer into the xferinfo function */
 		curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, &upload_progress);
 		curl_easy_setopt(curl, CURLOPT_XFERINFODATA, (void*) filename);

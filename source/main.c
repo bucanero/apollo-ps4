@@ -13,6 +13,7 @@
 #include <orbis/CommonDialog.h>
 #include <orbis/Sysmodule.h>
 #include <orbis/SystemService.h>
+#include <mini18n.h>
 
 #include "saves.h"
 #include "sfo.h"
@@ -80,7 +81,7 @@ uint32_t* free_mem;                         // Pointer after last texture
 */
 save_list_t hdd_saves = {
     .id = MENU_HDD_SAVES,
-    .title = "HDD Saves",
+    .title = NULL,
     .list = NULL,
     .path = "",
     .ReadList = &ReadUserList,
@@ -93,7 +94,7 @@ save_list_t hdd_saves = {
 */
 save_list_t usb_saves = {
     .id = MENU_USB_SAVES,
-    .title = "USB Saves",
+    .title = NULL,
     .list = NULL,
     .path = "",
     .ReadList = &ReadUsbList,
@@ -106,7 +107,7 @@ save_list_t usb_saves = {
 */
 save_list_t trophies = {
     .id = MENU_TROPHIES,
-    .title = "Trophies",
+    .title = NULL,
     .list = NULL,
     .path = "",
     .ReadList = &ReadTrophyList,
@@ -119,7 +120,7 @@ save_list_t trophies = {
 */
 save_list_t online_saves = {
     .id = MENU_ONLINE_DB,
-    .title = "Online Database",
+    .title = NULL,
     .list = NULL,
     .path = ONLINE_URL,
     .ReadList = &ReadOnlineList,
@@ -132,7 +133,7 @@ save_list_t online_saves = {
 */
 save_list_t user_backup = {
     .id = MENU_USER_BACKUP,
-    .title = "User Tools",
+    .title = NULL,
     .list = NULL,
     .path = "",
     .ReadList = &ReadBackupList,
@@ -145,7 +146,7 @@ save_list_t user_backup = {
 */
 save_list_t vmc1_saves = {
     .id = MENU_PS1VMC_SAVES,
-    .title = "PS1 Virtual Memory Card",
+    .title = NULL,
     .list = NULL,
     .path = "",
     .ReadList = &ReadVmc1List,
@@ -158,7 +159,7 @@ save_list_t vmc1_saves = {
 */
 save_list_t vmc2_saves = {
     .id = MENU_PS2VMC_SAVES,
-    .title = "PS2 Virtual Memory Card",
+    .title = NULL,
     .list = NULL,
     .path = "",
     .ReadList = &ReadVmc2List,
@@ -166,10 +167,8 @@ save_list_t vmc2_saves = {
     .UpdatePath = &update_vmc_path,
 };
 
-static const char* get_button_prompts(int menu_id)
+static const char* get_button_prompts(char* prompt)
 {
-	const char* prompt = NULL;
-
 	switch (menu_id)
 	{
 		case MENU_TROPHIES:
@@ -178,35 +177,35 @@ static const char* get_button_prompts(int menu_id)
 		case MENU_ONLINE_DB:
 		case MENU_PS1VMC_SAVES:
 		case MENU_PS2VMC_SAVES:
-			prompt = "\x10 Select    \x13 Back    \x12 Details    \x11 Refresh";
+			snprintf(prompt, 0xFF, "\x10 %s    \x13 %s    \x12 %s    \x11 %s", _("Select"), _("Back"), _("Details"), _("Refresh"));
 			break;
 
 		case MENU_USER_BACKUP:
-			prompt = "\x10 Select    \x13 Back    \x11 Refresh";
+			snprintf(prompt, 0xFF, "\x10 %s    \x13 %s    \x11 %s", _("Select"), _("Back"), _("Refresh"));
 			break;
 
 		case MENU_SETTINGS:
 		case MENU_CODE_OPTIONS:
-			prompt = "\x10 Select    \x13 Back";
+			snprintf(prompt, 0xFF, "\x10 %s    \x13 %s", _("Select"), _("Back"));
 			break;
 
 		case MENU_CREDITS:
 		case MENU_PATCH_VIEW:
 		case MENU_SAVE_DETAILS:
-			prompt = "\x13 Back";
+			snprintf(prompt, 0xFF, "\x13 %s", _("Back"));
 			break;
 
 		case MENU_PATCHES:
-			prompt = "\x10 Select    \x12 View Code    \x13 Back";
+			snprintf(prompt, 0xFF, "\x10 %s    \x12 %s    \x13 %s", _("Select"), _("View Code"), _("Back"));
 			break;
 
 		case MENU_HEX_EDITOR:
-			prompt = "\x10 Value Up  \x11 Value Down   \x13 Exit";
+			snprintf(prompt, 0xFF, "\x10 %s    \x11 %s   \x13 %s", _("Value Up"), _("Value Down"), _("Exit"));
 			break;
 
 		case MENU_MAIN_SCREEN:
 		default:
-			prompt = "";
+			prompt[0] = 0;
 			break;
 	}
 
@@ -215,6 +214,7 @@ static const char* get_button_prompts(int menu_id)
 
 static void helpFooter(void)
 {
+	char footer[256];
 	u8 alpha = 0xFF;
 
 	if (apollo_config.doAni && orbisPadGetConf()->idle > 0x100)
@@ -226,7 +226,7 @@ static void helpFooter(void)
 	SetFontSize(APP_FONT_SIZE_DESCRIPTION);
 	SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 	SetFontColor(APP_FONT_COLOR | alpha, 0);
-	DrawString(0, SCREEN_HEIGHT - 94, get_button_prompts(menu_id));
+	DrawString(0, SCREEN_HEIGHT - 94, get_button_prompts(footer));
 	SetFontAlign(FONT_ALIGN_LEFT);
 }
 
@@ -468,6 +468,27 @@ void update_vmc_path(char* path)
 	path[0] = 0;
 }
 
+static void initLocalization(void)
+{
+	char path[256];
+
+	snprintf(path, sizeof(path), APOLLO_DATA_PATH "lang_%s.po", get_user_language());
+	if (mini18n_set_locale(path) != SUCCESS)
+	{
+		snprintf(path, sizeof(path), APOLLO_APP_PATH "misc/lang_%s.po", get_user_language());
+		if (mini18n_set_locale(path) != SUCCESS)
+			LOG("Localization file not found: %s", path);
+	}
+
+	hdd_saves.title = _("HDD Saves");
+	usb_saves.title = _("USB Saves");
+	trophies.title = _("Trophies");
+	user_backup.title = _("User Tools");
+	online_saves.title = _("Online Database");
+	vmc1_saves.title = _("PS1 Virtual Memory Card");
+	vmc2_saves.title = _("PS2 Virtual Memory Card");
+}
+
 static void registerSpecialChars(void)
 {
 	// Register save tags
@@ -504,7 +525,7 @@ static void terminate(void)
 {
 	LOG("Exiting...");
 	sceAudioOutClose(audio);
-
+	mini18n_close();
 	terminate_jbc();
 	sceSystemServiceLoadExec("exit", NULL);
 }
@@ -634,13 +655,14 @@ s32 main(s32 argc, const char* argv[])
 		return (-1);
 	}
 
+	initLocalization();
 	// Load application settings
 	load_app_settings(&apollo_config);
 
 	if (apollo_config.dbglog)
 	{
 		dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 0);
-		notify_popup(NOTIFICATION_ICON_DEFAULT, "Debug Logging Enabled\n%s", APOLLO_PATH "apollo.log");
+		notify_popup(NOTIFICATION_ICON_DEFAULT, "%s\n%s", _("Debug Logging Enabled"), APOLLO_PATH "apollo.log");
 	}
 
 	// Unpack application data on first run
@@ -649,7 +671,7 @@ s32 main(s32 argc, const char* argv[])
 		LOG("Unpacking application data...");
 //		clean_directory(APOLLO_DATA_PATH);
 		if (extract_zip(APOLLO_APP_PATH "misc/appdata.zip", APOLLO_DATA_PATH))
-			notify_popup(NOTIFICATION_ICON_DEFAULT, "Successfully installed local application data");
+			notify_popup(NOTIFICATION_ICON_DEFAULT, _("Successfully installed local application data"));
 
 		strncpy(apollo_config.app_ver, APOLLO_VERSION, sizeof(apollo_config.app_ver));
 		save_app_settings(&apollo_config);
@@ -700,7 +722,8 @@ s32 main(s32 argc, const char* argv[])
 		drawScene();
 
 		//Draw help
-		helpFooter();
+		if (menu_id)
+			helpFooter();
 
 #ifdef APOLLO_ENABLE_LOGGING
 		// Calculate FPS and ms/frame

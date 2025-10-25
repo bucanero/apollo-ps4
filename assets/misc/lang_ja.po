@@ -33,39 +33,39 @@ msgstr "セーブデータの抽出に失敗しました!"
 
 #: exec_cmd.c:108
 msgid "Exporting save game..."
-msgstr ""
+msgstr "セーブデータをエクスポート中..."
 
 #: exec_cmd.c:136
 msgid "Error! Can't export save game to:"
-msgstr "エラー！セーブデータをエクスポートできません:"
+msgstr "エラー!セーブデータをエクスポートできません:"
 
 #: exec_cmd.c:140 exec_cmd.c:1621
 msgid "Zip file successfully saved to:"
-msgstr "Zipファイルが正常に保存されました:"
+msgstr "Zipファイルは正常に保存されました:"
 
 #: exec_cmd.c:150 exec_cmd.c:383
 msgid "Copy operation cancelled!"
-msgstr ""
+msgstr "コピー操作がキャンセルされました!"
 
 #: exec_cmd.c:150 exec_cmd.c:383
 msgid "Same source and destination."
-msgstr ""
+msgstr "同じ送信元と宛先です。"
 
 #: exec_cmd.c:160
 msgid "Copying files..."
-msgstr ""
+msgstr "ファイルをコピー中..."
 
 #: exec_cmd.c:169 exec_cmd.c:392
 msgid "Files successfully copied to:"
-msgstr "ファイルが正常にコピーされました:"
+msgstr "ファイルは正常にコピーされました:"
 
 #: exec_cmd.c:171
 msgid "Error! Can't copy save game to:"
-msgstr ""
+msgstr "エラー!セーブデータを次の場所へコピーできません:"
 
 #: exec_cmd.c:250 exec_cmd.c:637
 msgid "Save game already exists:"
-msgstr ""
+msgstr "セーブデータは既に存在します:"
 
 #: exec_cmd.c:250 exec_cmd.c:637
 msgid "Overwrite?"
@@ -73,27 +73,27 @@ msgstr "上書きしますか?"
 
 #: exec_cmd.c:255
 msgid "Error mounting save game folder!"
-msgstr ""
+msgstr "セーブデータフォルダのマウントに失敗しました!"
 
 #: exec_cmd.c:261
 msgid "Error creating save game folder!"
-msgstr "セーブデータフォルダの作成中にエラーが発生しました!"
+msgstr "セーブデータフォルダの作成に失敗しました!"
 
 #: exec_cmd.c:281
 msgid "Error! Can't update save game:"
-msgstr ""
+msgstr "エラー!セーブデータの更新ができません:"
 
 #: exec_cmd.c:387
 msgid "Copying save game..."
-msgstr ""
+msgstr "セーブデータのコピー中..."
 
 #: exec_cmd.c:394
 msgid "Error! Can't copy Save-game folder:"
-msgstr ""
+msgstr "エラー!セーブデータフォルダをコピーできません:"
 
 #: exec_cmd.c:405 exec_cmd.c:896
 msgid "Copying all saves..."
-msgstr ""
+msgstr "すべてのセーブデータをコピー中..."
 
 #: exec_cmd.c:423
 msgid "Saves copied to HDD"
@@ -101,36 +101,36 @@ msgstr "セーブデータをHDDにコピー"
 
 #: exec_cmd.c:459
 msgid "All files extracted to:"
-msgstr "すべてのファイルは以下に抽出されました:"
+msgstr "すべてのファイルは次の場所に抽出されました:"
 
 #: exec_cmd.c:461
 #, c-format
 msgid "Error: %s couldn't be extracted"
-msgstr "エラー:%sを抽出できませんでした"
+msgstr "エラー::%sを抽出できませんでした"
 
 #: exec_cmd.c:474
 msgid "Error! Keystone file is not available:"
-msgstr ""
+msgstr "エラー!キーストーンファイルが利用できません:"
 
 #: exec_cmd.c:483
 msgid "keystone fingerprint:"
-msgstr ""
+msgstr "キーストーン指紋:"
 
 #: exec_cmd.c:503 exec_cmd.c:1497
 msgid "Applying changes..."
-msgstr ""
+msgstr "変更を適用中..."
 
 #: exec_cmd.c:532
 msgid "Trophies successfully updated!"
-msgstr ""
+msgstr "トロフィーの更新に成功しました!"
 
 #: exec_cmd.c:534
 msgid "Error! Couldn't update trophies"
-msgstr ""
+msgstr "エラー!トロフィーを更新できませんでした"
 
 #: exec_cmd.c:549
-msgid "Exporting Trophies..."
-msgstr ""
+msgid "Exporting Trophies ..."
+msgstr "トロフィーのエクスポート中..."
 
 #: exec_cmd.c:567
 msgid "Trophies successfully saved to:"
@@ -138,11 +138,11 @@ msgstr "トロフィーの保存に成功しました:"
 
 #: exec_cmd.c:578
 msgid "Dumping all fingerprints..."
-msgstr ""
+msgstr "すべての指紋をダンプ中..."
 
 #: exec_cmd.c:603
 msgid "All fingerprints dumped to:"
-msgstr ""
+msgstr "すべての指紋は以下にダンプされました:"
 
 #: exec_cmd.c:612
 msgid "Enter the Account ID"
@@ -154,48 +154,48 @@ msgstr "エラー!アカウントIDが無効です"
 
 #: exec_cmd.c:624
 msgid "Error! Couldn't activate user account"
-msgstr ""
+msgstr "エラー!ユーザーアカウントを有効化できませんでした"
 
 #: exec_cmd.c:628
 msgid "Account successfully activated!"
-msgstr "エラー!アカウントを有効化できませんでした!"
+msgstr "アカウントの有効化が完了しました!"
 
 #: exec_cmd.c:628
 msgid "A system reboot is required"
-msgstr "アカウントの有効化が完了しました"
+msgstr "システムの再起動が必要です"
 
 #: exec_cmd.c:643
 msgid "Encrypted save copied successfully!"
-msgstr ""
+msgstr "暗号化されたセーブデータが正常にコピーされました!"
 
 #: exec_cmd.c:647
 msgid "Error: can't create HDD save"
-msgstr ""
+msgstr "エラー:HDDのセーブデータを作成できません"
 
 #: exec_cmd.c:651 exec_cmd.c:655
 msgid "Error: can't copy file"
-msgstr ""
+msgstr "エラー::ファイルをコピーできません"
 
 #: exec_cmd.c:659
 msgid "Error! Can't mount encrypted save."
-msgstr ""
+msgstr "エラー!暗号化されたセーブデータをマウントできません。"
 
 #: exec_cmd.c:659
 msgid "(incompatible save-game firmware version)"
-msgstr ""
+msgstr "(互換性のないセーブデータファームウェアバージョン)"
 
 #: exec_cmd.c:663
 #, c-format
 msgid "Error: can't copy save %s"
-msgstr ""
+msgstr "エラー:保存ファイル%sをコピーできません"
 
 #: exec_cmd.c:684
 msgid "Keystone successfully copied to:"
-msgstr ""
+msgstr "キーストーンが正常にコピーされました:"
 
 #: exec_cmd.c:686
 msgid "Error! Keystone couldn't be copied"
-msgstr ""
+msgstr "エラー!キーストーンをコピーできませんでした"
 
 #: exec_cmd.c:873
 msgid "Web Server listening on:"
@@ -207,23 +207,23 @@ msgstr "サーバーを停止するには、OKを押してください。"
 
 #: exec_cmd.c:876
 msgid "Error starting Web Server!"
-msgstr "Webサーバーの起動中にエラーが発生しました!"
+msgstr "Webサーバーの起動に失敗しました!"
 
 #: exec_cmd.c:917
 msgid "Saves copied to:"
-msgstr ""
+msgstr "保存先:"
 
 #: exec_cmd.c:929
 msgid "Exporting all VMC saves..."
-msgstr ""
+msgstr "すべてのVMC保存データをエクスポート中..."
 
 #: exec_cmd.c:949
 msgid "Saves exported to:"
-msgstr "エクスポートされた保存先:"
+msgstr "保存先:"
 
 #: exec_cmd.c:969 exec_cmd.c:1025
 msgid "Save successfully exported to:"
-msgstr "正常にエクスポートされました:"
+msgstr "正常に保存されました:"
 
 #: exec_cmd.c:971 exec_cmd.c:1027
 msgid "Error exporting save:"
@@ -231,15 +231,15 @@ msgstr "セーブデータのエクスポート中にエラーが発生しまし
 
 #: exec_cmd.c:989
 msgid "Memory card successfully exported to:"
-msgstr "メモリカードが正常にエクスポートされました"
+msgstr "メモリカードが正常にエクスポートされました:"
 
 #: exec_cmd.c:991
 msgid "Error! Failed to export PS1 memory card"
-msgstr ""
+msgstr "エラー!PS1メモリーカードのエクスポートに失敗しました"
 
 #: exec_cmd.c:1034
 msgid "Importing PS2 save..."
-msgstr ""
+msgstr "PS2のセーブデータをインポート中..."
 
 #: exec_cmd.c:1066
 msgid "Successfully imported to VMC:"
@@ -256,7 +256,7 @@ msgstr "%sを削除しますか?"
 
 #: exec_cmd.c:1106
 msgid "Save successfully deleted:"
-msgstr "削除が正常に完了しました:"
+msgstr "保存に成功し削除しました:"
 
 #: exec_cmd.c:1108
 msgid "Error! Couldn't delete save:"
@@ -269,19 +269,19 @@ msgstr "%sをアップロードしますか?"
 
 #: exec_cmd.c:1225
 msgid "Sync with FTP Server..."
-msgstr ""
+msgstr "FTPサーバーと同期中..."
 
 #: exec_cmd.c:1264
 msgid "Error! Couldn't zip save:"
-msgstr "エラー!セーブデータを圧縮できませんでした:"
+msgstr "エラー!保存を圧縮できませんでした:"
 
 #: exec_cmd.c:1299
 msgid "Updating games index..."
-msgstr ""
+msgstr "ゲームインデックスを更新中..."
 
 #: exec_cmd.c:1321
 msgid "Save successfully uploaded:"
-msgstr "アップロードが正常に保存されました:"
+msgstr "保存に成功しました:"
 
 #: exec_cmd.c:1323
 msgid "Error! Couldn't upload save:"
@@ -289,11 +289,11 @@ msgstr "エラー!セーブデータのアップロードに失敗しました:"
 
 #: exec_cmd.c:1341
 msgid "Exporting PS2 memory card..."
-msgstr ""
+msgstr "PS2メモリーカードのエクスポート中..."
 
 #: exec_cmd.c:1346
 msgid "File successfully saved to:"
-msgstr "ファイルが正常に保存されました"
+msgstr "ファイルは正常に保存されました:"
 
 #: exec_cmd.c:1348
 msgid "Error! Failed to export PS2 memory card"
@@ -301,20 +301,20 @@ msgstr "エラー!PS2メモリーカードのエクスポートに失敗しま�
 
 #: exec_cmd.c:1360
 msgid "Error getting PS4 user list!"
-msgstr ""
+msgstr "PS4ユーザーリストの取得に失敗しました!"
 
 #: exec_cmd.c:1369
 #, c-format
 msgid "Database rebuild for user %s failed!"
-msgstr ""
+msgstr "ユーザー %sのデータベース再構築に失敗しました!"
 
 #: exec_cmd.c:1374
 msgid "Database rebuilt successfully!"
-msgstr ""
+msgstr "データベースの再構築が正常に完了しました!"
 
 #: exec_cmd.c:1374 exec_cmd.c:1907
 msgid "Log out for changes to take effect"
-msgstr ""
+msgstr "変更を反映させるにはログアウトしてください"
 
 #: exec_cmd.c:1550
 msgid "Error! Account changes couldn't be applied"
@@ -331,39 +331,39 @@ msgstr "%sの保存に成功しました!"
 
 #: exec_cmd.c:1573
 msgid "Resigning all saves..."
-msgstr ""
+msgstr "すべてのセーブデータを再署名します..."
 
 #: exec_cmd.c:1593
 #, c-format
 msgid "Error: %d Saves couldn't be resigned"
-msgstr "エラー:%d のセーブデータを再署名できませんでした"
+msgstr "エラー: %d件のセーブデータを再署名できませんでした"
 
 #: exec_cmd.c:1595
 msgid "All saves successfully resigned!"
-msgstr "すべての保存が正常に完了しました!"
+msgstr "すべてのセーブデータが正常に再署名されました!"
 
 #: exec_cmd.c:1616
 msgid "Exporting system database..."
-msgstr ""
+msgstr "システムデータベースをエクスポート中..."
 
 #: exec_cmd.c:1632
 #, c-format
 msgid "DB Backup %s successfully restored!"
-msgstr ""
+msgstr "DBバックアップ%sの復元が正常に完了しました!"
 
 #: exec_cmd.c:1634
 #, c-format
 msgid "Error! Backup %s couldn't be restored"
-msgstr ""
+msgstr "エラー!バックアップ%sを復元できませんでした"
 
 #: exec_cmd.c:1657
 msgid "File successfully exported to:"
-msgstr ""
+msgstr "ファイルのエクスポートに成功しました:"
 
 #: exec_cmd.c:1659
 #, c-format
 msgid "Error! File %s couldn't be exported"
-msgstr ""
+msgstr "エラー!ファイル%sをエクスポートできませんでした"
 
 #: exec_cmd.c:1669
 msgid "Error! Can't find decrypted save-game file:"
@@ -371,12 +371,12 @@ msgstr "エラー!復号化されたセーブデータが見つかりません:"
 
 #: exec_cmd.c:1677
 msgid "File successfully imported to:"
-msgstr "ファイルのインポートに成功しました"
+msgstr "ファイルは正常にインポートされました:"
 
 #: exec_cmd.c:1679
 #, c-format
 msgid "Error! File %s couldn't be imported"
-msgstr ""
+msgstr "エラー!ファイル%sをインポートできませんでした"
 
 #: exec_cmd.c:1687
 msgid "Download URL"
@@ -384,7 +384,7 @@ msgstr "ダウンロードURL"
 
 #: exec_cmd.c:1694
 msgid "File successfully downloaded to:"
-msgstr "ファイルのダウンロードに成功しました:"
+msgstr "ファイルは正常にダウンロードされました:"
 
 #: exec_cmd.c:1696
 msgid "Error! File couldn't be downloaded"
@@ -392,47 +392,47 @@ msgstr "エラー!ファイルをダウンロードできませんでした"
 
 #: exec_cmd.c:1706
 msgid "Enable Browser history?"
-msgstr ""
+msgstr "ブラウザの履歴を有効にしますか?"
 
 #: exec_cmd.c:1707
 msgid "Browser history enabled"
-msgstr ""
+msgstr "ブラウザ履歴が有効です"
 
 #: exec_cmd.c:1712
 msgid "Disable Browser history?"
-msgstr ""
+msgstr "ブラウザの履歴を無効にしますか?"
 
 #: exec_cmd.c:1717
 msgid "Browser history disabled"
-msgstr ""
+msgstr "ブラウザ履歴が無効化されています"
 
 #: exec_cmd.c:1907
 msgid "DLC database fixed successfully!"
-msgstr ""
+msgstr "DLCデータベースの修正が正常に完了しました!"
 
 #: exec_cmd.c:1909
 msgid "DLC Database rebuild failed!"
-msgstr ""
+msgstr "DLCデータベースの再構築に失敗しました!"
 
 #: exec_cmd.c:1951
 msgid "Save successfully imported:"
-msgstr "インポートに成功しました:"
+msgstr "正常にインポートされました:"
 
 #: exec_cmd.c:1953
 msgid "Error! Couldn't import save:"
-msgstr "エラー!セーブデータのインポートに失敗しました"
+msgstr "エラー!セーブデータのインポートに失敗しました:"
 
 #: http.c:124
 msgid "Downloading..."
-msgstr ""
+msgstr "ダウンロード中..."
 
 #: http.c:226
 msgid "Uploading..."
-msgstr ""
+msgstr "アップロード中..."
 
 #: main.c:180 main.c:184 main.c:189 main.c:199
 msgid "Select"
-msgstr "選択する"
+msgstr "選択"
 
 #: main.c:180 main.c:184 main.c:189 main.c:195 main.c:199
 msgid "Back"
@@ -444,11 +444,11 @@ msgstr "詳細"
 
 #: main.c:180 main.c:184
 msgid "Refresh"
-msgstr "リフレッシュ"
+msgstr "更新"
 
 #: main.c:199
 msgid "View Code"
-msgstr "コードを表示する"
+msgstr "コードを表示"
 
 #: main.c:203
 msgid "Value Up"
@@ -492,7 +492,7 @@ msgstr "PS2仮想メモリーカード"
 
 #: main.c:716
 msgid "Debug Logging Enabled"
-msgstr "デバッグログ有効"
+msgstr "デバッグログを有効化"
 
 #: main.c:725
 msgid "Successfully installed local application data"
@@ -500,7 +500,7 @@ msgstr "ローカルアプリケーションデータのインストールに成
 
 #: menu_about.c:103
 msgid "Console details:"
-msgstr "本体の詳細情報"
+msgstr "本体の詳細:"
 
 #: menu_about.c:142 menu_about.c:166
 msgid "About"
@@ -532,11 +532,11 @@ msgstr "ツール"
 
 #: menu_cheats.c:528
 msgid "PS1 Saves"
-msgstr "PS1セーブデータ"
+msgstr "PS1のセーブデータ"
 
 #: menu_cheats.c:532
 msgid "PS2 Saves"
-msgstr "PS2セーブデータ"
+msgstr "PS2のセーブデータ"
 
 #: menu_hex.c:52 menu_hex.c:72
 msgid "Hex Editor"
@@ -544,19 +544,19 @@ msgstr "Hexエディタ"
 
 #: menu_main.c:67
 msgid "Loading save games..."
-msgstr ""
+msgstr "セーブデータの読み込み中..."
 
 #: menu_main.c:90
 msgid "No save-games found"
-msgstr "セーブ、ゲームが見つかりませんでした"
+msgstr "セーブデータが見つかりませんでした"
 
 #: menu_main.c:142
 msgid "Saving PS2 Memory Card..."
-msgstr ""
+msgstr "PS2メモリーカードの保存中..."
 
 #: menu_main.c:345 menu_main.c:724
 msgid "Patch view"
-msgstr ""
+msgstr "パッチビュー"
 
 #: menu_main.c:473
 msgid "No data found in folder:"
@@ -569,7 +569,7 @@ msgstr "XMBに戻りますか?"
 #: menu_main.c:665
 #, c-format
 msgid "Save changes to %s?"
-msgstr "変更を%sに保存しますか?"
+msgstr "%sの変更を保存しますか?"
 
 #: menu_main.c:761
 msgid "Failed to load:"
@@ -581,7 +581,7 @@ msgstr "設定"
 
 #: saves.c:67
 msgid "Warning! Save couldn't be unmounted!"
-msgstr ""
+msgstr "警告!セーブデータをアンマウントできませんでした!"
 
 #: saves.c:373
 msgid "Apply Changes & Resign"
@@ -589,7 +589,7 @@ msgstr "変更を適用して再署名"
 
 #: saves.c:376 saves.c:519 saves.c:813 saves.c:968
 msgid "View Save Details"
-msgstr "セーブデータの詳細を表示"
+msgstr "保存詳細を表示"
 
 #: saves.c:379 saves.c:816 saves.c:971
 msgid "Delete Save Game"
@@ -601,11 +601,11 @@ msgstr "ファイルのバックアップ"
 
 #: saves.c:388
 msgid "Copy save game to USB"
-msgstr "セーブ、ゲームブデータをUSBにコピー"
+msgstr "セーブデータをUSBにコピー"
 
 #: saves.c:389
 msgid "Copy Save to USB"
-msgstr "セーブデータをUSBにコピー"
+msgstr "USBにコピー"
 
 #: saves.c:394 saves.c:825 saves.c:980
 msgid "Upload save backup to FTP"
@@ -629,7 +629,7 @@ msgstr "ZipファイルをHDDにエクスポート"
 
 #: saves.c:412
 msgid "Export decrypted save files"
-msgstr ""
+msgstr "復号化されたセーブデータをエクスポートする"
 
 #: saves.c:417
 msgid "Import decrypted save files"
@@ -637,31 +637,31 @@ msgstr "復号済みのセーブデータをインポートする"
 
 #: saves.c:422
 msgid "Hex Edit save game files"
-msgstr "セーブデータをHEXで編集"
+msgstr "セーブデータをHexエディタで編集する"
 
 #: saves.c:470
 msgid "Keystone Backup"
-msgstr ""
+msgstr "キーストーンバックアップ"
 
 #: saves.c:473
 msgid "Export Keystone"
-msgstr ""
+msgstr "キーストーンをエクスポート"
 
 #: saves.c:476
 msgid "Import Keystone"
-msgstr ""
+msgstr "キーストーンをインポート"
 
 #: saves.c:479
 msgid "Show Keystone Fingerprint"
-msgstr ""
+msgstr "キーストーン指紋を表示"
 
 #: saves.c:524
 msgid "Encrypted save requires firmware"
-msgstr ""
+msgstr "暗号化されたセーブデータにはファームウェアが必要です"
 
 #: saves.c:566
 msgid "Error Mounting Save!"
-msgstr ""
+msgstr "セーブファイルのマウントに失敗しました!"
 
 #: saves.c:582
 msgid "Cheats"
@@ -669,35 +669,35 @@ msgstr "チート"
 
 #: saves.c:585
 msgid "View Raw Patch File"
-msgstr "Rawパッチファイルを表示"
+msgstr "Rawのパッチファイルを表示"
 
 #: saves.c:639
 msgid "Error Mounting Trophy Set!"
-msgstr ""
+msgstr "トロフィーセットのマウントに失敗しました!"
 
 #: saves.c:646
 msgid "Apply Changes to Trophy Set"
-msgstr ""
+msgstr "トロフィーセットに変更を適用する"
 
 #: saves.c:649
 msgid "View Trophy Set Details"
-msgstr ""
+msgstr "トロフィーセットの詳細を表示"
 
 #: saves.c:652
 msgid "Delete Trophy Set"
-msgstr ""
+msgstr "トロフィーセットを削除"
 
 #: saves.c:659
 msgid "Backup Trophy files to USB"
-msgstr ""
+msgstr "トロフィーファイルをUSBにバックアップする"
 
 #: saves.c:661
 msgid "Copy Trophy to USB"
-msgstr "USBにトロフィーをコピー"
+msgstr "トロフィーをUSBにコピー"
 
 #: saves.c:664
 msgid "Export Trophy files to Zip"
-msgstr ""
+msgstr "トロフィーファイルをZipにエクスポート"
 
 #: saves.c:666 saves.c:2168
 msgid "Save .Zip to USB"
@@ -709,11 +709,11 @@ msgstr ".ZipをHDDに保存"
 
 #: saves.c:673
 msgid "Export decrypted trophy files"
-msgstr ""
+msgstr "復号化されたトロフィーファイルをエクスポートする"
 
 #: saves.c:678
 msgid "Import decrypted trophy files"
-msgstr ""
+msgstr "復号化されたトロフィーファイルをインポートする"
 
 #: saves.c:820 saves.c:975
 msgid "Save Game Backup"
@@ -725,7 +725,7 @@ msgstr "セーブデータを.MCS形式でエクスポート"
 
 #: saves.c:830
 msgid "Copy .MCS Save to USB"
-msgstr ".MCSをコピーしてUSBに保存"
+msgstr ".MCSをコピーUSBに保存"
 
 #: saves.c:832
 msgid "Copy .MCS Save to HDD"
@@ -769,11 +769,11 @@ msgstr ".PSUセーブデータをHDDにエクスポート"
 
 #: saves.c:994
 msgid "Export .PSV save to USB"
-msgstr ".PSVセーブデータをUSBにエクスポート"
+msgstr ".PSV保存データをUSBにエクスポート"
 
 #: saves.c:996
 msgid "Export .PSV save to HDD"
-msgstr ".PSVセーブデータをHDDにエクスポート"
+msgstr ".PSV保存データをHDDにエクスポート"
 
 #: saves.c:1055
 msgid "Download to USB"
@@ -785,7 +785,7 @@ msgstr "HDDにダウンロード"
 
 #: saves.c:1085
 msgid "Extract Archives (RAR, Zip, 7z)"
-msgstr "アーカイブを解凍する（RAR、Zip、7z）"
+msgstr "アーカイブを解凍する(RAR、Zip、7z)"
 
 #: saves.c:1090
 msgid "Activate PS4 Accounts"
@@ -793,51 +793,51 @@ msgstr "PS4アカウントを有効化する"
 
 #: saves.c:1095
 msgid "App.db Database Management"
-msgstr ""
+msgstr "App.db データベース管理"
 
 #: saves.c:1101
 msgid "Network Tools (Downloader, Web Server)"
-msgstr "ネットワークツール（ダウンローダー、Webサーバー）"
+msgstr "ネットワークツール(ダウンローダー、Webサーバー)"
 
 #: saves.c:1106
 msgid "Show Parental Security Passcode"
-msgstr ""
+msgstr "保護者のセキュリティパスコードを表示する"
 
 #: saves.c:1145
 msgid "URL link Downloader (http, https, ftp, ftps)"
-msgstr "URLリンクダウンローダー（http、https、ftp、ftps）"
+msgstr "URLリンクダウンローダー(http、https、ftp、ftps)"
 
 #: saves.c:1147
 msgid "Local Web Server (full system access)"
-msgstr "ローカルWebサーバー（フルシステムアクセス）"
+msgstr "ローカルWebサーバー(フルシステムアクセス)"
 
 #: saves.c:1149
 msgid "Toggle Web Browser history"
-msgstr ""
+msgstr "ウェブブラウザの履歴を切り替える"
 
 #: saves.c:1156
 msgid "Rebuild App.db Database (Restore missing XMB items)"
-msgstr ""
+msgstr "App.db データベースの再構築(欠落しているXMBアイテムの復元)"
 
 #: saves.c:1160
 msgid "Rebuild DLC Database (addcont.db)"
-msgstr ""
+msgstr "DLCデータベースの再構築 (addcont.db)"
 
 #: saves.c:1164
 msgid "Backup System Database Folder"
-msgstr ""
+msgstr "システムデータベースフォルダをバックアップ"
 
 #: saves.c:1167
 msgid "Restore System Database Backup"
-msgstr ""
+msgstr "システムデータベースのバックアップを復元する"
 
 #: saves.c:1188
 msgid "Activate Offline Account"
-msgstr ""
+msgstr "オフラインアカウントを有効にする"
 
 #: saves.c:1218
 msgid "Extract"
-msgstr ""
+msgstr "抽出"
 
 #: saves.c:1731 saves.c:1786
 msgid "Bulk Save Management"
@@ -845,11 +845,11 @@ msgstr "一括保存管理"
 
 #: saves.c:1739
 msgid "Resign selected Saves"
-msgstr ""
+msgstr "選択したセーブデータを再署名する"
 
 #: saves.c:1742
 msgid "Resign all decrypted Saves"
-msgstr ""
+msgstr "復号化されたセーブデータをすべて再署名する"
 
 #: saves.c:1745
 msgid "Copy selected Saves to HDD"
@@ -861,11 +861,11 @@ msgstr "すべてのセーブデータをHDDにコピー"
 
 #: saves.c:1751 saves.c:1802
 msgid "Start local Web Server"
-msgstr "ローカルWebサーバーを起動"
+msgstr "ローカルWebサーバーを起動する"
 
 #: saves.c:1754
 msgid "Dump all decrypted Save Fingerprints"
-msgstr ""
+msgstr "復号済みのセーブデータの指紋をすべてダンプする"
 
 #: saves.c:1794 saves.c:1929 saves.c:2034
 msgid "Copy selected Saves to USB"
@@ -881,11 +881,11 @@ msgstr "すべてのセーブデータをUSBにコピー"
 
 #: saves.c:1805
 msgid "Dump all Save Fingerprints"
-msgstr ""
+msgstr "すべてのセーブデータの指紋をダンプ"
 
 #: saves.c:1919 saves.c:2024
 msgid "Memory Card Management"
-msgstr "メモリカード管理"
+msgstr "メモリーカードの管理"
 
 #: saves.c:1928 saves.c:2033
 msgid "Export selected Saves to USB"
@@ -901,35 +901,35 @@ msgstr "仮想メモリカード"
 
 #: saves.c:1939
 msgid "Export Memory Card to .VM1 format"
-msgstr ""
+msgstr "メモリカードを.VM1形式でエクスポート"
 
 #: saves.c:1941
 msgid "Save .VM1 Memory Card to USB"
-msgstr ""
+msgstr ".VM1メモリーカードをUSBに保存"
 
 #: saves.c:1943
 msgid "Save .VM1 Memory Card to HDD"
-msgstr ""
+msgstr ".VM1メモリカードをHDDに保存"
 
 #: saves.c:1948
 msgid "Export Memory Card to .VMP format"
-msgstr ""
+msgstr "メモリカードを.VMP形式でエクスポート"
 
 #: saves.c:1950
 msgid "Save .VMP Memory Card to USB"
-msgstr ""
+msgstr ".VMPメモリカードをUSBに保存"
 
 #: saves.c:1952
 msgid "Save .VMP Memory Card to HDD"
-msgstr ""
+msgstr ".VMPメモリカードをHDDに保存"
 
 #: saves.c:1958 saves.c:1971 saves.c:2063 saves.c:2075
 msgid "Import Saves to Virtual MemCard"
-msgstr ""
+msgstr "セーブデータを仮想メモリーカードにインポート"
 
 #: saves.c:2045
 msgid "Export Memory Card to .VM2 format"
-msgstr "メモリーカードを.VM2形式でエクスポート"
+msgstr "メモリカードを.VM2形式でエクスポート"
 
 #: saves.c:2047
 msgid "Save .VM2 Memory Card to USB"
@@ -941,15 +941,15 @@ msgstr ".VM2メモリカードをHDDに保存"
 
 #: saves.c:2054
 msgid "Export Memory Card to .VMC format (No ECC)"
-msgstr "メモリカードを.VMC形式でエクスポート（ECCなし）"
+msgstr "メモリカードを.VMC形式でエクスポート(ECCなし)"
 
 #: saves.c:2056
 msgid "Save .VMC Memory Card to USB"
-msgstr ".VMCメモリカードをUSBに保存"
+msgstr ".VMCメモリーカードをUSBに保存"
 
 #: saves.c:2058
 msgid "Save .VMC Memory Card to HDD"
-msgstr ".VMCメモリカードをHDDに保存"
+msgstr ".VMCメモリーカードをHDDに保存"
 
 #: saves.c:2151
 msgid "Export Trophies"
@@ -965,15 +965,15 @@ msgstr "トロフィーをUSBに保存"
 
 #: saves.c:2163
 msgid "Backup all Trophies to USB"
-msgstr ""
+msgstr "すべてのトロフィーをUSBにバックアップする"
 
 #: saves.c:2167
 msgid "Export all encrypted Trophies to .Zip"
-msgstr ""
+msgstr "すべての暗号化されたトロフィーを.Zip形式でエクスポート"
 
 #: settings.c:19
 msgid "Online DB"
-msgstr "オンラインDB"
+msgstr "オンラインデータベース"
 
 #: settings.c:19
 msgid "FTP Server"
@@ -993,7 +993,7 @@ msgstr "タイトルID"
 
 #: settings.c:20
 msgid "by Type"
-msgstr "タイプ"
+msgstr "種類"
 
 #: settings.c:21
 msgid "Fake USB"
@@ -1013,23 +1013,23 @@ msgstr "メニューアニメーション"
 
 #: settings.c:46
 msgid "Sort Saves"
-msgstr "セーブデータを並び替える"
+msgstr "セーブデータを並べ替え"
 
 #: settings.c:52
 msgid "USB Saves Source"
-msgstr "USBの保存元"
+msgstr "USBセーブデータのソース"
 
 #: settings.c:58
 msgid "Version Update Check"
-msgstr "アップデートのチェック"
+msgstr "バージョン更新チェック"
 
 #: settings.c:64
 msgid "Set User FTP Server URL"
-msgstr "FTPサーバーのURLを設定する"
+msgstr "ユーザーFTPサーバーURLを設定する"
 
 #: settings.c:71
 msgid "Online Saves Server"
-msgstr "セーブデータのサーバー"
+msgstr "オンラインセーブデータサーバー"
 
 #: settings.c:77
 msgid "Update Application Data"
@@ -1041,11 +1041,11 @@ msgstr "オンラインデータベースのURLを変更する"
 
 #: settings.c:89
 msgid "Clear Local Cache"
-msgstr "ローカルキャッシュを消去"
+msgstr "ローカルキャッシュをクリア"
 
 #: settings.c:96
 msgid "Enable Debug Log"
-msgstr "デバッグログを有効化"
+msgstr "デバッグログを有効にする"
 
 #: settings.c:134
 msgid "Enter the Online Database URL"
@@ -1053,7 +1053,7 @@ msgstr "オンラインデータベースのURLを入力してください"
 
 #: settings.c:140
 msgid "Online database URL changed to:"
-msgstr "オンラインデータベースのURLが変更されました:"
+msgstr "オンラインデータベースのURLが以下の通り変更されました:"
 
 #: settings.c:150
 msgid "Enter the FTP server URL"
@@ -1061,11 +1061,11 @@ msgstr "FTPサーバーのURLを入力してください"
 
 #: settings.c:159
 msgid "Testing connection..."
-msgstr ""
+msgstr "接続を確認中..."
 
 #: settings.c:184
 msgid "FTP server URL changed to:"
-msgstr "FTPサーバーのURLが変更されました"
+msgstr "FTPサーバーのURLが以下に変更されました:"
 
 #: settings.c:187
 msgid "Error! Couldn't connect to FTP server"
@@ -1081,25 +1081,25 @@ msgstr "ローカルキャッシュフォルダをクリーンアップしまし
 
 #: settings.c:203
 msgid "Error! Can't download data update file!"
-msgstr ""
+msgstr "エラー!データ更新ファイルをダウンロードできません!"
 
 #: settings.c:206
 #, c-format
 msgid "Successfully updated %d save patch files!"
-msgstr ""
+msgstr "%d個のセーブデータパッチファイルの更新に成功しました!"
 
 #: settings.c:208
 msgid "Error! Can't extract data update file!"
-msgstr ""
+msgstr "エラー!データ更新ファイルを抽出できません!"
 
 #: settings.c:275
 msgid "New version available! Download update?"
-msgstr "新しいバージョンが利用可能です!アップデートをダウンロードしますか?"
+msgstr "新バージョンが利用可能です!アップデートをダウンロードしますか?"
 
 #: settings.c:279
 #, c-format
 msgid "Update downloaded to %s"
-msgstr ""
+msgstr "更新が%sにダウンロードされました"
 
 #: settings.c:281
 msgid "Download error!"
@@ -1107,16 +1107,16 @@ msgstr "ダウンロードエラー!"
 
 #: settings.c:296
 msgid "Debug Logging Disabled"
-msgstr "デバッグログ無効"
+msgstr "デバッグログが無効化されています"
 
 #: settings.c:301
 msgid "Debug Logging Enabled!"
-msgstr "デバッグログ有効!"
+msgstr "デバッグログを有効化しました!"
 
 #: settings.c:354
 msgid "User Settings"
-msgstr ""
+msgstr "ユーザー設定"
 
 #: zip_util.c:168 zip_util.c:249 zip_util.c:289
 msgid "Extracting files..."
-msgstr ""
+msgstr "ファイルを抽出中..."

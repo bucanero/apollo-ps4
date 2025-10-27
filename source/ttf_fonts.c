@@ -347,9 +347,11 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
             } else {ustring++;continue;} // error!
 
              for(n = 0; n < m; n++) {
-                if(!*ustring) break; // error!
-                    if((*ustring & 0xc0) != 0x80) break; // error!
-                    ttf_char = (ttf_char <<6) |((u32) (*(ustring++) & 63));
+                if(!*ustring || (*ustring & 0xc0) != 0x80) { // error!
+                    ttf_char = ' ';
+                    break;
+                }
+                ttf_char = (ttf_char <<6) |((u32) (*(ustring++) & 63));
              }
            
             if((n != m) && !*ustring) break;

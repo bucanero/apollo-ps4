@@ -35,6 +35,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Standalone:** no computer required, everything happens on the PS4.
 * **Automatic settings:** auto-detection of PS4 firmware, User ID, and Account-ID settings.
 * **Multi-user:** supports multiple user accounts.
+* **Localization support:** Greek, Italian, Japanese, Portuguese, Russian, Spanish.
 
 ## Save Management
 
@@ -170,7 +171,7 @@ Currently, the list of available games and files is limited, but the project aim
 
 # Credits
 
-* [Bucanero](http://www.bucanero.com.ar/): [Project developer](https://github.com/bucanero)
+* [Bucanero](https://github.com/bucanero): [Project developer](https://bucanero.github.io/apollo-ps4/)
 
 ## Acknowledgments
 
@@ -182,6 +183,12 @@ Currently, the list of available games and files is limited, but the project aim
 * [jimmikaelkael](https://github.com/jimmikaelkael): ps3mca tool
 * [ShendoXT](https://github.com/ShendoXT): [MemcardRex](https://github.com/ShendoXT/memcardrex)
 * [Nobody/Wild Light](https://github.com/nobodo): [Background music track](https://github.com/bucanero/apollo-vita/blob/main/data/haiku.s3m)
+
+## Translators
+
+Apollo supports multiple languages for its user interface. Thanks to the following contributors for their help with translations:
+
+- [Akela](https://x.com/Akela_1979) (Russian), [Bucanero](https://github.com/bucanero) (Spanish), [TheheroGAC](https://x.com/TheheroGAC) (Italian), [yyoossk](https://x.com/Cloud0835) (Japanese), [Phoenixx1202](https://github.com/Phoenixx1202) (Portuguese), SpyroMancer (Greek)
 
 # Building
 
@@ -197,6 +204,7 @@ You need to have installed:
 - [libs3m](https://github.com/bucanero/s3mplay) library
 - [libSQLite](https://github.com/bucanero/libSQLite-ps4) library
 - [Mini-XML](https://github.com/bucanero/mxml) library
+- [mini18n](https://github.com/bucanero/mini18n) library
 - [dbglogger](https://github.com/bucanero/dbglogger) library
 
 > [!TIP]

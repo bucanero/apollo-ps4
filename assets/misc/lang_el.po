@@ -1,0 +1,1189 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Apollo Save Tool\n"
+"POT-Creation-Date: 2025-10-25 08:31-0300\n"
+"PO-Revision-Date: 2025-10-26 15:55+0200\n"
+"Last-Translator: SpyroMancer\n"
+"Language-Team: psx-place.com\n"
+"Language: el\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+"X-Poedit-Basepath: source\n"
+"X-Poedit-KeywordsList: _;_i18n\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: exec_cmd.c:52
+#: exec_cmd.c:104
+#: exec_cmd.c:156
+#: exec_cmd.c:545
+#: exec_cmd.c:892
+#: exec_cmd.c:982
+#: exec_cmd.c:1335
+#: exec_cmd.c:1606
+msgid "Error! Export folder is not available:"
+msgstr "Σφάλμα! Ανύπαρκτος φάκελος εξαγωγής:"
+
+#: exec_cmd.c:58
+#: exec_cmd.c:224
+msgid "Error downloading save game from:"
+msgstr "Σφάλμα λήψης Αποθ.Δεδομένων από:"
+
+#: exec_cmd.c:63
+#: exec_cmd.c:279
+msgid "Save game successfully downloaded to:"
+msgstr "Επτυχές κατέβασμα Αποθ.Δεδομένων στο:"
+
+#: exec_cmd.c:65
+#: exec_cmd.c:235
+#: exec_cmd.c:270
+msgid "Error extracting save game!"
+msgstr "Σφάλμα αποσυμπίεσης Αποθ.Δεδομένων!"
+
+#: exec_cmd.c:108
+msgid "Exporting save game..."
+msgstr "Εξαγωγή Αποι.Δεδομένων"
+
+#: exec_cmd.c:136
+msgid "Error! Can't export save game to:"
+msgstr "Σφάλμα! Αδυναμία εξαγωγής Αποθ.Δεδομένων στο:"
+
+#: exec_cmd.c:140
+#: exec_cmd.c:1621
+msgid "Zip file successfully saved to:"
+msgstr "Επιτυχία αποθήκευσης συμπιεσμένου αρχείου στο:"
+
+#: exec_cmd.c:150
+#: exec_cmd.c:383
+msgid "Copy operation cancelled!"
+msgstr "Ακύρωση αντιγραφής!"
+
+#: exec_cmd.c:150
+#: exec_cmd.c:383
+msgid "Same source and destination."
+msgstr "Ίδιος προορισμός και αρχική τοποθεσία."
+
+#: exec_cmd.c:160
+msgid "Copying files..."
+msgstr "Αντιγραφή αρχείων..."
+
+#: exec_cmd.c:169
+#: exec_cmd.c:392
+msgid "Files successfully copied to:"
+msgstr "Επιτυχής αντιγραφή αρχείου στο:"
+
+#: exec_cmd.c:171
+msgid "Error! Can't copy save game to:"
+msgstr "Σφάλμα! Αδυναμία αντιγραδής Αποθ.Δεδομένων στο:"
+
+#: exec_cmd.c:250
+#: exec_cmd.c:637
+msgid "Save game already exists:"
+msgstr "Αποθ.Δεδομένα υπάρχουν ήδη:"
+
+#: exec_cmd.c:250
+#: exec_cmd.c:637
+msgid "Overwrite?"
+msgstr "Αντικατάσταση;"
+
+#: exec_cmd.c:255
+msgid "Error mounting save game folder!"
+msgstr "Σφάλμα προσάρτησης φακέλου Αποθ.Δεδομένων!"
+
+#: exec_cmd.c:261
+msgid "Error creating save game folder!"
+msgstr "Σφάλμα δημιουργίας φακέλου Αποθ.Δεδομένων!"
+
+#: exec_cmd.c:281
+msgid "Error! Can't update save game:"
+msgstr "Σφάλμα! Αδυναμία ενημέρωσης Αποθ.Δεδομένων:"
+
+#: exec_cmd.c:387
+msgid "Copying save game..."
+msgstr "Αντιγραφή Αποθ.Δεδομένων..."
+
+#: exec_cmd.c:394
+msgid "Error! Can't copy Save-game folder:"
+msgstr "Σφάλμα! Αδυναμία αντιγραφής φακέλου Αποθ.Δεδομένων:"
+
+#: exec_cmd.c:405
+#: exec_cmd.c:896
+msgid "Copying all saves..."
+msgstr "Αντιγραφή όλων των Αποθ.Δεδομένων..."
+
+#: exec_cmd.c:423
+msgid "Saves copied to HDD"
+msgstr "Αποθ.Δεδομένα αντιγράφηκαν στον Σκληρό Δίσκο"
+
+#: exec_cmd.c:459
+msgid "All files extracted to:"
+msgstr "Όλα τα αρχεία αποσυμπιέστηκαν στο:"
+
+#: exec_cmd.c:461
+#, c-format
+msgid "Error: %s couldn't be extracted"
+msgstr "Σφάλμα! Αδυναμία αποσυμπίεσης %s "
+
+#: exec_cmd.c:474
+msgid "Error! Keystone file is not available:"
+msgstr "Σφάλμα! Βασικό αρχείο δεν είναι διαθέσιμο:"
+
+#: exec_cmd.c:483
+msgid "keystone fingerprint:"
+msgstr "Αποτύπωμα Keystone αρχείου:"
+
+#: exec_cmd.c:503
+#: exec_cmd.c:1497
+msgid "Applying changes..."
+msgstr "Εφαρμογή αλλαγών..."
+
+#: exec_cmd.c:532
+msgid "Trophies successfully updated!"
+msgstr "Τρόπαια ενημερώθηκαν επιτυχώς!"
+
+#: exec_cmd.c:534
+msgid "Error! Couldn't update trophies"
+msgstr "Σφάλμα! Αδυναμία ενημέρωσης Τροπαίων"
+
+#: exec_cmd.c:549
+msgid "Exporting Trophies..."
+msgstr "Εξαγωγή Τροπαίων..."
+
+#: exec_cmd.c:567
+msgid "Trophies successfully saved to:"
+msgstr "Επιτυχής αποθήκευση Τροπαίων στο:"
+
+#: exec_cmd.c:578
+msgid "Dumping all fingerprints..."
+msgstr "Αποκρυπτογράφηση όλων των αποτυπωμάτων:"
+
+#: exec_cmd.c:603
+msgid "All fingerprints dumped to:"
+msgstr "Όλα τα αποτυπώματα αποκρυπτογραφήθηκαν στο:"
+
+#: exec_cmd.c:612
+msgid "Enter the Account ID"
+msgstr "Εισαγωγή ID Λογαριασμού"
+
+#: exec_cmd.c:617
+msgid "Error! Account ID is not valid"
+msgstr "Σφάλμα! Μή έγκυρος ID λογαριασμός"
+
+#: exec_cmd.c:624
+msgid "Error! Couldn't activate user account"
+msgstr "Σφάλμα! Αδυναμία ενεργοποίησης λογαριασμού χρήστη"
+
+#: exec_cmd.c:628
+msgid "Account successfully activated!"
+msgstr "Επιτυχής ενεργοποίηση λογαριασμού!"
+
+#: exec_cmd.c:628
+msgid "A system reboot is required"
+msgstr "Απαραίτητη επανεκκινηση συστήματος"
+
+#: exec_cmd.c:643
+msgid "Encrypted save copied successfully!"
+msgstr "Επιτυχής αντιγραφή κρυπτογραφημένων Αποθ.Δεδομένων!"
+
+#: exec_cmd.c:647
+msgid "Error: can't create HDD save"
+msgstr "Σφάλμα! Αδυναμία δημιουργίας Αποθ.Δεδομένων στον Σκληρό Δίσκο"
+
+#: exec_cmd.c:651
+#: exec_cmd.c:655
+msgid "Error: can't copy file"
+msgstr "Σφάλμα! αδυναμία αντιγραφής αρχείου"
+
+#: exec_cmd.c:659
+msgid "Error! Can't mount encrypted save."
+msgstr "Σφάλμα! Αδυναμία προσάρτησης κρυπτογραφημένων Αποθ.Δεδομένων."
+
+#: exec_cmd.c:659
+msgid "(incompatible save-game firmware version)"
+msgstr "(ασυμβατότητα έκδοσης λογισμικού και Αποθ.Δεδομένων)"
+
+#: exec_cmd.c:663
+#, c-format
+msgid "Error: can't copy save %s"
+msgstr "Σφάλμα! Αδυναμία αντιγραφής Αποθ.Δεδομένων %s"
+
+#: exec_cmd.c:684
+msgid "Keystone successfully copied to:"
+msgstr "Επιτυχής αντιγραφή Keystone αρχείου στο:"
+
+#: exec_cmd.c:686
+msgid "Error! Keystone couldn't be copied"
+msgstr "Σφάλμα! Αδυναμία αντιγραφής Keystone αρχείου"
+
+#: exec_cmd.c:873
+msgid "Web Server listening on:"
+msgstr "Αναμονή Web Server στο:"
+
+#: exec_cmd.c:873
+msgid "Press OK to stop the Server."
+msgstr "Επιλέξτε OK για διακοπή του Server."
+
+#: exec_cmd.c:876
+msgid "Error starting Web Server!"
+msgstr "Σφάλμα έναρξης του Web Server!"
+
+#: exec_cmd.c:917
+msgid "Saves copied to:"
+msgstr "Αποθ.Δεδομένα αποθηκεύτηκαν στο:"
+
+#: exec_cmd.c:929
+msgid "Exporting all VMC saves..."
+msgstr "Εξαγωγή όλων των Αποθ.Δεδομένων VMC..."
+
+#: exec_cmd.c:949
+msgid "Saves exported to:"
+msgstr "Τα Αποθ.Δεδομένα εξήχθησαν στο:"
+
+#: exec_cmd.c:969
+#: exec_cmd.c:1025
+msgid "Save successfully exported to:"
+msgstr "Επιτυχία εξαγωγής Αποθ.Δεδομένων στο:"
+
+#: exec_cmd.c:971
+#: exec_cmd.c:1027
+msgid "Error exporting save:"
+msgstr "Σφάλμα εξαγωγής Αποθ.Δεδομένων:"
+
+#: exec_cmd.c:989
+msgid "Memory card successfully exported to:"
+msgstr "Επιτυχής εξαγωγής της Κάρτας Μνήμης στο:"
+
+#: exec_cmd.c:991
+msgid "Error! Failed to export PS1 memory card"
+msgstr "Σφάλμα! Αποτυχία εξαγωγής Κάρτας Μνήμης PS1"
+
+#: exec_cmd.c:1034
+msgid "Importing PS2 save..."
+msgstr "Εισαγωγή Κάρτας Μνήμης PS2"
+
+#: exec_cmd.c:1066
+msgid "Successfully imported to VMC:"
+msgstr "Επιτυχής εισαγωγή στην VMC:"
+
+#: exec_cmd.c:1068
+msgid "Error importing save:"
+msgstr "Σφάλμα εισαγωγής Αποθ.Δεδομένων:"
+
+#: exec_cmd.c:1076
+#, c-format
+msgid "Do you want to delete %s?"
+msgstr "Θέλετε να διαγράψετε το %s ;"
+
+#: exec_cmd.c:1106
+msgid "Save successfully deleted:"
+msgstr "Επιτυχής διαγραφή Αποθ.Δεδομένων:"
+
+#: exec_cmd.c:1108
+msgid "Error! Couldn't delete save:"
+msgstr "Σφάλμα! Αδυναμία διαγραφής Αποθ.Δεδομένων:"
+
+#: exec_cmd.c:1222
+#, c-format
+msgid "Do you want to upload %s?"
+msgstr "Θέλετε να μεταφορτώσετε το %s ;"
+
+#: exec_cmd.c:1225
+msgid "Sync with FTP Server..."
+msgstr "Συγχρονισμός με FTP Server..."
+
+#: exec_cmd.c:1264
+msgid "Error! Couldn't zip save:"
+msgstr "Σφάλμα! Αδυναμία συμπίεσης Αποθ.Δεδομένων:"
+
+#: exec_cmd.c:1299
+msgid "Updating games index..."
+msgstr "Ενημέρωση λίστας παιχνιδιών..."
+
+#: exec_cmd.c:1321
+msgid "Save successfully uploaded:"
+msgstr "Επιτυχής μεταφόρτωση Αποθ.Δεδομένων:"
+
+#: exec_cmd.c:1323
+msgid "Error! Couldn't upload save:"
+msgstr "Σφάλμα! Αδυναμία μεταφόρτωσης Αποθ.Δεδομένων:"
+
+#: exec_cmd.c:1341
+msgid "Exporting PS2 memory card..."
+msgstr "Εξαγωγή Κάρτας Μνήμης PS2..."
+
+#: exec_cmd.c:1346
+msgid "File successfully saved to:"
+msgstr "Επιτυχής αποθήκευση αρχείου στο:"
+
+#: exec_cmd.c:1348
+msgid "Error! Failed to export PS2 memory card"
+msgstr "Σφάλμα! Αδυναμία εξαγωγής Κάρτας Μνήμης PS2"
+
+#: exec_cmd.c:1360
+msgid "Error getting PS4 user list!"
+msgstr "Σφάλμα ανάκτησης λίστας χρηστών PS4!"
+
+#: exec_cmd.c:1369
+#, c-format
+msgid "Database rebuild for user %s failed!"
+msgstr "Αποτυχία ανακατασκευής Βάσης Δεδομένων για τον χρήστη %s !"
+
+#: exec_cmd.c:1374
+msgid "Database rebuilt successfully!"
+msgstr "Επιτυχής ανακατασκευή Βάσης Δεδομένων!"
+
+#: exec_cmd.c:1374
+#: exec_cmd.c:1907
+msgid "Log out for changes to take effect"
+msgstr "Αποσυνθεδείτε για εφαρμογή των αλλαγών"
+
+#: exec_cmd.c:1550
+msgid "Error! Account changes couldn't be applied"
+msgstr "Σφάλμα! Αδυναμία εφαρμογής αλλαγών Λογαριασμού"
+
+#: exec_cmd.c:1554
+msgid "Error! Cheat codes couldn't be applied"
+msgstr "Σφάλμα! Αδυναμία εφαρμογής cheat κωδικών"
+
+#: exec_cmd.c:1556
+#, c-format
+msgid "Save %s successfully modified!"
+msgstr "Επιτυχής τροποποίηση Αποθ.Δεδομένων %s !"
+
+#: exec_cmd.c:1573
+msgid "Resigning all saves..."
+msgstr "Υπογραφή όλων των Αποθ.Δεδομένων..."
+
+#: exec_cmd.c:1593
+#, c-format
+msgid "Error: %d Saves couldn't be resigned"
+msgstr "Σφάλμα! Αδυναμία υπογραφής Αποθ.Δεδομένων %d !"
+
+#: exec_cmd.c:1595
+msgid "All saves successfully resigned!"
+msgstr "Επιτυχής υπογραφή όλων των Αποθ.Δεδομένων!"
+
+#: exec_cmd.c:1616
+msgid "Exporting system database..."
+msgstr "Εξαγωγή Βάσης Δεδομένων Συστήματος..."
+
+#: exec_cmd.c:1632
+#, c-format
+msgid "DB Backup %s successfully restored!"
+msgstr "Επιτυχής ανάκτηση αντιγράφου Βάσης Δεδομένων %s !"
+
+#: exec_cmd.c:1634
+#, c-format
+msgid "Error! Backup %s couldn't be restored"
+msgstr "Σφάλμα! Αδυναμία ανάκτησης αντιγράφου %s"
+
+#: exec_cmd.c:1657
+msgid "File successfully exported to:"
+msgstr "Επιτυχής εξαγωγή αρχείου στο:"
+
+#: exec_cmd.c:1659
+#, c-format
+msgid "Error! File %s couldn't be exported"
+msgstr "Σφάλμα! Αδυναμία εξαγωγής αρχείου %s"
+
+#: exec_cmd.c:1669
+msgid "Error! Can't find decrypted save-game file:"
+msgstr "Σφάλμα! Αδυναμία εύρεσης αποκρυπτογραφημένου αρχείου Αποθ.Δεδομένων:"
+
+#: exec_cmd.c:1677
+msgid "File successfully imported to:"
+msgstr "Επιτυχής εισαγωγή αρχείου στο:"
+
+#: exec_cmd.c:1679
+#, c-format
+msgid "Error! File %s couldn't be imported"
+msgstr "Σφάλμα! Αδυναμία εισαγωγής αρχείου %s"
+
+#: exec_cmd.c:1687
+msgid "Download URL"
+msgstr "Κατέβασμα URL"
+
+#: exec_cmd.c:1694
+msgid "File successfully downloaded to:"
+msgstr "Επιτυχές κατέβασμα αρχείου στο:"
+
+#: exec_cmd.c:1696
+msgid "Error! File couldn't be downloaded"
+msgstr "Σφάλμα: Αδυναμία κατεβάσματος αρχείου"
+
+#: exec_cmd.c:1706
+msgid "Enable Browser history?"
+msgstr "Ενεργοποίηση ιστορικού του Browser;"
+
+#: exec_cmd.c:1707
+msgid "Browser history enabled"
+msgstr "Ενεργοποίηση ιστορικού του Browser"
+
+#: exec_cmd.c:1712
+msgid "Disable Browser history?"
+msgstr "Απενεργοποίηση ιστορικού του Browser;"
+
+#: exec_cmd.c:1717
+msgid "Browser history disabled"
+msgstr "Απενεργοποίηση ιστορικού του Browser"
+
+#: exec_cmd.c:1907
+msgid "DLC database fixed successfully!"
+msgstr "Επιτυχία επιδιόρθωσης Βάσης Δεδομένων DLC!"
+
+#: exec_cmd.c:1909
+msgid "DLC Database rebuild failed!"
+msgstr "Αποτυχία ανακατασκευής Βάσης Δεδομένων DLC"
+
+#: exec_cmd.c:1951
+msgid "Save successfully imported:"
+msgstr "Επιτυχής εισαγωγή Αποθ.Δεδομένων:"
+
+#: exec_cmd.c:1953
+msgid "Error! Couldn't import save:"
+msgstr "Σφάλμα! Αδυναμία εισαγωγής Αποθ.Δεδομένων:"
+
+#: http.c:124
+msgid "Downloading..."
+msgstr "Κατέβασμα..."
+
+#: http.c:226
+msgid "Uploading..."
+msgstr "Μεταφόρτωση..."
+
+#: main.c:180
+#: main.c:184
+#: main.c:189
+#: main.c:199
+msgid "Select"
+msgstr "Επιλογή"
+
+#: main.c:180
+#: main.c:184
+#: main.c:189
+#: main.c:195
+#: main.c:199
+msgid "Back"
+msgstr "Π'ίσω"
+
+#: main.c:180
+#: menu_cheats.c:253
+msgid "Details"
+msgstr "Λεπτομέρειες"
+
+#: main.c:180
+#: main.c:184
+msgid "Refresh"
+msgstr "Ανανέωση"
+
+#: main.c:199
+msgid "View Code"
+msgstr "Εμφάνισω Κώδικα"
+
+#: main.c:203
+msgid "Value Up"
+msgstr "Αύξηση"
+
+#: main.c:203
+msgid "Value Down"
+msgstr "Μείωση"
+
+#: main.c:203
+msgid "Exit"
+msgstr "Έξοδος"
+
+#: main.c:483
+msgid "HDD Saves"
+msgstr "Αποθ.Δεδομένα στον Σκληρό Δίσκο"
+
+#: main.c:484
+msgid "USB Saves"
+msgstr "Αποθ.Δεδομένα σε USB"
+
+#: main.c:485
+#: saves.c:688
+msgid "Trophies"
+msgstr "Τρόπαια"
+
+#: main.c:486
+msgid "User Tools"
+msgstr "Εργαλεία Χρήστη"
+
+#: main.c:487
+msgid "Online Database"
+msgstr "Online Βάση Δεδομένων"
+
+#: main.c:488
+msgid "PS1 Virtual Memory Card"
+msgstr "Εικονική Κάρτα Μνήμης PS1"
+
+#: main.c:489
+msgid "PS2 Virtual Memory Card"
+msgstr "Εικονική Κάρτα Μνήμης PS2"
+
+#: main.c:716
+msgid "Debug Logging Enabled"
+msgstr "Ενεργοποιημένη Καταγραφή Αποσφαλμάτωσης"
+
+#: main.c:725
+msgid "Successfully installed local application data"
+msgstr "Επιτυχία εγκατάστασης τοπικών δεδομένων εφαρμογής"
+
+#: menu_about.c:103
+msgid "Console details:"
+msgstr "Λεπτομέρειες Κονσόλας:"
+
+#: menu_about.c:142
+#: menu_about.c:166
+msgid "About"
+msgstr "Περί"
+
+#: menu_cheats.c:111
+#: menu_cheats.c:141
+#: menu_cheats.c:161
+msgid "Options"
+msgstr "Επιλογές"
+
+#: menu_cheats.c:207
+msgid "Target File:"
+msgstr "Τοποθεσία αρχείου:"
+
+#: menu_cheats.c:512
+msgid "Saves"
+msgstr "Αποθ.Δεδομένα"
+
+#: menu_cheats.c:516
+msgid "Games"
+msgstr "Παιχνίδια"
+
+#: menu_cheats.c:520
+msgid "Trophy Sets"
+msgstr "Σετ Τροπαίων"
+
+#: menu_cheats.c:524
+msgid "Tools"
+msgstr "Εργαλεία"
+
+#: menu_cheats.c:528
+msgid "PS1 Saves"
+msgstr "Αποθ.Δεδομένα PS1"
+
+#: menu_cheats.c:532
+msgid "PS2 Saves"
+msgstr "Αποθ.Δεδομένα PS2"
+
+#: menu_hex.c:52
+#: menu_hex.c:72
+msgid "Hex Editor"
+msgstr "Επεξεργασία Hex"
+
+#: menu_main.c:67
+msgid "Loading save games..."
+msgstr "Φόρτωση Αποθ.Δεδομένων..."
+
+#: menu_main.c:90
+msgid "No save-games found"
+msgstr "Δεν υπάρχουν Αποθ.Δεδομένα"
+
+#: menu_main.c:142
+msgid "Saving PS2 Memory Card..."
+msgstr "Αποθήκευση Κάρτας Μνήμης PS2"
+
+#: menu_main.c:345
+#: menu_main.c:724
+msgid "Patch view"
+msgstr "Εμφάνιση Διορθώσεων"
+
+#: menu_main.c:473
+msgid "No data found in folder:"
+msgstr "Δεν βρέθηκαν δεδομένα στον φάκελο:"
+
+#: menu_main.c:525
+msgid "Exit to XMB?"
+msgstr "Έξοδος στην XMB;"
+
+#: menu_main.c:665
+#, c-format
+msgid "Save changes to %s?"
+msgstr "Αποθήκευση αλλαγών στο %s ;"
+
+#: menu_main.c:761
+msgid "Failed to load:"
+msgstr "Αποτυχία φόρτωσης:"
+
+#: menu_options.c:66
+#: menu_options.c:86
+msgid "Settings"
+msgstr "Ρυθμίσεις"
+
+#: saves.c:67
+msgid "Warning! Save couldn't be unmounted!"
+msgstr "Προειδοποίηση! Αποτυχία αποσύνδεσης Αποθ.Δεδομένων!"
+
+#: saves.c:373
+msgid "Apply Changes & Resign"
+msgstr "Εφαρμογή αλλαγών και υπογραφή"
+
+#: saves.c:376
+#: saves.c:519
+#: saves.c:813
+#: saves.c:968
+msgid "View Save Details"
+msgstr "Εμφάνιση πληροφοριών Αποθ.Δεδομένων"
+
+#: saves.c:379
+#: saves.c:816
+#: saves.c:971
+msgid "Delete Save Game"
+msgstr "Διαγραφή Αποθ.Δεδομένων"
+
+#: saves.c:383
+#: saves.c:656
+msgid "File Backup"
+msgstr "Αντίγραφο αρχείου"
+
+#: saves.c:388
+msgid "Copy save game to USB"
+msgstr "Αντιγραφή Αποθ.Δεδομένων στο USB"
+
+#: saves.c:389
+msgid "Copy Save to USB"
+msgstr "Αντιγραφή Αποθ.Δεδομένων στο USB"
+
+#: saves.c:394
+#: saves.c:825
+#: saves.c:980
+msgid "Upload save backup to FTP"
+msgstr "Μεταφόρτωση αντιγράφου Αποθ.Δεδομένων στο FTP"
+
+#: saves.c:400
+msgid "Copy save game to HDD"
+msgstr "Αντιγραφή Αποθ.Δεδομένων στον Σκληρό Δίσκο"
+
+#: saves.c:404
+msgid "Export save game to Zip"
+msgstr "Εξαγωγή Αποθ.Δεδομένων σε zip αρχείο"
+
+#: saves.c:405
+msgid "Export Zip to USB"
+msgstr "Εξαγωγή zip αρχείου στο USB"
+
+#: saves.c:407
+msgid "Export Zip to HDD"
+msgstr "Εξαγωγή zip αρχείου στο Σκληρό Δίσκο"
+
+#: saves.c:412
+msgid "Export decrypted save files"
+msgstr "Εξαγωγή αποκρυπτογραφημένων Αποθ.Δεδομένων"
+
+#: saves.c:417
+msgid "Import decrypted save files"
+msgstr "Εισαγωγή αποκρυπτογραφημένων Αποθ.Δεδομένων"
+
+#: saves.c:422
+msgid "Hex Edit save game files"
+msgstr "Επεξεργασία Hex Αποθ.Δεδομένων"
+
+#: saves.c:470
+msgid "Keystone Backup"
+msgstr "Αντίγραφο Ασφαλέιας Keystone"
+
+#: saves.c:473
+msgid "Export Keystone"
+msgstr "Εξαγωγή Keystone"
+
+#: saves.c:476
+msgid "Import Keystone"
+msgstr "Εισαγωγή Keystone"
+
+#: saves.c:479
+msgid "Show Keystone Fingerprint"
+msgstr "Εμφάνιση αποτυπώματος Keystone"
+
+#: saves.c:524
+msgid "Encrypted save requires firmware"
+msgstr "Τα κρυπτογραφημένα Αποθ.Δεδομένα απαιτούν λογισμικό"
+
+#: saves.c:566
+msgid "Error Mounting Save!"
+msgstr "Σφάλμα προσάρτησης Αποθ.Δεδομένων"
+
+#: saves.c:582
+msgid "Cheats"
+msgstr "Κωδικοί Cheat"
+
+#: saves.c:585
+msgid "View Raw Patch File"
+msgstr "Εμφάνιση πηγαίου αρχείου διορθώσεων"
+
+#: saves.c:639
+msgid "Error Mounting Trophy Set!"
+msgstr "Σφάλμα προσάρτησης Σετ Τροπαίων!"
+
+#: saves.c:646
+msgid "Apply Changes to Trophy Set"
+msgstr "Εφαρμογή αλλαγών στο Σετ Τροπαίων"
+
+#: saves.c:649
+msgid "View Trophy Set Details"
+msgstr "Εμφάνιση πληροφοριών Σετ Τροπαίων"
+
+#: saves.c:652
+msgid "Delete Trophy Set"
+msgstr "Διαγραφή Σετ Τροπαίων"
+
+#: saves.c:659
+msgid "Backup Trophy files to USB"
+msgstr "Αντίγραφο αρχείων Τροπαίων στο USB"
+
+#: saves.c:661
+msgid "Copy Trophy to USB"
+msgstr "Αντιγραφή Τροπαίου στο USB"
+
+#: saves.c:664
+msgid "Export Trophy files to Zip"
+msgstr "Εξαγωγή αρχείων Τροπαίων σε zip"
+
+#: saves.c:666
+#: saves.c:2168
+msgid "Save .Zip to USB"
+msgstr "Αποθήκευση zip στο USB"
+
+#: saves.c:668
+msgid "Save .Zip to HDD"
+msgstr "Αποθήκευση zip στο Σκληρό Δίσκο"
+
+#: saves.c:673
+msgid "Export decrypted trophy files"
+msgstr "Εξαγωγή αποκρυπτογραφημένων αρχείων Τροπαίων"
+
+#: saves.c:678
+msgid "Import decrypted trophy files"
+msgstr "Εισαγωγή αποκρυπτογραφημένων αρχείων Τροπαίων"
+
+#: saves.c:820
+#: saves.c:975
+msgid "Save Game Backup"
+msgstr "Αντίγραφο Ασφαλέιας Αποθ.Δεδομένων"
+
+#: saves.c:829
+msgid "Export save game to .MCS format"
+msgstr "Εξαγωγή Αποθ.Δεδομένων σε αρχείο .MCS"
+
+#: saves.c:830
+msgid "Copy .MCS Save to USB"
+msgstr "Αντιγραφή αρχείου Αποθ.Δεδομένων .MCS στο USB"
+
+#: saves.c:832
+msgid "Copy .MCS Save to HDD"
+msgstr "Αντιγραφή αρχείου Αποθ.Δεδομένων .MCS στο Σκληρό Δίσκο"
+
+#: saves.c:838
+#: saves.c:993
+msgid "Export save game to .PSV format"
+msgstr "Εξαγωγή Αποθ.Δεδομένων σε αρχείο .PSV"
+
+#: saves.c:839
+msgid "Copy .PSV Save to USB"
+msgstr "Αντιγραφή Αποθ.Δεδομένων .PSV στο USB"
+
+#: saves.c:841
+msgid "Copy .PSV Save to HDD"
+msgstr "Αντιγραφή Αποθ.Δεδομένων .PSV στο Σκληρό Δίσκο "
+
+#: saves.c:847
+msgid "Export save game to .PSX format"
+msgstr "Εξαγωγή Αποθ.Δεδομένων σε αρχείο .PSX"
+
+#: saves.c:848
+msgid "Copy .PSX Save to USB"
+msgstr "Αντιγραφή Αποθ.Δεδομένων .PSX στο USB"
+
+#: saves.c:850
+msgid "Copy .PSX Save to HDD"
+msgstr "Αντιγραφή Αποθ.Δεδομένων .PSX στο Σκληρό Δίσκο "
+
+#: saves.c:984
+msgid "Export save game to .PSU format"
+msgstr "Εξαγωγή Αποθ.Δεδομένων σε αρχείο .PSU"
+
+#: saves.c:985
+msgid "Export .PSU save to USB"
+msgstr "Εξαγωγή Αποθ.Δεδομένων .PSU στο USB"
+
+#: saves.c:987
+msgid "Export .PSU save to HDD"
+msgstr "Εξαγωγή Αποθ.Δεδομένων .PSU στο Σκληρό Δίσκο"
+
+#: saves.c:994
+msgid "Export .PSV save to USB"
+msgstr "Εξαγωγή Αποθ.Δεδομένων .PSV στο USB"
+
+#: saves.c:996
+msgid "Export .PSV save to HDD"
+msgstr "Εξαγωγή Αποθ.Δεδομένων .PSV στο Σκληρό Δίσκο"
+
+#: saves.c:1055
+msgid "Download to USB"
+msgstr "Κατέβασμα στο USB"
+
+#: saves.c:1057
+msgid "Download to HDD"
+msgstr "Κατέβασμα στο Σκληρό Δίσκο"
+
+#: saves.c:1085
+msgid "Extract Archives (RAR, Zip, 7z)"
+msgstr "Αποσυμπίεση αρχείων (RAR, Zip, 7z)"
+
+#: saves.c:1090
+msgid "Activate PS4 Accounts"
+msgstr "Ενεργοποίηση λογαριασμών PS4"
+
+#: saves.c:1095
+msgid "App.db Database Management"
+msgstr "Διαχείριση Βάσης Δεδομένων App.db"
+
+#: saves.c:1101
+msgid "Network Tools (Downloader, Web Server)"
+msgstr "Εργαλεία Δικτύου (Downloader, Web Server)"
+
+#: saves.c:1106
+msgid "Show Parental Security Passcode"
+msgstr "Εμφάνιση κωδικού Γονικού Ελέγχου"
+
+#: saves.c:1145
+msgid "URL link Downloader (http, https, ftp, ftps)"
+msgstr "URL link Downloader (http, https, ftp, ftps)"
+
+#: saves.c:1147
+msgid "Local Web Server (full system access)"
+msgstr "Τοπικός Web Server (Πλήρης πρόσβαση στο σύστημα)"
+
+#: saves.c:1149
+msgid "Toggle Web Browser history"
+msgstr "Απ/Εν-εργοποίηση Ιστορικού Web Browser"
+
+#: saves.c:1156
+msgid "Rebuild App.db Database (Restore missing XMB items)"
+msgstr "Ανακατασκευή Βάσης Δεδομένων App.db (Ανάκτηση χαμένων αντικειμένων XMB)"
+
+#: saves.c:1160
+msgid "Rebuild DLC Database (addcont.db)"
+msgstr "Ανακατασκευή Βάσης Δεδομένων DLC (addcont.db)"
+
+#: saves.c:1164
+msgid "Backup System Database Folder"
+msgstr "Αντίγραφο Ασφαλείας Βάσης Δεδομένων Συστήματος"
+
+#: saves.c:1167
+msgid "Restore System Database Backup"
+msgstr "Επαναφορά Αντ.Ασφαλείας Βάσης Δεδομένων Συστήματος"
+
+#: saves.c:1188
+msgid "Activate Offline Account"
+msgstr "Ενεργοποίηση Offline Λογαριασμού"
+
+#: saves.c:1218
+msgid "Extract"
+msgstr "Εξαγωγή"
+
+#: saves.c:1731
+#: saves.c:1786
+msgid "Bulk Save Management"
+msgstr "Ομαδική Διαχείριση Αποθ.Δεδομένων"
+
+#: saves.c:1739
+msgid "Resign selected Saves"
+msgstr "Υπογραφή Επιλεγμένων Αποθ.Δεδομένων"
+
+#: saves.c:1742
+msgid "Resign all decrypted Saves"
+msgstr "Υπογραφή όλων των Αποθ.Δεδομένων"
+
+#: saves.c:1745
+msgid "Copy selected Saves to HDD"
+msgstr "Αντιγραφή Επιλεγμένων Αποθ.Δεδομένων"
+
+#: saves.c:1748
+msgid "Copy all Saves to HDD"
+msgstr "Αντιγραφή όλων των Αποθ.Δεδομένων"
+
+#: saves.c:1751
+#: saves.c:1802
+msgid "Start local Web Server"
+msgstr "Έναρξη τοπικού Web Server"
+
+#: saves.c:1754
+msgid "Dump all decrypted Save Fingerprints"
+msgstr "Εξαγωγή όλων των αποκρυπτογραφημένων αποτυπωμάτων Αποθ.Δεδομένων"
+
+#: saves.c:1794
+#: saves.c:1929
+#: saves.c:2034
+msgid "Copy selected Saves to USB"
+msgstr "Αντιγραφή Επιλεγμένων Αποθ.Δεδομένων στο USB"
+
+#: saves.c:1795
+#: saves.c:1799
+msgid "Copy Saves to USB"
+msgstr "Αντιγραφή Αποθ.Δεδομένων στο Σκληρό Δίσκο"
+
+#: saves.c:1798
+#: saves.c:1932
+#: saves.c:2037
+msgid "Copy all Saves to USB"
+msgstr "Αντιγραφή όλων των Αποθ.Δεδομένων στο Σκληρό Δίσκο"
+
+#: saves.c:1805
+msgid "Dump all Save Fingerprints"
+msgstr "Εξαγωγή όλων των αποτυπωμάτων Αποθ.Δεδομένων"
+
+#: saves.c:1919
+#: saves.c:2024
+msgid "Memory Card Management"
+msgstr "Διαχείριση Καρτών Μνήμης"
+
+#: saves.c:1928
+#: saves.c:2033
+msgid "Export selected Saves to USB"
+msgstr "Εξαγωγή επιλεγμένων Αποθ.Δεδομένων στο USB"
+
+#: saves.c:1931
+#: saves.c:2036
+msgid "Export all Saves to USB"
+msgstr "Εξαγωγή όλων των Αποθ.Δεδομένων στο USB"
+
+#: saves.c:1936
+#: saves.c:2042
+msgid "Virtual Memory Card"
+msgstr "Εικονική Κάρτα Μνήμης"
+
+#: saves.c:1939
+msgid "Export Memory Card to .VM1 format"
+msgstr "Εξαγωγή Κάρτας Μνήμης σε .VM1"
+
+#: saves.c:1941
+msgid "Save .VM1 Memory Card to USB"
+msgstr "Αποθήκευση Κάρτας Μνήμης .VM1 στο USB"
+
+#: saves.c:1943
+msgid "Save .VM1 Memory Card to HDD"
+msgstr "Αποθήκευση Κάρτας Μνήμης .VM1 στο Σκληρό Δίσκο"
+
+#: saves.c:1948
+msgid "Export Memory Card to .VMP format"
+msgstr "Εξαγωγή Κάρτας Μνήμης σε αρχείο .VMP"
+
+#: saves.c:1950
+msgid "Save .VMP Memory Card to USB"
+msgstr "Αποθήκευση Κάρτας Μνήμης .VMP στο USB"
+
+#: saves.c:1952
+msgid "Save .VMP Memory Card to HDD"
+msgstr "Αποθήκευση Κάρτας Μνήμης .VMP στο Σκληρό Δίσκο"
+
+#: saves.c:1958
+#: saves.c:1971
+#: saves.c:2063
+#: saves.c:2075
+msgid "Import Saves to Virtual MemCard"
+msgstr "Εισαγωγή Αποθ.Δεδομένων στην Εικονική Κάρτα Μνήμης"
+
+#: saves.c:2045
+msgid "Export Memory Card to .VM2 format"
+msgstr "Εξαγωγή Κάρτας Μνήμης σε αρχείο .VM2"
+
+#: saves.c:2047
+msgid "Save .VM2 Memory Card to USB"
+msgstr "Αποθήκευση Κάρτας Μνήμης .VM2 στο USB"
+
+#: saves.c:2049
+msgid "Save .VM2 Memory Card to HDD"
+msgstr "Αποθήκευση Κάρτας Μνήμης .VM2 στο Σκληρό Δίσκο"
+
+#: saves.c:2054
+msgid "Export Memory Card to .VMC format (No ECC)"
+msgstr "Εξαγωγή Κάρτας Μνήμης σε αρχείο .VMC (No ECC)"
+
+#: saves.c:2056
+msgid "Save .VMC Memory Card to USB"
+msgstr "Αποθήκευση Κάρτας Μνήμης .VMC στο USB"
+
+#: saves.c:2058
+msgid "Save .VMC Memory Card to HDD"
+msgstr "Αποθήκευση Κάρτας Μνήμης .VMC στο Σκληρό Δίσκο"
+
+#: saves.c:2151
+msgid "Export Trophies"
+msgstr "Εξαγωγή Τροπαίων"
+
+#: saves.c:2159
+msgid "Backup selected Trophies to USB"
+msgstr "Αντίγραφο Ασφαλείας επιλεγμένων Τροπαίων στο USB"
+
+#: saves.c:2160
+#: saves.c:2164
+msgid "Save Trophies to USB"
+msgstr "Αποθήκευση Τροπαίων στο USB"
+
+#: saves.c:2163
+msgid "Backup all Trophies to USB"
+msgstr "Αντίγραφο Ασφαλείας όλων των Τροπαίων στο USB"
+
+#: saves.c:2167
+msgid "Export all encrypted Trophies to .Zip"
+msgstr "Εξαγωγή όλων των κρυπτογραφημένων Τροπαίων σε zip"
+
+#: settings.c:19
+msgid "Online DB"
+msgstr "Online Βάση Δεδομένων"
+
+#: settings.c:19
+msgid "FTP Server"
+msgstr "FTP Server"
+
+#: settings.c:20
+msgid "Disabled"
+msgstr "Απενεργοποιημένο"
+
+#: settings.c:20
+msgid "by Name"
+msgstr "an;a ;Onoma"
+
+#: settings.c:20
+msgid "by Title ID"
+msgstr "ανά ID Τίτλου"
+
+#: settings.c:20
+msgid "by Type"
+msgstr "ανα Τύπο"
+
+#: settings.c:21
+msgid "Fake USB"
+msgstr "Ψεύτικο USB"
+
+#: settings.c:21
+msgid "Auto-detect"
+msgstr "Αυτόματος εντοπισμός"
+
+#: settings.c:34
+msgid "Background Music"
+msgstr "Μουσική στο παρασκήνιο"
+
+#: settings.c:40
+msgid "Menu Animations"
+msgstr "Κύληση Μενού"
+
+#: settings.c:46
+msgid "Sort Saves"
+msgstr "Τακινόμηση Αποθ.Δεδομένων"
+
+#: settings.c:52
+msgid "USB Saves Source"
+msgstr "Πηγή Αποθ.Δεδομένων USB"
+
+#: settings.c:58
+msgid "Version Update Check"
+msgstr "Έλεγχος ενημέρωσης"
+
+#: settings.c:64
+msgid "Set User FTP Server URL"
+msgstr "Ρύθμιση διεύθυνσης Web Server χρήστη"
+
+#: settings.c:71
+msgid "Online Saves Server"
+msgstr "Online Server Αποθ.Δεδομένων"
+
+#: settings.c:77
+msgid "Update Application Data"
+msgstr "Ενημέρωση δεδομένων εφαρμογής"
+
+#: settings.c:83
+msgid "Change Online Database URL"
+msgstr "Αλλαγή Διέυθυνσης Online Βάσης Δεδομένων"
+
+#: settings.c:89
+msgid "Clear Local Cache"
+msgstr "Εκκαθάριση τοπικής Cache"
+
+#: settings.c:96
+msgid "Enable Debug Log"
+msgstr "Ενεργοποίηση καταγραφής Αποσφαλμάτωσης"
+
+#: settings.c:134
+msgid "Enter the Online Database URL"
+msgstr "Εισαγωγή διεύθυνσης Online Βάσης Δεδομένων"
+
+#: settings.c:140
+msgid "Online database URL changed to:"
+msgstr "Διεύθυνση Online Βάσης Δεδομένων άλλαξε σε:"
+
+#: settings.c:150
+msgid "Enter the FTP server URL"
+msgstr "Εισαγωγή διεύθυνσης FTP Server"
+
+#: settings.c:159
+msgid "Testing connection..."
+msgstr "Δοκιμή σύνδεσης..."
+
+#: settings.c:184
+msgid "FTP server URL changed to:"
+msgstr "Διεύθυνση FTP Server άλλαξε σε:"
+
+#: settings.c:187
+msgid "Error! Couldn't connect to FTP server"
+msgstr "Σφάλμα! Αδυναμία σύνδεσης σε FTP Server"
+
+#: settings.c:187
+msgid "Check debug logs for more information"
+msgstr "Ελέγξτε το αρχείο καταγραφής αποσφαλμάτωσης για παραπάνω πληροφορίες"
+
+#: settings.c:195
+msgid "Local cache folder cleaned:"
+msgstr "Ολοκλήρωση εκκαθάρισης τοικού φακέλου Cache"
+
+#: settings.c:203
+msgid "Error! Can't download data update file!"
+msgstr "Σφάλμα! Αδυναμία κατεβάσματος αρχείου ενημέρωσης δεδομένων!"
+
+#: settings.c:206
+#, c-format
+msgid "Successfully updated %d save patch files!"
+msgstr "Επιτυχής ενημέρωση διορθώσεων αρχείων Αποθ.Δεδομένων %d !"
+
+#: settings.c:208
+msgid "Error! Can't extract data update file!"
+msgstr "Σφάλμα! Αδυναμία εξαγωγής αρχείου ενημέρωσης δεδομένων!"
+
+#: settings.c:275
+msgid "New version available! Download update?"
+msgstr "Νέα διαθέσιμη έκδοση! Άμεσο κατέβασμα;"
+
+#: settings.c:279
+#, c-format
+msgid "Update downloaded to %s"
+msgstr "Ενημέρωση κατέβηκε στο %s"
+
+#: settings.c:281
+msgid "Download error!"
+msgstr "Σφάλμα Λήψης!"
+
+#: settings.c:296
+msgid "Debug Logging Disabled"
+msgstr "Αρχείο Αποσφαλμάτωσης Ανενεργό"
+
+#: settings.c:301
+msgid "Debug Logging Enabled!"
+msgstr "Αρχείο Αποσφαλμάτωσης Ενεργό!"
+
+#: settings.c:354
+msgid "User Settings"
+msgstr "Ρυθμίσεις Χρήστη"
+
+#: zip_util.c:168
+#: zip_util.c:249
+#: zip_util.c:289
+msgid "Extracting files..."
+msgstr "Αποσυμπίεση αρχείων...."
+

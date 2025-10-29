@@ -35,7 +35,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Standalone:** no computer required, everything happens on the PS4.
 * **Automatic settings:** auto-detection of PS4 firmware, User ID, and Account-ID settings.
 * **Multi-user:** supports multiple user accounts.
-* **Localization support:** Greek, Italian, Japanese, Portuguese, Russian, Spanish.
+* **Localization support:** English, Greek, Italian, Japanese, Portuguese, Russian, Spanish.
 
 ## Save Management
 

@@ -12,7 +12,7 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 * Localization support
   - Auto-detect system language setting
-  - Languages: English, French, Italian, Japanese, Portuguese, Russian, Spanish
+  - Languages: English, Greek, Italian, Japanese, Portuguese, Russian, Spanish
 * Show save details window for items in Online DB (`Triangle` button)
 * Improved ARMax PS2 save-game conversion to `.PSV`
 

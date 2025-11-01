@@ -15,6 +15,16 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
   - Languages: English, Greek, Italian, Japanese, Portuguese, Russian, Spanish
 * Show save details window for items in Online DB (`Triangle` button)
 * Improved ARMax PS2 save-game conversion to `.PSV`
+* New cheat codes
+  - Bleach Rebirth of Souls
+* Custom encryption support
+  - Dark Souls Remastered (AES CBC)
+  - Dragon Ball Z Xenoverse 2 (AES CTR)
+  - Resident Evil 4: Remake (Blowfish CBC)
+* Custom checksum support
+  - Dark Souls Remastered
+  - Dragon Ball Z Xenoverse 2
+  - Resident Evil 4: Remake
 
 ### Misc
 

@@ -6,7 +6,37 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ---
 
-## [v2.2.0](https://github.com/bucanero/apollo-ps4/releases/tag/v2.2.0) - 2024-04-30
+## [v2.2.4](https://github.com/bucanero/apollo-ps4/releases/tag/v2.2.4) - 2025-11-02
+
+### Added
+
+* Localization support
+  - Auto-detect system language setting
+  - Languages: English, Greek, Italian, Japanese, Portuguese, Russian, Spanish
+* Show save details window for items in Online DB (`Triangle` button)
+* Improved ARMax PS2 save-game conversion to `.PSV`
+* New cheat codes
+  - Bleach Rebirth of Souls
+* Custom encryption support
+  - Dark Souls Remastered (AES CBC)
+  - Dragon Ball Z Xenoverse 2 (AES CTR)
+  - Resident Evil 4: Remake (Blowfish CBC)
+* Custom checksum support
+  - Dark Souls Remastered
+  - Dragon Ball Z Xenoverse 2
+  - Resident Evil 4: Remake
+
+### Misc
+
+* Updated Apollo Patch Engine to v1.4.0
+  - Update custom mod tags
+  - Support multiple mod options per line
+  - Add AES CTR, Blowfish CBC encryption
+  - Add DBZ Xenoverse 2 custom checksum
+
+---
+
+## [v2.2.0](https://github.com/bucanero/apollo-ps4/releases/tag/v2.2.0) - 2025-04-30
 
 ### Added
 

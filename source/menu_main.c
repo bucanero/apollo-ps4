@@ -121,8 +121,8 @@ static code_entry_t* LoadOnlineSaveDetails(void)
 				break;
 			}
 
-	asprintf(&centry->codes, "Game: %s\nTitle ID: %s\nURL: %s%s\n----- Details -----\n%s\n", 
-		selected_entry->name, selected_entry->title_id, selected_entry->path, selected_centry->file, centry->file);
+	asprintf(&centry->codes, "Game: %s\nTitle ID: %s\nFile: %s\n%s%s\n----- Details -----\n%s\n", 
+		selected_entry->name, selected_entry->title_id, selected_centry->file, selected_entry->path, selected_centry->file, centry->file);
 	free(centry->file);
 	centry->file = NULL;
 

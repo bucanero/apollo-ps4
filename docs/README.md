@@ -4,6 +4,7 @@
 [![Build app package](https://github.com/bucanero/apollo-ps4/actions/workflows/build.yml/badge.svg)](https://github.com/bucanero/apollo-ps4/actions/workflows/build.yml)
 ![PS4](https://img.shields.io/badge/-PS4-003791?style=flat&logo=PlayStation)
 [![Twitter](https://img.shields.io/twitter/follow/dparrino?label=Follow)](https://twitter.com/dparrino)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/bucanero/apollo-ps4)
 
 **Apollo Save Tool** is an application to manage save-game files on the PlayStation 4.
 
@@ -29,6 +30,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Standalone:** no computer required, everything happens on the PS4.
 * **Automatic settings:** auto-detection of PS4 firmware, User ID, and Account-ID settings.
 * **Multi-user:** supports multiple user accounts.
+* **Localization support:** English, Greek, Italian, Japanese, Portuguese, Russian, Spanish.
 
 ## Save Management
 
@@ -59,7 +61,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 ## PS2 Virtual Memory Card Management
 
 * **VMC saves management:** quick access to all save files on Virtual Memory Cards images.
-  - Supported PS2 VMC formats: `.VM2`, `.CARD`, `.PS2`, `.VMC`, `.BIN`
+  - Supported PS2 VMC formats: `.VM2`, `.CARD`, `.PS2`, `.VMC`, `.BIN`, `.MC2`, `.MCD`
   - Supports ECC and non-ECC images
 * **Import PS2 saves:** import saves to VMCs from other systems and consoles (`.PSU`, `.PSV`, `.XPS`, `.CBS`, `.MAX`, `.SPS` supported).
 * **Export PS2 saves:** allows the user export saves on VMC images to `.PSU` and `.PSV` formats
@@ -109,7 +111,7 @@ On first run, the application will detect and setup the required user settings.
 | PS2 | Folder |
 |-----|--------|
 | **USB saves** | `/mnt/usbX/PS2/SAVEDATA/` (`*.xps`, `*.max`, `*.psu`, `*.cbs`, `*.psv`, `*.sps`) |
-| **VMC cards** | `/mnt/usbX/PS2/VMC/` (`*.vmc`, `*.card`, `*.vm2`, `*.ps2`, `*.bin`) |
+| **VMC cards** | `/mnt/usbX/PS2/VMC/` (`*.vmc`, `*.card`, `*.vm2`, `*.ps2`, `*.bin`, `*.mc2`, `*.mcd`) |
 | **PSV saves** | `/mnt/usbX/PS3/EXPORT/PSV/` |
 | **External saves (HDD)** | `/data/fakeusb/PS2/SAVEDATA/` |
 | **External VMCs (HDD)** | `/data/fakeusb/PS2/VMC/` |
@@ -164,7 +166,7 @@ Currently, the list of available games and files is limited, but the project aim
 
 # Credits
 
-* [Bucanero](http://www.bucanero.com.ar/): [Project developer](https://github.com/bucanero)
+* [Bucanero](https://github.com/bucanero): [Project developer](https://bucanero.github.io/apollo-ps4/)
 
 ## Acknowledgments
 
@@ -176,6 +178,12 @@ Currently, the list of available games and files is limited, but the project aim
 * [jimmikaelkael](https://github.com/jimmikaelkael): ps3mca tool
 * [ShendoXT](https://github.com/ShendoXT): [MemcardRex](https://github.com/ShendoXT/memcardrex)
 * [Nobody/Wild Light](https://github.com/nobodo): [Background music track](https://github.com/bucanero/apollo-vita/blob/main/data/haiku.s3m)
+
+## Translators
+
+Apollo supports multiple languages for its user interface. Thanks to the following contributors for their help with translations:
+
+- [Akela](https://x.com/Akela_1979) (Russian), [Bucanero](https://github.com/bucanero) (Spanish), [TheheroGAC](https://x.com/TheheroGAC) (Italian), [yyoossk](https://x.com/Cloud0835) (Japanese), [Phoenixx1202](https://github.com/Phoenixx1202) (Portuguese), SpyroMancer (Greek)
 
 # Building
 
@@ -191,6 +199,7 @@ You need to have installed:
 - [libs3m](https://github.com/bucanero/s3mplay) library
 - [libSQLite](https://github.com/bucanero/libSQLite-ps4) library
 - [Mini-XML](https://github.com/bucanero/mxml) library
+- [mini18n](https://github.com/bucanero/mini18n) library
 - [dbglogger](https://github.com/bucanero/dbglogger) library
 
 > [!TIP]

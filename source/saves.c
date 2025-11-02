@@ -1618,6 +1618,7 @@ static void scan_vmc_files(const char* userPath, const save_entry_t* parent, lis
 	{
 		if (dir->d_type != DT_REG || !(endsWith(dir->d_name, ".CARD") || endsWith(dir->d_name, ".VM2") || 
 			endsWith(dir->d_name, ".BIN") || endsWith(dir->d_name, ".PS2") || endsWith(dir->d_name, ".VMC") ||
+			endsWith(dir->d_name, ".MC2") ||
 			// PS1 VMCs
 			endsWith(dir->d_name, ".MCD") || endsWith(dir->d_name, ".MCR") || endsWith(dir->d_name, ".GME") ||
 			endsWith(dir->d_name, ".VM1") || endsWith(dir->d_name, ".VMP") || endsWith(dir->d_name, ".VGS") ||

@@ -1,0 +1,1122 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Apollo Save Tool\n"
+"POT-Creation-Date: 2025-10-23 19:16-0300\n"
+"PO-Revision-Date: 2025-10-24 15:33+0200\n"
+"Last-Translator: Gabor Sari <sarigaborj@gmail.com>\n"
+"Language-Team: github.com/oldman63\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+"X-Poedit-Basepath: source\n"
+"X-Poedit-KeywordsList: _;_i18n\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: exec_cmd.c:52 exec_cmd.c:104 exec_cmd.c:156 exec_cmd.c:545 exec_cmd.c:892
+#: exec_cmd.c:982 exec_cmd.c:1335 exec_cmd.c:1606
+msgid "Error! Export folder is not available:"
+msgstr "Hiba! Az export mappa nem elérhető:"
+
+#: exec_cmd.c:58 exec_cmd.c:224
+msgid "Error downloading save game from:"
+msgstr "Hiba a játékmentés letöltésekor:"
+
+#: exec_cmd.c:63 exec_cmd.c:279
+msgid "Save game successfully downloaded to:"
+msgstr "Játékmentés sikeresen letöltve:"
+
+#: exec_cmd.c:65 exec_cmd.c:235 exec_cmd.c:270
+msgid "Error extracting save game!"
+msgstr "Hiba a játékmentés kicsomagolásakor!"
+
+#: exec_cmd.c:108
+msgid "Exporting save game..."
+msgstr "Játékmentés exportálása..."
+
+#: exec_cmd.c:136
+msgid "Error! Can't export save game to:"
+msgstr "Hiba! Nem lehet exportálni a játékmentést a következő helyre:"
+
+#: exec_cmd.c:140 exec_cmd.c:1621
+msgid "Zip file successfully saved to:"
+msgstr "A zip fájl sikeresen mentve ide:"
+
+#: exec_cmd.c:150 exec_cmd.c:383
+msgid "Copy operation cancelled!"
+msgstr "Másolás művelet megszakítva!"
+
+#: exec_cmd.c:150 exec_cmd.c:383
+msgid "Same source and destination."
+msgstr "A forrás és cél azonos."
+
+#: exec_cmd.c:160
+msgid "Copying files..."
+msgstr "Fájlok másolása..."
+
+#: exec_cmd.c:169 exec_cmd.c:392
+msgid "Files successfully copied to:"
+msgstr "A fájlok sikeresen átmásolva ide:"
+
+#: exec_cmd.c:171
+msgid "Error! Can't copy save game to:"
+msgstr "Hiba! Nem lehet menteni a játémentést ide:"
+
+#: exec_cmd.c:250 exec_cmd.c:637
+msgid "Save game already exists:"
+msgstr "A játékmentés már létezik:"
+
+#: exec_cmd.c:250 exec_cmd.c:637
+msgid "Overwrite?"
+msgstr "Felülírja?"
+
+#: exec_cmd.c:255
+msgid "Error mounting save game folder!"
+msgstr "Hiba a játékmentés mappa felcsatolásakor!"
+
+#: exec_cmd.c:261
+msgid "Error creating save game folder!"
+msgstr "Hiba a játékmentés mappa létrehozásakor!"
+
+#: exec_cmd.c:281
+msgid "Error! Can't update save game:"
+msgstr "Hiba! Nem lehet frissíteni a játékmentést:"
+
+#: exec_cmd.c:387
+msgid "Copying save game..."
+msgstr "Játékmentés másolása..."
+
+#: exec_cmd.c:394
+msgid "Error! Can't copy Save-game folder:"
+msgstr "Hiba! Nem lehet másolni a játékmentés mappát:"
+
+#: exec_cmd.c:405 exec_cmd.c:896
+msgid "Copying all saves..."
+msgstr "Az összes mentés másolása..."
+
+#: exec_cmd.c:423
+msgid "Saves copied to HDD"
+msgstr "Mentések másolása HDD-re"
+
+#: exec_cmd.c:459
+msgid "All files extracted to:"
+msgstr "Összes fájl kicsomagolása ide:"
+
+#: exec_cmd.c:461
+#, c-format
+msgid "Error: %s couldn't be extracted"
+msgstr "Hiba: %s sikertelen kibontása"
+
+#: exec_cmd.c:474
+msgid "Error! Keystone file is not available:"
+msgstr "Hiba! A Keystone fájl nem érhető el:"
+
+#: exec_cmd.c:483
+msgid "keystone fingerprint:"
+msgstr "keystone aláírás:"
+
+#: exec_cmd.c:503 exec_cmd.c:1497
+msgid "Applying changes..."
+msgstr "Változások alkalmazása..."
+
+#: exec_cmd.c:532
+msgid "Trophies successfully updated!"
+msgstr "Trófeák frissítése sikeres!"
+
+#: exec_cmd.c:534
+msgid "Error! Couldn't update trophies"
+msgstr "Hiba! Nem sikerült frissíteni a trófeákat"
+
+#: exec_cmd.c:549
+msgid "Exporting Trophies ..."
+msgstr "Trófeák exportálása..."
+
+#: exec_cmd.c:567
+msgid "Trophies successfully saved to:"
+msgstr "A trófeák sikeresen mentve ide:"
+
+#: exec_cmd.c:578
+msgid "Dumping all fingerprints..."
+msgstr "Összes ujjlenyomat kibontása..."
+
+#: exec_cmd.c:603
+msgid "All fingerprints dumped to:"
+msgstr "Összes ujjlenyomat kibontása ide:"
+
+#: exec_cmd.c:612
+msgid "Enter the Account ID"
+msgstr "Fiók azonosító"
+
+#: exec_cmd.c:617
+msgid "Error! Account ID is not valid"
+msgstr "Hiba! Érvénytelen fiók azonosító"
+
+#: exec_cmd.c:624
+msgid "Error! Couldn't activate user account"
+msgstr "Hiba! A felhasználói fiók nem aktiválható"
+
+#: exec_cmd.c:628
+msgid "Account successfully activated!"
+msgstr "A fiók sikeresen aktiválva!"
+
+#: exec_cmd.c:628
+msgid "A system reboot is required"
+msgstr "A rendszer újraindítása szükséges"
+
+#: exec_cmd.c:643
+msgid "Encrypted save copied successfully!"
+msgstr "A titkosított mentés sikeresen átmásolva!"
+
+#: exec_cmd.c:647
+msgid "Error: can't create HDD save"
+msgstr "Hiba: nem lehet létrehozni HDD mentést"
+
+#: exec_cmd.c:651 exec_cmd.c:655
+msgid "Error: can't copy file"
+msgstr "Hiba: a fájl nem másolható"
+
+#: exec_cmd.c:659
+msgid "Error! Can't mount encrypted save."
+msgstr "Hiba! A titkosított mentés nem csatolható fel."
+
+#: exec_cmd.c:659
+msgid "(incompatible save-game firmware version)"
+msgstr "(nem kompatibilis mentés firmware verzió)"
+
+#: exec_cmd.c:663
+#, c-format
+msgid "Error: can't copy save %s"
+msgstr "Hiba: nem lehet másolni a mentést %s"
+
+#: exec_cmd.c:684
+msgid "Keystone successfully copied to:"
+msgstr "A keystone sikeresen másolva ide:"
+
+#: exec_cmd.c:686
+msgid "Error! Keystone couldn't be copied"
+msgstr "Hiba! A keystone nem másolható"
+
+#: exec_cmd.c:873
+msgid "Web Server listening on:"
+msgstr "A webszerver itt figyel:"
+
+#: exec_cmd.c:873
+msgid "Press OK to stop the Server."
+msgstr "A szerver leállításához nyomja meg az OK gombot."
+
+#: exec_cmd.c:876
+msgid "Error starting Web Server!"
+msgstr "Hiba a webszerver indításakor!"
+
+#: exec_cmd.c:917
+msgid "Saves copied to:"
+msgstr "Mentések átmásolva ide:"
+
+#: exec_cmd.c:929
+msgid "Exporting all VMC saves..."
+msgstr "Minden VMC mentés exportálása..."
+
+#: exec_cmd.c:949
+msgid "Saves exported to:"
+msgstr "Mentések exportálva ide:"
+
+#: exec_cmd.c:969 exec_cmd.c:1025
+msgid "Save successfully exported to:"
+msgstr "Mentések sikeresen exportálva ide:"
+
+#: exec_cmd.c:971 exec_cmd.c:1027
+msgid "Error exporting save:"
+msgstr "Hiba a mentés exportálásakor:"
+
+#: exec_cmd.c:989
+msgid "Memory card successfully exported to:"
+msgstr "Memóriakártya sikeresen exportálva ide:"
+
+#: exec_cmd.c:991
+msgid "Error! Failed to export PS1 memory card"
+msgstr "Hiba! A PS1 memóriakártya exportálása nem sikerült"
+
+#: exec_cmd.c:1034
+msgid "Importing PS2 save..."
+msgstr "PS2 mentés importálása..."
+
+#: exec_cmd.c:1066
+msgid "Successfully imported to VMC:"
+msgstr "Sikeres importálás VMC-be:"
+
+#: exec_cmd.c:1068
+msgid "Error importing save:"
+msgstr "Hiba a mentés importálásakor:"
+
+#: exec_cmd.c:1076
+#, c-format
+msgid "Do you want to delete %s?"
+msgstr "Törölni szeretné ezt %s?"
+
+#: exec_cmd.c:1106
+msgid "Save successfully deleted:"
+msgstr "Mentés sikeresen törölve:"
+
+#: exec_cmd.c:1108
+msgid "Error! Couldn't delete save:"
+msgstr "Hiba! A mentés nem törölhető:"
+
+#: exec_cmd.c:1222
+#, c-format
+msgid "Do you want to upload %s?"
+msgstr "Szeretné feltölteni ezt a fájlt: %s?"
+
+#: exec_cmd.c:1225
+msgid "Sync with FTP Server..."
+msgstr "Szinkronizálás FTP-kiszolgálóval..."
+
+#: exec_cmd.c:1264
+msgid "Error! Couldn't zip save:"
+msgstr "Hiba! Nem sikerült menteni a zip-et:"
+
+#: exec_cmd.c:1299
+msgid "Updating games index..."
+msgstr "Játék indexek frissítése..."
+
+#: exec_cmd.c:1321
+msgid "Save successfully uploaded:"
+msgstr "Mentés sikeresen feltöltve:"
+
+#: exec_cmd.c:1323
+msgid "Error! Couldn't upload save:"
+msgstr "Hiba! Nem sikerült feltölteni a mentést:"
+
+#: exec_cmd.c:1341
+msgid "Exporting PS2 memory card..."
+msgstr "PS2 memóriakártya exportálása..."
+
+#: exec_cmd.c:1346
+msgid "File successfully saved to:"
+msgstr "A fájl sikeresen mentve ide:"
+
+#: exec_cmd.c:1348
+msgid "Error! Failed to export PS2 memory card"
+msgstr "Hiba! A PS2 memóriakártya exportálása sikertelen"
+
+#: exec_cmd.c:1360
+msgid "Error getting PS4 user list!"
+msgstr "Hiba a PS4 felhasználólista lekérésekor!"
+
+#: exec_cmd.c:1369
+#, c-format
+msgid "Database rebuild for user %s failed!"
+msgstr "A %s felhasználó adatbázisának újjáépítése sikertelen!"
+
+#: exec_cmd.c:1374
+msgid "Database rebuilt successfully!"
+msgstr "Az adatbázis sikeresen újjáépült!"
+
+#: exec_cmd.c:1374 exec_cmd.c:1907
+msgid "Log out for changes to take effect"
+msgstr "A változások érvénybe lépéséhez jelentkezzen ki"
+
+#: exec_cmd.c:1550
+msgid "Error! Account changes couldn't be applied"
+msgstr "Hiba! A fiókmódosítások nem alkalmazhatóak"
+
+#: exec_cmd.c:1554
+msgid "Error! Cheat codes couldn't be applied"
+msgstr "Hiba! A csalókódok nem alkalmazhatóak"
+
+#: exec_cmd.c:1556
+#, c-format
+msgid "Save %s successfully modified!"
+msgstr "A %s mentése sikeresen módosítva!"
+
+#: exec_cmd.c:1573
+msgid "Resigning all saves..."
+msgstr "Minden mentés ismételt aláírása..."
+
+#: exec_cmd.c:1593
+#, c-format
+msgid "Error: %d Saves couldn't be resigned"
+msgstr "Hiba: a %d mentés nem írható alá újra"
+
+#: exec_cmd.c:1595
+msgid "All saves successfully resigned!"
+msgstr "Minden mentés sikeresen aláírva!"
+
+#: exec_cmd.c:1616
+msgid "Exporting system database..."
+msgstr "Rendszeradatbázis exportálása..."
+
+#: exec_cmd.c:1632
+#, c-format
+msgid "DB Backup %s successfully restored!"
+msgstr "A %s DB biztonsági másolat sikeresen visszaállítva!"
+
+#: exec_cmd.c:1634
+#, c-format
+msgid "Error! Backup %s couldn't be restored"
+msgstr "Hiba! A %s biztonsági másolat nem állítható vissza"
+
+#: exec_cmd.c:1657
+msgid "File successfully exported to:"
+msgstr "A fájl sikeresen exportálva ide:"
+
+#: exec_cmd.c:1659
+#, c-format
+msgid "Error! File %s couldn't be exported"
+msgstr "Hiba! A %s fájl nem exportálható"
+
+#: exec_cmd.c:1669
+msgid "Error! Can't find decrypted save-game file:"
+msgstr "Hiba! Nem található dekódolt játékmentés fájl:"
+
+#: exec_cmd.c:1677
+msgid "File successfully imported to:"
+msgstr "A fájl sikeresen importálva ide:"
+
+#: exec_cmd.c:1679
+#, c-format
+msgid "Error! File %s couldn't be imported"
+msgstr "Hiba! A %s fájl nem importálható"
+
+#: exec_cmd.c:1687
+msgid "Download URL"
+msgstr "Letöltési URL"
+
+#: exec_cmd.c:1694
+msgid "File successfully downloaded to:"
+msgstr "A fájl sikeresen letöltődött ide:"
+
+#: exec_cmd.c:1696
+msgid "Error! File couldn't be downloaded"
+msgstr "Hiba! A fájl nem tölthető le"
+
+#: exec_cmd.c:1706
+msgid "Enable Browser history?"
+msgstr "Engedélyezi a böngésző előzményeket?"
+
+#: exec_cmd.c:1707
+msgid "Browser history enabled"
+msgstr "Böngésző előzmények engedélyezve"
+
+#: exec_cmd.c:1712
+msgid "Disable Browser history?"
+msgstr "Letiltja a böngésző előzményeket?"
+
+#: exec_cmd.c:1717
+msgid "Browser history disabled"
+msgstr "Böngésző előzmények letiltva"
+
+#: exec_cmd.c:1907
+msgid "DLC database fixed successfully!"
+msgstr "A DLC adatbázis sikeresen megjavítva!"
+
+#: exec_cmd.c:1909
+msgid "DLC Database rebuild failed!"
+msgstr "A DLC adatbázis újjáépítése sikertelen!"
+
+#: exec_cmd.c:1951
+msgid "Save successfully imported:"
+msgstr "A mentés sikeresen importálva ide:"
+
+#: exec_cmd.c:1953
+msgid "Error! Couldn't import save:"
+msgstr "Hiba! Nem sikerült importálni a mentést:"
+
+#: http.c:124
+msgid "Downloading..."
+msgstr "Letöltés..."
+
+#: http.c:226
+msgid "Uploading..."
+msgstr "Feltöltés..."
+
+#: main.c:180 main.c:184 main.c:189 main.c:199
+msgid "Select"
+msgstr "Kiválaszt"
+
+#: main.c:180 main.c:184 main.c:189 main.c:195 main.c:199
+msgid "Back"
+msgstr "Vissza"
+
+#: main.c:180 menu_cheats.c:253
+msgid "Details"
+msgstr "Részletek"
+
+#: main.c:180 main.c:184
+msgid "Refresh"
+msgstr "Frissítés"
+
+#: main.c:199
+msgid "View Code"
+msgstr "Kód megtekintése"
+
+#: main.c:203
+msgid "Value Up"
+msgstr "Érték +"
+
+#: main.c:203
+msgid "Value Down"
+msgstr "Érték -"
+
+#: main.c:203
+msgid "Exit"
+msgstr "Kilépés"
+
+#: main.c:483
+msgid "HDD Saves"
+msgstr "HDD mentések"
+
+#: main.c:484
+msgid "USB Saves"
+msgstr "USB mentések"
+
+#: main.c:485 saves.c:688
+msgid "Trophies"
+msgstr "Trófeák"
+
+#: main.c:486
+msgid "User Tools"
+msgstr "Felhasználói segédeszközök"
+
+#: main.c:487
+msgid "Online Database"
+msgstr "Onlie adatbázis"
+
+#: main.c:488
+msgid "PS1 Virtual Memory Card"
+msgstr "PS1 Virtuális memóriakártya"
+
+#: main.c:489
+msgid "PS2 Virtual Memory Card"
+msgstr "PS2 Virtuális memóriakártya"
+
+#: main.c:716
+msgid "Debug Logging Enabled"
+msgstr "Hibakeresési naplózás engedélyezve"
+
+#: main.c:725
+msgid "Successfully installed local application data"
+msgstr "A helyi alkalmazásadatok telepítése sikeresen megtörtént"
+
+#: menu_about.c:103
+msgid "Console details:"
+msgstr "Konzol részletek:"
+
+#: menu_about.c:142 menu_about.c:166
+msgid "About"
+msgstr "Súgó"
+
+#: menu_cheats.c:111 menu_cheats.c:141 menu_cheats.c:161
+msgid "Options"
+msgstr "Opciók"
+
+#: menu_cheats.c:207
+msgid "Target File:"
+msgstr "Célfájl:"
+
+#: menu_cheats.c:512
+msgid "Saves"
+msgstr "Mentések"
+
+#: menu_cheats.c:516
+msgid "Games"
+msgstr "Játékok"
+
+#: menu_cheats.c:520
+msgid "Trophy Sets"
+msgstr "Trófea készletek"
+
+#: menu_cheats.c:524
+msgid "Tools"
+msgstr "Segédeszközök"
+
+#: menu_cheats.c:528
+msgid "PS1 Saves"
+msgstr "PS1 mentések"
+
+#: menu_cheats.c:532
+msgid "PS2 Saves"
+msgstr "PS2 mentések"
+
+#: menu_hex.c:52 menu_hex.c:72
+msgid "Hex Editor"
+msgstr "Hexa editor"
+
+#: menu_main.c:67
+msgid "Loading save games..."
+msgstr "Játékmentések betöltése..."
+
+#: menu_main.c:90
+msgid "No save-games found"
+msgstr "Nem találhatóak játékmentések"
+
+#: menu_main.c:142
+msgid "Saving PS2 Memory Card..."
+msgstr "PS2 memóriakártya mentése..."
+
+#: menu_main.c:345 menu_main.c:724
+msgid "Patch view"
+msgstr "Patch nézet"
+
+#: menu_main.c:473
+msgid "No data found in folder:"
+msgstr "Nincs adat a mappában:"
+
+#: menu_main.c:525
+msgid "Exit to XMB?"
+msgstr "Kilépés az XMB-be?"
+
+#: menu_main.c:665
+#, c-format
+msgid "Save changes to %s?"
+msgstr "Módosítások mentése ide %s?"
+
+#: menu_main.c:761
+msgid "Failed to load:"
+msgstr "Betöltés sikertelen:"
+
+#: menu_options.c:66 menu_options.c:86
+msgid "Settings"
+msgstr "Beállítások"
+
+#: saves.c:67
+msgid "Warning! Save couldn't be unmounted!"
+msgstr "Figyelem! A mentést nem sikerült lecsatolni!"
+
+#: saves.c:373
+msgid "Apply Changes & Resign"
+msgstr "Változások alkalmazása és ismételt aláírása"
+
+#: saves.c:376 saves.c:519 saves.c:813 saves.c:968
+msgid "View Save Details"
+msgstr "Mentés részletek megtekintése"
+
+#: saves.c:379 saves.c:816 saves.c:971
+msgid "Delete Save Game"
+msgstr "Játékmentés törlése"
+
+#: saves.c:383 saves.c:656
+msgid "File Backup"
+msgstr "Fájl biztonsági mentés"
+
+#: saves.c:388
+msgid "Copy save game to USB"
+msgstr "Játékmentés másolása USB-re"
+
+#: saves.c:389
+msgid "Copy Save to USB"
+msgstr "Mentés másolása USB-re"
+
+#: saves.c:394 saves.c:825 saves.c:980
+msgid "Upload save backup to FTP"
+msgstr "Mentés biztonsági másolatának feltöltése FTP-re"
+
+#: saves.c:400
+msgid "Copy save game to HDD"
+msgstr "Játékmentés másolása HDD-re"
+
+#: saves.c:404
+msgid "Export save game to Zip"
+msgstr "Játékmentés exportálása Zip-be"
+
+#: saves.c:405
+msgid "Export Zip to USB"
+msgstr "Zip exportálása USB-re"
+
+#: saves.c:407
+msgid "Export Zip to HDD"
+msgstr "Zip exportálása HDD-re"
+
+#: saves.c:412
+msgid "Export decrypted save files"
+msgstr "Dekódolt mentések exportálása"
+
+#: saves.c:417
+msgid "Import decrypted save files"
+msgstr "Dekódolt mentések importálása"
+
+#: saves.c:422
+msgid "Hex Edit save game files"
+msgstr "Játékmentések Hexa Editálása"
+
+#: saves.c:470
+msgid "Keystone Backup"
+msgstr "Keystone biztonsági mentés"
+
+#: saves.c:473
+msgid "Export Keystone"
+msgstr "Keystone exportálás"
+
+#: saves.c:476
+msgid "Import Keystone"
+msgstr "Keystone importálás"
+
+#: saves.c:479
+msgid "Show Keystone Fingerprint"
+msgstr "Keystone ujjlenyomat megtekintése"
+
+#: saves.c:524
+msgid "Encrypted save requires firmware"
+msgstr "A titkosított mentéshez firmware szükséges"
+
+#: saves.c:566
+msgid "Error Mounting Save!"
+msgstr "Hiba a mentés felcsatolásakor!"
+
+#: saves.c:582
+msgid "Cheats"
+msgstr "Csalások"
+
+#: saves.c:585
+msgid "View Raw Patch File"
+msgstr "Nyers patchfájl megtekintése"
+
+#: saves.c:639
+msgid "Error Mounting Trophy Set!"
+msgstr "Hiba a trófeakészlet felcsatolásakor!"
+
+#: saves.c:646
+msgid "Apply Changes to Trophy Set"
+msgstr "Változtatások alkalmazása a trófeakészletre"
+
+#: saves.c:649
+msgid "View Trophy Set Details"
+msgstr "A trófeakészlet részleteinek megtekintése"
+
+#: saves.c:652
+msgid "Delete Trophy Set"
+msgstr "Trófeakészlet törlése"
+
+#: saves.c:659
+msgid "Backup Trophy files to USB"
+msgstr "Trófeafájlok biztonsági mentése USB-re"
+
+#: saves.c:661
+msgid "Copy Trophy to USB"
+msgstr "Trófea mentése USB-re"
+
+#: saves.c:664
+msgid "Export Trophy files to Zip"
+msgstr "Trófea fájlok exportálása Zip-be"
+
+#: saves.c:666 saves.c:2168
+msgid "Save .Zip to USB"
+msgstr "Zip fájl mentése USB-re"
+
+#: saves.c:668
+msgid "Save .Zip to HDD"
+msgstr "Zip fájl mentése HDD-re"
+
+#: saves.c:673
+msgid "Export decrypted trophy files"
+msgstr "Dekódolt trófeafájlok exportálása"
+
+#: saves.c:678
+msgid "Import decrypted trophy files"
+msgstr "Dekódolt trófeafájlok importálása"
+
+#: saves.c:820 saves.c:975
+msgid "Save Game Backup"
+msgstr "Játékmentések biztonsági mentése"
+
+#: saves.c:829
+msgid "Export save game to .MCS format"
+msgstr "Játékmentés exportálása .MCS formátumba"
+
+#: saves.c:830
+msgid "Copy .MCS Save to USB"
+msgstr "MCS mentés másolása USB-re"
+
+#: saves.c:832
+msgid "Copy .MCS Save to HDD"
+msgstr "MCS mentés másolása HDD-re"
+
+#: saves.c:838 saves.c:993
+msgid "Export save game to .PSV format"
+msgstr "Játékmentés exportálása .PSV formátumba"
+
+#: saves.c:839
+msgid "Copy .PSV Save to USB"
+msgstr "PSV mentés másolása USB-re"
+
+#: saves.c:841
+msgid "Copy .PSV Save to HDD"
+msgstr "PSV mentés másolása HDD-re"
+
+#: saves.c:847
+msgid "Export save game to .PSX format"
+msgstr "Játékmentés exportálása .PSX formátumba"
+
+#: saves.c:848
+msgid "Copy .PSX Save to USB"
+msgstr "PSX mentés másolása USB-re"
+
+#: saves.c:850
+msgid "Copy .PSX Save to HDD"
+msgstr "PSX mentés másolása HDD-re"
+
+#: saves.c:984
+msgid "Export save game to .PSU format"
+msgstr "Játékmentés exportálása .PSU formátumba"
+
+#: saves.c:985
+msgid "Export .PSU save to USB"
+msgstr "PSU mentés másolása USB-re"
+
+#: saves.c:987
+msgid "Export .PSU save to HDD"
+msgstr "PSU mentés másolása HDD-re"
+
+#: saves.c:994
+msgid "Export .PSV save to USB"
+msgstr "PSV mentés exportálása USB-re"
+
+#: saves.c:996
+msgid "Export .PSV save to HDD"
+msgstr "PSV mentés exportálása HDD-re"
+
+#: saves.c:1055
+msgid "Download to USB"
+msgstr "Letöltés USB-re"
+
+#: saves.c:1057
+msgid "Download to HDD"
+msgstr "Letöltés HDD-re"
+
+#: saves.c:1085
+msgid "Extract Archives (RAR, Zip, 7z)"
+msgstr "Archívumok kicsomagolása (RAR, Zip, 7z)"
+
+#: saves.c:1090
+msgid "Activate PS4 Accounts"
+msgstr "PS4 fiók aktiválása"
+
+#: saves.c:1095
+msgid "App.db Database Management"
+msgstr "App.db adatbáziskezelés"
+
+#: saves.c:1101
+msgid "Network Tools (Downloader, Web Server)"
+msgstr "Hálózati segédeszközök (Letöltő, Webszerver)"
+
+#: saves.c:1106
+msgid "Show Parental Security Passcode"
+msgstr "Szülői biztonsági jelszó megjelenítése"
+
+#: saves.c:1145
+msgid "URL link Downloader (http, https, ftp, ftps)"
+msgstr "URL link letöltő (http, https, ftp, ftps)"
+
+#: saves.c:1147
+msgid "Local Web Server (full system access)"
+msgstr "Helyi webszerver (teljes rendszerhozzáféréssel)"
+
+#: saves.c:1149
+msgid "Toggle Web Browser history"
+msgstr "Webböngésző előzményeinek megjelenítése/elrejtése"
+
+#: saves.c:1156
+msgid "Rebuild App.db Database (Restore missing XMB items)"
+msgstr "Az App.db újjáépítése (hiányzó XMB elemek visszaállítása)"
+
+#: saves.c:1160
+msgid "Rebuild DLC Database (addcont.db)"
+msgstr "DLC adatbázis újjáépítése (addcont.db)"
+
+#: saves.c:1164
+msgid "Backup System Database Folder"
+msgstr "Biztonsági mentőrendszer adatbázis mappa"
+
+#: saves.c:1167
+msgid "Restore System Database Backup"
+msgstr "Rendszeradatbázis biztonsági másolatának visszaállítása"
+
+#: saves.c:1188
+msgid "Activate Offline Account"
+msgstr "Offline fiók aktiválása"
+
+#: saves.c:1218
+msgid "Extract"
+msgstr "Kicsomagolás"
+
+#: saves.c:1731 saves.c:1786
+msgid "Bulk Save Management"
+msgstr "Tömeges mentéskezelés"
+
+#: saves.c:1739
+msgid "Resign selected Saves"
+msgstr "Kiválasztott mentések ismételt aláírása"
+
+#: saves.c:1742
+msgid "Resign all decrypted Saves"
+msgstr "Összes dekódolt mentés ismételt aláírása"
+
+#: saves.c:1745
+msgid "Copy selected Saves to HDD"
+msgstr "Kijelölt mentések másolása a HDD-re"
+
+#: saves.c:1748
+msgid "Copy all Saves to HDD"
+msgstr "Összes mentés másolása a HDD-re"
+
+#: saves.c:1751 saves.c:1802
+msgid "Start local Web Server"
+msgstr "Helyi webszerver indítása"
+
+#: saves.c:1754
+msgid "Dump all decrypted Save Fingerprints"
+msgstr "Összes dekódolt mentési ujjlenyomat kibontása"
+
+#: saves.c:1794 saves.c:1929 saves.c:2034
+msgid "Copy selected Saves to USB"
+msgstr "A kijelölt mentések másolása USB-re"
+
+#: saves.c:1795 saves.c:1799
+msgid "Copy Saves to USB"
+msgstr "Mentések másolása USB-re"
+
+#: saves.c:1798 saves.c:1932 saves.c:2037
+msgid "Copy all Saves to USB"
+msgstr "Összes mentés másolása USB-re"
+
+#: saves.c:1805
+msgid "Dump all Save Fingerprints"
+msgstr "Összes mentés ujjlenyomatának kibontása"
+
+#: saves.c:1919 saves.c:2024
+msgid "Memory Card Management"
+msgstr "Memóriakártya kezelés"
+
+#: saves.c:1928 saves.c:2033
+msgid "Export selected Saves to USB"
+msgstr "Kiválasztott mentések exportálása USB-re"
+
+#: saves.c:1931 saves.c:2036
+msgid "Export all Saves to USB"
+msgstr "Összes mentés exportálása USB-re"
+
+#: saves.c:1936 saves.c:2042
+msgid "Virtual Memory Card"
+msgstr "Virtuális memóriakártya (VMC)"
+
+#: saves.c:1939
+msgid "Export Memory Card to .VM1 format"
+msgstr "Memóriakártya exportálása .VM1 formátumba"
+
+#: saves.c:1941
+msgid "Save .VM1 Memory Card to USB"
+msgstr "VM1 memóriakártya mentése USB-re"
+
+#: saves.c:1943
+msgid "Save .VM1 Memory Card to HDD"
+msgstr "VM1 memóriakártya mentése HDD-re"
+
+#: saves.c:1948
+msgid "Export Memory Card to .VMP format"
+msgstr "Memóriakártya exportálása .VMP formátumba"
+
+#: saves.c:1950
+msgid "Save .VMP Memory Card to USB"
+msgstr "VMP memóriakártya mentése USB-re"
+
+#: saves.c:1952
+msgid "Save .VMP Memory Card to HDD"
+msgstr "VMP memóriakártya mentése HDD-re"
+
+#: saves.c:1958 saves.c:1971 saves.c:2063 saves.c:2075
+msgid "Import Saves to Virtual MemCard"
+msgstr "Mentések importálása virtuális memóriakártyára"
+
+#: saves.c:2045
+msgid "Export Memory Card to .VM2 format"
+msgstr "Memóriakártya exportálása .VM2 formátumba"
+
+#: saves.c:2047
+msgid "Save .VM2 Memory Card to USB"
+msgstr "VM2 memóriakártya mentése USB-re"
+
+#: saves.c:2049
+msgid "Save .VM2 Memory Card to HDD"
+msgstr "VM2 memóriakártya mentése HDD-re"
+
+#: saves.c:2054
+msgid "Export Memory Card to .VMC format (No ECC)"
+msgstr "Memóriakártya exportálása .VMC formátumba (ECC nélkül)"
+
+#: saves.c:2056
+msgid "Save .VMC Memory Card to USB"
+msgstr "VMC memóriakártya mentése USB-re"
+
+#: saves.c:2058
+msgid "Save .VMC Memory Card to HDD"
+msgstr "VMC memóriakártya mentése HDD-re"
+
+#: saves.c:2151
+msgid "Export Trophies"
+msgstr "Trófeák exportálása"
+
+#: saves.c:2159
+msgid "Backup selected Trophies to USB"
+msgstr "Kiválasztott trófeák biztonsági mentése USB-re"
+
+#: saves.c:2160 saves.c:2164
+msgid "Save Trophies to USB"
+msgstr "Trófeák mentése USB-re"
+
+#: saves.c:2163
+msgid "Backup all Trophies to USB"
+msgstr "Összes trófea biztonsági mentése USB-re"
+
+#: saves.c:2167
+msgid "Export all encrypted Trophies to .Zip"
+msgstr "Összes titkosított trófea exportálása .Zip formátumba"
+
+#: settings.c:19
+msgid "Online DB"
+msgstr "Online DB"
+
+#: settings.c:19
+msgid "FTP Server"
+msgstr "FTP szerver"
+
+#: settings.c:20
+msgid "Disabled"
+msgstr "Letiltva"
+
+#: settings.c:20
+msgid "by Name"
+msgstr "név szerint"
+
+#: settings.c:20
+msgid "by Title ID"
+msgstr "title ID szerint"
+
+#: settings.c:20
+msgid "by Type"
+msgstr "típus szerint"
+
+#: settings.c:21
+msgid "Fake USB"
+msgstr "Hamis USB"
+
+#: settings.c:21
+msgid "Auto-detect"
+msgstr "Auto-detektálás"
+
+#: settings.c:34
+msgid "Background Music"
+msgstr "Háttérzene"
+
+#: settings.c:40
+msgid "Menu Animations"
+msgstr "Menü animációk"
+
+#: settings.c:46
+msgid "Sort Saves"
+msgstr "Mentések rendezése"
+
+#: settings.c:52
+msgid "USB Saves Source"
+msgstr "USB mentések forrása"
+
+#: settings.c:58
+msgid "Version Update Check"
+msgstr "Verziófrissítések ellenőrzése"
+
+#: settings.c:64
+msgid "Set User FTP Server URL"
+msgstr "Felhasználói FTP-kiszolgáló URL-címének beállítása"
+
+#: settings.c:71
+msgid "Online Saves Server"
+msgstr "Online mentőszerver"
+
+#: settings.c:77
+msgid "Update Application Data"
+msgstr "Alkalmazásadatok frissítése"
+
+#: settings.c:83
+msgid "Change Online Database URL"
+msgstr "Online adatbázis URL módosítása"
+
+#: settings.c:89
+msgid "Clear Local Cache"
+msgstr "Helyi gyorsítótár törlése"
+
+#: settings.c:96
+msgid "Enable Debug Log"
+msgstr "Hibakeresési napló engedélyezése"
+
+#: settings.c:134
+msgid "Enter the Online Database URL"
+msgstr "Online adatbázis URL"
+
+#: settings.c:140
+msgid "Online database URL changed to:"
+msgstr "Az online adatbázis URL-je megváltozott erre:"
+
+#: settings.c:150
+msgid "Enter the FTP server URL"
+msgstr "FTP-kiszolgáló URL"
+
+#: settings.c:159
+msgid "Testing connection..."
+msgstr "Kapcsolat ellenőrzése..."
+
+#: settings.c:184
+msgid "FTP server URL changed to:"
+msgstr "Az FTP-kiszolgáló URL-je megváltozott erre:"
+
+#: settings.c:187
+msgid "Error! Couldn't connect to FTP server"
+msgstr "Hiba! Nem sikerült csatlakozni az FTP-kiszolgálóhoz"
+
+#: settings.c:187
+msgid "Check debug logs for more information"
+msgstr "További információkért ellenőrizze a hibakeresési naplókat"
+
+#: settings.c:195
+msgid "Local cache folder cleaned:"
+msgstr "Helyi gyorsítótár mappa törölve:"
+
+#: settings.c:203
+msgid "Error! Can't download data update file!"
+msgstr "Hiba! Nem lehet letölteni a frissítőfájlt!"
+
+#: settings.c:206
+#, c-format
+msgid "Successfully updated %d save patch files!"
+msgstr "%d mentés javítófájl frissítése sikeresen megtörtént!"
+
+#: settings.c:208
+msgid "Error! Can't extract data update file!"
+msgstr "Hiba! Nem lehet kibontani az adatokat frissítő fájlt!"
+
+#: settings.c:275
+msgid "New version available! Download update?"
+msgstr "Új verzió érhető el! Letölti a frissítést?"
+
+#: settings.c:279
+#, c-format
+msgid "Update downloaded to %s"
+msgstr "Frissítés letöltve ide %s"
+
+#: settings.c:281
+msgid "Download error!"
+msgstr "Letöltési hiba!"
+
+#: settings.c:296
+msgid "Debug Logging Disabled"
+msgstr "Hibakeresési naplózás kikapcsolva"
+
+#: settings.c:301
+msgid "Debug Logging Enabled!"
+msgstr "Hibakeresési naplózás engedélyezve!"
+
+#: settings.c:354
+msgid "User Settings"
+msgstr "Felhasználói beállítások"
+
+#: zip_util.c:168 zip_util.c:249 zip_util.c:289
+msgid "Extracting files..."
+msgstr "Fájlok kicsomagolása..."

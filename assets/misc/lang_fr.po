@@ -64,7 +64,7 @@ msgid "Error! Can't copy save game to:"
 msgstr "Erreur ! Impossible de copier la sauvegarde vers :"
 
 #: exec_cmd.c:250 exec_cmd.c:637
-msgid "A backup already exists:"
+msgid "Save game already exists:"
 msgstr "Une sauvegarde existe déjà :"
 
 #: exec_cmd.c:250 exec_cmd.c:637

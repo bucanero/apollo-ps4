@@ -214,8 +214,8 @@ msgid "Saves copied to:"
 msgstr "Sauvegardes copiées vers:"
 
 #: exec_cmd.c:929
-msgid "Exportation de toutes les sauvegardes VMC..."
-msgstr ""
+msgid "Exporting all VMC saves..."
+msgstr "Exportation de toutes les sauvegardes VMC..."
 
 #: exec_cmd.c:949
 msgid "Saves exported to:"

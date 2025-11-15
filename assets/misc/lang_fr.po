@@ -21,19 +21,19 @@ msgstr "Erreur ! Le dossier d'exportation n'est pas disponible :"
 
 #: exec_cmd.c:58 exec_cmd.c:224
 msgid "Error downloading save game from:"
-msgstr "Erreur lors du téléchargement de la sauvegarde depuis :"
+msgstr "Erreur lors du téléchargement de la sauvegarde depuis:"
 
 #: exec_cmd.c:63 exec_cmd.c:279
 msgid "Save game successfully downloaded to:"
-msgstr "Téléchargement de la Sauvegarde avec succès sur :"
+msgstr "Téléchargement de la Sauvegarde avec succès sur:"
 
 #: exec_cmd.c:65 exec_cmd.c:235 exec_cmd.c:270
 msgid "Error extracting save game!"
-msgstr "Erreur lors de l'extraction de la sauvegarde !"
+msgstr "Erreur lors de l'extraction de la sauvegarde!"
 
 #: exec_cmd.c:108
 msgid "Exporting save game..."
-msgstr ""
+msgstr "Exportation de la sauvegarde..."
 
 #: exec_cmd.c:136
 msgid "Error! Can't export save game to:"
@@ -45,15 +45,15 @@ msgstr "Fichier ZIP enregistré avec succès sous :"
 
 #: exec_cmd.c:150 exec_cmd.c:383
 msgid "Copy operation cancelled!"
-msgstr ""
+msgstr "Opération de copie annulée !"
 
 #: exec_cmd.c:150 exec_cmd.c:383
 msgid "Same source and destination."
-msgstr ""
+msgstr "Même source et même destination."
 
 #: exec_cmd.c:160
 msgid "Copying files..."
-msgstr ""
+msgstr "Copie des fichiers..."
 
 #: exec_cmd.c:169 exec_cmd.c:392
 msgid "Files successfully copied to:"
@@ -61,11 +61,11 @@ msgstr "Fichiers copiés avec succès vers :"
 
 #: exec_cmd.c:171
 msgid "Error! Can't copy save game to:"
-msgstr ""
+msgstr "Erreur ! Impossible de copier la sauvegarde vers :"
 
 #: exec_cmd.c:250 exec_cmd.c:637
-msgid "Save game already exists:"
-msgstr ""
+msgid "A backup already exists:"
+msgstr "Une sauvegarde existe déjà :"
 
 #: exec_cmd.c:250 exec_cmd.c:637
 msgid "Overwrite?"
@@ -73,7 +73,7 @@ msgstr "Écraser ?"
 
 #: exec_cmd.c:255
 msgid "Error mounting save game folder!"
-msgstr ""
+msgstr "Erreur lors du montage du dossier de sauvegarde !"
 
 #: exec_cmd.c:261
 msgid "Error creating save game folder!"
@@ -81,19 +81,19 @@ msgstr "Erreur lors de la Création du Dossier de Sauvegarde du jeu !"
 
 #: exec_cmd.c:281
 msgid "Error! Can't update save game:"
-msgstr ""
+msgstr "Erreur! Impossible de mettre à jour la sauvegarde :"
 
 #: exec_cmd.c:387
 msgid "Copying save game..."
-msgstr ""
+msgstr "Copie de la sauvegarde..."
 
 #: exec_cmd.c:394
 msgid "Error! Can't copy Save-game folder:"
-msgstr ""
+msgstr "Erreur! Impossible de copier le dossier de sauvegarde :"
 
 #: exec_cmd.c:405 exec_cmd.c:896
 msgid "Copying all saves..."
-msgstr ""
+msgstr "Copie de toutes les sauvegardes..."
 
 #: exec_cmd.c:423
 msgid "Saves copied to HDD"
@@ -110,27 +110,27 @@ msgstr "Erreur : %s n'a pas pu être extrait"
 
 #: exec_cmd.c:474
 msgid "Error! Keystone file is not available:"
-msgstr ""
+msgstr "Erreur! Le fichier Keystone est introuvable :"
 
 #: exec_cmd.c:483
 msgid "keystone fingerprint:"
-msgstr ""
+msgstr "Empreinte clé de voûte :"
 
 #: exec_cmd.c:503 exec_cmd.c:1497
 msgid "Applying changes..."
-msgstr ""
+msgstr "Application des modifications..."
 
 #: exec_cmd.c:532
 msgid "Trophies successfully updated!"
-msgstr ""
+msgstr "Trophées mis à jour avec succès !"
 
 #: exec_cmd.c:534
 msgid "Error! Couldn't update trophies"
-msgstr ""
+msgstr "Erreur! Impossible de mettre à jour les trophées."
 
 #: exec_cmd.c:549
 msgid "Exporting Trophies..."
-msgstr ""
+msgstr "Exporter des trophées..."
 
 #: exec_cmd.c:567
 msgid "Trophies successfully saved to:"
@@ -138,11 +138,11 @@ msgstr "Trophées enregistrés avec succès dans :"
 
 #: exec_cmd.c:578
 msgid "Dumping all fingerprints..."
-msgstr ""
+msgstr "Suppression de toutes les empreintes..."
 
 #: exec_cmd.c:603
 msgid "All fingerprints dumped to:"
-msgstr ""
+msgstr "Toutes les empreintes ont été transférées vers :"
 
 #: exec_cmd.c:612
 msgid "Enter the Account ID"
@@ -150,15 +150,15 @@ msgstr "Entrez l'ID du compte"
 
 #: exec_cmd.c:617
 msgid "Error! Account ID is not valid"
-msgstr "Erreur ! L'identifiant de compte n'est pas valide"
+msgstr "Erreur! L'identifiant de compte n'est pas valide"
 
 #: exec_cmd.c:624
 msgid "Error! Couldn't activate user account"
-msgstr ""
+msgstr "Erreur! Impossible d'activer le compte utilisateur"
 
 #: exec_cmd.c:628
 msgid "Account successfully activated!"
-msgstr "Compte activé avec succès !"
+msgstr "Compte activé avec succès!"
 
 #: exec_cmd.c:628
 msgid "A system reboot is required"
@@ -166,36 +166,36 @@ msgstr "Un redémarrage du système est requis"
 
 #: exec_cmd.c:643
 msgid "Encrypted save copied successfully!"
-msgstr ""
+msgstr "Sauvegarde chiffrée copiée avec succès!"
 
 #: exec_cmd.c:647
 msgid "Error: can't create HDD save"
-msgstr ""
+msgstr "Erreur! impossible de créer une sauvegarde sur le disque dur"
 
 #: exec_cmd.c:651 exec_cmd.c:655
 msgid "Error: can't copy file"
-msgstr ""
+msgstr "Erreur: impossible de copier le fichier"
 
 #: exec_cmd.c:659
 msgid "Error! Can't mount encrypted save."
-msgstr ""
+msgstr "Erreur! Impossible de monter la sauvegarde chiffrée."
 
 #: exec_cmd.c:659
 msgid "(incompatible save-game firmware version)"
-msgstr ""
+msgstr "(Version du firmware de sauvegarde incompatible)"
 
 #: exec_cmd.c:663
 #, c-format
 msgid "Error: can't copy save %s"
-msgstr ""
+msgstr "Erreur: impossible de copier la sauvegarde %s"
 
 #: exec_cmd.c:684
 msgid "Keystone successfully copied to:"
-msgstr ""
+msgstr "Keystone a été copié avec succès vers:"
 
 #: exec_cmd.c:686
 msgid "Error! Keystone couldn't be copied"
-msgstr ""
+msgstr "Erreur! Impossible de copier le Keystone"
 
 #: exec_cmd.c:873
 msgid "Web Server listening on:"
@@ -211,10 +211,10 @@ msgstr "Erreur lors du démarrage du serveur Web !"
 
 #: exec_cmd.c:917
 msgid "Saves copied to:"
-msgstr ""
+msgstr "Sauvegardes copiées vers:"
 
 #: exec_cmd.c:929
-msgid "Exporting all VMC saves..."
+msgid "Exportation de toutes les sauvegardes VMC..."
 msgstr ""
 
 #: exec_cmd.c:949
@@ -235,11 +235,11 @@ msgstr "Carte Mémoire exportée avec succès vers :"
 
 #: exec_cmd.c:991
 msgid "Error! Failed to export PS1 memory card"
-msgstr ""
+msgstr "Erreur! Échec de l'exportation de la carte mémoire PS1"
 
 #: exec_cmd.c:1034
 msgid "Importing PS2 save..."
-msgstr ""
+msgstr "Importation de la sauvegarde PS2..."
 
 #: exec_cmd.c:1066
 msgid "Successfully imported to VMC:"
@@ -269,7 +269,7 @@ msgstr "Voulez-vous UpLoader %s ?"
 
 #: exec_cmd.c:1225
 msgid "Sync with FTP Server..."
-msgstr ""
+msgstr "Synchronisation avec le serveur FTP..."
 
 #: exec_cmd.c:1264
 msgid "Error! Couldn't zip save:"
@@ -285,11 +285,11 @@ msgstr "Enregistrement de la SAVE avec succès :"
 
 #: exec_cmd.c:1323
 msgid "Error! Couldn't upload save:"
-msgstr "Erreur ! Impossible de UpLoader la Sauvegarde :"
+msgstr "Erreur! Impossible de UpLoader la Sauvegarde :"
 
 #: exec_cmd.c:1341
 msgid "Exporting PS2 memory card..."
-msgstr ""
+msgstr "Exportation de la carte mémoire PS2..."
 
 #: exec_cmd.c:1346
 msgid "File successfully saved to:"
@@ -297,77 +297,77 @@ msgstr "Fichier Sauvegardé avec succès sous :"
 
 #: exec_cmd.c:1348
 msgid "Error! Failed to export PS2 memory card"
-msgstr "Erreur ! Échec de l'exportation de la carte mémoire PS2"
+msgstr "Erreur! Échec de l'exportation de la carte mémoire PS2"
 
 #: exec_cmd.c:1360
 msgid "Error getting PS4 user list!"
-msgstr ""
+msgstr "Erreur lors de la récupération de la liste des utilisateurs PS4!"
 
 #: exec_cmd.c:1369
 #, c-format
 msgid "Database rebuild for user %s failed!"
-msgstr ""
+msgstr "La reconstruction de la base de données pour l'utilisateur %s a échoué!"
 
 #: exec_cmd.c:1374
 msgid "Database rebuilt successfully!"
-msgstr ""
+msgstr "Base de données reconstruite avec succès!"
 
 #: exec_cmd.c:1374 exec_cmd.c:1907
 msgid "Log out for changes to take effect"
-msgstr ""
+msgstr "Déconnectez-vous pour que les modifications soient prises en compte"
 
 #: exec_cmd.c:1550
 msgid "Error! Account changes couldn't be applied"
-msgstr "Erreur ! Les modifications de compte n'ont pas pu être appliquées"
+msgstr "Erreur! Les modifications de compte n'ont pas pu être appliquées"
 
 #: exec_cmd.c:1554
 msgid "Error! Cheat codes couldn't be applied"
-msgstr "Erreur ! Les codes de Triche n'ont pas pu être appliqués"
+msgstr "Erreur! Les codes de Triche n'ont pas pu être appliqués"
 
 #: exec_cmd.c:1556
 #, c-format
 msgid "Save %s successfully modified!"
-msgstr "Sauvegarde %s modifiée avec succès !"
+msgstr "Sauvegarde %s modifiée avec succès!"
 
 #: exec_cmd.c:1573
 msgid "Resigning all saves..."
-msgstr ""
+msgstr "Ressignature de toutes les sauvegardes..."
 
 #: exec_cmd.c:1593
 #, c-format
 msgid "Error: %d Saves couldn't be resigned"
-msgstr "Erreur : %d sauvegardes n'ont pas pu être Ressignée"
+msgstr "Erreur: %d sauvegardes n'ont pas pu être Ressignée"
 
 #: exec_cmd.c:1595
 msgid "All saves successfully resigned!"
-msgstr "Toutes les sauvegardes ont été Ressignée avec succès !"
+msgstr "Toutes les sauvegardes ont été Ressignée avec succès!"
 
 #: exec_cmd.c:1616
 msgid "Exporting system database..."
-msgstr ""
+msgstr "Exportation de la base de données système..."
 
 #: exec_cmd.c:1632
 #, c-format
 msgid "DB Backup %s successfully restored!"
-msgstr ""
+msgstr "Sauvegarde de base de données %s restaurée avec succès!"
 
 #: exec_cmd.c:1634
 #, c-format
 msgid "Error! Backup %s couldn't be restored"
-msgstr ""
+msgstr "Erreur! La sauvegarde %s n'a pas pu être restaurée."
 
 #: exec_cmd.c:1657
 msgid "File successfully exported to:"
-msgstr ""
+msgstr "Fichier exporté avec succès vers:"
 
 #: exec_cmd.c:1659
 #, c-format
 msgid "Error! File %s couldn't be exported"
-msgstr ""
+msgstr "Erreur! Impossible d'exporter le fichier %s"
 
 #: exec_cmd.c:1669
 msgid "Error! Can't find decrypted save-game file:"
-msgstr "Erreur ! Impossible de trouver le fichier de sauvegarde décrypté :"
+msgstr "Erreur! Impossible de trouver le fichier de sauvegarde décrypté :"
 
 #: exec_cmd.c:1677
 msgid "File successfully imported to:"
@@ -376,7 +376,7 @@ msgstr "Fichier importé avec succès vers :"
 #: exec_cmd.c:1679
 #, c-format
 msgid "Error! File %s couldn't be imported"
-msgstr ""
+msgstr "Erreur! Impossible d'importer le fichier %s"
 
 #: exec_cmd.c:1687
 msgid "Download URL"
@@ -388,47 +388,47 @@ msgstr "Fichier Téléchargé avec succès sur :"
 
 #: exec_cmd.c:1696
 msgid "Error! File couldn't be downloaded"
-msgstr "Erreur ! Le fichier n'a pas pu être Téléchargé"
+msgstr "Erreur! Le fichier n'a pas pu être Téléchargé"
 
 #: exec_cmd.c:1706
 msgid "Enable Browser history?"
-msgstr ""
+msgstr "Activer l'historique du navigateur ?"
 
 #: exec_cmd.c:1707
 msgid "Browser history enabled"
-msgstr ""
+msgstr "Historique du navigateur activé"
 
 #: exec_cmd.c:1712
 msgid "Disable Browser history?"
-msgstr ""
+msgstr "Désactiver l'historique du navigateur ?"
 
 #: exec_cmd.c:1717
 msgid "Browser history disabled"
-msgstr ""
+msgstr "Historique du navigateur désactivé"
 
 #: exec_cmd.c:1907
 msgid "DLC database fixed successfully!"
-msgstr ""
+msgstr "Base de données DLC réparée avec succès!"
 
 #: exec_cmd.c:1909
 msgid "DLC Database rebuild failed!"
-msgstr ""
+msgstr "La reconstruction de la base de données DLC a échoué!"
 
 #: exec_cmd.c:1951
 msgid "Save successfully imported:"
-msgstr "Sauvegarde Importé avec succès :"
+msgstr "Sauvegarde Importé avec succès:"
 
 #: exec_cmd.c:1953
 msgid "Error! Couldn't import save:"
-msgstr "Erreur ! Impossible d'importer la Sauvegarde :"
+msgstr "Erreur! Impossible d'importer la Sauvegarde :"
 
 #: http.c:124
 msgid "Downloading..."
-msgstr ""
+msgstr "Téléchargement..."
 
 #: http.c:226
 msgid "Uploading..."
-msgstr ""
+msgstr "Export réseau en cours..."
 
 #: main.c:180 main.c:184 main.c:189 main.c:199
 msgid "Select"
@@ -544,7 +544,7 @@ msgstr "Éditeur Hexadécimal"
 
 #: menu_main.c:67
 msgid "Loading save games..."
-msgstr ""
+msgstr "Chargement des sauvegardes..."
 
 #: menu_main.c:90
 msgid "No save-games found"
@@ -552,11 +552,11 @@ msgstr "Aucune Sauvegarde Trouvée"
 
 #: menu_main.c:142
 msgid "Saving PS2 Memory Card..."
-msgstr ""
+msgstr "Sauvegarde de la carte mémoire PS2..."
 
 #: menu_main.c:345 menu_main.c:724
 msgid "Patch view"
-msgstr ""
+msgstr "Vue du patch"
 
 #: menu_main.c:473
 msgid "No data found in folder:"
@@ -581,7 +581,7 @@ msgstr "Paramètres"
 
 #: saves.c:67
 msgid "Warning! Save couldn't be unmounted!"
-msgstr ""
+msgstr "Attention! Impossible de démonter la sauvegarde!"
 
 #: saves.c:373
 msgid "Apply Changes & Resign"
@@ -641,27 +641,27 @@ msgstr "Éditer en Hexadécimal le Fichier de Sauvegarde du Jeu"
 
 #: saves.c:470
 msgid "Keystone Backup"
-msgstr ""
+msgstr "Sauvegarde du Keystone"
 
 #: saves.c:473
 msgid "Export Keystone"
-msgstr ""
+msgstr "Exporter Keystone"
 
 #: saves.c:476
 msgid "Import Keystone"
-msgstr ""
+msgstr "Importer le Keystone"
 
 #: saves.c:479
 msgid "Show Keystone Fingerprint"
-msgstr ""
+msgstr "Afficher l'empreinte Keystone"
 
 #: saves.c:524
 msgid "Encrypted save requires firmware"
-msgstr ""
+msgstr "La sauvegarde chiffrée nécessite un firmware"
 
 #: saves.c:566
 msgid "Error Mounting Save!"
-msgstr ""
+msgstr "Erreur lors du montage de la Sauvegarde!"
 
 #: saves.c:582
 msgid "Cheats"
@@ -673,23 +673,23 @@ msgstr "Afficher le fichier de correctif brut"
 
 #: saves.c:639
 msgid "Error Mounting Trophy Set!"
-msgstr ""
+msgstr "Erreur en Montant les Trophées!"
 
 #: saves.c:646
 msgid "Apply Changes to Trophy Set"
-msgstr ""
+msgstr "Appliquer les modifications à l'ensemble de Trophées"
 
 #: saves.c:649
 msgid "View Trophy Set Details"
-msgstr ""
+msgstr "Voir les détails du set de Trophées"
 
 #: saves.c:652
 msgid "Delete Trophy Set"
-msgstr ""
+msgstr "Supprimer le Trophée"
 
 #: saves.c:659
 msgid "Backup Trophy files to USB"
-msgstr ""
+msgstr "Sauvegarder les fichiers de trophées sur USB."
 
 #: saves.c:661
 msgid "Copy Trophy to USB"
@@ -697,7 +697,7 @@ msgstr "Copier le Trophée sur USB"
 
 #: saves.c:664
 msgid "Export Trophy files to Zip"
-msgstr ""
+msgstr "Exporter les fichiers de trophées au format Zip"
 
 #: saves.c:666 saves.c:2168
 msgid "Save .Zip to USB"
@@ -709,11 +709,11 @@ msgstr "Enregistrer le fichier .Zip sur HDD"
 
 #: saves.c:673
 msgid "Export decrypted trophy files"
-msgstr ""
+msgstr "Exporter les fichiers de trophées décryptés"
 
 #: saves.c:678
 msgid "Import decrypted trophy files"
-msgstr ""
+msgstr "Importer les fichiers de trophées décryptés"
 
 #: saves.c:820 saves.c:975
 msgid "Save Game Backup"
@@ -793,7 +793,7 @@ msgstr "Activer le compte PS4"
 
 #: saves.c:1095
 msgid "App.db Database Management"
-msgstr ""
+msgstr "App.db Gestion de bases de données"
 
 #: saves.c:1101
 msgid "Network Tools (Downloader, Web Server)"
@@ -801,7 +801,7 @@ msgstr "Outils réseau (Téléchargeur, serveur Web)"
 
 #: saves.c:1106
 msgid "Show Parental Security Passcode"
-msgstr ""
+msgstr "Afficher le code de contrôle parental"
 
 #: saves.c:1145
 msgid "URL link Downloader (http, https, ftp, ftps)"
@@ -813,27 +813,27 @@ msgstr "Serveur Web local (accès complet au système)"
 
 #: saves.c:1149
 msgid "Toggle Web Browser history"
-msgstr ""
+msgstr "Afficher/Masquer l'historique du navigateur Web"
 
 #: saves.c:1156
 msgid "Rebuild App.db Database (Restore missing XMB items)"
-msgstr ""
+msgstr "Reconstruire la base de données App.db (Restaurer les éléments XMB manquants)"
 
 #: saves.c:1160
 msgid "Rebuild DLC Database (addcont.db)"
-msgstr ""
+msgstr "Reconstruire la base de données DLC (addcont.db)"
 
 #: saves.c:1164
 msgid "Backup System Database Folder"
-msgstr ""
+msgstr "Sauvegarder dossier de base de données du système"
 
 #: saves.c:1167
 msgid "Restore System Database Backup"
-msgstr ""
+msgstr "Restauration de la sauvegarde de la base de données système"
 
 #: saves.c:1188
 msgid "Activate Offline Account"
-msgstr ""
+msgstr "Activer le Compte Hors-ligne"
 
 #: saves.c:1218
 msgid "Extract"
@@ -845,11 +845,11 @@ msgstr "Gestion des Sauvegardes en masse"
 
 #: saves.c:1739
 msgid "Resign selected Saves"
-msgstr ""
+msgstr "Ressigner les sauvegardes sélectionnées"
 
 #: saves.c:1742
 msgid "Resign all decrypted Saves"
-msgstr ""
+msgstr "Ressigner toutes les sauvegardes déchiffrées"
 
 #: saves.c:1745
 msgid "Copy selected Saves to HDD"
@@ -865,7 +865,7 @@ msgstr "Démarrer le serveur Web local"
 
 #: saves.c:1754
 msgid "Dump all decrypted Save Fingerprints"
-msgstr ""
+msgstr "Dumper Toutes les empreintes Fingerprints"
 
 #: saves.c:1794 saves.c:1929 saves.c:2034
 msgid "Copy selected Saves to USB"
@@ -881,7 +881,7 @@ msgstr "Copier toutes les Sauvegardes sur USB"
 
 #: saves.c:1805
 msgid "Dump all Save Fingerprints"
-msgstr ""
+msgstr "Dumper toutes les Empreintes Fingerprints"
 
 #: saves.c:1919 saves.c:2024
 msgid "Memory Card Management"
@@ -901,31 +901,31 @@ msgstr "Carte Mémoire Virtuelle"
 
 #: saves.c:1939
 msgid "Export Memory Card to .VM1 format"
-msgstr ""
+msgstr "Exporter la carte mémoire au format .VM1"
 
 #: saves.c:1941
 msgid "Save .VM1 Memory Card to USB"
-msgstr ""
+msgstr "Sauvegarder la carte mémoire .VM1 sur une clé USB"
 
 #: saves.c:1943
 msgid "Save .VM1 Memory Card to HDD"
-msgstr ""
+msgstr "Sauvegarder la carte mémoire .VM1 sur le disque dur"
 
 #: saves.c:1948
 msgid "Export Memory Card to .VMP format"
-msgstr ""
+msgstr "Exporter la carte mémoire au format .VMP"
 
 #: saves.c:1950
 msgid "Save .VMP Memory Card to USB"
-msgstr ""
+msgstr "Sauvegarder la carte mémoire .VMP sur une clé USB"
 
 #: saves.c:1952
 msgid "Save .VMP Memory Card to HDD"
-msgstr ""
+msgstr "Sauvegarder la carte mémoire .VMP sur le disque dur"
 
 #: saves.c:1958 saves.c:1971 saves.c:2063 saves.c:2075
 msgid "Import Saves to Virtual MemCard"
-msgstr ""
+msgstr "Importer les sauvegardes sur la carte mémoire virtuelle"
 
 #: saves.c:2045
 msgid "Export Memory Card to .VM2 format"
@@ -969,7 +969,7 @@ msgstr "Sauvegarder tous les Trophées sur USB"
 
 #: saves.c:2167
 msgid "Export all encrypted Trophies to .Zip"
-msgstr ""
+msgstr "Exporter tous les Trophées cryptés au format .Zip"
 
 #: settings.c:19
 msgid "Online DB"
@@ -1061,7 +1061,7 @@ msgstr "Entrez l'URL du serveur FTP"
 
 #: settings.c:159
 msgid "Testing connection..."
-msgstr ""
+msgstr "Test de connexion..."
 
 #: settings.c:184
 msgid "FTP server URL changed to:"
@@ -1069,7 +1069,7 @@ msgstr "L'URL du serveur FTP a été modifiée en :"
 
 #: settings.c:187
 msgid "Error! Couldn't connect to FTP server"
-msgstr "Erreur ! Impossible de se Connecter au Serveur FTP"
+msgstr "Erreur! Impossible de se Connecter au Serveur FTP"
 
 #: settings.c:187
 msgid "Check debug logs for more information"
@@ -1081,29 +1081,29 @@ msgstr "Dossier de Cache Local nettoyé :"
 
 #: settings.c:203
 msgid "Error! Can't download data update file!"
-msgstr ""
+msgstr "Erreur! Impossible de télécharger le fichier de mise à jour des données!"
 
 #: settings.c:206
 #, c-format
 msgid "Successfully updated %d save patch files!"
-msgstr ""
+msgstr "Fichiers de sauvegarde %d mis à jour avec succès!"
 
 #: settings.c:208
 msgid "Error! Can't extract data update file!"
-msgstr ""
+msgstr "Erreur! Impossible d'extraire le fichier de mise à jour des données!"
 
 #: settings.c:275
 msgid "New version available! Download update?"
-msgstr "Nouvelle version disponible ! Télécharger la mise à jour ?"
+msgstr "Nouvelle version disponible! Télécharger la mise à jour ?"
 
 #: settings.c:279
 #, c-format
 msgid "Update downloaded to %s"
-msgstr ""
+msgstr "Mise à jour téléchargée sur %s"
 
 #: settings.c:281
 msgid "Download error!"
-msgstr "Erreur de téléchargement !"
+msgstr "Erreur de téléchargement!"
 
 #: settings.c:296
 msgid "Debug Logging Disabled"
@@ -1111,12 +1111,12 @@ msgstr "Journalisation de débogage Désactivée"
 
 #: settings.c:301
 msgid "Debug Logging Enabled!"
-msgstr "Journalisation de débogage Activée !"
+msgstr "Journalisation de débogage Activée!"
 
 #: settings.c:354
 msgid "User Settings"
-msgstr ""
+msgstr "Paramètres utilisateur"
 
 #: zip_util.c:168 zip_util.c:249 zip_util.c:289
 msgid "Extracting files..."
-msgstr ""
+msgstr "Extraction des fichiers..."

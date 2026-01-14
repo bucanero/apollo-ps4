@@ -121,7 +121,7 @@ static code_entry_t* LoadOnlineSaveDetails(void)
 				break;
 			}
 
-	asprintf(&centry->codes, "Game: %s\nTitle ID: %s\nFile: %s\n%s%s\n----- Details -----\n%s\n", 
+	asprintf(&centry->codes, "Game: %s\nTitle ID: %s\nFile: %s\n%s%s\n----- Details -----\n%s\n",
 		selected_entry->name, selected_entry->title_id, selected_centry->file, selected_entry->path, selected_centry->file, centry->file);
 	free(centry->file);
 	centry->file = NULL;
@@ -497,7 +497,7 @@ static void doSaveMenu(save_list_t * save_list)
 			return;
 		}
 
-		if (apollo_config.doSort && 
+		if (apollo_config.doSort &&
 			((save_list->id == MENU_USER_BACKUP) || (save_list->id == MENU_ONLINE_DB)))
 			list_bubbleSort(selected_entry->codes, &sortCodeList_Compare);
 
@@ -514,7 +514,7 @@ static void doSaveMenu(save_list_t * save_list)
 			return;
 		}
 	}
-	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TOUCH_PAD) && 
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TOUCH_PAD) &&
 		(save_list->id != MENU_ONLINE_DB && save_list->id != MENU_USER_BACKUP))
 	{
 		selected_entry = list_get_item(save_list->list, menu_sel);
@@ -852,7 +852,7 @@ static void doPatchMenu(void)
 		if (selected_centry->activated)
 		{
 			// Only activate Required codes if a cheat is selected
-			if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD)
+			if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD || selected_centry->type == PATCH_PYTHON)
 			{
 				code_entry_t* code;
 				list_node_t* node;
@@ -904,7 +904,7 @@ static void doPatchMenu(void)
 			return;
 		}
 		
-		if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD ||
+		if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD || selected_centry->type == PATCH_PYTHON ||
 			selected_centry->type == PATCH_TROP_LOCK || selected_centry->type == PATCH_TROP_UNLOCK)
 		{
 			SetMenu(MENU_PATCH_VIEW);

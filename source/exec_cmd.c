@@ -1524,7 +1524,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 		else
 			snprintf(tmpfile, sizeof(tmpfile), "%s%s", entry->path, filename);
 
-		if (!apply_cheat_patch_code(tmpfile, entry->title_id, code, &orbis_host_callback))
+		if (!apply_cheat_patch_code(tmpfile, code, &orbis_host_callback))
 		{
 			LOG("Error: failed to apply (%s)", code->name);
 			ret = 0;

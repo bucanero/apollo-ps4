@@ -633,7 +633,7 @@ static void copySavePFS(const save_entry_t* save)
 	char hdd_path[256];
 
 	snprintf(hdd_path, sizeof(hdd_path), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
-	if (file_exists(hdd_path) == SUCCESS && !show_dialog(DIALOG_TYPE_YESNO, 
+	if (file_exists(hdd_path) == SUCCESS && !show_dialog(DIALOG_TYPE_YESNO,
 		"%s\n%s/%s\n\n%s", _("Save game already exists:"), save->title_id, save->dir_name, _("Overwrite?")))
 		return;
 
@@ -899,8 +899,8 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int 
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (!(item->type == FILE_TYPE_PS4 || item->type == FILE_TYPE_TRP) || 
-			!(all || item->flags & SAVE_FLAG_SELECTED) || 
+		if (!(item->type == FILE_TYPE_PS4 || item->type == FILE_TYPE_TRP) ||
+			!(all || item->flags & SAVE_FLAG_SELECTED) ||
 			!orbis_SaveMount(item, (item->flags & SAVE_FLAG_TROPHY), mount))
 			continue;
 
@@ -1272,7 +1272,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 	fp = fopen(APOLLO_LOCAL_CACHE "saves.ftp", "a");
 	if (fp)
 	{
-		fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s (CRC: %08X)\r\n", tmp, save->dir_name, 
+		fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s (CRC: %08X)\r\n", tmp, save->dir_name,
 				t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, save->name, crc);
 		fclose(fp);
 	}
@@ -1383,7 +1383,12 @@ static void* orbis_host_callback(int id, int* size)
 	switch (id)
 	{
 	case APOLLO_HOST_TEMP_PATH:
+		if (size) *size = strlen(APOLLO_LOCAL_CACHE);
 		return APOLLO_LOCAL_CACHE;
+
+	case APOLLO_HOST_DATA_PATH:
+		if (size) *size = strlen(APOLLO_DATA_PATH);
+		return APOLLO_DATA_PATH;
 
 	case APOLLO_HOST_SYS_NAME:
 		if (sceSystemServiceParamGetString(ORBIS_SYSTEM_SERVICE_PARAM_ID_SYSTEM_NAME, host_buf, sizeof(host_buf)) < 0)
@@ -1498,7 +1503,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 
 	for (node = list_head(entry->codes); (code = list_get(node)); node = list_next(node))
 	{
-		if (!code->activated || (code->type != PATCH_GAMEGENIE && code->type != PATCH_BSD))
+		if (!code->activated || (code->type != PATCH_GAMEGENIE && code->type != PATCH_BSD && code->type != PATCH_PYTHON))
 			continue;
 
 		LOG("Active code: [%s]", code->name);
@@ -1514,12 +1519,12 @@ static int apply_cheat_patches(const save_entry_t* entry)
 			filename = optval->name;
 		}
 
-		if (strstr(code->file, "~extracted\\"))
-			snprintf(tmpfile, sizeof(tmpfile), "%s[%s]%s", APOLLO_LOCAL_CACHE, entry->title_id, filename);
+		if (strncmp(code->file, "~extracted\\", 11) == 0)
+			snprintf(tmpfile, sizeof(tmpfile), "%s", code->file);
 		else
 			snprintf(tmpfile, sizeof(tmpfile), "%s%s", entry->path, filename);
 
-		if (!apply_cheat_patch_code(tmpfile, entry->title_id, code, &orbis_host_callback))
+		if (!apply_cheat_patch_code(tmpfile, code, &orbis_host_callback))
 		{
 			LOG("Error: failed to apply (%s)", code->name);
 			ret = 0;

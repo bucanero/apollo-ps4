@@ -1374,7 +1374,7 @@ static void rebuildAppDB(const char* path)
 		show_message("%s\n%s", _("Database rebuilt successfully!"), _("Log out for changes to take effect"));
 }
 
-static void* orbis_host_callback(int id, int* size)
+static void* orbis_host_callback(int id, uint32_t* size)
 {
 	OrbisNetCtlInfo info;
 

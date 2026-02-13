@@ -721,7 +721,7 @@ static void doHexEditor(void)
 			(find = x_to_u8_buffer(search_str)) != NULL)
 		{
 			LOG("Searching hex: '%s'", search_str);
-			for (size_t i = hex_data.pos, find_len = strlen(search_str)/2; (i + find_len) < hex_data.size; i++)
+			for (size_t i = hex_data.pos, find_len = strlen(search_str)/2; (i + find_len) <= hex_data.size; i++)
 			{
 				if (memcmp(hex_data.data + i, find, find_len) == 0)
 				{

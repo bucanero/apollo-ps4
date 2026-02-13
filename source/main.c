@@ -200,7 +200,7 @@ static const char* get_button_prompts(char* prompt)
 			break;
 
 		case MENU_HEX_EDITOR:
-			snprintf(prompt, 0xFF, "\x10 %s    \x11 %s   \x13 %s", _("Value Up"), _("Value Down"), _("Exit"));
+			snprintf(prompt, 0xFF, "\x10 %s    \x11 %s    \x12 %s    \x13 %s", _("Value Up"), _("Value Down"), _("Search"), _("Exit"));
 			break;
 
 		case MENU_MAIN_SCREEN:

@@ -1749,6 +1749,15 @@ list_t * ReadUsbList(const char* userPath)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Copy all Saves to HDD"), CMD_COPY_ALL_SAVES_HDD);
 	list_append(item->codes, cmd);
 
+	if (apollo_config.ftp_url[0])
+	{
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " ", _("Upload selected Saves to FTP"), CMD_UPLOAD_SAVES);
+		list_append(item->codes, cmd);
+
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " ", _("Upload all Saves to FTP"), CMD_UPLOAD_ALL_SAVES);
+		list_append(item->codes, cmd);
+	}
+
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " ", _("Start local Web Server"), CMD_SAVE_WEBSERVER);
 	list_append(item->codes, cmd);
 
@@ -1799,6 +1808,15 @@ list_t * ReadUserList(const char* userPath)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Copy all Saves to USB"), CMD_CODE_NULL);
 	_createOptions(cmd, _("Copy Saves to USB"), CMD_COPY_ALL_SAVES_USB);
 	list_append(item->codes, cmd);
+
+	if (apollo_config.ftp_url[0])
+	{
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " ", _("Upload selected Saves to FTP"), CMD_UPLOAD_SAVES);
+		list_append(item->codes, cmd);
+
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " ", _("Upload all Saves to FTP"), CMD_UPLOAD_ALL_SAVES);
+		list_append(item->codes, cmd);
+	}
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " ", _("Start local Web Server"), CMD_SAVE_WEBSERVER);
 	list_append(item->codes, cmd);

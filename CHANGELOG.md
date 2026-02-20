@@ -15,6 +15,7 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
   - Run custom Python scripts on the console (for save-game editing)
   - Add `apollo` module for Python scripts to interact with Apollo's features
 * Add Hex Search option to Hex Editor
+* Localization: add German translation
 * New cheat codes
   - Like a Dragon: Pirate Yakuza in Hawaii
   - Prince of Persia The Lost Crown

@@ -6,6 +6,37 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ---
 
+## [v2.3.0](https://github.com/bucanero/apollo-ps4/releases/tag/v2.3.0) - 2026-02-22
+
+### Added
+
+* Apollo Patch Engine v2.0.2
+* Add Python scripting support
+  - Run custom Python scripts on the console (for save-game editing)
+  - Add `apollo` module for Python scripts to interact with Apollo's features
+* Add Hex Search option to Hex Editor
+* Localization: add German translation
+* New cheat codes
+  - Like a Dragon: Pirate Yakuza in Hawaii
+  - Prince of Persia The Lost Crown
+* Custom save decryption support
+  - L.A. Noire
+  - Monster Hunter World
+  - Nioh 2
+* Custom save decompression support
+  - Like a Dragon: Pirate Yakuza in Hawaii
+  - Prince of Persia The Lost Crown
+  - The Legend of Heroes: Trails of Cold Steel IV
+* Custom checksum support
+  - The Legend of Heroes: Trails beyond the Horizon
+  - The Legend of Heroes: Trails from Zero
+  - The Legend of Heroes: Trails of Cold Steel IV
+  - The Legend of Heroes: Trails through Daybreak
+  - The Legend of Heroes: Trails through Daybreak II
+  - The Legend of Heroes: Trails to Azure
+
+---
+
 ## [v2.2.4](https://github.com/bucanero/apollo-ps4/releases/tag/v2.2.4) - 2025-11-02
 
 ### Added

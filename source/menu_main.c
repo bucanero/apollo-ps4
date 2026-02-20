@@ -716,6 +716,7 @@ static void doHexEditor(void)
 		// open msg dialog, ask for search value, then search for next occurrence of bytes
 		char search_str[21] = "";
 		uint8_t* find;
+		int found = 0;
 
 		if (osk_dialog_get_text(_("Search bytes (hex)"), search_str, sizeof(search_str)) &&
 			(find = x_to_u8_buffer(search_str)) != NULL)
@@ -726,10 +727,14 @@ static void doHexEditor(void)
 				if (memcmp(hex_data.data + i, find, find_len) == 0)
 				{
 					hex_data.pos = i;
+					found = 1;
 					break;
 				}
 			}
 			free(find);
+
+			if (!found)
+				show_message("%s%s", _("Value not found: 0x"), search_str);
 		}
 	}
 

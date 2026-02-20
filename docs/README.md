@@ -30,7 +30,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Standalone:** no computer required, everything happens on the PS4.
 * **Automatic settings:** auto-detection of PS4 firmware, User ID, and Account-ID settings.
 * **Multi-user:** supports multiple user accounts.
-* **Localization support:** English, French, Greek, Italian, Japanese, Portuguese, Russian, Spanish.
+* **Localization support:** English, French, Greek, German, Italian, Japanese, Portuguese, Russian, Spanish.
 
 ## Save Management
 
@@ -42,7 +42,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 
 ## Trophy Management
 
-* **Trophy container mounting:** allows to mount secure trophy images for the current user.
+* **Trophy container mounting:** allows to mount secure `trophy.img` files for the current user.
 * **Trophy Set exporting:** easy backup of trophy files to `.zip` and raw formats.
 * **Trophy lock/unlock:** fake lock/unlock trophies (XMB only).
 
@@ -183,7 +183,7 @@ Currently, the list of available games and files is limited, but the project aim
 
 Apollo supports multiple languages for its user interface. Thanks to the following contributors for their help with translations:
 
-- [Akela](https://x.com/Akela_1979) (Russian), Algol (French), [Bucanero](https://github.com/bucanero) (Spanish), [TheheroGAC](https://x.com/TheheroGAC) (Italian), [yyoossk](https://x.com/Cloud0835) (Japanese), [Phoenixx1202](https://github.com/Phoenixx1202) (Portuguese), [Gabor Sari](https://github.com/oldman63) (Hungarian), SpyroMancer (Greek)
+- [Akela](https://x.com/Akela_1979) (Russian), Algol (French), [Bucanero](https://github.com/bucanero) (Spanish), [TheheroGAC](https://x.com/TheheroGAC) (Italian), [yyoossk](https://x.com/Cloud0835) (Japanese), [Phoenixx1202](https://github.com/Phoenixx1202) (Portuguese), [Gabor Sari](https://github.com/oldman63) (Hungarian), SpyroMancer (Greek), [SoftwareRat](https://github.com/SoftwareRat) (German)
 
 # Building
 

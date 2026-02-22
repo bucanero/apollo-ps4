@@ -1323,6 +1323,151 @@ static void uploadSaveFTP(const save_entry_t* save)
 		show_message("%s\n%s", _("Error! Couldn't upload save:"), save->dir_name);
 }
 
+static void uploadAllSavesFTP(const save_entry_t* save, int all)
+{
+	FILE* fp;
+	char *tmp;
+	char remote[256];
+	char local[256];
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	char save_path[256];
+	int done = 0, err_count = 0;
+	uint64_t progress = 0;
+	list_node_t *node;
+	save_entry_t *item;
+	list_t *list = ((void**)save->dir_name)[0];
+	struct tm t = get_local_time();
+
+	if (!list)
+	{
+		show_message(_("Error! Save list is not available"));
+		return;
+	}
+
+	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload the selected saves to FTP server?")))
+		return;
+
+	init_progress_bar(_("Uploading all saves to FTP..."));
+
+	LOG("Uploading all saves to FTP server...");
+	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+	{
+		update_progress_bar(progress++, list_count(list), item->name);
+
+		if (item->type != FILE_TYPE_PS4 || !(all || (item->flags & SAVE_FLAG_SELECTED)))
+			continue;
+
+		// Mount the save if it's encrypted
+		if ((item->flags & SAVE_FLAG_HDD) && !orbis_SaveMount(item, 0, mount))
+		{
+			LOG("Failed to mount save: %s", item->dir_name);
+			err_count++;
+			continue;
+		}
+
+		// Download existing FTP indexes
+		snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, item->type);
+		http_download(remote, "games.txt", APOLLO_LOCAL_CACHE "games.ftp", 0);
+
+		snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/%s/", apollo_config.ftp_url, apollo_config.account_id, item->type, item->title_id);
+		http_download(remote, "saves.txt", APOLLO_LOCAL_CACHE "saves.ftp", 0);
+		http_download(remote, "checksum.sfv", APOLLO_LOCAL_CACHE "sfv.ftp", 0);
+
+		// Create zip file
+		snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%s_%d-%02d-%02d-%02d%02d%02d.zip",
+				item->dir_name, t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+
+		int ret = 0;
+		if (item->flags & SAVE_FLAG_HDD)
+		{
+			snprintf(save_path, sizeof(save_path), APOLLO_SANDBOX_PATH, mount);
+			tmp = strdup(save_path);
+			*strrchr(tmp, '/') = 0;
+			*strrchr(tmp, '/') = 0;
+
+			ret = zip_directory(tmp, save_path, local);
+			free(tmp);
+
+			orbis_SaveUmount(mount);
+		}
+		else
+		{
+			tmp = strdup(item->path);
+			*strrchr(tmp, '/') = 0;
+			*strrchr(tmp, '/') = 0;
+
+			ret = zip_directory(tmp, item->path, local);
+			free(tmp);
+		}
+
+		if (!ret)
+		{
+			LOG("Error zipping save: %s", item->dir_name);
+			err_count++;
+			continue;
+		}
+
+		tmp = strrchr(local, '/')+1;
+		uint32_t crc = file_crc32(local);
+
+		// Update save index
+		fp = fopen(APOLLO_LOCAL_CACHE "saves.ftp", "a");
+		if (fp)
+		{
+			fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s (CRC: %08X)\r\n", tmp, item->dir_name,
+					t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, item->name, crc);
+			fclose(fp);
+		}
+
+		// Update CRC index
+		fp = fopen(APOLLO_LOCAL_CACHE "sfv.ftp", "a");
+		if (fp)
+		{
+			fprintf(fp, "%s %08X\n", tmp, crc);
+			fclose(fp);
+		}
+
+		// Upload files
+		ret = ftp_upload(local, remote, tmp, 0);
+		ret &= ftp_upload(APOLLO_LOCAL_CACHE "saves.ftp", remote, "saves.txt", 0);
+		ret &= ftp_upload(APOLLO_LOCAL_CACHE "sfv.ftp", remote, "checksum.sfv", 0);
+
+		unlink_secure(local);
+
+		// Update games index if needed
+		char* games_txt = readTextFile(APOLLO_LOCAL_CACHE "games.ftp");
+		if (!games_txt)
+			games_txt = strdup("");
+
+		if (strstr(games_txt, item->title_id) == NULL)
+		{
+			free(games_txt);
+			games_txt = get_title_name_icon(item);
+
+			snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%.9s.PNG", item->title_id);
+			ret &= ftp_upload(local, remote, "icon0.png", 0);
+
+			fp = fopen(APOLLO_LOCAL_CACHE "games.ftp", "a");
+			if (fp)
+			{
+				fprintf(fp, "%s=%s\r\n", item->title_id, games_txt);
+				fclose(fp);
+			}
+
+			snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, item->type);
+			ret &= ftp_upload(APOLLO_LOCAL_CACHE "games.ftp", remote, "games.txt", 0);
+		}
+		free(games_txt);
+
+		(ret) ? done++ : err_count++;
+	}
+
+	end_progress_bar();
+	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
+
+	show_message("%d/%d %s", done, done+err_count, _("Saves uploaded to FTP"));
+}
+
 static void exportVM2raw(const char* vm2_file, int dst, int ecc)
 {
 	int ret;
@@ -1878,6 +2023,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_UPLOAD_SAVE:
 			uploadSaveFTP(selected_entry);
+			code->activated = 0;
+			break;
+
+		case CMD_UPLOAD_SAVES:
+		case CMD_UPLOAD_ALL_SAVES:
+			uploadAllSavesFTP(selected_entry, codecmd[0] == CMD_UPLOAD_ALL_SAVES);
 			code->activated = 0;
 			break;
 

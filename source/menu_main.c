@@ -711,6 +711,32 @@ static void doHexEditor(void)
 		else
 			hex_data.data[hex_data.pos] -= (0x10 >> hex_data.low_nibble * 4);
 	}
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TRIANGLE))
+	{
+		// open msg dialog, ask for search value, then search for next occurrence of bytes
+		char search_str[21] = "";
+		uint8_t* find;
+		int found = 0;
+
+		if (osk_dialog_get_text(_("Search bytes (hex)"), search_str, sizeof(search_str)) &&
+			(find = x_to_u8_buffer(search_str)) != NULL)
+		{
+			LOG("Searching hex: '%s'", search_str);
+			for (size_t i = hex_data.pos, find_len = strlen(search_str)/2; (i + find_len) <= hex_data.size; i++)
+			{
+				if (memcmp(hex_data.data + i, find, find_len) == 0)
+				{
+					hex_data.pos = i;
+					found = 1;
+					break;
+				}
+			}
+			free(find);
+
+			if (!found)
+				show_message("%s%s", _("Value not found: 0x"), search_str);
+		}
+	}
 
 	if ((hex_data.pos < hex_data.start) || (hex_data.pos >= hex_data.start + 0x120))
 		hex_data.start = (hex_data.pos) & ~15;

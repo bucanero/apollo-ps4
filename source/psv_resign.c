@@ -8,8 +8,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <polarssl/aes.h>
-#include <polarssl/sha1.h>
+#include <mbedtls/aes.h>
+#include <mbedtls/sha1.h>
 
 #include "types.h"
 #include "util.h"
@@ -67,14 +67,14 @@ static void XorWithIv(uint8_t* buf, const uint8_t* Iv)
  
 static void generateHash(const uint8_t *input, const uint8_t *salt_seed, uint8_t *dest, size_t sz, uint8_t type)
 {
-	aes_context aes_ctx;
-	sha1_context sha1_ctx;
+	mbedtls_aes_context aes_ctx;
+	mbedtls_sha1_context sha1_ctx;
 	uint8_t iv[0x10];
 	uint8_t salt[0x40];
 	uint8_t work_buf[0x14];
 
 	memset(salt , 0, sizeof(salt));
-	memset(&aes_ctx, 0, sizeof(aes_context));
+	memset(&aes_ctx, 0, sizeof(mbedtls_aes_context));
 
 	LOG("Type detected: %d", type);
 	if(type == PSV_TYPE_PS1)
@@ -83,10 +83,10 @@ static void generateHash(const uint8_t *input, const uint8_t *salt_seed, uint8_t
 		//idk why the normal cbc doesn't work.
 		memcpy(work_buf, salt_seed, 0x10);
 
-		aes_setkey_dec(&aes_ctx, psv_ps1key, 128);
-		aes_crypt_ecb(&aes_ctx, AES_DECRYPT, work_buf, salt);
-		aes_setkey_enc(&aes_ctx, psv_ps1key, 128);
-		aes_crypt_ecb(&aes_ctx, AES_ENCRYPT, work_buf, salt + 0x10);
+		mbedtls_aes_setkey_dec(&aes_ctx, psv_ps1key, 128);
+		mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_DECRYPT, work_buf, salt);
+		mbedtls_aes_setkey_enc(&aes_ctx, psv_ps1key, 128);
+		mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, work_buf, salt + 0x10);
 
 		XorWithIv(salt, psv_iv);
 
@@ -101,8 +101,8 @@ static void generateHash(const uint8_t *input, const uint8_t *salt_seed, uint8_t
 		memcpy(salt, salt_seed, 0x14);
 		memcpy(iv, psv_iv, sizeof(iv));
 
-		aes_setkey_dec(&aes_ctx, psv_ps2key, 128);
-		aes_crypt_cbc(&aes_ctx, AES_DECRYPT, sizeof(salt), iv, salt, salt);
+		mbedtls_aes_setkey_dec(&aes_ctx, psv_ps2key, 128);
+		mbedtls_aes_crypt_cbc(&aes_ctx, MBEDTLS_AES_DECRYPT, sizeof(salt), iv, salt, salt);
 	}
 	else
 	{
@@ -115,19 +115,19 @@ static void generateHash(const uint8_t *input, const uint8_t *salt_seed, uint8_t
 
 	XorWithByte(salt, 0x36, sizeof(salt));
 
-	memset(&sha1_ctx, 0, sizeof(sha1_context));
-	sha1_starts(&sha1_ctx);
-	sha1_update(&sha1_ctx, salt, sizeof(salt));
-	sha1_update(&sha1_ctx, input, sz);
-	sha1_finish(&sha1_ctx, work_buf);
+	memset(&sha1_ctx, 0, sizeof(mbedtls_sha1_context));
+	mbedtls_sha1_starts(&sha1_ctx);
+	mbedtls_sha1_update(&sha1_ctx, salt, sizeof(salt));
+	mbedtls_sha1_update(&sha1_ctx, input, sz);
+	mbedtls_sha1_finish(&sha1_ctx, work_buf);
 
 	XorWithByte(salt, 0x6A, sizeof(salt));
 
-	memset(&sha1_ctx, 0, sizeof(sha1_context));
-	sha1_starts(&sha1_ctx);
-	sha1_update(&sha1_ctx, salt, sizeof(salt));
-	sha1_update(&sha1_ctx, work_buf, 0x14);
-	sha1_finish(&sha1_ctx, dest);
+	memset(&sha1_ctx, 0, sizeof(mbedtls_sha1_context));
+	mbedtls_sha1_starts(&sha1_ctx);
+	mbedtls_sha1_update(&sha1_ctx, salt, sizeof(salt));
+	mbedtls_sha1_update(&sha1_ctx, work_buf, 0x14);
+	mbedtls_sha1_finish(&sha1_ctx, dest);
 }
 
 int psv_resign(const char *src_psv)

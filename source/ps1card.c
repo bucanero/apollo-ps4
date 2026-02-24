@@ -8,8 +8,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
-#include <polarssl/aes.h>
-#include <polarssl/sha256.h>
+#include <mbedtls/aes.h>
+#include <mbedtls/sha256.h>
 
 #include "ps1card.h"
 #include "util.h"
@@ -38,28 +38,28 @@ static const uint8_t mcxIv[]  = { 0x13, 0xC2, 0xE7, 0x69, 0x4B, 0xEC, 0x69, 0x6D
 static void AesCbcEncrypt(uint8_t* toEncrypt, size_t len, const uint8_t* key, const uint8_t* aes_iv)
 {
     uint8_t iv[16];
-    aes_context ctx;
+    mbedtls_aes_context ctx;
 
     memcpy(iv, aes_iv, 16);
 
-    aes_init(&ctx);
-    aes_setkey_enc(&ctx, key, 128);
-    aes_crypt_cbc(&ctx, AES_ENCRYPT, len, iv, toEncrypt, toEncrypt);
-    aes_free(&ctx);
+    mbedtls_aes_init(&ctx);
+    mbedtls_aes_setkey_enc(&ctx, key, 128);
+    mbedtls_aes_crypt_cbc(&ctx, MBEDTLS_AES_ENCRYPT, len, iv, toEncrypt, toEncrypt);
+    mbedtls_aes_free(&ctx);
 }
 
 //Decrypts a buffer using AES CBC 128
 static void AesCbcDecrypt(uint8_t* toDecrypt, size_t len, const uint8_t* key, const uint8_t* aes_iv)
 {
     uint8_t iv[16];
-    aes_context ctx;
+    mbedtls_aes_context ctx;
 
     memcpy(iv, aes_iv, 16);
 
-    aes_init(&ctx);
-    aes_setkey_dec(&ctx, key, 128);
-    aes_crypt_cbc(&ctx, AES_DECRYPT, len, iv, toDecrypt, toDecrypt);
-    aes_free(&ctx);
+    mbedtls_aes_init(&ctx);
+    mbedtls_aes_setkey_dec(&ctx, key, 128);
+    mbedtls_aes_crypt_cbc(&ctx, MBEDTLS_AES_DECRYPT, len, iv, toDecrypt, toDecrypt);
+    mbedtls_aes_free(&ctx);
 }
 
 //Load Data from raw Memory Card
@@ -181,7 +181,7 @@ static void MakeMcxCard(const uint8_t* rawCard, FILE* fp)
 
     memset(mcxCard, 0, 0x80);
     memcpy(mcxCard + 0x80, rawCard, PS1CARD_SIZE);
-    sha256(mcxCard, 0x20080, mcxCard + 0x20080, 0);
+    mbedtls_sha256(mcxCard, 0x20080, mcxCard + 0x20080, 0);
 
     AesCbcEncrypt(mcxCard, 0x200A0, mcxKey, mcxIv);
     fwrite(mcxCard, 1, 0x200A0, fp);

@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #include <zlib.h>
-#include <polarssl/arc4.h>
+#include <mbedtls/arc4.h>
 
 #include "util.h"
 #include "lzari.h"
@@ -296,11 +296,11 @@ int ps2_max2psv(const char *save, const char* psv_path)
 
 static void cbsCrypt(uint8_t *buf, size_t bufLen)
 {
-    arc4_context ctx;
+    mbedtls_arc4_context ctx;
 
-    memset(&ctx, 0, sizeof(arc4_context));
+    memset(&ctx, 0, sizeof(mbedtls_arc4_context));
     memcpy(ctx.m, cbsKey, sizeof(cbsKey));
-    arc4_crypt(&ctx, bufLen, buf, buf);
+    mbedtls_arc4_crypt(&ctx, bufLen, buf, buf);
 }
 
 static int isCBSFile(const char *path)

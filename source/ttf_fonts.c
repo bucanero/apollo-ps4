@@ -317,12 +317,16 @@ static void DrawTextBox_ttf(SDL_Texture* bitmap, float x, float y, float z, floa
 #define TTF_UY 24 * (TEX_SZ /32)
 
 
+#include "arabic_process.h"
+
 int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bkcolor, int sw, int sh, int (*DrawIcon_cb)(int, int, char))
 {
     int l,n, m, ww, ww2;
     u8 colorc;
     u32 ttf_char;
-    u8 *ustring = (u8 *) string;
+    
+    char* processed = process_arabic(string);
+    u8 *ustring = (u8 *) processed;
 
     int lenx = 0;
 
@@ -496,6 +500,7 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
     Y_ttf = (float) posy + sh;
 
     if(posx < lenx) posx = lenx;
+    if (processed) free(processed);
     return posx;
 }
 

@@ -263,7 +263,8 @@ static int LoadTextures_Menu(void)
 
 	if (TTFLoadFont(0, "/preinst/common/font/DFHEI5-SONY.ttf", NULL, 0) != SUCCESS ||
 		TTFLoadFont(2, APOLLO_APP_PATH "fonts/NanumMyeongjoExtraBold.ttf", NULL, 0) != SUCCESS ||
-		TTFLoadFont(1, "/system_ex/app/NPXS20113/bdjstack/lib/fonts/SCE-PS3-RD-R-LATIN.TTF", NULL, 0) != SUCCESS)
+		TTFLoadFont(1, "/system_ex/app/NPXS20113/bdjstack/lib/fonts/SCE-PS3-RD-R-LATIN.TTF", NULL, 0) != SUCCESS ||
+		TTFLoadFont(3, APOLLO_APP_PATH "fonts/Bahij_TheSansArabic-Plain.ttf", NULL, 0) != SUCCESS)
 		return 0;
 
 	free_mem = (u32*) init_ttf_table((u8*) free_mem);

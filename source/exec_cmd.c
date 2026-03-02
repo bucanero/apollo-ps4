@@ -1210,7 +1210,7 @@ static char* get_title_icon_psx(const save_entry_t* entry)
 	return ret;
 }
 
-static void uploadSaveFTP(const save_entry_t* save)
+static int _upload_save_ftp(const save_entry_t* save, const char* save_path, int show_progress)
 {
 	FILE* fp;
 	char *tmp;
@@ -1219,11 +1219,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 	int ret = 0;
 	struct tm t = get_local_time();
 
-	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload %s?"), save->dir_name))
-		return;
-
-	init_loading_screen(_("Sync with FTP Server..."));
-
+	// Download existing FTP indexes
 	snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, save->type);
 	http_download(remote, "games.txt", APOLLO_LOCAL_CACHE "games.ftp", 0);
 
@@ -1231,17 +1227,18 @@ static void uploadSaveFTP(const save_entry_t* save)
 	http_download(remote, "saves.txt", APOLLO_LOCAL_CACHE "saves.ftp", 0);
 	http_download(remote, "checksum.sfv", APOLLO_LOCAL_CACHE "sfv.ftp", 0);
 
+	// Create zip file
 	snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%s_%d-%02d-%02d-%02d%02d%02d.zip",
 			(save->type == FILE_TYPE_PS4) ? save->dir_name : save->title_id,
 			t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
 
 	if (save->type == FILE_TYPE_PS4)
 	{
-		tmp = strdup(save->path);
+		tmp = strdup(save_path);
 		*strrchr(tmp, '/') = 0;
 		*strrchr(tmp, '/') = 0;
-	
-		ret = zip_directory(tmp, save->path, local);
+
+		ret = zip_directory(tmp, save_path, local);
 		free(tmp);
 	}
 	else
@@ -1258,16 +1255,16 @@ static void uploadSaveFTP(const save_entry_t* save)
 		free(tmp);
 	}
 
-	stop_loading_screen();
 	if (!ret)
 	{
-		show_message("%s\n%s", _("Error! Couldn't zip save:"), save->dir_name);
-		return;
+		LOG("Error! Couldn't zip save: %s", save->dir_name);
+		return 0;
 	}
 
 	tmp = strrchr(local, '/')+1;
 	uint32_t crc = file_crc32(local);
 
+	// Update save index
 	LOG("Updating %s save index...", save->title_id);
 	fp = fopen(APOLLO_LOCAL_CACHE "saves.ftp", "a");
 	if (fp)
@@ -1277,6 +1274,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 		fclose(fp);
 	}
 
+	// Update CRC index
 	LOG("Updating .sfv CRC32: %08X", crc);
 	fp = fopen(APOLLO_LOCAL_CACHE "sfv.ftp", "a");
 	if (fp)
@@ -1285,24 +1283,25 @@ static void uploadSaveFTP(const save_entry_t* save)
 		fclose(fp);
 	}
 
-	ret = ftp_upload(local, remote, tmp, 1);
-	ret &= ftp_upload(APOLLO_LOCAL_CACHE "saves.ftp", remote, "saves.txt", 1);
-	ret &= ftp_upload(APOLLO_LOCAL_CACHE "sfv.ftp", remote, "checksum.sfv", 1);
+	// Upload zip and indexes
+	ret = ftp_upload(local, remote, tmp, show_progress);
+	ret &= ftp_upload(APOLLO_LOCAL_CACHE "saves.ftp", remote, "saves.txt", show_progress);
+	ret &= ftp_upload(APOLLO_LOCAL_CACHE "sfv.ftp", remote, "checksum.sfv", show_progress);
 
 	unlink_secure(local);
+
+	// Update games index if this title is not yet listed
 	tmp = readTextFile(APOLLO_LOCAL_CACHE "games.ftp");
 	if (!tmp)
 		tmp = strdup("");
 
 	if (strstr(tmp, save->title_id) == NULL)
 	{
-		init_loading_screen(_("Updating games index..."));
 		free(tmp);
 		tmp = (save->type == FILE_TYPE_PS4) ? get_title_name_icon(save) : get_title_icon_psx(save);
-		stop_loading_screen();
 
 		snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%.9s.PNG", save->title_id);
-		ret &= ftp_upload(local, remote, "icon0.png", 1);
+		ret &= ftp_upload(local, remote, "icon0.png", show_progress);
 
 		fp = fopen(APOLLO_LOCAL_CACHE "games.ftp", "a");
 		if (fp)
@@ -1312,15 +1311,96 @@ static void uploadSaveFTP(const save_entry_t* save)
 		}
 
 		snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, save->type);
-		ret &= ftp_upload(APOLLO_LOCAL_CACHE "games.ftp", remote, "games.txt", 1);
+		ret &= ftp_upload(APOLLO_LOCAL_CACHE "games.ftp", remote, "games.txt", show_progress);
 	}
 	free(tmp);
+
+	return ret;
+}
+
+static void uploadSaveFTP(const save_entry_t* save)
+{
+	char save_path[256];
+	int ret = 0;
+
+	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload %s?"), save->dir_name))
+		return;
+
+	init_loading_screen(_("Sync with FTP Server..."));
+
+	if (save->type == FILE_TYPE_PS4)
+		snprintf(save_path, sizeof(save_path), "%s", save->path);
+	else
+		save_path[0] = 0;
+
+	ret = _upload_save_ftp(save, save_path, 1);
+
+	stop_loading_screen();
 	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
 
 	if (ret)
 		show_message("%s\n%s", _("Save successfully uploaded:"), save->dir_name);
 	else
 		show_message("%s\n%s", _("Error! Couldn't upload save:"), save->dir_name);
+}
+
+static void uploadAllSavesFTP(const save_entry_t* save, int all)
+{
+	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+	char save_path[256];
+	int done = 0, err_count = 0;
+	uint64_t progress = 0;
+	list_node_t *node;
+	save_entry_t *item;
+	list_t *list = ((void**)save->dir_name)[0];
+
+	if (!list)
+	{
+		show_message(_("Error! Save list is not available"));
+		return;
+	}
+
+	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload the selected saves to FTP server?")))
+		return;
+
+	init_progress_bar(_("Uploading all saves to FTP..."));
+
+	LOG("Uploading all saves to FTP server...");
+	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+	{
+		update_progress_bar(progress++, list_count(list), item->name);
+
+		if (item->type != FILE_TYPE_PS4 || !(all || (item->flags & SAVE_FLAG_SELECTED)))
+			continue;
+
+		// Mount the save if it's encrypted and resolve the actual save path
+		if (item->flags & SAVE_FLAG_HDD)
+		{
+			if (!orbis_SaveMount(item, 0, mount))
+			{
+				LOG("Failed to mount save: %s", item->dir_name);
+				err_count++;
+				continue;
+			}
+			snprintf(save_path, sizeof(save_path), APOLLO_SANDBOX_PATH, mount);
+		}
+		else
+		{
+			snprintf(save_path, sizeof(save_path), "%s", item->path);
+		}
+
+		int ret = _upload_save_ftp(item, save_path, 0);
+
+		if (item->flags & SAVE_FLAG_HDD)
+			orbis_SaveUmount(mount);
+
+		(ret) ? done++ : err_count++;
+	}
+
+	end_progress_bar();
+	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
+
+	show_message("%d/%d %s", done, done+err_count, _("Saves uploaded to FTP"));
 }
 
 static void exportVM2raw(const char* vm2_file, int dst, int ecc)
@@ -1878,6 +1958,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_UPLOAD_SAVE:
 			uploadSaveFTP(selected_entry);
+			code->activated = 0;
+			break;
+
+		case CMD_UPLOAD_SAVES:
+		case CMD_UPLOAD_ALL_SAVES:
+			uploadAllSavesFTP(selected_entry, codecmd[0] == CMD_UPLOAD_ALL_SAVES);
 			code->activated = 0;
 			break;
 

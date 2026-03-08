@@ -1210,7 +1210,7 @@ static char* get_title_icon_psx(const save_entry_t* entry)
 	return ret;
 }
 
-static int _upload_save_ftp(const save_entry_t* save, const char* save_path, int show_progress)
+static int _upload_save_ftp(const save_entry_t* save, int show_progress)
 {
 	FILE* fp;
 	char *tmp;
@@ -1234,7 +1234,7 @@ static int _upload_save_ftp(const save_entry_t* save, const char* save_path, int
 
 	if (save->type == FILE_TYPE_PS4)
 	{
-		tmp = strdup(save_path);
+		tmp = strdup(save->path);
 		*strrchr(tmp, '/') = 0;
 		*strrchr(tmp, '/') = 0;
 
@@ -1328,12 +1328,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 
 	init_loading_screen(_("Sync with FTP Server..."));
 
-	if (save->type == FILE_TYPE_PS4)
-		snprintf(save_path, sizeof(save_path), "%s", save->path);
-	else
-		save_path[0] = 0;
-
-	ret = _upload_save_ftp(save, save_path, 1);
+	ret = _upload_save_ftp(save, 1);
 
 	stop_loading_screen();
 	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
@@ -1360,7 +1355,7 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 		return;
 	}
 
-	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload the selected saves to FTP server?")))
+	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload the selected saves to FTP?")))
 		return;
 
 	init_progress_bar(_("Uploading all saves to FTP..."));
@@ -1370,31 +1365,20 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
 
-		if (item->type != FILE_TYPE_PS4 || !(all || (item->flags & SAVE_FLAG_SELECTED)))
+		if (!(item->flags & SAVE_FLAG_HDD) || !(all || (item->flags & SAVE_FLAG_SELECTED)))
 			continue;
 
 		// Mount the save if it's encrypted and resolve the actual save path
-		if (item->flags & SAVE_FLAG_HDD)
+		if (!orbis_SaveMount(item, 0, mount))
 		{
-			if (!orbis_SaveMount(item, 0, mount))
-			{
-				LOG("Failed to mount save: %s", item->dir_name);
-				err_count++;
-				continue;
-			}
-			snprintf(save_path, sizeof(save_path), APOLLO_SANDBOX_PATH, mount);
-		}
-		else
-		{
-			snprintf(save_path, sizeof(save_path), "%s", item->path);
+			LOG("Failed to mount save: %s", item->dir_name);
+			err_count++;
+			continue;
 		}
 
-		int ret = _upload_save_ftp(item, save_path, 0);
+		(_upload_save_ftp(item, save_path, 0)) ? done++ : err_count++;
 
-		if (item->flags & SAVE_FLAG_HDD)
-			orbis_SaveUmount(mount);
-
-		(ret) ? done++ : err_count++;
+		orbis_SaveUmount(mount);
 	}
 
 	end_progress_bar();

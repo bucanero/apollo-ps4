@@ -1341,6 +1341,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 
 static void uploadAllSavesFTP(const save_entry_t* save, int all)
 {
+	char *tmp = NULL;
 	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 	int done = 0, err_count = 0;
 	uint64_t progress = 0;
@@ -1364,9 +1365,14 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 			err_count++;
 			continue;
 		}
+		tmp = item->path;
+		asprintf(&item->path, APOLLO_SANDBOX_PATH, mount);
 
 		(_upload_save_ftp(item)) ? done++ : err_count++;
+
 		orbis_SaveUmount(mount);
+		free(selected_entry->path);
+		selected_entry->path = tmp;
 	}
 
 	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");

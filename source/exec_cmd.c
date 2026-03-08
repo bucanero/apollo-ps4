@@ -1380,7 +1380,6 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 		orbis_SaveUmount(mount);
 	}
 
-	end_progress_bar();
 	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
 
 	show_message("%d/%d %s", done, done+err_count, _("Saves uploaded to FTP"));

@@ -1341,7 +1341,6 @@ static void uploadSaveFTP(const save_entry_t* save)
 static void uploadAllSavesFTP(const save_entry_t* save, int all)
 {
 	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
-	char save_path[256];
 	int done = 0, err_count = 0;
 	uint64_t progress = 0;
 	list_node_t *node;

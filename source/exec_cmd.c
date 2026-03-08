@@ -1348,25 +1348,17 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 	save_entry_t *item;
 	list_t *list = ((void**)save->dir_name)[0];
 
-	if (!list)
-	{
-		show_message(_("Error! Save list is not available"));
-		return;
-	}
-
 	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload the selected saves to FTP?")))
 		return;
 
 	LOG("Uploading all saves to FTP server...");
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
-		update_progress_bar(progress++, list_count(list), item->name);
-
 		if (item->type != FILE_TYPE_PS4 || !(item->flags & SAVE_FLAG_HDD) || !(all || (item->flags & SAVE_FLAG_SELECTED)))
 			continue;
 
 		// Mount the save if it's encrypted and resolve the actual save path
-		if (!orbis_SaveMount(item, 0, mount))
+		if (!orbis_SaveMount(item, ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY, mount))
 		{
 			LOG("Failed to mount save: %s", item->dir_name);
 			err_count++;
@@ -1374,7 +1366,6 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 		}
 
 		(_upload_save_ftp(item)) ? done++ : err_count++;
-
 		orbis_SaveUmount(mount);
 	}
 

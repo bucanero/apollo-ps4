@@ -1219,6 +1219,9 @@ static int _upload_save_ftp(const save_entry_t* save, int show_progress)
 	int ret = 0;
 	struct tm t = get_local_time();
 
+	if (show_progress)
+		init_loading_screen(_("Sync with FTP Server..."));
+
 	// Download existing FTP indexes
 	snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, save->type);
 	http_download(remote, "games.txt", APOLLO_LOCAL_CACHE "games.ftp", 0);

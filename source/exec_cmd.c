@@ -1320,7 +1320,6 @@ static int _upload_save_ftp(const save_entry_t* save, int show_progress)
 
 static void uploadSaveFTP(const save_entry_t* save)
 {
-	char save_path[256];
 	int ret = 0;
 
 	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload %s?"), save->dir_name))

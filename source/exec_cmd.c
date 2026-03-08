@@ -1357,8 +1357,6 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload the selected saves to FTP?")))
 		return;
 
-	init_progress_bar(_("Uploading all saves to FTP..."));
-
 	LOG("Uploading all saves to FTP server...");
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{

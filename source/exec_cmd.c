@@ -1237,8 +1237,8 @@ static int _upload_save_ftp(const save_entry_t* save, int show_progress)
 		tmp = strdup(save->path);
 		*strrchr(tmp, '/') = 0;
 		*strrchr(tmp, '/') = 0;
-
-		ret = zip_directory(tmp, save_path, local);
+	
+		ret = zip_directory(tmp, save->path, local);
 		free(tmp);
 	}
 	else

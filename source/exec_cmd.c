@@ -1210,7 +1210,7 @@ static char* get_title_icon_psx(const save_entry_t* entry)
 	return ret;
 }
 
-static int _upload_save_ftp(const save_entry_t* save, int show_progress)
+static int _upload_save_ftp(const save_entry_t* save)
 {
 	FILE* fp;
 	char *tmp;
@@ -1219,8 +1219,7 @@ static int _upload_save_ftp(const save_entry_t* save, int show_progress)
 	int ret = 0;
 	struct tm t = get_local_time();
 
-	if (show_progress)
-		init_loading_screen(_("Sync with FTP Server..."));
+	init_loading_screen(_("Sync with FTP Server..."));
 
 	// Download existing FTP indexes
 	snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, save->type);
@@ -1258,9 +1257,7 @@ static int _upload_save_ftp(const save_entry_t* save, int show_progress)
 		free(tmp);
 	}
 
-	if (show_progress)
-		stop_loading_screen();
-
+	stop_loading_screen();
 	if (!ret)
 	{
 		LOG("Error! Couldn't zip save: %s", save->dir_name);
@@ -1290,9 +1287,9 @@ static int _upload_save_ftp(const save_entry_t* save, int show_progress)
 	}
 
 	// Upload zip and indexes
-	ret = ftp_upload(local, remote, tmp, show_progress);
-	ret &= ftp_upload(APOLLO_LOCAL_CACHE "saves.ftp", remote, "saves.txt", show_progress);
-	ret &= ftp_upload(APOLLO_LOCAL_CACHE "sfv.ftp", remote, "checksum.sfv", show_progress);
+	ret = ftp_upload(local, remote, tmp, 1);
+	ret &= ftp_upload(APOLLO_LOCAL_CACHE "saves.ftp", remote, "saves.txt", 1);
+	ret &= ftp_upload(APOLLO_LOCAL_CACHE "sfv.ftp", remote, "checksum.sfv", 1);
 
 	unlink_secure(local);
 
@@ -1307,7 +1304,7 @@ static int _upload_save_ftp(const save_entry_t* save, int show_progress)
 		tmp = (save->type == FILE_TYPE_PS4) ? get_title_name_icon(save) : get_title_icon_psx(save);
 
 		snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%.9s.PNG", save->title_id);
-		ret &= ftp_upload(local, remote, "icon0.png", show_progress);
+		ret &= ftp_upload(local, remote, "icon0.png", 1);
 
 		fp = fopen(APOLLO_LOCAL_CACHE "games.ftp", "a");
 		if (fp)
@@ -1317,7 +1314,7 @@ static int _upload_save_ftp(const save_entry_t* save, int show_progress)
 		}
 
 		snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, save->type);
-		ret &= ftp_upload(APOLLO_LOCAL_CACHE "games.ftp", remote, "games.txt", show_progress);
+		ret &= ftp_upload(APOLLO_LOCAL_CACHE "games.ftp", remote, "games.txt", 1);
 	}
 	free(tmp);
 
@@ -1331,7 +1328,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload %s?"), save->dir_name))
 		return;
 
-	ret = _upload_save_ftp(save, 1);
+	ret = _upload_save_ftp(save);
 	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
 
 	if (ret)
@@ -1365,7 +1362,7 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
 
-		if (!(item->flags & SAVE_FLAG_HDD) || !(all || (item->flags & SAVE_FLAG_SELECTED)))
+		if (item->type != FILE_TYPE_PS4 || !(item->flags & SAVE_FLAG_HDD) || !(all || (item->flags & SAVE_FLAG_SELECTED)))
 			continue;
 
 		// Mount the save if it's encrypted and resolve the actual save path
@@ -1376,7 +1373,7 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 			continue;
 		}
 
-		(_upload_save_ftp(item, 0)) ? done++ : err_count++;
+		(_upload_save_ftp(item)) ? done++ : err_count++;
 
 		orbis_SaveUmount(mount);
 	}

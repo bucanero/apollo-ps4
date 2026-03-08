@@ -1255,6 +1255,9 @@ static int _upload_save_ftp(const save_entry_t* save, int show_progress)
 		free(tmp);
 	}
 
+	if (show_progress)
+		stop_loading_screen();
+
 	if (!ret)
 	{
 		LOG("Error! Couldn't zip save: %s", save->dir_name);
@@ -1325,11 +1328,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload %s?"), save->dir_name))
 		return;
 
-	init_loading_screen(_("Sync with FTP Server..."));
-
 	ret = _upload_save_ftp(save, 1);
-
-	stop_loading_screen();
 	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
 
 	if (ret)
@@ -1374,7 +1373,7 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 			continue;
 		}
 
-		(_upload_save_ftp(item, save_path, 0)) ? done++ : err_count++;
+		(_upload_save_ftp(item, 0)) ? done++ : err_count++;
 
 		orbis_SaveUmount(mount);
 	}

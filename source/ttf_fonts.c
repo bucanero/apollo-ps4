@@ -262,14 +262,14 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
 
             FT_UInt index;
 
-            if(f_face[3] && (index = FT_Get_Char_Index(face[3], ttf_char))!=0 
-                && !FT_Load_Glyph(face[3], index, FT_LOAD_RENDER )) slot = face[3]->glyph;
-            else if(f_face[0] && (index = FT_Get_Char_Index(face[0], ttf_char))!=0 
+            if(f_face[0] && (index = FT_Get_Char_Index(face[0], ttf_char))!=0 
                 && !FT_Load_Glyph(face[0], index, FT_LOAD_RENDER )) slot = face[0]->glyph;
             else if(f_face[1] && (index = FT_Get_Char_Index(face[1], ttf_char))!=0 
                 && !FT_Load_Glyph(face[1], index, FT_LOAD_RENDER )) slot = face[1]->glyph;
             else if(f_face[2] && (index = FT_Get_Char_Index(face[2], ttf_char))!=0 
                 && !FT_Load_Glyph(face[2], index, FT_LOAD_RENDER )) slot = face[2]->glyph;
+            else if(f_face[3] && (index = FT_Get_Char_Index(face[3], ttf_char))!=0 
+                && !FT_Load_Glyph(face[3], index, FT_LOAD_RENDER )) slot = face[3]->glyph;
             else ttf_char = 0;
 
             if(ttf_char!=0) {

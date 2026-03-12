@@ -179,24 +179,33 @@ static void reverse_range(uint32_t* start, uint32_t* end) {
     }
 }
 
+static bool is_arabic_cp(uint32_t cp) {
+    return (cp >= 0x0600 && cp <= 0x06FF) || (cp >= 0x0750 && cp <= 0x077F) ||
+           (cp >= 0x08A0 && cp <= 0x08FF) || (cp >= 0xFB50 && cp <= 0xFDFF) ||
+           (cp >= 0xFE70 && cp <= 0xFEFF);
+}
+
+static bool is_neutral_cp(uint32_t cp) {
+    return cp == ' ' || cp == '(' || cp == ')' || cp == '[' || cp == ']' || 
+           cp == '{' || cp == '}' || cp == '<' || cp == '>' || cp == '/' || 
+           cp == '-' || cp == '_' || cp == ':' || cp == '.' || cp == ',';
+}
+
 static void apply_bidi(uint32_t* cps, size_t count) {
     size_t i = 0;
     while (i < count) {
-        uint32_t cp = cps[i];
-        bool is_arabic = (cp >= 0x0600 && cp <= 0x06FF) || (cp >= 0xFB50 && cp <= 0xFEFF);
-        if (is_arabic) {
+        if (is_arabic_cp(cps[i])) {
             size_t start = i;
-            while (i < count) {
-                uint32_t next_cp = cps[i];
-                bool next_is_arabic = (next_cp >= 0x0600 && next_cp <= 0x06FF) || (next_cp >= 0xFB50 && next_cp <= 0xFEFF);
-                bool is_punc = (next_cp == '(' || next_cp == ')' || next_cp == '[' || next_cp == ']' || next_cp == '{' || next_cp == '}' || next_cp == '<' || next_cp == '>');
-                bool is_space = (next_cp == ' ');
-                if (next_is_arabic || is_punc || is_space) i++;
-                else break;
+            while (i < count && (is_arabic_cp(cps[i]) || is_neutral_cp(cps[i]))) {
+                i++;
             }
             size_t end = i;
-            while (end > start && cps[end-1] == ' ') end--;
-            if (end > start) reverse_range(&cps[start], &cps[end-1]);
+            while (end > start && is_neutral_cp(cps[end-1])) {
+                end--;
+            }
+            if (end > start) {
+                reverse_range(&cps[start], &cps[end-1]);
+            }
         } else {
             i++;
         }
@@ -204,25 +213,21 @@ static void apply_bidi(uint32_t* cps, size_t count) {
 }
 
 static void fix_parentheses(uint32_t* cps, size_t count) {
-    bool has_arabic = false;
     for (size_t i = 0; i < count; i++) {
-        if ((cps[i] >= 0x0600 && cps[i] <= 0x06FF) || (cps[i] >= 0xFB50 && cps[i] <= 0xFEFF)) {
-            has_arabic = true;
-            break;
-        }
-    }
-    if (has_arabic) {
-        for (size_t i = 0; i < count; i++) {
-            switch (cps[i]) {
-                case '(': cps[i] = ')'; break;
-                case ')': cps[i] = '('; break;
-                case '[': cps[i] = ']'; break;
-                case ']': cps[i] = '['; break;
-                case '{': cps[i] = '}'; break;
-                case '}': cps[i] = '{'; break;
-                case '<': cps[i] = '>'; break;
-                case '>': cps[i] = '<'; break;
+        if (is_arabic_cp(cps[i])) {
+            for (size_t j = 0; j < count; j++) {
+                switch (cps[j]) {
+                    case '(': cps[j] = ')'; break;
+                    case ')': cps[j] = '('; break;
+                    case '[': cps[j] = ']'; break;
+                    case ']': cps[j] = '['; break;
+                    case '{': cps[j] = '}'; break;
+                    case '}': cps[j] = '{'; break;
+                    case '<': cps[j] = '>'; break;
+                    case '>': cps[j] = '<'; break;
+                }
             }
+            break;
         }
     }
 }

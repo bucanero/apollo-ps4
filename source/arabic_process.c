@@ -126,20 +126,36 @@ static char* utf32_to_utf8(const uint32_t* cps, size_t count) {
 
 bool contains_arabic(const char* text) {
     if (!text) return false;
-    uint32_t* cps = NULL;
-    size_t count = utf8_to_utf32(text, &cps);
-    bool found = false;
-    for (size_t i = 0; i < count; i++) {
-        uint32_t cp = cps[i];
+    const unsigned char* str = (const unsigned char*)text;
+
+    while (*str) {
+        uint32_t cp = 0;
+        if ((*str & 0x80) == 0) cp = *str++;
+        else if ((*str & 0xE0) == 0xC0) {
+            cp = (*str++ & 0x1F) << 6;
+            cp |= (*str++ & 0x3F);
+        } else if ((*str & 0xF0) == 0xE0) {
+            cp = (*str++ & 0x0F) << 12;
+            cp |= (*str++ & 0x3F) << 6;
+            cp |= (*str++ & 0x3F);
+        } else if ((*str & 0xF8) == 0xF0) {
+            cp = (*str++ & 0x07) << 18;
+            cp |= (*str++ & 0x3F) << 12;
+            cp |= (*str++ & 0x3F) << 6;
+            cp |= (*str++ & 0x3F);
+        } else {
+            str++;
+            continue;
+        }
+
         if ((cp >= 0x0600 && cp <= 0x06FF) || (cp >= 0x0750 && cp <= 0x077F) ||
             (cp >= 0x08A0 && cp <= 0x08FF) || (cp >= 0xFB50 && cp <= 0xFDFF) ||
             (cp >= 0xFE70 && cp <= 0xFEFF)) {
-            found = true;
-            break;
+            return true;
         }
     }
-    free(cps);
-    return found;
+    
+    return false;
 }
 
 static bool connects_to_next(uint32_t cp) {
@@ -233,8 +249,7 @@ static void fix_parentheses(uint32_t* cps, size_t count) {
 }
 
 char* process_arabic(const char* text) {
-    if (!text) return NULL;
-    if (!contains_arabic(text)) return strdup(text);
+    if (!text || !contains_arabic(text)) return NULL;
 
     uint32_t* cps = NULL;
     size_t count = utf8_to_utf32(text, &cps);

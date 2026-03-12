@@ -159,15 +159,8 @@ int display_ttf_string(int posx, int posy, const char *string, u32 color, u32 bk
     u8 colorc;
     u32 ttf_char;
     
-    char* processed = NULL;
-    u8 *ustring;
-
-    if (contains_arabic(string)) {
-        processed = process_arabic(string);
-        ustring = (u8 *) processed;
-    } else {
-        ustring = (u8 *) string;
-    }
+    char* processed = process_arabic(string);
+    u8 *ustring = processed ? (u8 *) processed : (u8 *) string;
 
     int lenx = 0;
 

@@ -194,7 +194,7 @@ static bool is_neutral_cp(uint32_t cp) {
 static void apply_bidi(uint32_t* cps, size_t count) {
     size_t i = 0;
     while (i < count) {
-        if (is_arabic_cp(cps[i])) {
+        if (is_arabic_cp(cps[i]) || (is_neutral_cp(cps[i]) && i + 1 < count && is_arabic_cp(cps[i+1]))) {
             size_t start = i;
             while (i < count && (is_arabic_cp(cps[i]) || is_neutral_cp(cps[i]))) {
                 i++;

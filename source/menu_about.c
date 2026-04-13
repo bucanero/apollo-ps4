@@ -67,7 +67,7 @@ static void draw_sinetext(int y, const char* string)
 static void _setIdValues()
 {
 	// set to display the PSID on the About menu
-	snprintf(psid_str, sizeof(psid_str), "%016lX %016lX", apollo_config.psid[0], apollo_config.psid[1]);
+	snprintf(psid_str, sizeof(psid_str), "%016lX %016lX", ES64(apollo_config.psid[0]), ES64(apollo_config.psid[1]));
 	snprintf(user_id_str, sizeof(user_id_str), "%08x", apollo_config.user_id);
 	snprintf(account_id_str, sizeof(account_id_str), "%016lx", apollo_config.account_id);
 }

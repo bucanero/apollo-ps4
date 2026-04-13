@@ -372,8 +372,6 @@ int load_app_settings(app_config_t* config)
 
 	sceUserServiceGetNpAccountId(config->user_id, &config->account_id);
 	sceKernelGetOpenPsIdForSystem(config->psid);
-	config->psid[0] = ES64(config->psid[0]);
-	config->psid[1] = ES64(config->psid[1]);
 
 	if (sceSaveDataInitialize3(0) != SUCCESS)
 	{

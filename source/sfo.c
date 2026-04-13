@@ -1,10 +1,14 @@
 #include <apollo.h>
+#include <mbedtls/md.h>
 #include "sfo.h"
 #include "util.h"
 
 #define PKG_MAGIC   0x544E437Fu
 #define SFO_MAGIC   0x46535000u
 #define SFO_VERSION 0x0101u /* 1.1 */
+
+// https://www.psdevwiki.com/ps4/Keys#param.sfo_OpenPSID_HMAC-SHA256_Key
+static const u8 PSID_HMAC_KEY[] = { 0x13, 0xD1, 0xDF, 0x06, 0x75, 0xC9, 0xFD, 0x95, 0x0A, 0x17, 0xE5, 0x64, 0xC2, 0x77, 0x7F, 0x2C };
 
 typedef struct sfo_header_s {
 	u32 magic;
@@ -25,7 +29,7 @@ typedef struct sfo_index_table_s {
 typedef struct sfo_param_params_s {
 	u32 unk1;
 	u32 user_id;
-	u8 unk2[32];
+	u8 psid_hmac[32];
 	u32 unk3;
 	char title_id_1[0x10];
 	char title_id_2[0x10];
@@ -392,7 +396,6 @@ static void sfo_patch_user_id(sfo_context_t *inout, u32 userid) {
 	}
 }
 
-/*
 void sfo_patch_psid(sfo_context_t *inout, u8* psid) {
 	sfo_context_param_t *p;
 
@@ -402,10 +405,11 @@ void sfo_patch_psid(sfo_context_t *inout, u8* psid) {
 	p = sfo_context_get_param(inout, "PARAMS");
 	if (p != NULL) {
 		sfo_param_params_t *params = (sfo_param_params_t *)p->value;
-		memcpy(params->psid, psid, SFO_PSID_SIZE);
+		mbedtls_md_hmac(mbedtls_md_info_from_type(MBEDTLS_MD_SHA256), PSID_HMAC_KEY, sizeof(PSID_HMAC_KEY), psid, SFO_PSID_SIZE, params->psid_hmac);
 	}
 }
 
+/*
 void sfo_patch_directory(sfo_context_t *inout, const char* save_dir) {
 	sfo_context_param_t *p;
 
@@ -444,7 +448,7 @@ int patch_sfo(const char *in_file_path, sfo_patch_t* patches) {
 	sfo_patch_titleid(sfo);
 	sfo_patch_account(sfo, patches->account_id);
 	sfo_patch_user_id(sfo, patches->user_id);
-//	sfo_patch_psid(sfo, patches->psid);
+	sfo_patch_psid(sfo, patches->psid);
 //	sfo_patch_directory(sfo, patches->directory);
 
 	if (sfo_write(sfo, in_file_path) < 0) {

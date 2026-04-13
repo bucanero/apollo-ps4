@@ -291,6 +291,7 @@ static int _copy_save_hdd(const save_entry_t* save)
 	sfo_patch_t patch = {
 		.user_id = apollo_config.user_id,
 		.account_id = apollo_config.account_id,
+		.psid = (uint8_t*) apollo_config.psid,
 	};
 
 	if (!orbis_SaveMount(save, ORBIS_SAVE_DATA_MOUNT_MODE_RDWR | ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2 | ORBIS_SAVE_DATA_MOUNT_MODE_COPY_ICON, mount))
@@ -319,6 +320,7 @@ static int _copy_save_pfs(const save_entry_t* save)
 	sfo_patch_t patch = {
 		.user_id = apollo_config.user_id,
 		.account_id = apollo_config.account_id,
+		.psid = (uint8_t*) apollo_config.psid,
 	};
 
 	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
@@ -1344,7 +1346,6 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 	char *tmp = NULL;
 	char mount[ORBIS_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
 	int done = 0, err_count = 0;
-	uint64_t progress = 0;
 	list_node_t *node;
 	save_entry_t *item;
 	list_t *list = ((void**)save->dir_name)[0];

@@ -298,7 +298,7 @@ static void cbsCrypt(uint8_t *buf, size_t bufLen)
 {
     mbedtls_arc4_context ctx;
 
-    memset(&ctx, 0, sizeof(mbedtls_arc4_context));
+    mbedtls_arc4_init(&ctx);
     memcpy(ctx.m, cbsKey, sizeof(cbsKey));
     mbedtls_arc4_crypt(&ctx, bufLen, buf, buf);
 }

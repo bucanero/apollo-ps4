@@ -358,7 +358,7 @@ static void sfo_patch_titleid(sfo_context_t *inout) {
 	sfo_context_param_t *p;
 
 	p = sfo_context_get_param(inout, "PARAMS");
-	if (p != NULL) {
+	if (p != NULL && p->actual_length > 0x50) {
 		sfo_param_params_t *params = (sfo_param_params_t *)p->value;
 		memcpy(params->title_id_2, params->title_id_1, sizeof(params->title_id_1));
 	}
@@ -383,7 +383,7 @@ static void sfo_patch_user_id(sfo_context_t *inout, u32 userid) {
 		return;
 
 	p = sfo_context_get_param(inout, "PARAMS");
-	if (p != NULL) {
+	if (p != NULL && p->actual_length > 0x50) {
 		sfo_param_params_t *params = (sfo_param_params_t *)p->value;
 		params->user_id = userid;
 	}
@@ -396,7 +396,7 @@ void sfo_patch_psid(sfo_context_t *inout, u8* psid) {
 		return;
 
 	p = sfo_context_get_param(inout, "PARAMS");
-	if (p != NULL) {
+	if (p != NULL && p->actual_length > 0x50) {
 		sfo_param_params_t *params = (sfo_param_params_t *)p->value;
 		if (mbedtls_md_hmac(mbedtls_md_info_from_type(MBEDTLS_MD_SHA256), PSID_HMAC_KEY, sizeof(PSID_HMAC_KEY), psid, SFO_PSID_SIZE, params->psid_hmac) != 0)
 			LOG("Failed to calculate PSID HMAC");

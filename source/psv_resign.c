@@ -74,7 +74,7 @@ static void generateHash(const uint8_t *input, const uint8_t *salt_seed, uint8_t
 	uint8_t work_buf[0x14];
 
 	memset(salt , 0, sizeof(salt));
-	memset(&aes_ctx, 0, sizeof(mbedtls_aes_context));
+	mbedtls_aes_init(&aes_ctx);
 
 	LOG("Type detected: %d", type);
 	if(type == PSV_TYPE_PS1)
@@ -115,7 +115,7 @@ static void generateHash(const uint8_t *input, const uint8_t *salt_seed, uint8_t
 
 	XorWithByte(salt, 0x36, sizeof(salt));
 
-	memset(&sha1_ctx, 0, sizeof(mbedtls_sha1_context));
+	mbedtls_sha1_init(&sha1_ctx);
 	mbedtls_sha1_starts(&sha1_ctx);
 	mbedtls_sha1_update(&sha1_ctx, salt, sizeof(salt));
 	mbedtls_sha1_update(&sha1_ctx, input, sz);
@@ -123,7 +123,7 @@ static void generateHash(const uint8_t *input, const uint8_t *salt_seed, uint8_t
 
 	XorWithByte(salt, 0x6A, sizeof(salt));
 
-	memset(&sha1_ctx, 0, sizeof(mbedtls_sha1_context));
+	mbedtls_sha1_init(&sha1_ctx);
 	mbedtls_sha1_starts(&sha1_ctx);
 	mbedtls_sha1_update(&sha1_ctx, salt, sizeof(salt));
 	mbedtls_sha1_update(&sha1_ctx, work_buf, 0x14);

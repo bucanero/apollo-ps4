@@ -70,9 +70,7 @@ int calculate_hmac_hash(const u8 *data, u64 size, const u8 *key, u32 key_length,
 	if (!key_length || !output)
 		return -1;
 
-	mbedtls_md_hmac(mbedtls_md_info_from_type(MBEDTLS_MD_SHA1), key, key_length, data, size, output);
-
-	return 0;
+	return mbedtls_md_hmac(mbedtls_md_info_from_type(MBEDTLS_MD_SHA1), key, key_length, data, size, output);
 }
 
 u64 align_to_pow2(u64 offset, u64 alignment) {

@@ -699,6 +699,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 		uint64_t hash[2];
 		mbedtls_md5_context ctx;
 
+		mbedtls_md5_init(&ctx);
 		mbedtls_md5_starts(&ctx);
 		for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 			mbedtls_md5_update(&ctx, (uint8_t*) item->name, strlen(item->name));

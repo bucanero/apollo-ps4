@@ -398,7 +398,8 @@ void sfo_patch_psid(sfo_context_t *inout, u8* psid) {
 	p = sfo_context_get_param(inout, "PARAMS");
 	if (p != NULL) {
 		sfo_param_params_t *params = (sfo_param_params_t *)p->value;
-		mbedtls_md_hmac(mbedtls_md_info_from_type(MBEDTLS_MD_SHA256), PSID_HMAC_KEY, sizeof(PSID_HMAC_KEY), psid, SFO_PSID_SIZE, params->psid_hmac);
+		if (mbedtls_md_hmac(mbedtls_md_info_from_type(MBEDTLS_MD_SHA256), PSID_HMAC_KEY, sizeof(PSID_HMAC_KEY), psid, SFO_PSID_SIZE, params->psid_hmac) != 0)
+			LOG("Failed to calculate PSID HMAC");
 	}
 }
 

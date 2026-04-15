@@ -103,7 +103,7 @@ int save_xml_owner(const char *xmlfile)
 
     node = mxmlNewElement(group, "console");
     mxmlElementSetAttr(node, "idps", "");
-    snprintf(tmp, sizeof(tmp), "%016lX %016lX", apollo_config.psid[0], apollo_config.psid[1]);
+    snprintf(tmp, sizeof(tmp), "%016lX %016lX", ES64(apollo_config.psid[0]), ES64(apollo_config.psid[1]));
     mxmlElementSetAttr(node, "psid", tmp);
 
     node = mxmlNewElement(group, "user");

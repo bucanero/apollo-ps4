@@ -8,7 +8,7 @@ CONTENT_ID  := IV0000-APOL00004_00-APOLLO0000000PS4
 LIBS        := -lc -lkernel -lc++ -lSceAudioOut -lSceUserService -lScePigletv2VSH -lSceSysmodule -lSceFreeType -lSQLite \
                -lScePad -lSceSystemService -lSceSaveData -lSceCommonDialog -lSceMsgDialog -lSceNet -lSceNetCtl -lcurl \
                -lmbedtls -lmbedx509 -lmbedcrypto -lmini18n \
-               -lSceRegMgr -lSceImeDialog -lSDL2 -lapollo -ldbglogger -lpolarssl -lz -lzip -ljbc -lmxml -lunrar -lun7zip -ls3m
+               -lSceRegMgr -lSceImeDialog -lSDL2 -lapollo -ldbglogger -lz -lzip -ljbc -lmxml -lunrar -lun7zip -ls3m
 
 # Additional compile flags.
 EXTRAFLAGS  := -fcolor-diagnostics -Wall -D__PS4__

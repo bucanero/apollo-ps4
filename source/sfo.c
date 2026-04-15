@@ -374,13 +374,6 @@ static void sfo_patch_account(sfo_context_t *inout, u64 account) {
 	if (p != NULL && p->actual_length == SFO_ACCOUNT_ID_SIZE) {
 		memcpy(p->value, &account, SFO_ACCOUNT_ID_SIZE);
 	}
-/*
-	p = sfo_context_get_param(inout, "PARAMS");
-	if (p != NULL) {
-		sfo_param_params_t *params = (sfo_param_params_t *)p->value;
-		memcpy(params->account_id, account, SFO_ACCOUNT_ID_SIZE);
-	}
-*/
 }
 
 static void sfo_patch_user_id(sfo_context_t *inout, u32 userid) {

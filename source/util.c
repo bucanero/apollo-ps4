@@ -1,7 +1,7 @@
 #include "util.h"
 #include "types.h"
 
-#include <polarssl/sha1.h>
+#include <mbedtls/md.h>
 
 void dump_data(const u8 *data, u64 size) {
 	u64 i;
@@ -67,18 +67,10 @@ int write_file(const char *file_path, u8 *data, u64 size) {
 }
 
 int calculate_hmac_hash(const u8 *data, u64 size, const u8 *key, u32 key_length, u8 output[20]) {
-	sha1_context sha1;
-
 	if (!key_length || !output)
 		return -1;
 
-	memset(&sha1, 0, sizeof(sha1_context));
-
-	sha1_hmac_starts(&sha1, key, key_length);
-	sha1_hmac_update(&sha1, data, size);
-	sha1_hmac_finish(&sha1, output);
-
-	memset(&sha1, 0, sizeof(sha1_context));
+	mbedtls_md_hmac(mbedtls_md_info_from_type(MBEDTLS_MD_SHA1), key, key_length, data, size, output);
 
 	return 0;
 }

@@ -289,8 +289,10 @@ const char * get_user_language(void)
         return "ko";
 
     case ORBIS_SYSTEM_PARAM_LANG_CHINESE_T:            // 10   Chinese (traditional)
+        return "zh_tw";
+
     case ORBIS_SYSTEM_PARAM_LANG_CHINESE_S:            // 11   Chinese (simplified)
-        return "zh";
+        return "zh_cn";
 
     case ORBIS_SYSTEM_PARAM_LANG_FINNISH:              // 12   Finnish
         return "fi";

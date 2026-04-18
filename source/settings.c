@@ -405,6 +405,7 @@ int load_app_settings(app_config_t* config)
 		memcpy(config, file_data, file_size);
 
 		LOG("Settings loaded: UserID (%08x) AccountID (%016lX)", config->user_id, config->account_id);
+		LOG("PSID: %016lX%016lX", ES64(config->psid[0]), ES64(config->psid[1]));
 		free(file_data);
 	}
 

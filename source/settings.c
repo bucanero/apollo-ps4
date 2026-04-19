@@ -159,9 +159,7 @@ static void ftp_url_callback(int sel)
 	ftp_init();
 	init_loading_screen(_("Testing connection..."));
 	ret = ftp_download(apollo_config.ftp_url, "apollo.txt", APOLLO_LOCAL_CACHE "users.ftp", 0);
-	data = ret ? readTextFile(APOLLO_LOCAL_CACHE "users.ftp") : NULL;
-	if (!data)
-		data = strdup("; Apollo Save Tool (" APOLLO_PLATFORM ") v" APOLLO_VERSION "\r\n");
+	data = ret ? readTextFile(APOLLO_LOCAL_CACHE "users.ftp") : strdup("");
 
 	snprintf(tmp, sizeof(tmp), "%016lX", apollo_config.account_id);
 	if (strstr(data, tmp) == NULL)
@@ -170,7 +168,7 @@ static void ftp_url_callback(int sel)
 		FILE* fp = fopen(APOLLO_LOCAL_CACHE "users.ftp", "w");
 		if (fp)
 		{
-			fprintf(fp, "%s%s\r\n", data, tmp);
+			fprintf(fp, "; Apollo Save Tool (" APOLLO_PLATFORM ") v" APOLLO_VERSION "\r\n%s\r\n", tmp);
 			fclose(fp);
 		}
 

@@ -1273,8 +1273,8 @@ static int _upload_save_ftp(const save_entry_t* save)
 	fp = fopen(APOLLO_LOCAL_CACHE "saves.ftp", "w");
 	if (fp)
 	{
-		fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s (CRC: %08X)\r\n", tmp, save->dir_name,
-				t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, save->name, crc);
+		fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s\r\n", tmp, save->dir_name,
+				t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, save->name);
 		fclose(fp);
 	}
 

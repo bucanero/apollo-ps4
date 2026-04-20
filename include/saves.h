@@ -285,6 +285,9 @@ int ReadVmc2Codes(save_entry_t * save);
 int http_init(void);
 void http_end(void);
 int http_download(const char* url, const char* filename, const char* local_dst, int show_progress);
+void ftp_init(void);
+void ftp_end(void);
+int ftp_download(const char* url, const char* filename, const char* local_dst, int show_progress);
 int ftp_upload(const char* local_file, const char* url, const char* filename, int show_progress);
 
 int extract_7zip(const char* zip_file, const char* dest_path);

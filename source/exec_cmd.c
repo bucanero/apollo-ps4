@@ -1226,11 +1226,9 @@ static int _upload_save_ftp(const save_entry_t* save)
 
 	// Download existing FTP indexes
 	snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, save->type);
-	http_download(remote, "games.txt", APOLLO_LOCAL_CACHE "games.ftp", 0);
+	ftp_download(remote, "games.txt", APOLLO_LOCAL_CACHE "games.ftp", 0);
 
 	snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/%s/", apollo_config.ftp_url, apollo_config.account_id, save->type, save->title_id);
-	http_download(remote, "saves.txt", APOLLO_LOCAL_CACHE "saves.ftp", 0);
-	http_download(remote, "checksum.sfv", APOLLO_LOCAL_CACHE "sfv.ftp", 0);
 
 	// Create zip file
 	snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%s_%d-%02d-%02d-%02d%02d%02d.zip",
@@ -1272,17 +1270,17 @@ static int _upload_save_ftp(const save_entry_t* save)
 
 	// Update save index
 	LOG("Updating %s save index...", save->title_id);
-	fp = fopen(APOLLO_LOCAL_CACHE "saves.ftp", "a");
+	fp = fopen(APOLLO_LOCAL_CACHE "saves.ftp", "w");
 	if (fp)
 	{
-		fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s (CRC: %08X)\r\n", tmp, save->dir_name,
-				t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, save->name, crc);
+		fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s\r\n", tmp, save->dir_name,
+				t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, save->name);
 		fclose(fp);
 	}
 
 	// Update CRC index
 	LOG("Updating .sfv CRC32: %08X", crc);
-	fp = fopen(APOLLO_LOCAL_CACHE "sfv.ftp", "a");
+	fp = fopen(APOLLO_LOCAL_CACHE "sfv.ftp", "w");
 	if (fp)
 	{
 		fprintf(fp, "%s %08X\n", tmp, crc);
@@ -1291,9 +1289,6 @@ static int _upload_save_ftp(const save_entry_t* save)
 
 	// Upload zip and indexes
 	ret = ftp_upload(local, remote, tmp, 1);
-	ret &= ftp_upload(APOLLO_LOCAL_CACHE "saves.ftp", remote, "saves.txt", 1);
-	ret &= ftp_upload(APOLLO_LOCAL_CACHE "sfv.ftp", remote, "checksum.sfv", 1);
-
 	unlink_secure(local);
 
 	// Update games index if this title is not yet listed
@@ -1311,17 +1306,24 @@ static int _upload_save_ftp(const save_entry_t* save)
 		snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%.9s.PNG", save->title_id);
 		ret &= ftp_upload(local, remote, "icon0.png", 1);
 
-		fp = fopen(APOLLO_LOCAL_CACHE "games.ftp", "a");
+		fp = fopen(APOLLO_LOCAL_CACHE "games.ftp", "w");
 		if (fp)
 		{
 			fprintf(fp, "%s=%s\r\n", save->title_id, tmp);
 			fclose(fp);
 		}
 
-		snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, save->type);
-		ret &= ftp_upload(APOLLO_LOCAL_CACHE "games.ftp", remote, "games.txt", 1);
+		init_loading_screen(_("Sync with FTP Server..."));
+		snprintf(local, sizeof(local), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, save->type);
+		ret &= ftp_upload(APOLLO_LOCAL_CACHE "games.ftp", local, "games.txt", 0);
 	}
+	else init_loading_screen(_("Sync with FTP Server..."));
+
 	free(tmp);
+
+	ret &= ftp_upload(APOLLO_LOCAL_CACHE "saves.ftp", remote, "saves.txt", 0);
+	ret &= ftp_upload(APOLLO_LOCAL_CACHE "sfv.ftp", remote, "checksum.sfv", 0);
+	stop_loading_screen();
 
 	return ret;
 }
@@ -1333,8 +1335,10 @@ static void uploadSaveFTP(const save_entry_t* save)
 	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload %s?"), save->dir_name))
 		return;
 
+	ftp_init();
 	ret = _upload_save_ftp(save);
 	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
+	ftp_end();
 
 	if (ret)
 		show_message("%s\n%s", _("Save successfully uploaded:"), save->dir_name);
@@ -1354,6 +1358,7 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload the selected saves to FTP?")))
 		return;
 
+	ftp_init();
 	LOG("Uploading all saves to FTP server...");
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
@@ -1378,6 +1383,7 @@ static void uploadAllSavesFTP(const save_entry_t* save, int all)
 	}
 
 	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
+	ftp_end();
 
 	show_message("%d/%d %s", done, done+err_count, _("Saves uploaded to FTP"));
 }

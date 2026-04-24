@@ -16,6 +16,26 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
   - Update PSID HMAC signature
 * Localization support
   - New languages: Chinese (Simplified), Chinese (Traditional), Korean
+* New cheat codes
+  - Crisis Core: Final Fantasy VII: Reunion
+  - Tales of Berseria Remastered
+* Custom save decryption support
+  - Castle Crashers Remastered
+  - Crisis Core: Final Fantasy VII: Reunion
+  - Final Fantasy Pixel Remaster
+  - Tales of Berseria Remastered
+* Custom save decompression support
+  - Dying Light 2
+  - Final Fantasy Pixel Remaster
+* Custom checksum support
+  - Castle Crashers Remastered
+  - Crisis Core: Final Fantasy VII: Reunion
+  - Death Stranding
+  - Dying Light 2
+  - Far Cry 5
+  - Resident Evil 5 (PS4)
+  - Tales of Berseria Remastered
+  - Tales of Symphonia Remastered
 
 ### Misc
 

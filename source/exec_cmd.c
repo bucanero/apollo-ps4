@@ -1222,7 +1222,7 @@ static int _upload_save_ftp(const save_entry_t* save)
 	int ret = 0;
 	struct tm t = get_local_time();
 
-	init_loading_screen(_("Sync with FTP Server..."));
+	init_loading_screen(_("Preparing upload..."));
 
 	// Download existing FTP indexes
 	snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%d/", apollo_config.ftp_url, apollo_config.account_id, save->type);

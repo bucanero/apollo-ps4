@@ -6,6 +6,47 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ---
 
+## [v2.3.2](https://github.com/bucanero/apollo-ps4/releases/tag/v2.3.2) - 2026-04-26
+
+### Added
+
+* Bulk FTP upload support for PS4 saves
+  - Upload multiple saves to FTP server in a single operation
+* Improve `param.sfo` resigning process for PS4 saves
+  - Update PSID HMAC signature
+* Localization support
+  - New languages: Chinese (Simplified), Chinese (Traditional), Korean
+* New cheat codes
+  - Crisis Core: Final Fantasy VII: Reunion
+  - Tales of Berseria Remastered
+* Custom save decryption support
+  - Castle Crashers Remastered
+  - Crisis Core: Final Fantasy VII: Reunion
+  - Final Fantasy Pixel Remaster
+  - Tales of Berseria Remastered
+* Custom save decompression support
+  - Dying Light 2
+  - Final Fantasy Pixel Remaster
+* Custom checksum support
+  - Castle Crashers Remastered
+  - Crisis Core: Final Fantasy VII: Reunion
+  - Death Stranding
+  - Dying Light 2
+  - Far Cry 5
+  - Resident Evil 5 (PS4)
+  - Tales of Berseria Remastered
+  - Tales of Symphonia Remastered
+
+### Misc
+
+* Apollo Patch Engine v2.0.4
+  - Add `des3_ecb`, `hmac_sha256` support
+  - Fix `offzip` decompression bug
+* Use mbedTLS library for cryptographic operations (AES, HMAC, SHA1, SHA256)
+  - Remove polarSSL dependency
+
+---
+
 ## [v2.3.0](https://github.com/bucanero/apollo-ps4/releases/tag/v2.3.0) - 2026-02-22
 
 ### Added

@@ -35,7 +35,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Standalone:** no computer required, everything happens on the PS4.
 * **Automatic settings:** auto-detection of PS4 firmware, User ID, and Account-ID settings.
 * **Multi-user:** supports multiple user accounts.
-* **Localization support:** Chinese, English, French, Greek, Hungarian, German, Italian, Japanese, Portuguese, Russian, Spanish.
+* **Localization support:** Chinese, English, French, Greek, Hungarian, German, Italian, Japanese, Korean, Portuguese, Russian, Spanish.
 
 ## Save Management
 
@@ -196,7 +196,7 @@ You need to have installed:
 
 - [Open Orbis SDK](https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/)
 - [Apollo](https://github.com/bucanero/apollo-lib) library
-- [polarSSL](https://github.com/bucanero/oosdk_libraries/tree/master/polarssl-1.3.9) library
+- [mbedTLS](https://github.com/Mbed-TLS/mbedtls/releases/tag/v2.16.12) library
 - [cURL](https://github.com/bucanero/oosdk_libraries/tree/master/curl-7.64.1) library
 - [libZip](https://github.com/bucanero/oosdk_libraries/tree/master/libzip-1.9.2) library
 - [SDL2](https://github.com/PacBrew/SDL/tree/ps4) library

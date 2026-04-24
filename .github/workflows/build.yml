@@ -133,10 +133,6 @@ jobs:
       working-directory: oosdk_libraries/zlib_partial
       run: make install
 
-    - name: Install polarssl
-      working-directory: oosdk_libraries/polarssl-1.3.9
-      run: make install
-
     - name: Install libzip
       working-directory: oosdk_libraries/libzip-1.9.2
       run: |

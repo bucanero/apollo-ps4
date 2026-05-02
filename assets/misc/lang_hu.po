@@ -131,7 +131,7 @@ msgstr "Hiba! Nem sikerült frissíteni a trófeákat"
 
 #: exec_cmd.c:551
 msgid "Exporting Trophies..."
-msgstr ""
+msgstr "Trófeák exportálása..."
 
 #: exec_cmd.c:569
 msgid "Trophies successfully saved to:"

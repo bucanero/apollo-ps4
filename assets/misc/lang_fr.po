@@ -269,7 +269,7 @@ msgstr "Préparation de l'envoi..."
 
 #: exec_cmd.c:1301
 msgid "Updating games index..."
-msgstr ""
+msgstr "Mise à jour de l'index des jeux..."
 
 #: exec_cmd.c:1316 exec_cmd.c:1320
 msgid "Sync with FTP Server..."

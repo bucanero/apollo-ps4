@@ -131,7 +131,7 @@ msgstr "エラー!トロフィーを更新できませんでした"
 
 #: exec_cmd.c:551
 msgid "Exporting Trophies..."
-msgstr ""
+msgstr "トロフィーのエクスポート中..."
 
 #: exec_cmd.c:569
 msgid "Trophies successfully saved to:"

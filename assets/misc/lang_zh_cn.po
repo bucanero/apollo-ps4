@@ -1,7 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Apollo Save Tool\n"
-"POT-Creation-Date: 2025-10-25 08:31-0300\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-02 13:16+0000\n"
 "PO-Revision-Date: 2026-03-07 10:00-0800\n"
 "Last-Translator: Sun Zhonglei <github.com/1987Lr1987>\n"
 "Language-Team: Simplified Chinese\n"
@@ -11,8 +12,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.8\n"
 
-#: exec_cmd.c:52 exec_cmd.c:104 exec_cmd.c:156 exec_cmd.c:545 exec_cmd.c:892
-#: exec_cmd.c:982 exec_cmd.c:1335 exec_cmd.c:1606
+#: exec_cmd.c:52 exec_cmd.c:104 exec_cmd.c:156 exec_cmd.c:547 exec_cmd.c:895
+#: exec_cmd.c:985 exec_cmd.c:1400 exec_cmd.c:1676
 msgid "Error! Export folder is not available:"
 msgstr "错误！导出文件夹不可用："
 
@@ -36,15 +37,15 @@ msgstr "正在导出存档..."
 msgid "Error! Can't export save game to:"
 msgstr "错误！无法导出存档至："
 
-#: exec_cmd.c:140 exec_cmd.c:1621
+#: exec_cmd.c:140 exec_cmd.c:1691
 msgid "Zip file successfully saved to:"
 msgstr "Zip 压缩包已成功保存至："
 
-#: exec_cmd.c:150 exec_cmd.c:383
+#: exec_cmd.c:150 exec_cmd.c:385
 msgid "Copy operation cancelled!"
 msgstr "复制操作已取消！"
 
-#: exec_cmd.c:150 exec_cmd.c:383
+#: exec_cmd.c:150 exec_cmd.c:385
 msgid "Same source and destination."
 msgstr "源路径与目标路径相同。"
 
@@ -52,7 +53,7 @@ msgstr "源路径与目标路径相同。"
 msgid "Copying files..."
 msgstr "正在复制文件..."
 
-#: exec_cmd.c:169 exec_cmd.c:392
+#: exec_cmd.c:169 exec_cmd.c:394
 msgid "Files successfully copied to:"
 msgstr "文件已成功复制至："
 
@@ -60,11 +61,11 @@ msgstr "文件已成功复制至："
 msgid "Error! Can't copy save game to:"
 msgstr "错误！无法复制存档至："
 
-#: exec_cmd.c:250 exec_cmd.c:637
+#: exec_cmd.c:250 exec_cmd.c:639
 msgid "Save game already exists:"
 msgstr "存档已存在："
 
-#: exec_cmd.c:250 exec_cmd.c:637
+#: exec_cmd.c:250 exec_cmd.c:639
 msgid "Overwrite?"
 msgstr "是否覆盖？"
 
@@ -80,350 +81,358 @@ msgstr "创建存档文件夹出错！"
 msgid "Error! Can't update save game:"
 msgstr "错误！无法更新存档："
 
-#: exec_cmd.c:387
+#: exec_cmd.c:389
 msgid "Copying save game..."
 msgstr "正在复制存档..."
 
-#: exec_cmd.c:394
+#: exec_cmd.c:396
 msgid "Error! Can't copy Save-game folder:"
 msgstr "错误！无法复制存档文件夹："
 
-#: exec_cmd.c:405 exec_cmd.c:896
+#: exec_cmd.c:407 exec_cmd.c:899
 msgid "Copying all saves..."
 msgstr "正在复制所有存档..."
 
-#: exec_cmd.c:423
+#: exec_cmd.c:425
 msgid "Saves copied to HDD"
 msgstr "存档已复制到硬盘(HDD)"
 
-#: exec_cmd.c:459
+#: exec_cmd.c:461
 msgid "All files extracted to:"
 msgstr "所有文件已解压至："
 
-#: exec_cmd.c:461
+#: exec_cmd.c:463
 #, c-format
 msgid "Error: %s couldn't be extracted"
 msgstr "错误：%s 无法解压"
 
-#: exec_cmd.c:474
+#: exec_cmd.c:476
 msgid "Error! Keystone file is not available:"
 msgstr "错误！Keystone 文件不可用："
 
-#: exec_cmd.c:483
+#: exec_cmd.c:485
 msgid "keystone fingerprint:"
 msgstr "Keystone 指纹："
 
-#: exec_cmd.c:503 exec_cmd.c:1497
+#: exec_cmd.c:505 exec_cmd.c:1567
 msgid "Applying changes..."
 msgstr "正在应用修改..."
 
-#: exec_cmd.c:532
+#: exec_cmd.c:534
 msgid "Trophies successfully updated!"
 msgstr "奖杯更新成功！"
 
-#: exec_cmd.c:534
+#: exec_cmd.c:536
 msgid "Error! Couldn't update trophies"
 msgstr "错误！无法更新奖杯"
 
-#: exec_cmd.c:549
+#: exec_cmd.c:551
 msgid "Exporting Trophies..."
 msgstr "正在导出奖杯..."
 
-#: exec_cmd.c:567
+#: exec_cmd.c:569
 msgid "Trophies successfully saved to:"
 msgstr "奖杯已成功保存至："
 
-#: exec_cmd.c:578
+#: exec_cmd.c:580
 msgid "Dumping all fingerprints..."
 msgstr "正在提取所有指纹..."
 
-#: exec_cmd.c:603
+#: exec_cmd.c:605
 msgid "All fingerprints dumped to:"
 msgstr "所有指纹已提取至："
 
-#: exec_cmd.c:612
+#: exec_cmd.c:614
 msgid "Enter the Account ID"
 msgstr "请输入账号 ID"
 
-#: exec_cmd.c:617
+#: exec_cmd.c:619
 msgid "Error! Account ID is not valid"
 msgstr "错误！账号 ID 无效"
 
-#: exec_cmd.c:624
+#: exec_cmd.c:626
 msgid "Error! Couldn't activate user account"
 msgstr "错误！无法激活用户账号"
 
-#: exec_cmd.c:628
+#: exec_cmd.c:630
 msgid "Account successfully activated!"
 msgstr "账号激活成功！"
 
-#: exec_cmd.c:628
+#: exec_cmd.c:630
 msgid "A system reboot is required"
 msgstr "需要重启系统生效"
 
-#: exec_cmd.c:643
+#: exec_cmd.c:645
 msgid "Encrypted save copied successfully!"
 msgstr "加密存档复制成功！"
 
-#: exec_cmd.c:647
+#: exec_cmd.c:649
 msgid "Error: can't create HDD save"
 msgstr "错误：无法创建硬盘存档"
 
-#: exec_cmd.c:651 exec_cmd.c:655
+#: exec_cmd.c:653 exec_cmd.c:657
 msgid "Error: can't copy file"
 msgstr "错误：无法复制文件"
 
-#: exec_cmd.c:659
+#: exec_cmd.c:661
 msgid "Error! Can't mount encrypted save."
 msgstr "错误！无法挂载加密存档。"
 
-#: exec_cmd.c:659
+#: exec_cmd.c:661
 msgid "(incompatible save-game firmware version)"
 msgstr "(存档固件版本不兼容)"
 
-#: exec_cmd.c:663
+#: exec_cmd.c:665
 #, c-format
 msgid "Error: can't copy save %s"
 msgstr "错误：无法复制存档 %s"
 
-#: exec_cmd.c:684
+#: exec_cmd.c:686
 msgid "Keystone successfully copied to:"
 msgstr "Keystone 成功复制至："
 
-#: exec_cmd.c:686
+#: exec_cmd.c:688
 msgid "Error! Keystone couldn't be copied"
 msgstr "错误！无法复制 Keystone"
 
-#: exec_cmd.c:873
+#: exec_cmd.c:876
 msgid "Web Server listening on:"
 msgstr "Web 服务器监听地址："
 
-#: exec_cmd.c:873
+#: exec_cmd.c:876
 msgid "Press OK to stop the Server."
 msgstr "按 OK 键停止服务器。"
 
-#: exec_cmd.c:876
+#: exec_cmd.c:879
 msgid "Error starting Web Server!"
 msgstr "启动 Web 服务器出错！"
 
-#: exec_cmd.c:917
+#: exec_cmd.c:920
 msgid "Saves copied to:"
 msgstr "存档已复制至："
 
-#: exec_cmd.c:929
+#: exec_cmd.c:932
 msgid "Exporting all VMC saves..."
 msgstr "正在导出所有 VMC (虚拟记忆卡) 存档..."
 
-#: exec_cmd.c:949
+#: exec_cmd.c:952
 msgid "Saves exported to:"
 msgstr "存档已导出至："
 
-#: exec_cmd.c:969 exec_cmd.c:1025
+#: exec_cmd.c:972 exec_cmd.c:1028
 msgid "Save successfully exported to:"
 msgstr "存档成功导出至："
 
-#: exec_cmd.c:971 exec_cmd.c:1027
+#: exec_cmd.c:974 exec_cmd.c:1030
 msgid "Error exporting save:"
 msgstr "导出存档出错："
 
-#: exec_cmd.c:989
+#: exec_cmd.c:992
 msgid "Memory card successfully exported to:"
 msgstr "记忆卡成功导出至："
 
-#: exec_cmd.c:991
+#: exec_cmd.c:994
 msgid "Error! Failed to export PS1 memory card"
 msgstr "错误！导出 PS1 记忆卡失败"
 
-#: exec_cmd.c:1034
+#: exec_cmd.c:1037
 msgid "Importing PS2 save..."
 msgstr "正在导入 PS2 存档..."
 
-#: exec_cmd.c:1066
+#: exec_cmd.c:1069
 msgid "Successfully imported to VMC:"
 msgstr "成功导入至 VMC："
 
-#: exec_cmd.c:1068
+#: exec_cmd.c:1071
 msgid "Error importing save:"
 msgstr "导入存档出错："
 
-#: exec_cmd.c:1076
+#: exec_cmd.c:1079
 #, c-format
 msgid "Do you want to delete %s?"
 msgstr "您确定要删除 %s 吗？"
 
-#: exec_cmd.c:1106
+#: exec_cmd.c:1109
 msgid "Save successfully deleted:"
 msgstr "存档已成功删除："
 
-#: exec_cmd.c:1108
+#: exec_cmd.c:1111
 msgid "Error! Couldn't delete save:"
 msgstr "错误！无法删除存档："
 
-#: exec_cmd.c:1222
+#: exec_cmd.c:1225
+msgid "Preparing upload..."
+msgstr ""
+
+#: exec_cmd.c:1301
+msgid "Updating games index..."
+msgstr "正在更新游戏索引..."
+
+#: exec_cmd.c:1316 exec_cmd.c:1320
+msgid "Sync with FTP Server..."
+msgstr "正在与 FTP 服务器同步..."
+
+#: exec_cmd.c:1335
 #, c-format
 msgid "Do you want to upload %s?"
 msgstr "您确定要上传 %s 吗？"
 
-#: exec_cmd.c:1225
-msgid "Sync with FTP Server..."
-msgstr "正在与 FTP 服务器同步..."
-
-#: exec_cmd.c:1264
-msgid "Error! Couldn't zip save:"
-msgstr "错误！无法压缩存档："
-
-#: exec_cmd.c:1299
-msgid "Updating games index..."
-msgstr "正在更新游戏索引..."
-
-#: exec_cmd.c:1321
+#: exec_cmd.c:1344
 msgid "Save successfully uploaded:"
 msgstr "存档上传成功："
 
-#: exec_cmd.c:1323
+#: exec_cmd.c:1346
 msgid "Error! Couldn't upload save:"
 msgstr "错误！无法上传存档："
 
-#: exec_cmd.c:1341
+#: exec_cmd.c:1358
+msgid "Do you want to upload the selected saves to FTP?"
+msgstr ""
+
+#: exec_cmd.c:1388
+msgid "Saves uploaded to FTP"
+msgstr ""
+
+#: exec_cmd.c:1406
 msgid "Exporting PS2 memory card..."
 msgstr "正在导出 PS2 记忆卡..."
 
-#: exec_cmd.c:1346
+#: exec_cmd.c:1411
 msgid "File successfully saved to:"
 msgstr "文件成功保存至："
 
-#: exec_cmd.c:1348
+#: exec_cmd.c:1413
 msgid "Error! Failed to export PS2 memory card"
 msgstr "错误！导出 PS2 记忆卡失败"
 
-#: exec_cmd.c:1360
+#: exec_cmd.c:1425
 msgid "Error getting PS4 user list!"
 msgstr "获取 PS4 用户列表出错！"
 
-#: exec_cmd.c:1369
+#: exec_cmd.c:1434
 #, c-format
 msgid "Database rebuild for user %s failed!"
 msgstr "用户 %s 的数据库重建失败！"
 
-#: exec_cmd.c:1374
+#: exec_cmd.c:1439
 msgid "Database rebuilt successfully!"
 msgstr "数据库重建成功！"
 
-#: exec_cmd.c:1374 exec_cmd.c:1907
+#: exec_cmd.c:1439 exec_cmd.c:1983
 msgid "Log out for changes to take effect"
 msgstr "请注销以使更改生效"
 
-#: exec_cmd.c:1550
+#: exec_cmd.c:1620
 msgid "Error! Account changes couldn't be applied"
 msgstr "错误！无法应用账号修改"
 
-#: exec_cmd.c:1554
+#: exec_cmd.c:1624
 msgid "Error! Cheat codes couldn't be applied"
 msgstr "错误！无法应用金手指代码"
 
-#: exec_cmd.c:1556
+#: exec_cmd.c:1626
 #, c-format
 msgid "Save %s successfully modified!"
 msgstr "存档 %s 修改成功！"
 
-#: exec_cmd.c:1573
+#: exec_cmd.c:1643
 msgid "Resigning all saves..."
 msgstr "正在重签名所有存档..."
 
-#: exec_cmd.c:1593
+#: exec_cmd.c:1663
 #, c-format
 msgid "Error: %d Saves couldn't be resigned"
 msgstr "错误：%d 个存档无法重签名"
 
-#: exec_cmd.c:1595
+#: exec_cmd.c:1665
 msgid "All saves successfully resigned!"
 msgstr "所有存档重签名成功！"
 
-#: exec_cmd.c:1616
+#: exec_cmd.c:1686
 msgid "Exporting system database..."
 msgstr "正在导出系统数据库..."
 
-#: exec_cmd.c:1632
+#: exec_cmd.c:1702
 #, c-format
 msgid "DB Backup %s successfully restored!"
 msgstr "数据库备份 %s 恢复成功！"
 
-#: exec_cmd.c:1634
+#: exec_cmd.c:1704
 #, c-format
 msgid "Error! Backup %s couldn't be restored"
 msgstr "错误！备份 %s 无法恢复"
 
-#: exec_cmd.c:1657
+#: exec_cmd.c:1727
 msgid "File successfully exported to:"
 msgstr "文件成功导出至："
 
-#: exec_cmd.c:1659
+#: exec_cmd.c:1729
 #, c-format
 msgid "Error! File %s couldn't be exported"
 msgstr "错误！文件 %s 无法导出"
 
-#: exec_cmd.c:1669
+#: exec_cmd.c:1739
 msgid "Error! Can't find decrypted save-game file:"
 msgstr "错误！找不到已解密的存档文件："
 
-#: exec_cmd.c:1677
+#: exec_cmd.c:1747
 msgid "File successfully imported to:"
 msgstr "文件成功导入至："
 
-#: exec_cmd.c:1679
+#: exec_cmd.c:1749
 #, c-format
 msgid "Error! File %s couldn't be imported"
 msgstr "错误！文件 %s 无法导入"
 
-#: exec_cmd.c:1687
+#: exec_cmd.c:1757
 msgid "Download URL"
 msgstr "下载链接"
 
-#: exec_cmd.c:1694
+#: exec_cmd.c:1764
 msgid "File successfully downloaded to:"
 msgstr "文件已成功下载至："
 
-#: exec_cmd.c:1696
+#: exec_cmd.c:1766
 msgid "Error! File couldn't be downloaded"
 msgstr "错误！文件下载失败"
 
-#: exec_cmd.c:1706
+#: exec_cmd.c:1776
 msgid "Enable Browser history?"
 msgstr "启用浏览器历史记录？"
 
-#: exec_cmd.c:1707
+#: exec_cmd.c:1777
 msgid "Browser history enabled"
 msgstr "浏览器历史记录已启用"
 
-#: exec_cmd.c:1712
+#: exec_cmd.c:1782
 msgid "Disable Browser history?"
 msgstr "禁用浏览器历史记录？"
 
-#: exec_cmd.c:1717
+#: exec_cmd.c:1787
 msgid "Browser history disabled"
 msgstr "浏览器历史记录已禁用"
 
-#: exec_cmd.c:1907
+#: exec_cmd.c:1983
 msgid "DLC database fixed successfully!"
 msgstr "DLC 数据库修复成功！"
 
-#: exec_cmd.c:1909
+#: exec_cmd.c:1985
 msgid "DLC Database rebuild failed!"
 msgstr "DLC 数据库重建失败！"
 
-#: exec_cmd.c:1951
+#: exec_cmd.c:2027
 msgid "Save successfully imported:"
 msgstr "存档导入成功："
 
-#: exec_cmd.c:1953
+#: exec_cmd.c:2029
 msgid "Error! Couldn't import save:"
 msgstr "错误！无法导入存档："
 
-#: http.c:124
+#: http.c:122
 msgid "Downloading..."
 msgstr "正在下载..."
 
-#: http.c:226
+#: http.c:256
 msgid "Uploading..."
 msgstr "正在上传..."
 
@@ -456,42 +465,46 @@ msgid "Value Down"
 msgstr "减少数值"
 
 #: main.c:203
+msgid "Search"
+msgstr ""
+
+#: main.c:203
 msgid "Exit"
 msgstr "退出"
 
-#: main.c:483
+#: main.c:484
 msgid "HDD Saves"
 msgstr "硬盘(HDD)存档"
 
-#: main.c:484
+#: main.c:485
 msgid "USB Saves"
 msgstr "USB 设备存档"
 
-#: main.c:485 saves.c:688
+#: main.c:486 saves.c:688
 msgid "Trophies"
 msgstr "奖杯"
 
-#: main.c:486
+#: main.c:487
 msgid "User Tools"
 msgstr "用户工具箱"
 
-#: main.c:487
+#: main.c:488
 msgid "Online Database"
 msgstr "在线数据库"
 
-#: main.c:488
+#: main.c:489
 msgid "PS1 Virtual Memory Card"
 msgstr "PS1 虚拟记忆卡"
 
-#: main.c:489
+#: main.c:490
 msgid "PS2 Virtual Memory Card"
 msgstr "PS2 虚拟记忆卡"
 
-#: main.c:716
+#: main.c:666
 msgid "Debug Logging Enabled"
 msgstr "调试日志已启用"
 
-#: main.c:725
+#: main.c:675
 msgid "Successfully installed local application data"
 msgstr "成功安装本地应用数据"
 
@@ -547,28 +560,36 @@ msgstr "正在加载存档..."
 msgid "No save-games found"
 msgstr "未找到存档"
 
-#: menu_main.c:142
+#: menu_main.c:165
 msgid "Saving PS2 Memory Card..."
 msgstr "正在保存 PS2 记忆卡..."
 
-#: menu_main.c:345 menu_main.c:724
+#: menu_main.c:368 menu_main.c:773
 msgid "Patch view"
 msgstr "补丁视图"
 
-#: menu_main.c:473
+#: menu_main.c:496
 msgid "No data found in folder:"
 msgstr "文件夹中未找到数据："
 
-#: menu_main.c:525
+#: menu_main.c:548
 msgid "Exit to XMB?"
 msgstr "退出到主界面(XMB)？"
 
-#: menu_main.c:665
+#: menu_main.c:688
 #, c-format
 msgid "Save changes to %s?"
 msgstr "保存更改至 %s 吗？"
 
-#: menu_main.c:761
+#: menu_main.c:721
+msgid "Search bytes (hex)"
+msgstr ""
+
+#: menu_main.c:737
+msgid "Value not found: 0x"
+msgstr ""
+
+#: menu_main.c:810
 msgid "Failed to load:"
 msgstr "加载失败："
 
@@ -696,7 +717,7 @@ msgstr "复制奖杯至 USB"
 msgid "Export Trophy files to Zip"
 msgstr "导出奖杯文件为 Zip"
 
-#: saves.c:666 saves.c:2168
+#: saves.c:666 saves.c:2178
 msgid "Save .Zip to USB"
 msgstr "保存 .Zip 至 USB"
 
@@ -836,135 +857,143 @@ msgstr "激活离线账号"
 msgid "Extract"
 msgstr "解压"
 
-#: saves.c:1731 saves.c:1786
+#: saves.c:1732 saves.c:1787
 msgid "Bulk Save Management"
 msgstr "批量存档管理"
 
-#: saves.c:1739
+#: saves.c:1740
 msgid "Resign selected Saves"
 msgstr "重签名选中的存档"
 
-#: saves.c:1742
+#: saves.c:1743
 msgid "Resign all decrypted Saves"
 msgstr "重签名所有已解密的存档"
 
-#: saves.c:1745
+#: saves.c:1746
 msgid "Copy selected Saves to HDD"
 msgstr "复制选中的存档至硬盘(HDD)"
 
-#: saves.c:1748
+#: saves.c:1749
 msgid "Copy all Saves to HDD"
 msgstr "复制所有存档至硬盘(HDD)"
 
-#: saves.c:1751 saves.c:1802
+#: saves.c:1752 saves.c:1812
 msgid "Start local Web Server"
 msgstr "启动本地 Web 服务器"
 
-#: saves.c:1754
+#: saves.c:1755
 msgid "Dump all decrypted Save Fingerprints"
 msgstr "提取所有已解密存档的指纹"
 
-#: saves.c:1794 saves.c:1929 saves.c:2034
+#: saves.c:1795 saves.c:1939 saves.c:2044
 msgid "Copy selected Saves to USB"
 msgstr "复制选中的存档至 USB"
 
-#: saves.c:1795 saves.c:1799
+#: saves.c:1796 saves.c:1800
 msgid "Copy Saves to USB"
 msgstr "复制存档至 USB"
 
-#: saves.c:1798 saves.c:1932 saves.c:2037
+#: saves.c:1799 saves.c:1942 saves.c:2047
 msgid "Copy all Saves to USB"
 msgstr "复制所有存档至 USB"
 
 #: saves.c:1805
+msgid "Upload selected Saves to FTP"
+msgstr ""
+
+#: saves.c:1808
+msgid "Upload all Saves to FTP"
+msgstr ""
+
+#: saves.c:1815
 msgid "Dump all Save Fingerprints"
 msgstr "提取所有存档指纹"
 
-#: saves.c:1919 saves.c:2024
+#: saves.c:1929 saves.c:2034
 msgid "Memory Card Management"
 msgstr "记忆卡管理"
 
-#: saves.c:1928 saves.c:2033
+#: saves.c:1938 saves.c:2043
 msgid "Export selected Saves to USB"
 msgstr "导出选中的存档至 USB"
 
-#: saves.c:1931 saves.c:2036
+#: saves.c:1941 saves.c:2046
 msgid "Export all Saves to USB"
 msgstr "导出所有存档至 USB"
 
-#: saves.c:1936 saves.c:2042
+#: saves.c:1946 saves.c:2052
 msgid "Virtual Memory Card"
 msgstr "虚拟记忆卡(VMC)"
 
-#: saves.c:1939
+#: saves.c:1949
 msgid "Export Memory Card to .VM1 format"
 msgstr "导出记忆卡为 .VM1 格式"
 
-#: saves.c:1941
+#: saves.c:1951
 msgid "Save .VM1 Memory Card to USB"
 msgstr "保存 .VM1 记忆卡至 USB"
 
-#: saves.c:1943
+#: saves.c:1953
 msgid "Save .VM1 Memory Card to HDD"
 msgstr "保存 .VM1 记忆卡至硬盘(HDD)"
 
-#: saves.c:1948
+#: saves.c:1958
 msgid "Export Memory Card to .VMP format"
 msgstr "导出记忆卡为 .VMP 格式"
 
-#: saves.c:1950
+#: saves.c:1960
 msgid "Save .VMP Memory Card to USB"
 msgstr "保存 .VMP 记忆卡至 USB"
 
-#: saves.c:1952
+#: saves.c:1962
 msgid "Save .VMP Memory Card to HDD"
 msgstr "保存 .VMP 记忆卡至硬盘(HDD)"
 
-#: saves.c:1958 saves.c:1971 saves.c:2063 saves.c:2075
+#: saves.c:1968 saves.c:1981 saves.c:2073 saves.c:2085
 msgid "Import Saves to Virtual MemCard"
 msgstr "导入存档至虚拟记忆卡"
 
-#: saves.c:2045
+#: saves.c:2055
 msgid "Export Memory Card to .VM2 format"
 msgstr "导出记忆卡为 .VM2 格式"
 
-#: saves.c:2047
+#: saves.c:2057
 msgid "Save .VM2 Memory Card to USB"
 msgstr "保存 .VM2 记忆卡至 USB"
 
-#: saves.c:2049
+#: saves.c:2059
 msgid "Save .VM2 Memory Card to HDD"
 msgstr "保存 .VM2 记忆卡至硬盘(HDD)"
 
-#: saves.c:2054
+#: saves.c:2064
 msgid "Export Memory Card to .VMC format (No ECC)"
 msgstr "导出记忆卡为 .VMC 格式 (无 ECC校验)"
 
-#: saves.c:2056
+#: saves.c:2066
 msgid "Save .VMC Memory Card to USB"
 msgstr "保存 .VMC 记忆卡至 USB"
 
-#: saves.c:2058
+#: saves.c:2068
 msgid "Save .VMC Memory Card to HDD"
 msgstr "保存 .VMC 记忆卡至硬盘(HDD)"
 
-#: saves.c:2151
+#: saves.c:2161
 msgid "Export Trophies"
 msgstr "导出奖杯"
 
-#: saves.c:2159
+#: saves.c:2169
 msgid "Backup selected Trophies to USB"
 msgstr "备份选中的奖杯至 USB"
 
-#: saves.c:2160 saves.c:2164
+#: saves.c:2170 saves.c:2174
 msgid "Save Trophies to USB"
 msgstr "保存奖杯至 USB"
 
-#: saves.c:2163
+#: saves.c:2173
 msgid "Backup all Trophies to USB"
 msgstr "备份所有奖杯至 USB"
 
-#: saves.c:2167
+#: saves.c:2177
 msgid "Export all encrypted Trophies to .Zip"
 msgstr "导出所有加密奖杯为 .Zip"
 
@@ -1056,7 +1085,7 @@ msgstr "在线数据库 URL 已更改为："
 msgid "Enter the FTP server URL"
 msgstr "请输入 FTP 服务器 URL"
 
-#: settings.c:159
+#: settings.c:160
 msgid "Testing connection..."
 msgstr "正在测试连接..."
 
@@ -1117,3 +1146,6 @@ msgstr "用户设置"
 #: zip_util.c:168 zip_util.c:249 zip_util.c:289
 msgid "Extracting files..."
 msgstr "正在解压文件..."
+
+#~ msgid "Error! Couldn't zip save:"
+#~ msgstr "错误！无法压缩存档："

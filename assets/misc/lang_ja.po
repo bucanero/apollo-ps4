@@ -1150,8 +1150,5 @@ msgstr "ユーザー設定"
 msgid "Extracting files..."
 msgstr "ファイルを抽出中..."
 
-#~ msgid "Exporting Trophies ..."
-#~ msgstr "トロフィーのエクスポート中..."
-
 #~ msgid "Error! Couldn't zip save:"
 #~ msgstr "エラー!保存を圧縮できませんでした:"

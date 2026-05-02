@@ -265,7 +265,7 @@ msgstr "Σφάλμα! Αδυναμία διαγραφής Αποθ.Δεδομέ�
 
 #: exec_cmd.c:1225
 msgid "Preparing upload..."
-msgstr ""
+msgstr "Προετοιμασία μεταφόρτωσης..."
 
 #: exec_cmd.c:1301
 msgid "Updating games index..."
@@ -290,11 +290,11 @@ msgstr "Σφάλμα! Αδυναμία μεταφόρτωσης Αποθ.Δεδ�
 
 #: exec_cmd.c:1358
 msgid "Do you want to upload the selected saves to FTP?"
-msgstr ""
+msgstr "Θέλετε να μεταφορτώσετε τα επιλεγμένα αποθηκευμένα στο FTP;"
 
 #: exec_cmd.c:1388
 msgid "Saves uploaded to FTP"
-msgstr ""
+msgstr "Τα αποθηκευμένα μεταφορτώθηκαν στο FTP"
 
 #: exec_cmd.c:1406
 msgid "Exporting PS2 memory card..."
@@ -469,7 +469,7 @@ msgstr "Μείωση"
 
 #: main.c:203
 msgid "Search"
-msgstr ""
+msgstr "Αναζήτηση"
 
 #: main.c:203
 msgid "Exit"
@@ -586,11 +586,11 @@ msgstr "Αποθήκευση αλλαγών στο %s ;"
 
 #: menu_main.c:721
 msgid "Search bytes (hex)"
-msgstr ""
+msgstr "Αναζήτηση bytes (hex)"
 
 #: menu_main.c:737
 msgid "Value not found: 0x"
-msgstr ""
+msgstr "Η τιμή δεν βρέθηκε: 0x"
 
 #: menu_main.c:810
 msgid "Failed to load:"
@@ -903,11 +903,11 @@ msgstr "Αντιγραφή όλων των Αποθ.Δεδομένων στο Σ
 
 #: saves.c:1805
 msgid "Upload selected Saves to FTP"
-msgstr ""
+msgstr "Μεταφόρτωση επιλεγμένων αποθηκευμένων στο FTP"
 
 #: saves.c:1808
 msgid "Upload all Saves to FTP"
-msgstr ""
+msgstr "Μεταφόρτωση όλων των αποθηκευμένων στο FTP"
 
 #: saves.c:1815
 msgid "Dump all Save Fingerprints"

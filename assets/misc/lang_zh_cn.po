@@ -262,7 +262,7 @@ msgstr "错误！无法删除存档："
 
 #: exec_cmd.c:1225
 msgid "Preparing upload..."
-msgstr ""
+msgstr "正在准备上传..."
 
 #: exec_cmd.c:1301
 msgid "Updating games index..."
@@ -287,11 +287,11 @@ msgstr "错误！无法上传存档："
 
 #: exec_cmd.c:1358
 msgid "Do you want to upload the selected saves to FTP?"
-msgstr ""
+msgstr "是否将选定的存档上传至 FTP？"
 
 #: exec_cmd.c:1388
 msgid "Saves uploaded to FTP"
-msgstr ""
+msgstr "存档已上传至 FTP"
 
 #: exec_cmd.c:1406
 msgid "Exporting PS2 memory card..."
@@ -466,7 +466,7 @@ msgstr "减少数值"
 
 #: main.c:203
 msgid "Search"
-msgstr ""
+msgstr "搜索"
 
 #: main.c:203
 msgid "Exit"
@@ -583,11 +583,11 @@ msgstr "保存更改至 %s 吗？"
 
 #: menu_main.c:721
 msgid "Search bytes (hex)"
-msgstr ""
+msgstr "搜索字节 (hex)"
 
 #: menu_main.c:737
 msgid "Value not found: 0x"
-msgstr ""
+msgstr "未找到值：0x"
 
 #: menu_main.c:810
 msgid "Failed to load:"
@@ -899,11 +899,11 @@ msgstr "复制所有存档至 USB"
 
 #: saves.c:1805
 msgid "Upload selected Saves to FTP"
-msgstr ""
+msgstr "将选定的存档上传至 FTP"
 
 #: saves.c:1808
 msgid "Upload all Saves to FTP"
-msgstr ""
+msgstr "将所有存档上传至 FTP"
 
 #: saves.c:1815
 msgid "Dump all Save Fingerprints"

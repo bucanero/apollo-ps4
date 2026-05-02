@@ -265,7 +265,7 @@ msgstr "¡Error! No se pudo eliminar partida:"
 
 #: exec_cmd.c:1225
 msgid "Preparing upload..."
-msgstr ""
+msgstr "Preparando subida..."
 
 #: exec_cmd.c:1301
 msgid "Updating games index..."
@@ -290,11 +290,11 @@ msgstr "¡Error! No se pudo subir partida:"
 
 #: exec_cmd.c:1358
 msgid "Do you want to upload the selected saves to FTP?"
-msgstr ""
+msgstr "¿Desea subir las partidas seleccionadas al FTP?"
 
 #: exec_cmd.c:1388
 msgid "Saves uploaded to FTP"
-msgstr ""
+msgstr "Partidas subidas al FTP"
 
 #: exec_cmd.c:1406
 msgid "Exporting PS2 memory card..."
@@ -469,7 +469,7 @@ msgstr "Valor Abajo"
 
 #: main.c:203
 msgid "Search"
-msgstr ""
+msgstr "Buscar"
 
 #: main.c:203
 msgid "Exit"
@@ -586,11 +586,11 @@ msgstr "¿Guardar cambios en %s?"
 
 #: menu_main.c:721
 msgid "Search bytes (hex)"
-msgstr ""
+msgstr "Buscar bytes (hex)"
 
 #: menu_main.c:737
 msgid "Value not found: 0x"
-msgstr ""
+msgstr "Valor no encontrado: 0x"
 
 #: menu_main.c:810
 msgid "Failed to load:"
@@ -902,11 +902,11 @@ msgstr "Copiar Todas las Partidas a USB"
 
 #: saves.c:1805
 msgid "Upload selected Saves to FTP"
-msgstr ""
+msgstr "Subir partidas seleccionadas al FTP"
 
 #: saves.c:1808
 msgid "Upload all Saves to FTP"
-msgstr ""
+msgstr "Subir todas las partidas al FTP"
 
 #: saves.c:1815
 msgid "Dump all Save Fingerprints"

@@ -265,7 +265,7 @@ msgstr "오류! 세이브를 삭제할 수 없습니다:"
 
 #: exec_cmd.c:1225
 msgid "Preparing upload..."
-msgstr ""
+msgstr "업로드 준비 중..."
 
 #: exec_cmd.c:1301
 msgid "Updating games index..."
@@ -290,11 +290,11 @@ msgstr "오류! 세이브를 업로드할 수 없습니다:"
 
 #: exec_cmd.c:1358
 msgid "Do you want to upload the selected saves to FTP?"
-msgstr ""
+msgstr "선택한 세이브를 FTP에 업로드하시겠습니까?"
 
 #: exec_cmd.c:1388
 msgid "Saves uploaded to FTP"
-msgstr ""
+msgstr "세이브가 FTP에 업로드되었습니다"
 
 #: exec_cmd.c:1406
 msgid "Exporting PS2 memory card..."
@@ -469,7 +469,7 @@ msgstr "값 감소"
 
 #: main.c:203
 msgid "Search"
-msgstr ""
+msgstr "검색"
 
 #: main.c:203
 msgid "Exit"
@@ -586,11 +586,11 @@ msgstr "%s에 변경 사항을 저장하시겠습니까?"
 
 #: menu_main.c:721
 msgid "Search bytes (hex)"
-msgstr ""
+msgstr "바이트 검색 (hex)"
 
 #: menu_main.c:737
 msgid "Value not found: 0x"
-msgstr ""
+msgstr "값을 찾을 수 없습니다: 0x"
 
 #: menu_main.c:810
 msgid "Failed to load:"
@@ -902,11 +902,11 @@ msgstr "모든 세이브를 USB에 복사"
 
 #: saves.c:1805
 msgid "Upload selected Saves to FTP"
-msgstr ""
+msgstr "선택한 세이브를 FTP에 업로드"
 
 #: saves.c:1808
 msgid "Upload all Saves to FTP"
-msgstr ""
+msgstr "모든 세이브를 FTP에 업로드"
 
 #: saves.c:1815
 msgid "Dump all Save Fingerprints"

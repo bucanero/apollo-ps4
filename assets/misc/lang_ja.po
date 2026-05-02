@@ -131,7 +131,7 @@ msgstr "エラー!トロフィーを更新できませんでした"
 
 #: exec_cmd.c:551
 msgid "Exporting Trophies..."
-msgstr ""
+msgstr "トロフィーのエクスポート中..."
 
 #: exec_cmd.c:569
 msgid "Trophies successfully saved to:"
@@ -1149,9 +1149,6 @@ msgstr "ユーザー設定"
 #: zip_util.c:168 zip_util.c:249 zip_util.c:289
 msgid "Extracting files..."
 msgstr "ファイルを抽出中..."
-
-#~ msgid "Exporting Trophies ..."
-#~ msgstr "トロフィーのエクスポート中..."
 
 #~ msgid "Error! Couldn't zip save:"
 #~ msgstr "エラー!保存を圧縮できませんでした:"

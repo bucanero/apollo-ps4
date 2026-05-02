@@ -131,7 +131,7 @@ msgstr "Hiba! Nem sikerült frissíteni a trófeákat"
 
 #: exec_cmd.c:551
 msgid "Exporting Trophies..."
-msgstr ""
+msgstr "Trófeák exportálása..."
 
 #: exec_cmd.c:569
 msgid "Trophies successfully saved to:"
@@ -1149,9 +1149,6 @@ msgstr "Felhasználói beállítások"
 #: zip_util.c:168 zip_util.c:249 zip_util.c:289
 msgid "Extracting files..."
 msgstr "Fájlok kicsomagolása..."
-
-#~ msgid "Exporting Trophies ..."
-#~ msgstr "Trófeák exportálása..."
 
 #~ msgid "Error! Couldn't zip save:"
 #~ msgstr "Hiba! Nem sikerült menteni a zip-et:"

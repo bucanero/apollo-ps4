@@ -269,7 +269,7 @@ msgstr "Préparation de l'envoi..."
 
 #: exec_cmd.c:1301
 msgid "Updating games index..."
-msgstr ""
+msgstr "Mise à jour de l'index des jeux..."
 
 #: exec_cmd.c:1316 exec_cmd.c:1320
 msgid "Sync with FTP Server..."
@@ -839,8 +839,7 @@ msgstr "Afficher/Masquer l'historique du navigateur Web"
 
 #: saves.c:1156
 msgid "Rebuild App.db Database (Restore missing XMB items)"
-msgstr ""
-"Reconstruire la base de données App.db (Restaurer les éléments XMB manquants)"
+msgstr "Reconstruire la base de données App.db (Restaurer les éléments XMB manquants)"
 
 #: saves.c:1160
 msgid "Rebuild DLC Database (addcont.db)"
@@ -1112,8 +1111,7 @@ msgstr "Dossier de Cache Local nettoyé :"
 
 #: settings.c:203
 msgid "Error! Can't download data update file!"
-msgstr ""
-"Erreur! Impossible de télécharger le fichier de mise à jour des données!"
+msgstr "Erreur! Impossible de télécharger le fichier de mise à jour des données!"
 
 #: settings.c:206
 #, c-format

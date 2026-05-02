@@ -1150,8 +1150,5 @@ msgstr "Felhasználói beállítások"
 msgid "Extracting files..."
 msgstr "Fájlok kicsomagolása..."
 
-#~ msgid "Exporting Trophies ..."
-#~ msgstr "Trófeák exportálása..."
-
 #~ msgid "Error! Couldn't zip save:"
 #~ msgstr "Hiba! Nem sikerült menteni a zip-et:"

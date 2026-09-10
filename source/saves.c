@@ -587,7 +587,7 @@ int ReadCodes(save_entry_t * save)
 
 	node = list_tail(save->codes);
 	LOG("Loading BSD codes '%s'...", filePath);
-	load_patch_code_list(buffer, save->codes, &get_file_entries, save->path);
+	apollo_load_code_list(buffer, save->codes, &get_file_entries, save->path);
 	free (buffer);
 
 	// Check for any codes that are not valid for this game

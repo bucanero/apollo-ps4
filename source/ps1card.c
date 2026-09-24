@@ -222,7 +222,9 @@ static void setPsvHeader(const char* saveFilename, uint32_t saveLength, FILE* fp
     psvSave[0x61] = 0x90;
 
     memcpy(&psvSave[0x08], "www.bucanero.com.ar", 20);
-    memcpy(&psvSave[0x64], saveFilename, 20);
+    //Save filename field is 0x20 bytes, but saveName holds at most 20 chars + NUL,
+    //so bound the copy to the source and leave the rest of the field zeroed
+    strncpy((char*) &psvSave[0x64], saveFilename, 0x20);
     memcpy(&psvSave[0x40], &saveLength, sizeof(uint32_t));
     memcpy(&psvSave[0x5C], &saveLength, sizeof(uint32_t));
 
@@ -658,6 +660,13 @@ int setSaveBytes(const uint8_t* saveBytes, int saveBytes_Length, int* reqSlots)
     int slotCount = (saveBytes_Length - PS1CARD_HEADER_SIZE) / PS1CARD_BLOCK_SIZE;
     int numberOfBytes = slotCount * PS1CARD_BLOCK_SIZE;
 
+    //A save with no blocks is not a save. Without this the code below
+    //indexes freeSlots[0] before anything has filled it, and reaches
+    //freeSlots[freeSlots_Length - 1] with the length still zero.
+    //Checked before *reqSlots is written, so the caller keeps the -1 it
+    //started with and reports a failure rather than a zero-slot success.
+    if (slotCount < 1) return false;
+
     *reqSlots = slotCount;
     freeSlots_Length = findFreeSlots(slotCount, freeSlots);
 
@@ -841,6 +850,15 @@ int openSingleSave(const char* fileName, int* requiredSlots)
         return false;
     }
 
+    //Every branch below probes a magic byte before it knows the file's
+    //length; the deepest of those is at 0x37. Anything shorter cannot be
+    //a save of any of these formats, and reading it would run off the end.
+    if (inputData_Length < 0x38)
+    {
+        free(inputData);
+        return false;
+    }
+
     //Check the format of the save and if it's supported load it
     //MCS single save
     if (inputData[0] == 'Q')
@@ -868,8 +886,26 @@ int openSingleSave(const char* fileName, int* requiredSlots)
         memcpy(&finalData[PS1CARD_HEADER_SIZE], inputData, inputData_Length);
     }
     //PSV single save (PS3 virtual save)
-    else if (memcmp(inputData, "\0VSP", 4) == 0 && inputData[60] == 1)
+    //The 132 is not cosmetic: the header is copied from offset 100 and the
+    //body length is inputData_Length - 132, which underflows to an enormous
+    //size_t for a shorter file.
+    else if (inputData_Length >= 132 && memcmp(inputData, "\0VSP", 4) == 0 && inputData[60] == 1)
     {
+        //A .PSV carries an HMAC-SHA1 over its contents. Report a signature
+        //that is wrong, or absent, and carry on: tools that predate the
+        //signature wrote saves without a valid one, and those import fine.
+        switch (psv_verify(inputData, inputData_Length))
+        {
+        case PSV_SIG_BAD:
+            LOG("Warning: save signature does not match its contents, importing anyway");
+            break;
+        case PSV_SIG_UNSIGNED:
+            LOG("Warning: save carries no signature, importing anyway");
+            break;
+        default:
+            break;
+        }
+
         // Check if this is a PS1 type save
         finalData_Length = inputData_Length - 4;
         finalData = calloc(1, finalData_Length);

@@ -1249,85 +1249,24 @@ int ReadBackupCodes(save_entry_t * bup)
  */
 void UnloadGameList(list_t * list)
 {
-	list_node_t *node, *nc, *no;
+	list_node_t *node;
 	save_entry_t *item;
-	code_entry_t *code;
-	option_value_t* optval;
 
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
-		if (item->name)
-		{
-			free(item->name);
-			item->name = NULL;
-		}
+		free(item->name);
+		free(item->path);
+		free(item->dir_name);
+		free(item->title_id);
 
-		if (item->path)
-		{
-			free(item->path);
-			item->path = NULL;
-		}
-
-		if (item->dir_name)
-		{
-			free(item->dir_name);
-			item->dir_name = NULL;
-		}
-
-		if (item->title_id)
-		{
-			free(item->title_id);
-			item->title_id = NULL;
-		}
-		
-		if (item->codes)
-		{
-			for (nc = list_head(item->codes); (code = list_get(nc)); nc = list_next(nc))
-			{
-				if (code->codes)
-				{
-					free (code->codes);
-					code->codes = NULL;
-				}
-				if (code->name)
-				{
-					free (code->name);
-					code->name = NULL;
-				}
-				if (code->options && code->options_count > 0)
-				{
-					for (int z = 0; z < code->options_count; z++)
-					{
-						for (no = list_head(code->options[z].opts); (optval = list_get(no)); no = list_next(no))
-						{
-							if (optval->name)
-								free(optval->name);
-							if (optval->value)
-								free(optval->value);
-
-							free(optval);
-						}
-						list_free(code->options[z].opts);
-
-						if (code->options[z].line)
-							free(code->options[z].line);
-					}
-					
-					free (code->options);
-				}
-
-				free(code);
-			}
-			
-			list_free(item->codes);
-			item->codes = NULL;
-		}
+		apollo_free_code_list(item->codes, list_head(item->codes));
+		item->codes = NULL;
 
 		free(item);
 	}
 
 	list_free(list);
-	
+
 	LOG("UnloadGameList() :: Successfully unloaded game list");
 }
 

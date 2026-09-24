@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "ps2icon.h"
+#include "ps2render.h"
 #include "mcio.h"
 
 
@@ -229,34 +230,36 @@ int ps2icon_parse(const uint8_t* iData, size_t len, ps2icon_t *out)
 	return ok;
 }
 
-/* The texture on its own, as the .png export has always produced it. */
-static void* ps2IconTexture(const uint8_t* iData, size_t len)
+/* The parser and ps2render both deal in R,G,B,A bytes. The rest of Apollo PS4
+ * (LoadVmcTexture's SDL masks, svpng) takes each pixel as a native 0xRRGGBBAA
+ * word, so the bytes are reordered on the way out. */
+static uint8_t* rgbaToNative(uint8_t *img, int pixels)
 {
-	ps2icon_t icon;
-	uint32_t *tex;
+	uint32_t *px = (uint32_t*) img;
 
-	if (ps2icon_parse(iData, len, &icon) < 0 && !icon.texture)
-		return NULL;
+	for (int i = 0; px && i < pixels; i++)
+		px[i] = __builtin_bswap32(px[i]);
 
-	tex = icon.texture;
-	icon.texture = NULL;
-	ps2icon_free(&icon);
-
-	return tex;
+	return img;
 }
 
-/* The parser hands back R,G,B,A bytes, which is what ps2render reads. The rest
- * of Apollo PS4 (LoadVmcTexture's SDL masks, svpng) takes each texel as a
- * native 0xRRGGBBAA word, so the bytes are reordered on the way out. */
-static uint8_t* textureToNative(uint32_t *tex)
+/* The save's icon.sys, for the lights the renderer shades the model with.
+ * Returns 0, or negative when there is none worth using. */
+static int readIconSys(const char* folder, ps2_IconSys_t *sys)
 {
-	if (!tex)
-		return NULL;
+	int fd, r;
+	char filePath[256];
 
-	for (int i = 0; i < ICON_TEXELS; i++)
-		tex[i] = __builtin_bswap32(tex[i]);
+	snprintf(filePath, sizeof(filePath), "%s/icon.sys", folder);
 
-	return (uint8_t*) tex;
+	fd = mcio_mcOpen(filePath, sceMcFileAttrReadable | sceMcFileAttrFile);
+	if (fd < 0)
+		return fd;
+
+	r = mcio_mcRead(fd, sys, sizeof(ps2_IconSys_t));
+	mcio_mcClose(fd);
+
+	return (r == sizeof(ps2_IconSys_t) && memcmp(sys->magic, "PS2D", 4) == 0) ? 0 : -1;
 }
 
 /* Read an icon off the mounted card and parse it. Returns 0 or negative. */
@@ -299,13 +302,16 @@ int ps2icon_load(const char* folder, const char* iconfile, ps2icon_t *out)
 	return r;
 }
 
-//Get icon data as bytes
+//Get the icon as a 128x128 image: the 3D model rendered as the PS2 browser
+//would show it, or the flat texture when there is no model to render
 uint8_t* getIconPS2(const char* folder, const char* iconfile)
 {
 	int fd, r;
-	uint8_t *buf, *out;
+	uint8_t *buf, *out = NULL;
 	char filePath[256];
 	struct io_dirent st;
+	ps2icon_t icon;
+	ps2_IconSys_t sys;
 
 	snprintf(filePath, sizeof(filePath), "%s/%s", folder, iconfile);
 
@@ -326,8 +332,24 @@ uint8_t* getIconPS2(const char* folder, const char* iconfile)
 	mcio_mcClose(fd);
 
 	//only the bytes actually read are valid input for the parser
-	out = textureToNative(ps2IconTexture(buf, (r > 0) ? (size_t)r : 0));
+	r = ps2icon_parse(buf, (r > 0) ? (size_t)r : 0, &icon);
 	free(buf);
 
-	return out;
+	//same size as the texture, so callers take either one; with no icon.sys
+	//the renderer falls back to the default lighting
+	if (r == 0 && ps2icon_render(&icon, (readIconSys(folder, &sys) == 0) ? &sys : NULL,
+			128, 4, PS2RENDER_BG_TRANSPARENT, &out) < 0)
+		out = NULL;
+
+	//no usable geometry, or the render failed: the flat texture it always was
+	if (!out) {
+		out = (uint8_t*) icon.texture;
+		icon.texture = NULL;
+	}
+	ps2icon_free(&icon);
+
+	if (!out)
+		return calloc(ICON_TEXELS, sizeof(uint32_t));
+
+	return rgbaToNative(out, ICON_TEXELS);
 }

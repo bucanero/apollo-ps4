@@ -343,7 +343,7 @@ static void SetMenu(int id)
 					http_download(selected_entry->path, "icon0.png", iconfile, 1);
 			}
 			else if (selected_entry->flags & SAVE_FLAG_VMC && selected_entry->type == FILE_TYPE_PS2)
-				LoadVmcTexture(128, 128, getIconPS2(selected_entry->dir_name, strrchr(selected_entry->path, '\n')+1));
+				LoadVmcTexture(256, 256, getIconPS2(selected_entry->dir_name, strrchr(selected_entry->path, '\n')+1));
 
 			else if (selected_entry->flags & SAVE_FLAG_VMC && selected_entry->type == FILE_TYPE_PS1)
 			{

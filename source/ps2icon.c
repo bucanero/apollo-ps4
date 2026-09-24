@@ -302,8 +302,11 @@ int ps2icon_load(const char* folder, const char* iconfile, ps2icon_t *out)
 	return r;
 }
 
-//Get the icon as a 128x128 image: the 3D model rendered as the PS2 browser
-//would show it, or the flat texture when there is no model to render
+//An icon that cannot be rendered comes back blank rather than NULL
+#define ICON_BLANK()	calloc(PS2ICON_SIZE * PS2ICON_SIZE, sizeof(uint32_t))
+
+//Get the icon as a PS2ICON_SIZE x PS2ICON_SIZE image: the 3D model rendered as
+//the PS2 browser would show it
 uint8_t* getIconPS2(const char* folder, const char* iconfile)
 {
 	int fd, r;
@@ -316,16 +319,16 @@ uint8_t* getIconPS2(const char* folder, const char* iconfile)
 	snprintf(filePath, sizeof(filePath), "%s/%s", folder, iconfile);
 
 	if (mcio_mcStat(filePath, &st) < 0)
-		return calloc(ICON_TEXELS, sizeof(uint32_t));
+		return ICON_BLANK();
 
 	fd = mcio_mcOpen(filePath, sceMcFileAttrReadable | sceMcFileAttrFile);
 	if (fd < 0)
-		return calloc(ICON_TEXELS, sizeof(uint32_t));
+		return ICON_BLANK();
 
 	buf = malloc(st.stat.size ? st.stat.size : 1);
 	if (!buf) {
 		mcio_mcClose(fd);
-		return calloc(ICON_TEXELS, sizeof(uint32_t));
+		return ICON_BLANK();
 	}
 
 	r = mcio_mcRead(fd, buf, st.stat.size);
@@ -335,21 +338,17 @@ uint8_t* getIconPS2(const char* folder, const char* iconfile)
 	r = ps2icon_parse(buf, (r > 0) ? (size_t)r : 0, &icon);
 	free(buf);
 
-	//same size as the texture, so callers take either one; with no icon.sys
-	//the renderer falls back to the default lighting
+	//2x supersampling is enough at this size; with no icon.sys the renderer
+	//falls back to the default lighting
 	if (r == 0 && ps2icon_render(&icon, (readIconSys(folder, &sys) == 0) ? &sys : NULL,
-			128, 4, PS2RENDER_BG_TRANSPARENT, &out) < 0)
+			PS2ICON_SIZE, 2, PS2RENDER_BG_TRANSPARENT, &out) < 0)
 		out = NULL;
 
-	//no usable geometry, or the render failed: the flat texture it always was
-	if (!out) {
-		out = (uint8_t*) icon.texture;
-		icon.texture = NULL;
-	}
 	ps2icon_free(&icon);
 
+	//no usable geometry, or the render failed
 	if (!out)
-		return calloc(ICON_TEXELS, sizeof(uint32_t));
+		return ICON_BLANK();
 
-	return rgbaToNative(out, ICON_TEXELS);
+	return rgbaToNative(out, PS2ICON_SIZE * PS2ICON_SIZE);
 }

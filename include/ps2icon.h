@@ -114,7 +114,12 @@ void ps2icon_free(ps2icon_t *icon);
 /** Read an icon off the mounted card and parse it. Returns 0 or negative. */
 int ps2icon_load(const char* folder, const char* iconfile, ps2icon_t *out);
 
-//Get icon data as bytes
+/** Width and height of the image getIconPS2() returns. */
+#define PS2ICON_SIZE	256
+
+/** The icon rendered as a PS2ICON_SIZE x PS2ICON_SIZE image, one native
+ *  0xRRGGBBAA word per pixel; zero-filled (fully transparent) when it cannot
+ *  be rendered. Never NULL unless out of memory. */
 uint8_t* getIconPS2(const char* folder, const char* iconfile);
 
 #endif

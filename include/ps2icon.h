@@ -22,9 +22,18 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#ifndef PS2ICON_H
+#define PS2ICON_H
+
+#include <stdint.h>
+#include <stddef.h>
+
+#include "ps2mc.h"
+
 //================================================================================================
 //   Typedefs and Defines
 //================================================================================================
+
 
 /** File header
  */
@@ -73,3 +82,39 @@ typedef struct Frame_Key_t {
 	float time;									///< ???
 	float value;								///< ???
 } Frame_Key;
+
+/** A parsed icon: the morph targets, the per-vertex attributes they share,
+ *  and the 128x128 texture.
+ *
+ *  `texture` is always allocated, even for an icon that carries none - those
+ *  are drawn from their vertex colours alone, and a cleared buffer is what the
+ *  existing texture export has always handed back. `has_texture` says which it
+ *  is, so a renderer can substitute white instead of black.
+ */
+typedef struct {
+	int       shape_count;      ///< morph targets, at least 1
+	int       vertex_count;     ///< a multiple of 3
+	float    *shapes;           ///< shape_count * vertex_count * 3
+	float    *normals;          ///< vertex_count * 3
+	float    *uvs;              ///< vertex_count * 2
+	uint8_t  *colors;           ///< vertex_count * 4, RGBA, 0x80-centred
+	uint32_t *texture;          ///< 128 * 128 RGBA, never NULL after a parse
+	int       has_texture;
+	int       still_shape;      ///< the shape a still frame should use
+} ps2icon_t;
+
+/** Parse an .ico. Returns 0 when geometry was read, negative when the file is
+ *  not a usable icon - `texture` is allocated either way, so a caller that
+ *  only wants the texture can ignore the return value. Free with
+ *  ps2icon_free(). */
+int ps2icon_parse(const uint8_t *data, size_t len, ps2icon_t *out);
+
+void ps2icon_free(ps2icon_t *icon);
+
+/** Read an icon off the mounted card and parse it. Returns 0 or negative. */
+int ps2icon_load(const char* folder, const char* iconfile, ps2icon_t *out);
+
+//Get icon data as bytes
+uint8_t* getIconPS2(const char* folder, const char* iconfile);
+
+#endif

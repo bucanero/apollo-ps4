@@ -11,7 +11,7 @@ LIBS        := -lc -lkernel -lc++ -lSceAudioOut -lSceUserService -lScePigletv2VS
                -lSceRegMgr -lSceImeDialog -lSDL2 -lapollo -ldbglogger -lz -lzip -ljbc -lmxml -lunrar -lun7zip -ls3m
 
 # Additional compile flags.
-EXTRAFLAGS  := -fcolor-diagnostics -Wall -D__PS4__
+EXTRAFLAGS  := -O2 -fcolor-diagnostics -Wall -D__PS4__
 
 ifeq ($(DEBUGLOG),1)
     EXTRAFLAGS += -DAPOLLO_ENABLE_LOGGING

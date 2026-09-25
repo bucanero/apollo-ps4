@@ -200,6 +200,11 @@ static void SetMenu(int id)
 		case MENU_PATCHES: //Cheat Selection Menu
 			if (selected_entry->flags & SAVE_FLAG_UPDATED)
 			{
+				// Clear the flag first: reloading the list below frees every
+				// entry, selected_entry included, and writing to it afterwards
+				// corrupts whatever the new list allocated in its place.
+				selected_entry->flags ^= SAVE_FLAG_UPDATED;
+
 				switch (id)
 				{
 				case MENU_PS2VMC_SAVES:
@@ -223,8 +228,6 @@ static void SetMenu(int id)
 					ReloadUserSaves(&trophies);
 					break;
 				}
-
-				selected_entry->flags ^= SAVE_FLAG_UPDATED;
 			}
 			break;
 

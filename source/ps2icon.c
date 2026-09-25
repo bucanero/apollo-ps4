@@ -6,12 +6,13 @@
 #include "ps2icon.h"
 #include "ps2render.h"
 #include "mcio.h"
+#include "util.h"
 
 
 static uint32_t TIM2RGBA(const uint8_t *buf)
 {
 	uint8_t RGBA[4];
-	uint16_t lRGB = (int16_t) (buf[1] << 8) | buf[0];
+	uint16_t lRGB = read_le_uint16(buf);
 
 	RGBA[0] = 8 * (lRGB & 0x1F);
 	RGBA[1] = 8 * ((lRGB >> 5) & 0x1F);
@@ -114,19 +115,19 @@ int ps2icon_parse(const uint8_t* iData, size_t len, ps2icon_t *out)
 			const uint8_t *p = &iData[geom];
 			float *dst = &out->shapes[((size_t)s_i * out->vertex_count + v_i) * 3];
 
-			dst[0] = ICON_F16(p[0] | (p[1] << 8));
-			dst[1] = ICON_F16(p[2] | (p[3] << 8));
-			dst[2] = ICON_F16(p[4] | (p[5] << 8));
+			dst[0] = ICON_F16(read_le_uint16(&p[0]));
+			dst[1] = ICON_F16(read_le_uint16(&p[2]));
+			dst[2] = ICON_F16(read_le_uint16(&p[4]));
 			geom += sizeof(Vertex_Coord);
 		}
 
-		out->normals[v_i * 3 + 0] = ICON_F16(iData[geom + 0] | (iData[geom + 1] << 8));
-		out->normals[v_i * 3 + 1] = ICON_F16(iData[geom + 2] | (iData[geom + 3] << 8));
-		out->normals[v_i * 3 + 2] = ICON_F16(iData[geom + 4] | (iData[geom + 5] << 8));
+		out->normals[v_i * 3 + 0] = ICON_F16(read_le_uint16(&iData[geom + 0]));
+		out->normals[v_i * 3 + 1] = ICON_F16(read_le_uint16(&iData[geom + 2]));
+		out->normals[v_i * 3 + 2] = ICON_F16(read_le_uint16(&iData[geom + 4]));
 		geom += sizeof(Vertex_Coord);
 
-		out->uvs[v_i * 2 + 0] = ICON_F16(iData[geom + 0] | (iData[geom + 1] << 8));
-		out->uvs[v_i * 2 + 1] = ICON_F16(iData[geom + 2] | (iData[geom + 3] << 8));
+		out->uvs[v_i * 2 + 0] = ICON_F16(read_le_uint16(&iData[geom + 0]));
+		out->uvs[v_i * 2 + 1] = ICON_F16(read_le_uint16(&iData[geom + 2]));
 		memcpy(&out->colors[v_i * 4], &iData[geom + 4], 4);
 		geom += sizeof(Texture_Data);
 	}
@@ -188,7 +189,7 @@ int ps2icon_parse(const uint8_t* iData, size_t len, ps2icon_t *out)
 			if (ICON_AVAIL(len, offset) < 2)
 				break;
 
-			j = (int16_t) (iData[offset + 1] << 8) | iData[offset];
+			j = read_le_uint16(&iData[offset]);
 
 			if (0xFF00 == (j & 0xFF00))
 			{	//a run of literal texels

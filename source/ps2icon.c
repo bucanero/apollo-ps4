@@ -191,8 +191,8 @@ int ps2icon_parse(const uint8_t* iData, size_t len, ps2icon_t *out)
 
 			j = read_le_uint16(&iData[offset]);
 
-			if (0xFF00 == (j & 0xFF00))
-			{	//a run of literal texels
+			if (j & 0x8000)
+			{	//a run of literal texels: 0x10000 - j of them, so up to 32768
 				for (j = (0x0000 - j) & 0xFFFF; j > 0; j--)
 				{
 					offset += 2;

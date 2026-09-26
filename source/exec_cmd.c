@@ -1205,7 +1205,7 @@ static char* get_title_icon_psx(const save_entry_t* entry)
 	else
 	{
 		icon = getIconPS2(entry->dir_name, strrchr(entry->path, '\n')+1);
-		svpng(fp, 128, 128, icon, 1);
+		svpng(fp, 256, 256, icon, 1);
 	}
 	free(icon);
 	fclose(fp);

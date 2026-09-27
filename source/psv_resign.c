@@ -305,7 +305,7 @@ char* sjis2utf8(char* input)
     sjis2ascii(input);
 
     int len = strlen(input);
-    char* output = malloc(3 * len); //ShiftJis won't give 4byte UTF8, so max. 3 byte per input char are needed
+    char* output = malloc(3 * len + 1); //ShiftJis won't give 4byte UTF8, so max. 3 byte per input char are needed
     size_t indexInput = 0, indexOutput = 0;
 
     while(indexInput < len)

@@ -33,19 +33,25 @@ static int sys_mknod(const char *path, mode_t mode, dev_t dev)
 {
     int result;
     int err;
+    unsigned long rdx = dev;
 
+    // The arguments have to be handed over as register constraints: without
+    // them the syscall only saw path/mode/dev because they happened to still
+    // be in rdi/rsi/rdx, which stops being true once the optimizer inlines
+    // this into a caller. The kernel returns a second value in rdx, and the
+    // syscall instruction itself overwrites rcx and r11.
     asm volatile(
-    ".intel_syntax;"    // Switches the assembly syntax to Intel syntax
-    "mov rax, 14;"      // Moves the value 14 into the RAX register (which typically holds the system call number)
-    "mov r10, rcx;"     // Moves the value of the RCX register into the R10 register
-    "syscall;"          // Executes a system call using the values in the registers
-    : "=a"(result),     // Output constraint: Tells the compiler that the result of the operation will be stored in the RAX register
-    "=@ccc"(err)        // Output constraint: Indicates that error information will be stored in the specified location
+    "syscall"
+    : "=a"(result),     // RAX: the result, or the errno when carry is set
+    "=@ccc"(err),       // carry flag: set on error
+    "+d"(rdx)
+    : "a"(14),          // SYS_mknod
+    "D"(path),
+    "S"((unsigned long)mode)
+    : "rcx", "r11", "memory"
     );
 
-    UNUSED(path);
-    UNUSED(mode);
-    UNUSED(dev);
+    UNUSED(err);
 
     return result;
 }

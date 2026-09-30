@@ -193,14 +193,11 @@ Apollo supports multiple languages for its user interface. Thanks to the followi
 # Building
 
 ```text
- ____  __   __ ____   _____ _   _
-|  _ \ \ \ / /|___ \ / ____| \ | |
-| |_) | \ V /   __) | |  __|  \| |
-|  _ <   > <   |__ <| | |_ | . ` |
-| |_) | / . \  ___) | |__| | |\  |
-|____/ /_/ \_\|____/ \_____|_| \_|
-
-              R1y3n
++----------------------+
+|                      |
+|        R1y3n         |
+|                      |
++----------------------+
 ```
 
 ## R1y3n additions
@@ -228,6 +225,42 @@ The implementation is split across:
 - `include/saves.h`: defines the local destination.
 - `source/saves.c`: adds the local destination to the HDD bulk-management menu.
 - `source/exec_cmd.c`: routes the local selection through the existing bulk-copy code.
+
+## Keeping the fork up to date
+
+This repository is a fork, but GitHub does not automatically copy new commits
+from `bucanero/apollo-ps4` into `R1y3n/apollo-ps4`. Your fork and local clone
+remain unchanged until you explicitly synchronize them.
+
+Add the original repository as `upstream` once:
+
+```sh
+git remote add upstream https://github.com/bucanero/apollo-ps4.git
+```
+
+Before starting new work, fetch the original repository and update your local
+`main` branch:
+
+```sh
+git fetch upstream
+git switch main
+git pull --ff-only origin main
+git merge upstream/main
+git push origin main
+```
+
+If your changes are committed separately and `upstream/main` has no conflicting
+changes, the merge will be straightforward. If Git reports conflicts, resolve
+the files, then run:
+
+```sh
+git add <resolved-files>
+git commit
+git push origin main
+```
+
+Alternatively, use GitHub's **Sync fork** button to update the fork first, then
+run `git pull --ff-only origin main` locally.
 
 You need to have installed:
 

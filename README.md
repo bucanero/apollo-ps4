@@ -192,6 +192,43 @@ Apollo supports multiple languages for its user interface. Thanks to the followi
 
 # Building
 
+```text
+ ____  __   __ ____   _____ _   _
+|  _ \ \ \ / /|___ \ / ____| \ | |
+| |_) | \ V /   __) | |  __|  \| |
+|  _ <   > <   |__ <| | |_ | . ` |
+| |_) | / . \  ___) | |__| | |\  |
+|____/ /_/ \_\|____/ \_____|_| \_|
+
+              R1y3n
+```
+
+## R1y3n additions
+
+This working build adds a local HDD destination to the PS4 HDD save bulk-management
+screen. The existing save-copy implementation is reused, so the local option has the
+same selected/all behavior, save mounting, directory copy, progress display, and
+destination naming as the USB options.
+
+From **HDD Saves > Bulk Save Management**, the following options are available for
+both selected saves and all saves:
+
+- `Copy Saves to USB 0` -> `/mnt/usb0/PS4/APOLLO/`
+- `Copy Saves to USB 1` -> `/mnt/usb1/PS4/APOLLO/`
+- `Copy Saves locally (HDD)` -> `/data/apollo/localsaves/`
+
+The local output uses the same per-save layout as the USB export:
+
+```text
+/data/apollo/localsaves/<user-id>_<title-id>_<save-directory>/
+```
+
+The implementation is split across:
+
+- `include/saves.h`: defines the local destination.
+- `source/saves.c`: adds the local destination to the HDD bulk-management menu.
+- `source/exec_cmd.c`: routes the local selection through the existing bulk-copy code.
+
 You need to have installed:
 
 - [Open Orbis SDK](https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/)
@@ -210,7 +247,99 @@ You need to have installed:
 > [!TIP]
 > **Developers:** You can find detailed technical documentation about the project in [this Wiki page](https://deepwiki.com/bucanero/apollo-ps4/).
 
-Run `make` to create a release build. If you want to include the latest save patches in your `.pkg` file, run `make createzip`.
+## Build the package from a clean checkout
+
+The commands below reproduce the package build on a Linux host. Use a workspace
+directory with enough free space for the toolchain and library build artifacts.
+
+1. Install the host tools:
+
+   ```sh
+   sudo apt-get update
+   sudo apt-get install -y git curl tar make cmake build-essential pkg-config clang lld llvm libssl-dev openssl
+   ```
+
+2. Clone the project and export the OpenOrbis toolchain location:
+
+   ```sh
+   mkdir -p "$HOME/ps4-build"
+   cd "$HOME/ps4-build"
+   git clone https://github.com/R1y3n/apollo-ps4.git
+   export OO_PS4_TOOLCHAIN="$HOME/ps4-build/OpenOrbis/PS4Toolchain"
+   ```
+
+3. Download and unpack the OpenOrbis toolchain:
+
+   ```sh
+   curl -fL https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/download/0.0.1.416/toolchain.tar.gz |
+     tar xz
+   ```
+
+4. Download the dependency repositories required by this project:
+
+   ```sh
+   git clone https://github.com/bucanero/oosdk_libraries.git
+   git clone https://github.com/bucanero/dbglogger.git
+   git clone https://github.com/bucanero/apollo-lib.git
+   git clone https://github.com/bucanero/libSQLite-ps4.git
+   git clone --branch ps4 https://github.com/bucanero/SDL-PS4.git
+   git clone https://github.com/bucanero/mxml.git
+   git clone https://github.com/bucanero/libunrar-ps3.git
+   git clone https://github.com/bucanero/libun7zip.git
+   git clone https://github.com/bucanero/ps4-libjbc.git
+   git clone https://github.com/bucanero/s3mplay.git
+   git clone https://github.com/bucanero/mini18n.git
+   ```
+
+   Copy the shared build rules into the toolchain:
+
+   ```sh
+   cp oosdk_libraries/build_rules.mk "$OO_PS4_TOOLCHAIN/build_rules.mk"
+   ```
+
+   Also download mbedTLS 2.16.12 and place it beside the repositories as
+   `mbedtls-2.16.12`. Build/install zlib, libzip, mbedTLS, mini18n, dbglogger,
+   Apollo, SQLite, libun7zip, libunrar, mxml, libjbc, libs3m, SDL2, and cURL
+   into `$OO_PS4_TOOLCHAIN/include` and `$OO_PS4_TOOLCHAIN/lib`. The exact
+   dependency build commands are maintained in
+   [`.github/workflows/build.yml`](.github/workflows/build.yml).
+
+5. Refresh the OpenOrbis user-service headers before compiling:
+
+   ```sh
+   curl -fsSL https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/UserService.h \
+     -o "$OO_PS4_TOOLCHAIN/include/orbis/UserService.h"
+   curl -fsSL https://raw.githubusercontent.com/OpenOrbis/OpenOrbis-PS4-Toolchain/master/include/orbis/_types/user.h \
+     -o "$OO_PS4_TOOLCHAIN/include/orbis/_types/user.h"
+   ```
+
+6. Build the application and package:
+
+   ```sh
+   cd "$HOME/ps4-build/apollo-ps4"
+   export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+   make
+   ```
+
+   A successful build creates:
+
+   ```text
+   IV0000-APOL00004_00-APOLLO0000000PS4.pkg
+   ```
+
+   This is the installable PS4 package. Transfer it to the PS4 and install it
+   with a package installer such as GoldHEN Package Installer.
+
+7. To include the latest save patches before packaging:
+
+   ```sh
+   make createzip
+   make
+   ```
+
+For a reproducible CI setup, use the commands in
+[`.github/workflows/build.yml`](.github/workflows/build.yml); it pins the
+OpenOrbis toolchain and builds every dependency before invoking `make`.
 
 You can also set the `PS3LOAD` environment variable to your PS4 IP address: `export PS3LOAD=tcp:x.x.x.x`.
 This will allow you to use a [ps3load client](https://github.com/bucanero/ps4load/tree/main/client) and send the `eboot.bin` directly to the [PS4Load listener](https://github.com/bucanero/ps4load).

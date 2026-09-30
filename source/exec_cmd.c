@@ -1899,7 +1899,10 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_COPY_SAVES_USB:
 		case CMD_COPY_ALL_SAVES_USB:
-			copyAllSavesUSB(selected_entry, codecmd[1] ? SAVES_PATH_USB1 : SAVES_PATH_USB0, codecmd[0] == CMD_COPY_ALL_SAVES_USB);
+			copyAllSavesUSB(selected_entry,
+				codecmd[1] == STORAGE_HDD ? SAVES_PATH_LOCAL :
+				(codecmd[1] == STORAGE_USB1 ? SAVES_PATH_USB1 : SAVES_PATH_USB0),
+				codecmd[0] == CMD_COPY_ALL_SAVES_USB);
 			code->activated = 0;
 			break;
 

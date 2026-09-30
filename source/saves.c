@@ -280,6 +280,18 @@ static void _createOptions(code_entry_t* code, const char* name, char value)
 	return;
 }
 
+static void _createOptionsWithLocal(code_entry_t* code, const char* name, char value)
+{
+	option_value_t* optval;
+
+	_createOptions(code, name, value);
+
+	optval = malloc(sizeof(option_value_t));
+	asprintf(&optval->name, "%s", _("Copy Saves locally (HDD)"));
+	asprintf(&optval->value, "%c%c", value, STORAGE_HDD);
+	list_append(code->options[0].opts, optval);
+}
+
 static save_entry_t* _createSaveEntry(uint16_t flag, const char* icon, const char* name)
 {
 	save_entry_t* entry = (save_entry_t *)calloc(1, sizeof(save_entry_t));
@@ -1732,11 +1744,11 @@ list_t * ReadUserList(const char* userPath)
 	((void**)item->dir_name)[0] = list;
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Copy selected Saves to USB"), CMD_CODE_NULL);
-	_createOptions(cmd, _("Copy Saves to USB"), CMD_COPY_SAVES_USB);
+	_createOptionsWithLocal(cmd, _("Copy Saves to USB"), CMD_COPY_SAVES_USB);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Copy all Saves to USB"), CMD_CODE_NULL);
-	_createOptions(cmd, _("Copy Saves to USB"), CMD_COPY_ALL_SAVES_USB);
+	_createOptionsWithLocal(cmd, _("Copy Saves to USB"), CMD_COPY_ALL_SAVES_USB);
 	list_append(item->codes, cmd);
 
 	if (apollo_config.ftp_url[0])

@@ -62,10 +62,30 @@ static void FlushBitBuffer(void)  /* Send remaining bits */
 }
 
 static unsigned int  buffer2 = 0, mask2 = 0;
+
+/* How far past the end of the input the decoder may read before giving up.
+ * A complete stream needs only a few bytes to flush its final characters;
+ * needing more than this means the input really did run out. */
+#define LZARI_FLUSH_SLACK 8
+
+/* Bytes GetBit() had to invent because the input ran out. */
+static int past_end = 0;
+
 static int GetBit(void)  /* Get one bit (0 or 1) */
 {
 	if ((mask2 >>= 1) == 0) {
-		buffer2 = xgetc(infile);  mask2 = 128;
+		int c = xgetc(infile);
+
+		/* The arithmetic decoder reads ahead of the character it is decoding,
+		 * so the last few characters come out after the final input byte has
+		 * been consumed. Supply zeros - what FlushBitBuffer() writes - rather
+		 * than stopping, and count them so a corrupt stream still ends. */
+		if (c < 0) {
+			c = 0;
+			past_end++;
+		}
+		buffer2 = (unsigned int)c;
+		mask2 = 128;
 	}
 	return ((buffer2 & mask2) != 0);
 }
@@ -458,6 +478,7 @@ int unlzari(unsigned char *in, int insz, unsigned char *out, int outsz)
     buffer2 = 0;
     mask = 128;
     mask2 = 0;
+    past_end = 0;
 
     infile = in;
     infilel = in + insz;
@@ -475,7 +496,7 @@ int unlzari(unsigned char *in, int insz, unsigned char *out, int outsz)
 	for (i = 0; i < N - F; i++) text_buf[i] = ' ';
 	r = N - F;
 	for (count = 0; count < textsize; ) {
-        if (infile >= infilel) break;
+        if (past_end > LZARI_FLUSH_SLACK) break;
 		c = DecodeChar();
 		if (c < 256) {
 			xputc(c, outfile);  text_buf[r++] = c;

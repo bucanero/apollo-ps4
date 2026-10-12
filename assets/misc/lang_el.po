@@ -1153,3 +1153,47 @@ msgstr "Αποσυμπίεση αρχείων...."
 
 #~ msgid "Error! Couldn't zip save:"
 #~ msgstr "Σφάλμα! Αδυναμία συμπίεσης Αποθ.Δεδομένων:"
+
+#: main.c
+msgid "DC Virtual Memory Card"
+msgstr ""
+
+#: menu_cheats.c
+msgid "Dreamcast Saves"
+msgstr ""
+
+#: saves.c
+msgid "Export save game to .DCI format"
+msgstr ""
+
+#: saves.c
+msgid "Copy .DCI Save to USB"
+msgstr ""
+
+#: saves.c
+msgid "Copy .DCI Save to HDD"
+msgstr ""
+
+#: saves.c
+msgid "Export save game to .VMI/.VMS format"
+msgstr ""
+
+#: saves.c
+msgid "Copy .VMI/.VMS Save to USB"
+msgstr ""
+
+#: saves.c
+msgid "Copy .VMI/.VMS Save to HDD"
+msgstr ""
+
+#: saves.c
+msgid "Export Memory Card to raw .BIN"
+msgstr ""
+
+#: saves.c
+msgid "Export Memory Card to Nexus .DCM"
+msgstr ""
+
+#: exec_cmd.c
+msgid "Error exporting memory card:"
+msgstr ""

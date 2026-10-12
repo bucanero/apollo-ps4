@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <dirent.h>
 #include <time.h>
 #include <orbis/NetCtl.h>
@@ -17,6 +18,7 @@
 #include "sfo.h"
 #include "mcio.h"
 #include "ps1card.h"
+#include "dccard.h"
 #include "svpng.h"
 
 static char host_buf[256];
@@ -920,6 +922,20 @@ static void copyAllSavesUSB(const save_entry_t* save, const char* dst_path, int 
 	show_message("%d/%d %s\n%s", done, done+err_count, _("Saves copied to:"), dst_path);
 }
 
+/* <folder><VMU file name>_<date>.dci, with the name made safe for FAT */
+static void get_vmu_dci_path(char* path, const char* filename)
+{
+	struct tm t;
+	char *p = strrchr(path, '/') + 1;
+
+	for (; *filename; filename++)
+		*p++ = (isalnum((uint8_t)*filename) || *filename == '_' || *filename == '-') ? *filename : '_';
+
+	gmtime_r(&(time_t){time(NULL)}, &t);
+	sprintf(p, "_%d-%02d-%02d_%02d%02d%02d.dci",
+		t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+}
+
 static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
 {
 	char outPath[256];
@@ -930,7 +946,7 @@ static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
 	list_t *list = ((void**)save->dir_name)[0];
 
 	init_progress_bar(_("Exporting all VMC saves..."));
-	_set_dest_path(outPath, dev, PSV_SAVES_PATH_USB);
+	_set_dest_path(outPath, dev, (save->flags & SAVE_FLAG_DC) ? DC_SAVES_PATH_USB : PSV_SAVES_PATH_USB);
 	mkdirs(outPath);
 
 	LOG("Exporting all saves from '%s' to %s...", save->path, outPath);
@@ -940,11 +956,23 @@ static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
 		if (!all && !(item->flags & SAVE_FLAG_SELECTED))
 			continue;
 
-		if (item->type == FILE_TYPE_PS1)
+		switch (item->type)
+		{
+		case FILE_TYPE_PS1:
 			(saveSingleSave(outPath, item->blocks, PS1SAVE_PSV) ? done++ : err_count++);
+			break;
 
-		if (item->type == FILE_TYPE_PS2)
+		case FILE_TYPE_PS2:
 			(vmc_export_psv(item->dir_name, outPath) ? done++ : err_count++);
+			break;
+
+		case FILE_TYPE_DC:
+			(dccard_export_vmi(item->blocks, outPath) ? done++ : err_count++);
+			break;
+
+		default:
+			break;
+		}
 	}
 
 	end_progress_bar();
@@ -972,6 +1000,44 @@ static void exportVmcSave(const save_entry_t* save, int type, int dst_id)
 		show_message("%s\n%s", _("Save successfully exported to:"), outPath);
 	else
 		show_message("%s\n%s", _("Error exporting save:"), save->path);
+}
+
+static void exportVmuSave(const save_entry_t* save, int type, int dst_id)
+{
+	int ret;
+	char outPath[256];
+
+	_set_dest_path(outPath, dst_id, DC_SAVES_PATH_USB);
+	mkdirs(outPath);
+
+	if (type == FILE_TYPE_DCI)
+	{
+		get_vmu_dci_path(outPath, save->dir_name);
+		ret = dccard_export_dci(save->blocks, outPath);
+	}
+	else
+		ret = dccard_export_vmi(save->blocks, outPath);
+
+	if (ret)
+		show_message("%s\n%s", _("Save successfully exported to:"), outPath);
+	else
+		show_message("%s\n%s", _("Error exporting save:"), save->path);
+}
+
+static void exportVmuImage(const save_entry_t* save)
+{
+	char outPath[256];
+	int dcm = !dccard_is_dcm();
+
+	snprintf(outPath, sizeof(outPath), "%s", save->path);
+	if (strrchr(outPath, '.') > strrchr(outPath, '/'))
+		*strrchr(outPath, '.') = 0;
+	strncat(outPath, dcm ? ".DCM" : ".BIN", sizeof(outPath) - strlen(outPath) - 1);
+
+	if (dccard_save_as(outPath, dcm))
+		show_message("%s\n%s", _("Memory card successfully exported to:"), outPath);
+	else
+		show_message("%s\n%s", _("Error exporting memory card:"), save->path);
 }
 
 static void export_ps1vmc(const char* vm1_file, int dst, int vmp)
@@ -1084,6 +1150,9 @@ static int deleteSave(const save_entry_t* save)
 	
 	else if (save->flags & SAVE_FLAG_PS2)
 		ret = vmc_delete_save(save->dir_name);
+
+	else if (save->flags & SAVE_FLAG_DC)
+		ret = dccard_delete(save->blocks);
 
 	else if (save->flags & SAVE_FLAG_TROPHY)
 		ret = trophySet_delete(save);
@@ -2029,6 +2098,28 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 				show_message("%s\n%s", _("Error! Couldn't import save:"), code->file);
 
 			selected_entry->flags |= SAVE_FLAG_UPDATED;
+			code->activated = 0;
+			break;
+
+		case CMD_EXP_VMUSAVE:
+			exportVmuSave(selected_entry, code->options[0].id, codecmd[1]);
+			code->activated = 0;
+			break;
+
+		case CMD_EXP_VMU_IMAGE:
+			exportVmuImage(selected_entry);
+			code->activated = 0;
+			break;
+
+		case CMD_IMP_VMUSAVE:
+			if (dccard_import_save(code->file))
+			{
+				show_message("%s\n%s", _("Save successfully imported:"), code->file);
+				selected_entry->flags |= SAVE_FLAG_UPDATED;
+			}
+			else
+				show_message("%s\n%s", _("Error! Couldn't import save:"), code->file);
+
 			code->activated = 0;
 			break;
 

@@ -1155,44 +1155,44 @@ msgstr "ファイルを抽出中..."
 
 #: main.c
 msgid "DC Virtual Memory Card"
-msgstr ""
+msgstr "DC仮想メモリーカード"
 
 #: menu_cheats.c
 msgid "Dreamcast Saves"
-msgstr ""
+msgstr "Dreamcast セーブデータ"
 
 #: saves.c
 msgid "Export save game to .DCI format"
-msgstr ""
+msgstr "セーブデータを.DCI形式でエクスポート"
 
 #: saves.c
 msgid "Copy .DCI Save to USB"
-msgstr ""
+msgstr ".DCIセーブデータをUSBにコピー"
 
 #: saves.c
 msgid "Copy .DCI Save to HDD"
-msgstr ""
+msgstr ".DCIセーブデータをHDDにコピー"
 
 #: saves.c
 msgid "Export save game to .VMI/.VMS format"
-msgstr ""
+msgstr "セーブデータを.VMI/.VMS形式でエクスポート"
 
 #: saves.c
 msgid "Copy .VMI/.VMS Save to USB"
-msgstr ""
+msgstr ".VMI/.VMSセーブデータをUSBにコピー"
 
 #: saves.c
 msgid "Copy .VMI/.VMS Save to HDD"
-msgstr ""
+msgstr ".VMI/.VMSセーブデータをHDDにコピー"
 
 #: saves.c
 msgid "Export Memory Card to raw .BIN"
-msgstr ""
+msgstr "メモリーカードを生の.BIN形式でエクスポート"
 
 #: saves.c
 msgid "Export Memory Card to Nexus .DCM"
-msgstr ""
+msgstr "メモリーカードをNexus .DCM形式でエクスポート"
 
 #: exec_cmd.c
 msgid "Error exporting memory card:"
-msgstr ""
+msgstr "メモリーカードのエクスポート中にエラーが発生しました:"

@@ -1155,44 +1155,44 @@ msgstr "Fájlok kicsomagolása..."
 
 #: main.c
 msgid "DC Virtual Memory Card"
-msgstr ""
+msgstr "DC virtuális memóriakártya"
 
 #: menu_cheats.c
 msgid "Dreamcast Saves"
-msgstr ""
+msgstr "Dreamcast mentések"
 
 #: saves.c
 msgid "Export save game to .DCI format"
-msgstr ""
+msgstr "Mentés exportálása .DCI formátumban"
 
 #: saves.c
 msgid "Copy .DCI Save to USB"
-msgstr ""
+msgstr ".DCI mentés másolása USB-re"
 
 #: saves.c
 msgid "Copy .DCI Save to HDD"
-msgstr ""
+msgstr ".DCI mentés másolása HDD-re"
 
 #: saves.c
 msgid "Export save game to .VMI/.VMS format"
-msgstr ""
+msgstr "Mentés exportálása .VMI/.VMS formátumban"
 
 #: saves.c
 msgid "Copy .VMI/.VMS Save to USB"
-msgstr ""
+msgstr ".VMI/.VMS mentés másolása USB-re"
 
 #: saves.c
 msgid "Copy .VMI/.VMS Save to HDD"
-msgstr ""
+msgstr ".VMI/.VMS mentés másolása HDD-re"
 
 #: saves.c
 msgid "Export Memory Card to raw .BIN"
-msgstr ""
+msgstr "Memóriakártya exportálása nyers .BIN formátumban"
 
 #: saves.c
 msgid "Export Memory Card to Nexus .DCM"
-msgstr ""
+msgstr "Memóriakártya exportálása Nexus .DCM formátumban"
 
 #: exec_cmd.c
 msgid "Error exporting memory card:"
-msgstr ""
+msgstr "Hiba a memóriakártya exportálásakor:"

@@ -1155,44 +1155,44 @@ msgstr "파일 압축 해제 중..."
 
 #: main.c
 msgid "DC Virtual Memory Card"
-msgstr ""
+msgstr "DC 가상 메모리 카드"
 
 #: menu_cheats.c
 msgid "Dreamcast Saves"
-msgstr ""
+msgstr "Dreamcast 세이브"
 
 #: saves.c
 msgid "Export save game to .DCI format"
-msgstr ""
+msgstr "세이브를 .DCI 형식으로 내보내기"
 
 #: saves.c
 msgid "Copy .DCI Save to USB"
-msgstr ""
+msgstr ".DCI 세이브를 USB로 복사"
 
 #: saves.c
 msgid "Copy .DCI Save to HDD"
-msgstr ""
+msgstr ".DCI 세이브를 HDD로 복사"
 
 #: saves.c
 msgid "Export save game to .VMI/.VMS format"
-msgstr ""
+msgstr "세이브를 .VMI/.VMS 형식으로 내보내기"
 
 #: saves.c
 msgid "Copy .VMI/.VMS Save to USB"
-msgstr ""
+msgstr ".VMI/.VMS 세이브를 USB로 복사"
 
 #: saves.c
 msgid "Copy .VMI/.VMS Save to HDD"
-msgstr ""
+msgstr ".VMI/.VMS 세이브를 HDD로 복사"
 
 #: saves.c
 msgid "Export Memory Card to raw .BIN"
-msgstr ""
+msgstr "메모리 카드를 raw .BIN으로 내보내기"
 
 #: saves.c
 msgid "Export Memory Card to Nexus .DCM"
-msgstr ""
+msgstr "메모리 카드를 Nexus .DCM으로 내보내기"
 
 #: exec_cmd.c
 msgid "Error exporting memory card:"
-msgstr ""
+msgstr "메모리 카드 내보내기 오류:"

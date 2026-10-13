@@ -1769,7 +1769,7 @@ static void read_inner_vmc2_files(list_t *list)
 	}
 }
 
-static void read_vmu_files(const char* userPath, list_t *list)
+static void read_vmu_files(const char* userPath, list_t *list, int flags)
 {
 	DIR *d;
 	FILE *fp;
@@ -1802,7 +1802,7 @@ static void read_vmu_files(const char* userPath, list_t *list)
 		if (memcmp(sig, "UUUUUUUUUUUUUUUU", sizeof(sig)) != 0)
 			continue;
 
-		item = _createSaveEntry(SAVE_FLAG_DC | SAVE_FLAG_VMC, "", dir->d_name);
+		item = _createSaveEntry(SAVE_FLAG_DC | SAVE_FLAG_VMC | flags, "", dir->d_name);
 		item->type = FILE_TYPE_VMC;
 		item->path = strdup(vmuPath);
 		item->title_id = strdup("VMU");
@@ -1874,7 +1874,7 @@ list_t * ReadUsbList(const char* userPath)
 	scan_vmc_files(path, NULL, list);
 
 	snprintf(path, sizeof(path), "%s%s", userPath, VMC_DC_PATH_USB);
-	read_vmu_files(path, list);
+	read_vmu_files(path, list, 0);
 
 	return list;
 }
@@ -1928,7 +1928,7 @@ list_t * ReadUserList(const char* userPath)
 	sqlite3_close(appdb);
 
 	read_inner_vmc2_files(list);
-	read_vmu_files(VMC_DC_PATH_HDD, list);
+	read_vmu_files(VMC_DC_PATH_HDD, list, SAVE_FLAG_HDD);
 
 	return list;
 }

@@ -105,8 +105,7 @@ void append_le_uint32(uint8_t *buf, uint32_t val)
  */
 void append_le_uint64(uint8_t *buf, uint64_t val)
 {
-	int i;
-	for (i = 7; i >= 0; i--, val >>= 8) {
+	for (int i = 0; i < 8; i++, val >>= 8) {
 		buf[i] = (uint8_t)val;
 	}
 }
@@ -148,8 +147,8 @@ uint32_t read_le_uint32(const uint8_t *buf)
 uint64_t read_le_uint64(const uint8_t *buf)
 {
 	uint64_t val = 0;
-	int i;
-	for (i = 0; i < 8; i++) {
+
+	for (int i = 7; i >= 0; i--) {
 		val = (val << 8) | buf[i];
 	}
 

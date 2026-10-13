@@ -27,6 +27,7 @@ enum menu_screen_ids
 	MENU_HEX_EDITOR,
 	MENU_PS1VMC_SAVES,		/* 13 - PS1 VMC Menu */	
 	MENU_PS2VMC_SAVES,		/* 14 - PS2 VMC Menu */
+	MENU_DCVMC_SAVES,		/* 15 - DC VMU Menu */
 	TOTAL_MENU_IDS
 };
 
@@ -77,6 +78,7 @@ enum texture_index
 	tag_ps4_png_index,
 	tag_psp_png_index,
 	tag_psv_png_index,
+	tag_dc_png_index,
 	tag_warning_png_index,
 	tag_transfer_png_index,
 	tag_zip_png_index,

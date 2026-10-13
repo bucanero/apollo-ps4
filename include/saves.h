@@ -28,6 +28,7 @@
 #define PS4_SAVES_PATH_USB      "PS4/APOLLO/"
 #define PS2_SAVES_PATH_USB      "PS2/SAVEDATA/"
 #define PS1_SAVES_PATH_USB      "PS1/SAVEDATA/"
+#define DC_SAVES_PATH_USB       "DC/SAVEDATA/"
 #define PSV_SAVES_PATH_USB      "PS3/EXPORT/PSV/"
 #define TROPHIES_PATH_USB       "PS4/EXPORT/TROPHY/"
 
@@ -52,6 +53,8 @@
 
 #define VMC_PS2_PATH_USB        "PS2/VMC/"
 #define VMC_PS1_PATH_USB        "PS1/VMC/"
+#define VMC_DC_PATH_USB         "DC/VMU/"
+#define VMC_DC_PATH_HDD         "/data/Resonance/data/"
 
 #define IMP_PS2VMC_PATH_USB     USB_PATH "PS2/VMC/"
 
@@ -120,6 +123,8 @@ enum cmd_code_enum
     CMD_EXP_VMC1SAVE,
     CMD_EXP_PS1_VMP,
     CMD_EXP_PS1_VM1,
+    CMD_EXP_VMUSAVE,
+    CMD_EXP_VMU_IMAGE,
     CMD_EXP_DATABASE,
     CMD_DB_REBUILD,
     CMD_DB_DLC_REBUILD,
@@ -129,6 +134,7 @@ enum cmd_code_enum
     CMD_IMP_DATABASE,
     CMD_IMP_VMC2SAVE,
     CMD_IMP_VMC1SAVE,
+    CMD_IMP_VMUSAVE,
     CMD_CREATE_ACT_DAT,
     CMD_EXTRACT_ARCHIVE,
     CMD_URL_DOWNLOAD,
@@ -156,6 +162,7 @@ enum cmd_code_enum
 #define SAVE_FLAG_HDD           1024
 #define SAVE_FLAG_VMC           2048
 #define SAVE_FLAG_UPDATED       4096
+#define SAVE_FLAG_DC            8192
 
 enum save_type_enum
 {
@@ -187,6 +194,11 @@ enum save_type_enum
     FILE_TYPE_CBS,
     FILE_TYPE_XPS,
     FILE_TYPE_PSV,
+
+    // Dreamcast File Types
+    FILE_TYPE_DC,
+    FILE_TYPE_DCI,
+    FILE_TYPE_VMI,
 };
 
 enum char_flag_enum
@@ -217,6 +229,7 @@ enum char_flag_enum
     CHAR_TRP_PLATINUM,
     CHAR_TRP_SYNC,
     CHAR_TAG_PS4,
+    CHAR_TAG_DC,
 };
 
 enum code_type_enum
@@ -269,6 +282,7 @@ list_t * ReadBackupList(const char* userPath);
 list_t * ReadTrophyList(const char* userPath);
 list_t * ReadVmc1List(const char* userPath);
 list_t * ReadVmc2List(const char* userPath);
+list_t * ReadVmuList(const char* userPath);
 void UnloadGameList(list_t * list);
 char * readTextFile(const char * path);
 int sortSaveList_Compare(const void* A, const void* B);
@@ -281,6 +295,7 @@ int ReadOnlineSaves(save_entry_t * game);
 int ReadBackupCodes(save_entry_t * bup);
 int ReadVmc1Codes(save_entry_t * save);
 int ReadVmc2Codes(save_entry_t * save);
+int ReadVmuCodes(save_entry_t * save);
 
 int http_init(void);
 void http_end(void);

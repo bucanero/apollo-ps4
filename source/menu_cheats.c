@@ -356,6 +356,7 @@ static void DrawGameList(int selIndex, list_t * games, u8 alpha)
 
 			tmp[0] = ' ';
 			if (item->flags & SAVE_FLAG_PS2) tmp[0] = CHAR_TAG_PS2;
+			if (item->flags & SAVE_FLAG_DC) tmp[0] = CHAR_TAG_DC;
 			if (item->flags & SAVE_FLAG_PS1) tmp[0] = CHAR_TAG_PS1;
 			if (item->flags & SAVE_FLAG_PS4) tmp[0] = CHAR_TAG_PS4;
 			tmp[1] = (item->flags & SAVE_FLAG_OWNER) ? CHAR_TAG_OWNER : ' ';
@@ -532,6 +533,10 @@ static void get_subtitle(int type, size_t count, char* sub)
             sprintf(sub, "%s", _("PS2 Saves"));
             break;
 
+        case MENU_DCVMC_SAVES:
+            sprintf(sub, "%s", _("Dreamcast Saves"));
+            break;
+
         default:
             sub[0] = 0;
             break;
@@ -547,6 +552,7 @@ static int get_icon_id(int type)
         case MENU_USB_SAVES:
         case MENU_PS1VMC_SAVES:
         case MENU_PS2VMC_SAVES:
+        case MENU_DCVMC_SAVES:
             return cat_usb_png_index;
         case MENU_HDD_SAVES:
             return cat_hdd_png_index;

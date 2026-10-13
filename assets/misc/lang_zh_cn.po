@@ -1152,44 +1152,44 @@ msgstr "正在解压文件..."
 
 #: main.c
 msgid "DC Virtual Memory Card"
-msgstr ""
+msgstr "DC 虚拟存储卡"
 
 #: menu_cheats.c
 msgid "Dreamcast Saves"
-msgstr ""
+msgstr "Dreamcast 存档"
 
 #: saves.c
 msgid "Export save game to .DCI format"
-msgstr ""
+msgstr "导出 .DCI 格式存档"
 
 #: saves.c
 msgid "Copy .DCI Save to USB"
-msgstr ""
+msgstr "将 .DCI 存档复制到 USB"
 
 #: saves.c
 msgid "Copy .DCI Save to HDD"
-msgstr ""
+msgstr "将 .DCI 存档复制到硬盘"
 
 #: saves.c
 msgid "Export save game to .VMI/.VMS format"
-msgstr ""
+msgstr "导出 .VMI/.VMS 格式存档"
 
 #: saves.c
 msgid "Copy .VMI/.VMS Save to USB"
-msgstr ""
+msgstr "将 .VMI/.VMS 存档复制到 USB"
 
 #: saves.c
 msgid "Copy .VMI/.VMS Save to HDD"
-msgstr ""
+msgstr "将 .VMI/.VMS 存档复制到硬盘"
 
 #: saves.c
 msgid "Export Memory Card to raw .BIN"
-msgstr ""
+msgstr "将存储卡导出为原始 .BIN 文件"
 
 #: saves.c
 msgid "Export Memory Card to Nexus .DCM"
-msgstr ""
+msgstr "将存储卡导出为 Nexus .DCM"
 
 #: exec_cmd.c
 msgid "Error exporting memory card:"
-msgstr ""
+msgstr "导出存储卡时出错："

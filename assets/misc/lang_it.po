@@ -1155,44 +1155,44 @@ msgstr "Estrazione file in corso..."
 
 #: main.c
 msgid "DC Virtual Memory Card"
-msgstr ""
+msgstr "Scheda di memoria virtuale DC"
 
 #: menu_cheats.c
 msgid "Dreamcast Saves"
-msgstr ""
+msgstr "Salvataggi Dreamcast"
 
 #: saves.c
 msgid "Export save game to .DCI format"
-msgstr ""
+msgstr "Esporta il salvataggio in formato .DCI"
 
 #: saves.c
 msgid "Copy .DCI Save to USB"
-msgstr ""
+msgstr "Copia il salvataggio .DCI su USB"
 
 #: saves.c
 msgid "Copy .DCI Save to HDD"
-msgstr ""
+msgstr "Copia il salvataggio .DCI su HDD"
 
 #: saves.c
 msgid "Export save game to .VMI/.VMS format"
-msgstr ""
+msgstr "Esporta il salvataggio in formato .VMI/.VMS"
 
 #: saves.c
 msgid "Copy .VMI/.VMS Save to USB"
-msgstr ""
+msgstr "Copia il salvataggio .VMI/.VMS su USB"
 
 #: saves.c
 msgid "Copy .VMI/.VMS Save to HDD"
-msgstr ""
+msgstr "Copia il salvataggio .VMI/.VMS su HDD"
 
 #: saves.c
 msgid "Export Memory Card to raw .BIN"
-msgstr ""
+msgstr "Esporta la memory card in formato .BIN grezzo"
 
 #: saves.c
 msgid "Export Memory Card to Nexus .DCM"
-msgstr ""
+msgstr "Esporta la memory card in formato Nexus .DCM"
 
 #: exec_cmd.c
 msgid "Error exporting memory card:"
-msgstr ""
+msgstr "Errore durante l'esportazione della memory card:"

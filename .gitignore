@@ -44,6 +44,9 @@
 *.idb
 *.pdb
 
+# App data
+assets/misc/appdata.zip
+
 # Kernel Module Compile Results
 *.mod*
 *.cmd

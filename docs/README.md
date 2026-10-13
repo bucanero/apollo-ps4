@@ -30,7 +30,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Standalone:** no computer required, everything happens on the PS4.
 * **Automatic settings:** auto-detection of PS4 firmware, User ID, and Account-ID settings.
 * **Multi-user:** supports multiple user accounts.
-* **Localization support:** Chinese, English, French, Greek, German, Hungarian, Italian, Japanese, Korean, Portuguese, Russian, Spanish.
+* **Localization support:** Chinese, English, French, German, Greek, Hungarian, Italian, Japanese, Korean, Portuguese, Russian, Spanish.
 
 ## Save Management
 
@@ -65,14 +65,6 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
   - Supports ECC and non-ECC images
 * **Import PS2 saves:** import saves to VMCs from other systems and consoles (`.PSU`, `.PSV`, `.XPS`, `.CBS`, `.MAX`, `.SPS` supported).
 * **Export PS2 saves:** allows the user export saves on VMC images to `.PSU` and `.PSV` formats
-
-## Dreamcast VMU Memory Card Management
-
-* **VMU saves management:** quick access to all save files on Dreamcast VMU memory card images.
-  - Supported VMU formats: raw `.BIN`/`.VMU` and Nexus `.DCM` images
-* **Import DC saves:** import `.DCI` (Nexus) and `.VMI`/`.VMS` saves to VMU images.
-* **Export DC saves:** allows the user export saves on VMU images to `.DCI` and `.VMI`/`.VMS` formats.
-* **VMU image tools:** convert images between raw `.BIN` and Nexus `.DCM`.
 
 # Download
 
@@ -135,16 +127,6 @@ On first run, the application will detect and setup the required user settings.
 | **External saves (HDD)** | `/data/fakeusb/PS1/SAVEDATA/` |
 | **External VMCs (HDD)** | `/data/fakeusb/PS1/VMC/` |
 | **HDD VMC cards** | VMCs will be scanned from PS4 saves on the hard disk |
-
-### Dreamcast
-
-| DC | Folder |
-|-----|--------|
-| **USB saves** | `/mnt/usbX/DC/SAVEDATA/` (`*.dci`, `*.vmi` + `*.vms`) |
-| **VMU cards** | `/mnt/usbX/DC/VMU/` (`*.bin`, `*.vmu`, `*.dcm`) |
-| **External saves (HDD)** | `/data/fakeusb/DC/SAVEDATA/` |
-| **External VMUs (HDD)** | `/data/fakeusb/DC/VMU/` |
-| **HDD VMU cards** | `/data/Resonance/data/` |
 
 ## Offline Account activation
 

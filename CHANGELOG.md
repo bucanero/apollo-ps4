@@ -6,6 +6,37 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ---
 
+## [v2.4.0](https://github.com/bucanero/apollo-ps4/releases/tag/v2.4.0) - 2026-10-17
+
+### Added
+
+* Manage Dreamcast Virtual Memory Card images (VMU)
+  - Supports `.BIN` and external formats (`.DCM`, `.VMU`)
+  - List, import, export, and delete DC saves inside VMU images
+  - Import/Export - Supported formats: `.VMI/VMS`, `.DCI`
+* Render PS2 3D icons properly (PS2 VMCs)
+* Apollo Patch Engine v3.0.0
+  - MGS Peace Walker decryption support for PSP saves.
+  - Fletcher-16 and Fletcher-32 checksums.
+  - New `[SW:]`, `[BSD:]`, `[LE:]` and `[BE:]` title prefixes, which can be combined.
+  - Save Wizard lines inside BSD scripts.
+  - Fix Several BSD byte-order bugs.
+  - Fix MicroPython `struct.pack_into` bug on 32-bit targets.
+  - Parser fixes for tabs and for unreadable `set pointer` arguments.
+
+### Fixed
+
+* Fixed bulk save export on PS1 memcards.
+* PS2 single save format fixes. (AR Max, CodeBreaker, PSU, XPS)
+* Fixed minor PS1 memcard issues.
+* Fixed a bug when reloading a virtual memcard after an update.
+
+### Misc
+
+* Add missing translation strings.
+
+---
+
 ## [v2.3.2](https://github.com/bucanero/apollo-ps4/releases/tag/v2.3.2) - 2026-04-26
 
 ### Added

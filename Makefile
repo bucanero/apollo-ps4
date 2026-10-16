@@ -11,7 +11,7 @@ LIBS        := -lc -lkernel -lc++ -lSceAudioOut -lSceUserService -lScePigletv2VS
                -lSceRegMgr -lSceImeDialog -lSDL2 -lapollo -ldbglogger -lz -lzip -ljbc -lmxml -lunrar -lun7zip -ls3m
 
 # Additional compile flags.
-EXTRAFLAGS  := -fcolor-diagnostics -Wall -D__PS4__
+EXTRAFLAGS  := -O2 -fcolor-diagnostics -Wall -D__PS4__
 
 ifeq ($(DEBUGLOG),1)
     EXTRAFLAGS += -DAPOLLO_ENABLE_LOGGING
@@ -82,10 +82,10 @@ eboot.bin: $(INTDIR) $(OBJS)
 	$(LD) $(INTDIR)/*.o -o $(INTDIR)/$(PROJDIR).elf $(LDFLAGS)
 	$(TOOLCHAIN)/bin/$(CDIR)/create-fself -in=$(INTDIR)/$(PROJDIR).elf -out=$(INTDIR)/$(PROJDIR).oelf --eboot "eboot.bin" --paid 0x3800000000000011 --authinfo 000000000000000000000000001C004000FF000000000080000000000000000000000000000000000000008000400040000000000000008000000000000000080040FFFF000000F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-$(INTDIR)/%.o: $(PROJDIR)/%.c
+$(INTDIR)/%.o: $(PROJDIR)/%.c Makefile
 	$(CC) $(CFLAGS) -o $@ $<
 
-$(INTDIR)/%.o: $(PROJDIR)/%.cpp
+$(INTDIR)/%.o: $(PROJDIR)/%.cpp Makefile
 	$(CCX) $(CXXFLAGS) -o $@ $<
 
 clean: ## Remove all generated files.

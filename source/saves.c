@@ -2110,7 +2110,7 @@ list_t * ReadVmc1List(const char* userPath)
 		asprintf(&item->path, "%s\n%s", userPath, mcdata[i].saveName);
 		free(tmp);
 
-		if(strlen(item->title_id) == 10 && item->title_id[4] == '-')
+		if(strlen(item->title_id) == 10 && (item->title_id[4] == '-' || item->title_id[4] == 'P'))
 			memmove(&item->title_id[4], &item->title_id[5], 6);
 
 		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
@@ -2240,7 +2240,7 @@ list_t * ReadVmc2List(const char* userPath)
 			asprintf(&item->path, "%s\n%s/\n%s", userPath, dirent.name, iconsys.copyIconName);
 			free(title);
 
-			if(strlen(item->title_id) == 10 && item->title_id[4] == '-')
+			if(strlen(item->title_id) == 10 && (item->title_id[4] == '-' || item->title_id[4] == 'P'))
 				memmove(&item->title_id[4], &item->title_id[5], 6);
 			
 			LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);

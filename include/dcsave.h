@@ -65,6 +65,12 @@ int vms_parse(const uint8_t *data, size_t len, size_t off, vms_header_t *vms);
  * CRC field itself taken as zero. Returns -1 if the file is too short. */
 int vms_calc_crc(const vms_header_t *vms);
 
+#define VMS_CRC_OFFSET      0x46
+
+/* Recompute and store the CRC of the VMS header at `off`. Returns 0, or -1 if
+ * there is no valid header. */
+int vms_update_crc(uint8_t *data, size_t len, size_t off);
+
 /* Icon frame `frame` as 32x32 RGBA, malloc'd; NULL if there is none */
 uint8_t *vms_icon_rgba(const vms_header_t *vms, int frame);
 

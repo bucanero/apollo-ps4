@@ -1625,6 +1625,58 @@ static int apply_sfo_patches(save_entry_t* entry, sfo_patch_t* patch)
 	return (patch_sfo(in_file_path, patch) == SUCCESS);
 }
 
+// VMC save files are dumped to a temp file, as their names might not be valid on disk
+static void _vmc_tmp_path(const save_entry_t *entry, const char* filename, char* path, size_t len)
+{
+	uint32_t hash = apollo_hash_fnv1((uint8_t*) entry->dir_name, strlen(entry->dir_name), 0x811C9DC5);
+
+	hash = apollo_hash_fnv1((uint8_t*) filename, strlen(filename), hash);
+	snprintf(path, len, APOLLO_LOCAL_CACHE "%08X.VMC", hash);
+}
+
+static int _vmc_is_dumped(list_t* list, const char* fname)
+{
+	list_node_t *node;
+
+	for (node = list_head(list); node; node = list_next(node))
+		if (strcmp(list_get(node), fname) == 0)
+			return 1;
+
+	return 0;
+}
+
+static int _vmc_dump_file(const save_entry_t *entry, const char* filename, const char* path)
+{
+	uint8_t* data;
+	size_t size;
+	int ret;
+
+	LOG("Dumping VMC save file '%s/%s' to '%s'", entry->dir_name, filename, path);
+	if (!vmc_read_save_file(entry, filename, &data, &size))
+		return 0;
+
+	ret = (write_buffer(path, data, size) == SUCCESS);
+	free(data);
+
+	return ret;
+}
+
+static int _vmc_inject_file(const save_entry_t *entry, const char* filename, const char* path)
+{
+	uint8_t* data;
+	size_t size;
+	int ret;
+
+	LOG("Injecting '%s' to VMC save '%s/%s'...", path, entry->dir_name, filename);
+	if (read_buffer(path, &data, &size) != SUCCESS)
+		return 0;
+
+	ret = vmc_write_save_file(entry, filename, data, size);
+	free(data);
+
+	return ret;
+}
+
 static int apply_cheat_patches(const save_entry_t* entry)
 {
 	int ret = 1;
@@ -1632,6 +1684,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 	char* filename;
 	code_entry_t* code;
 	list_node_t* node;
+	list_t* vmc_files = list_alloc();
 
 	init_loading_screen(_("Applying changes..."));
 
@@ -1655,6 +1708,25 @@ static int apply_cheat_patches(const save_entry_t* entry)
 
 		if (strncmp(code->file, "~extracted\\", 11) == 0)
 			snprintf(tmpfile, sizeof(tmpfile), "%s", code->file);
+		else if (entry->flags & SAVE_FLAG_VMC)
+		{
+			// PS1 and DC saves are a single file, named after the save
+			if (entry->type != FILE_TYPE_PS2)
+				filename = entry->dir_name;
+
+			_vmc_tmp_path(entry, filename, tmpfile, sizeof(tmpfile));
+			if (!_vmc_is_dumped(vmc_files, filename))
+			{
+				if (!_vmc_dump_file(entry, filename, tmpfile))
+				{
+					LOG("Error: failed to dump (%s)", filename);
+					code->activated = 0;
+					ret = 0;
+					continue;
+				}
+				list_append(vmc_files, strdup(filename));
+			}
+		}
 		else
 			snprintf(tmpfile, sizeof(tmpfile), "%s%s", entry->path, filename);
 
@@ -1666,6 +1738,21 @@ static int apply_cheat_patches(const save_entry_t* entry)
 
 		code->activated = 0;
 	}
+
+	// Write the patched files back to the memory card
+	for (node = list_head(vmc_files); (filename = list_get(node)); node = list_next(node))
+	{
+		_vmc_tmp_path(entry, filename, tmpfile, sizeof(tmpfile));
+		if (!_vmc_inject_file(entry, filename, tmpfile))
+		{
+			LOG("Error: failed to inject (%s)", filename);
+			ret = 0;
+		}
+
+		unlink_secure(tmpfile);
+		free(filename);
+	}
+	list_free(vmc_files);
 
 	apollo_free_var_list();
 	stop_loading_screen();
@@ -1682,6 +1769,19 @@ static void resignSave(save_entry_t* entry)
 		.directory = NULL,
 		.account_id = apollo_config.account_id,
 	};
+
+    if (entry->flags & SAVE_FLAG_VMC)
+    {
+        LOG("Applying cheats to VMC save '%s'...", entry->name);
+        if (!apply_cheat_patches(entry))
+            show_message(_("Error! Cheat codes couldn't be applied"));
+        else
+            show_message(_("Save %s successfully modified!"), entry->title_id);
+
+        // The memory card is written back when leaving the menu
+        entry->flags |= SAVE_FLAG_UPDATED;
+        return;
+    }
 
     LOG("Resigning save '%s'...", entry->name);
 

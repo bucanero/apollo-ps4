@@ -537,6 +537,318 @@ option_entry_t* get_file_entries(const char* path, const char* mask)
 }
 
 /*
+ * VMC saves live inside the open memory card image, not as files on disk.
+ * PS1 and DC saves are a single data file (the save itself, named after it),
+ * while a PS2 save is a folder of files.
+ */
+int vmc_read_save_file(const save_entry_t* save, const char* filename, uint8_t** data, size_t* size)
+{
+	int fd, r;
+	uint32_t len;
+	char path[256];
+	struct io_dirent dirent;
+
+	switch (save->type)
+	{
+	case FILE_TYPE_PS1:
+		// Save data without the 128-byte directory header
+		*data = getSaveBytes(save->blocks, &len);
+		*size = len - PS1CARD_HEADER_SIZE;
+		memmove(*data, *data + PS1CARD_HEADER_SIZE, *size);
+		return 1;
+
+	case FILE_TYPE_PS2:
+		snprintf(path, sizeof(path), "%s/%s", save->dir_name, filename);
+		if (mcio_mcStat(path, &dirent) < 0)
+			return 0;
+
+		fd = mcio_mcOpen(path, sceMcFileAttrReadable | sceMcFileAttrFile);
+		if (fd < 0)
+			return 0;
+
+		*size = dirent.stat.size;
+		*data = malloc(*size + 1);
+		r = mcio_mcRead(fd, *data, *size);
+		mcio_mcClose(fd);
+
+		if (r != (int) *size)
+		{
+			LOG("Error: can't read '%s' (%d)", path, r);
+			free(*data);
+			return 0;
+		}
+		return 1;
+
+	case FILE_TYPE_DC:
+		return dccard_read_file(save->blocks, data, size);
+	}
+
+	return 0;
+}
+
+static int _vmc2_write_file(const char* path, const uint8_t* data, size_t size, int create)
+{
+	int fd, r;
+
+	fd = mcio_mcOpen(path, (create ? sceMcFileCreateFile : 0) | sceMcFileAttrWriteable | sceMcFileAttrFile);
+	if (fd < 0)
+		return 0;
+
+	r = mcio_mcWrite(fd, (void*) data, size);
+
+	// Closing flushes the card cache, which can fail on its own
+	if (mcio_mcClose(fd) != sceMcResSucceed)
+		return 0;
+
+	return (r == (int) size);
+}
+
+int vmc_write_save_file(const save_entry_t* save, const char* filename, const uint8_t* data, size_t size)
+{
+	int ret;
+	char path[256];
+	uint8_t* backup;
+	size_t backup_size;
+	struct io_dirent dirent, newent;
+
+	switch (save->type)
+	{
+	case FILE_TYPE_PS1:
+		return setRawSaveBytes(save->blocks, data, size);
+
+	case FILE_TYPE_PS2:
+		snprintf(path, sizeof(path), "%s/%s", save->dir_name, filename);
+		if (mcio_mcStat(path, &dirent) < 0)
+			return 0;
+
+		if (dirent.stat.size == size)
+			return _vmc2_write_file(path, data, size, 0);
+
+		// mcio can't truncate: replace the file, keeping its attributes and dates
+		if (!vmc_read_save_file(save, filename, &backup, &backup_size))
+			return 0;
+
+		LOG("Replacing '%s' (%d -> %d bytes)", path, dirent.stat.size, (int) size);
+		mcio_mcRemove(path);
+		ret = _vmc2_write_file(path, data, size, 1);
+		if (!ret)
+		{
+			LOG("Error: can't write '%s', restoring it", path);
+			mcio_mcRemove(path);
+			_vmc2_write_file(path, backup, backup_size, 1);
+		}
+		free(backup);
+
+		if (mcio_mcStat(path, &newent) == sceMcResSucceed)
+		{
+			memcpy(&newent.stat.ctime, &dirent.stat.ctime, sizeof(struct sceMcStDateTime));
+			memcpy(&newent.stat.mtime, &dirent.stat.mtime, sizeof(struct sceMcStDateTime));
+			newent.stat.mode = dirent.stat.mode;
+			newent.stat.attr = dirent.stat.attr;
+			mcio_mcSetStat(path, &newent);
+		}
+		return ret;
+
+	case FILE_TYPE_DC:
+		return dccard_write_file(save->blocks, data, size);
+	}
+
+	return 0;
+}
+
+// PS1 and DC saves have a single data file: the save name stored on the memory card
+static option_entry_t* _getVmcFileOptions(const char* save_name, const char* mask, uint8_t is_cmd)
+{
+	option_value_t* optval;
+	option_entry_t* opt = _initOptions(1);
+
+	optval = malloc(sizeof(option_value_t));
+	optval->name = strdup(save_name);
+
+	if (is_cmd)
+		asprintf(&optval->value, "%c", is_cmd);
+	else
+		asprintf(&optval->value, "%s", mask);
+
+	list_append(opt[0].opts, optval);
+
+	return opt;
+}
+
+static option_entry_t* get_vmc_file_entries(const char* save_name, const char* mask)
+{
+	return _getVmcFileOptions(save_name, mask, CMD_CODE_NULL);
+}
+
+// PS2 saves are a folder on the memory card
+static option_entry_t* _getVmc2FileOptions(const char* save_dir, const char* mask, uint8_t is_cmd)
+{
+	int dd, r;
+	struct io_dirent dirent;
+	option_value_t* optval;
+	option_entry_t* opt = _initOptions(1);
+
+	LOG("Loading filenames {%s} from 'VMC:/%s'...", mask, save_dir);
+
+	if ((dd = mcio_mcDopen(save_dir)) >= 0)
+	{
+		// mcio_mcDread returns 1 per entry, 0 at the end, or a negative error
+		while ((r = mcio_mcDread(dd, &dirent)) > 0)
+		{
+			if (strcmp(dirent.name, ".") != 0 && strcmp(dirent.name, "..") != 0 &&
+				strcmp(dirent.name, "icon.sys") != 0 &&
+				!(dirent.stat.mode & sceMcFileAttrSubdir) && wildcard_match_icase(dirent.name, mask))
+			{
+				LOG("Adding '%s' (%s)", dirent.name, mask);
+
+				optval = malloc(sizeof(option_value_t));
+				optval->name = strdup(dirent.name);
+				if (is_cmd)
+					asprintf(&optval->value, "%c", is_cmd);
+				else
+					asprintf(&optval->value, "%s", mask);
+
+				list_append(opt[0].opts, optval);
+			}
+		}
+
+		if (r < 0)
+			LOG("Error: can't list 'VMC:/%s' (%d)", save_dir, r);
+
+		mcio_mcDclose(dd);
+	}
+
+	if (list_count(opt[0].opts) == 0)
+	{
+		optval = malloc(sizeof(option_value_t));
+		asprintf(&optval->name, CHAR_ICON_WARN " --- %s/%s --- " CHAR_ICON_WARN, save_dir, mask);
+		asprintf(&optval->value, "%c", CMD_CODE_NULL);
+		list_append(opt[0].opts, optval);
+	}
+
+	return opt;
+}
+
+static option_entry_t* get_vmc2_file_entries(const char* save_dir, const char* mask)
+{
+	return _getVmc2FileOptions(save_dir, mask, CMD_CODE_NULL);
+}
+
+static void _addVmcHexEditCommand(save_entry_t* save)
+{
+	code_entry_t* cmd;
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " ", _("Hex Edit save game files"), CMD_CODE_NULL);
+	cmd->options_count = 1;
+	if (save->type == FILE_TYPE_PS2)
+		cmd->options = _getVmc2FileOptions(save->dir_name, "*", CMD_HEX_EDIT_FILE);
+	else
+		cmd->options = _getVmcFileOptions(save->dir_name, "*", CMD_HEX_EDIT_FILE);
+	list_append(save->codes, cmd);
+}
+
+// Whether a code's ":file" target applies to this save. PS1 and DC targets name
+// the save itself; PS2 targets are files in the save folder, optionally behind
+// a "SAVEDIR\\" filter.
+static int _vmc_code_matches(const save_entry_t* save, const char* target)
+{
+	char* dir;
+	int ret;
+
+	if (!target || !target[0] || target[0] == '~')
+		return 1;
+
+	if (save->type != FILE_TYPE_PS2)
+		return wildcard_match_icase(save->dir_name, strrchr(target, '\\') ? strrchr(target, '\\')+1 : target);
+
+	if (!strchr(target, '\\'))
+		return 1;
+
+	dir = strdup(target);
+	*strchr(dir, '\\') = 0;
+	ret = wildcard_match_icase(save->dir_name, dir);
+	free(dir);
+
+	return ret;
+}
+
+static void _addVmcCheatCodes(save_entry_t* save)
+{
+	code_entry_t* cmd;
+	list_node_t* node;
+	char filePath[256];
+	char* buffer;
+
+	snprintf(filePath, sizeof(filePath), APOLLO_DATA_PATH "%s.savepatch", save->title_id);
+	if ((buffer = readTextFile(filePath)) == NULL)
+		return;
+
+	cmd = _createCmdCode(PATCH_NULL, NULL, NULL, CMD_CODE_NULL);
+	asprintf(&cmd->name, "----- " UTF8_CHAR_STAR " %s " UTF8_CHAR_STAR " -----", _("Cheats"));
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " ", _("View Raw Patch File"), CMD_VIEW_RAW_PATCH);
+	list_append(save->codes, cmd);
+
+	node = list_tail(save->codes);
+	LOG("Loading BSD codes '%s'...", filePath);
+	apollo_load_code_list(buffer, save->codes, (save->type == FILE_TYPE_PS2) ? &get_vmc2_file_entries : &get_vmc_file_entries, save->dir_name);
+	free(buffer);
+
+	// A patch can cover several saves of a game (e.g. a system file and the
+	// slot files): disable the codes that target a different file
+	for (node = list_next(node); (cmd = list_get(node)); node = list_next(node))
+		if (!_vmc_code_matches(save, cmd->file))
+		{
+			// [DEFAULT:...] codes load activated: PS1 and DC apply every code to
+			// the save itself, so a rejected one must not stay active
+			LOG("(%s) Disabled code '%s'", cmd->file, cmd->name);
+			cmd->flags |= (APOLLO_CODE_FLAG_ALERT | APOLLO_CODE_FLAG_DISABLED);
+			cmd->activated = 0;
+		}
+}
+
+/*
+ * DC saves have no title ID: games name their VMU files freely (SONICADV_002,
+ * SONICADV_501, ...) and per region. DATA/dctitleid.txt, generated from the
+ * patches' "; DC:" header lines, maps file name patterns to a patch:
+ *   PATTERN <TAB> PATCH_ID <TAB> TITLE
+ * sorted most specific first, so the first match wins. Returns the patch ID,
+ * or NULL to fall back to a patch named after the file itself.
+ */
+static char* get_dc_patch_id(const char* catalog, const char* vmu_name)
+{
+	const char *line, *end, *tab;
+	char pattern[64];
+	size_t len;
+
+	for (line = catalog; line && *line; line = end ? end + 1 : NULL)
+	{
+		end = strchr(line, '\n');
+		len = end ? (size_t)(end - line) : strlen(line);
+
+		if (*line == '#' || (tab = memchr(line, '\t', len)) == NULL || (size_t)(tab - line) >= sizeof(pattern))
+			continue;
+
+		snprintf(pattern, sizeof(pattern), "%.*s", (int)(tab - line), line);
+		if (!wildcard_match_icase(vmu_name, pattern))
+			continue;
+
+		len -= (tab + 1 - line);
+		line = tab + 1;
+		if ((tab = memchr(line, '\t', len)) != NULL)
+			len = tab - line;
+
+		while (len && (line[len-1] == '\r' || line[len-1] == ' '))
+			len--;
+
+		return len ? strndup(line, len) : NULL;
+	}
+
+	return NULL;
+}
+
+/*
  * Function:		ReadLocalCodes()
  * File:			saves.c
  * Project:			Apollo PS3
@@ -812,6 +1124,9 @@ int ReadVmc1Codes(save_entry_t * save)
 		return list_count(save->codes);
 	}
 
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " ", _("Apply Changes"), CMD_RESIGN_SAVE);
+	list_append(save->codes, cmd);
+
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " ", _("View Save Details"), CMD_VIEW_DETAILS);
 	list_append(save->codes, cmd);
 
@@ -854,6 +1169,9 @@ int ReadVmc1Codes(save_entry_t * save)
 	list_append(cmd->options[0].opts, optval);
 	cmd->options[0].id = PS1SAVE_AR;
 	list_append(save->codes, cmd);
+
+	_addVmcHexEditCommand(save);
+	_addVmcCheatCodes(save);
 
 	LOG("Loaded %ld codes", list_count(save->codes));
 
@@ -967,6 +1285,9 @@ int ReadVmc2Codes(save_entry_t * save)
 		return list_count(save->codes);
 	}
 
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " ", _("Apply Changes"), CMD_RESIGN_SAVE);
+	list_append(save->codes, cmd);
+
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " ", _("View Save Details"), CMD_VIEW_DETAILS);
 	list_append(save->codes, cmd);
 
@@ -1000,6 +1321,9 @@ int ReadVmc2Codes(save_entry_t * save)
 	list_append(cmd->options[0].opts, optval);
 	cmd->options[0].id = FILE_TYPE_PSV;
 	list_append(save->codes, cmd);
+
+	_addVmcHexEditCommand(save);
+	_addVmcCheatCodes(save);
 
 	LOG("Loaded %ld codes", list_count(save->codes));
 
@@ -1103,6 +1427,9 @@ int ReadVmuCodes(save_entry_t * save)
 		return list_count(save->codes);
 	}
 
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " ", _("Apply Changes"), CMD_RESIGN_SAVE);
+	list_append(save->codes, cmd);
+
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " ", _("View Save Details"), CMD_VIEW_DETAILS);
 	list_append(save->codes, cmd);
 
@@ -1115,6 +1442,9 @@ int ReadVmuCodes(save_entry_t * save)
 
 	add_vmu_export_option(save, _("Export save game to .DCI format"), _("Copy .DCI Save to USB"), _("Copy .DCI Save to HDD"), FILE_TYPE_DCI);
 	add_vmu_export_option(save, _("Export save game to .VMI/.VMS format"), _("Copy .VMI/.VMS Save to USB"), _("Copy .VMI/.VMS Save to HDD"), FILE_TYPE_VMI);
+
+	_addVmcHexEditCommand(save);
+	_addVmcCheatCodes(save);
 
 	LOG("Loaded %ld codes", list_count(save->codes));
 
@@ -2110,7 +2440,7 @@ list_t * ReadVmc1List(const char* userPath)
 		asprintf(&item->path, "%s\n%s", userPath, mcdata[i].saveName);
 		free(tmp);
 
-		if(strlen(item->title_id) == 10 && item->title_id[4] == '-')
+		if(strlen(item->title_id) == 10 && (item->title_id[4] == '-' || item->title_id[4] == 'P'))
 			memmove(&item->title_id[4], &item->title_id[5], 6);
 
 		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
@@ -2206,9 +2536,8 @@ list_t * ReadVmc2List(const char* userPath)
 
 	struct io_dirent dirent;
 
-	do {
-		r = mcio_mcDread(dd, &dirent);
-		if ((r) && (strcmp(dirent.name, ".")) && (strcmp(dirent.name, "..")))
+	while ((r = mcio_mcDread(dd, &dirent)) > 0) {
+		if ((strcmp(dirent.name, ".")) && (strcmp(dirent.name, "..")))
 		{
 			snprintf(filePath, sizeof(filePath), "%s/icon.sys", dirent.name);
 			LOG("Reading %s...", filePath);
@@ -2240,13 +2569,16 @@ list_t * ReadVmc2List(const char* userPath)
 			asprintf(&item->path, "%s\n%s/\n%s", userPath, dirent.name, iconsys.copyIconName);
 			free(title);
 
-			if(strlen(item->title_id) == 10 && item->title_id[4] == '-')
+			if(strlen(item->title_id) == 10 && (item->title_id[4] == '-' || item->title_id[4] == 'P'))
 				memmove(&item->title_id[4], &item->title_id[5], 6);
 			
 			LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
 			list_append(list, item);
 		}
-	} while (r);
+	}
+
+	if (r < 0)
+		LOG("mcio Dread Error %d", r);
 
 	mcio_mcDclose(dd);
 
@@ -2260,6 +2592,7 @@ list_t * ReadVmuList(const char* userPath)
 	code_entry_t *cmd;
 	list_t *list;
 	dccard_file_t info;
+	char *catalog;
 
 	if (!dccard_open(userPath))
 	{
@@ -2320,6 +2653,8 @@ list_t * ReadVmuList(const char* userPath)
 		list_append(list, item);
 	}
 
+	catalog = readTextFile(APOLLO_DATA_PATH "dctitleid.txt");
+
 	for (int i = 0; i < dccard_dir_count(); i++)
 	{
 		if (dccard_file_info(i, &info) != 1)
@@ -2331,7 +2666,9 @@ list_t * ReadVmuList(const char* userPath)
 		item = _createSaveEntry(SAVE_FLAG_DC | SAVE_FLAG_VMC, "", tmp);
 		item->type = FILE_TYPE_DC;
 		item->blocks = i;
-		item->title_id = strdup(info.ent.filename);
+		item->title_id = catalog ? get_dc_patch_id(catalog, info.ent.filename) : NULL;
+		if (!item->title_id)
+			item->title_id = strdup(info.ent.filename);
 		item->dir_name = strdup(info.ent.filename);
 		asprintf(&item->path, "%s\n%s", userPath, info.ent.filename);
 		free(tmp);
@@ -2342,6 +2679,8 @@ list_t * ReadVmuList(const char* userPath)
 		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
 		list_append(list, item);
 	}
+
+	free(catalog);
 
 	return list;
 }

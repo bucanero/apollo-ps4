@@ -82,6 +82,9 @@ void setIconBytes(int slotNumber, uint8_t* iconBytes);
 //Return all bytes of the specified save
 uint8_t* getSaveBytes(int slotNumber, uint32_t* saveLen);
 
+//Overwrite the save data (no header) of the specified save
+int setRawSaveBytes(int slotNumber, const uint8_t* saveBytes, uint32_t saveLen);
+
 //Toggle deleted/undeleted status
 void toggleDeleteSave(int slotNumber);
 

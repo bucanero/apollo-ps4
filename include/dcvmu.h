@@ -142,6 +142,10 @@ int vmu_read_file(const vmu_card_t *card, int idx, uint8_t **out, size_t *len);
  * be contiguous, as the VMU runs them in place. */
 int vmu_write_file(vmu_card_t *card, vmu_dirent_t *ent, const uint8_t *data, size_t len);
 
+/* Replace a file's contents in place, keeping its blocks and directory entry.
+ * `len` must be the file's size (filesize * 512). */
+int vmu_overwrite_file(vmu_card_t *card, int idx, const uint8_t *data, size_t len);
+
 /* Free a file's blocks and clear its directory slot */
 int vmu_delete_file(vmu_card_t *card, int idx);
 

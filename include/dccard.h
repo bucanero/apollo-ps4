@@ -49,6 +49,14 @@ uint8_t* dccard_get_icon(int idx);
 
 int dccard_delete(int idx);
 
+/* The file's raw blocks, malloc'd. Returns 1 on success. */
+int dccard_read_file(int idx, uint8_t** data, size_t* len);
+
+/* Replace the file's contents; `len` must match its size. A VMS CRC that was
+ * valid before, and that the new data leaves untouched, is updated. Returns
+ * 1 on success. */
+int dccard_write_file(int idx, const uint8_t* data, size_t len);
+
 /* Import a .DCI, or a .VMI and the .VMS it names. A file with the same name
  * is replaced. Returns 1 on success. */
 int dccard_import_save(const char* path);

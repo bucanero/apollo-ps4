@@ -575,9 +575,8 @@ int vmc_export_psv(const char* save, const char* out_path)
 
 	// Build the PS2 FileInfo entries
 	i = 0;
-	do {
-		r = mcio_mcDread(dd, &dirent);
-		if (r && (strcmp(dirent.name, ".")) && (strcmp(dirent.name, "..")))
+	while ((r = mcio_mcDread(dd, &dirent)) > 0) {
+		if ((strcmp(dirent.name, ".")) && (strcmp(dirent.name, "..")))
 		{
 			snprintf(filePath, sizeof(filePath), "%s/%s", save, dirent.name);
 			mcio_mcStat(filePath, &dirent);
@@ -617,9 +616,17 @@ int vmc_export_psv(const char* save, const char* out_path)
 			}
 			i++;
 		}
-	} while (r);
+	}
 
 	mcio_mcDclose(dd);
+
+	if (r < 0)
+	{
+		LOG("Error! can't read '%s' (%d)", save, r);
+		free(ps2fi);
+		fclose(psvFile);
+		return 0;
+	}
 
 	LOG("%d Files: %8d Total bytes", i, ps2h.displaySize);
 
@@ -632,9 +639,8 @@ int vmc_export_psv(const char* save, const char* out_path)
 	dd = mcio_mcDopen(save);
 
 	i = 0;
-	do {
-		r = mcio_mcDread(dd, &dirent);
-		if (r && (strcmp(dirent.name, ".")) && (strcmp(dirent.name, "..")))
+	while ((r = mcio_mcDread(dd, &dirent)) > 0) {
+		if ((strcmp(dirent.name, ".")) && (strcmp(dirent.name, "..")))
 		{
 			snprintf(filePath, sizeof(filePath), "%s/%s", save, dirent.name);
 			LOG("(%d/%d) Add '%s'", ++i, ps2h.numberOfFiles, filePath);
@@ -666,7 +672,11 @@ int vmc_export_psv(const char* save, const char* out_path)
 			fwrite(data, 1, dirent.stat.size, psvFile);
 			free(data);
 		}
-	} while (r);
+	}
+
+	// A directory read error is a failed export too
+	if (r < 0)
+		i = 0;
 
 	mcio_mcDclose(dd);
 
@@ -719,9 +729,8 @@ int vmc_export_psu(const char* path, const char* output)
 	strncpy(entry.name, "..", sizeof(entry.name));
 	fwrite(&entry, sizeof(McFsEntry), 1, fh);
 
-	do {
-		r = mcio_mcDread(dd, &dirent);
-		if (r && (strcmp(dirent.name, ".")) && (strcmp(dirent.name, "..")))
+	while ((r = mcio_mcDread(dd, &dirent)) > 0) {
+		if ((strcmp(dirent.name, ".")) && (strcmp(dirent.name, "..")))
 		{
 			snprintf(filepath, sizeof(filepath), "%s/%s", path, dirent.name);
 			LOG("Adding (%d/%d) %-40s | %8d bytes", ++i, total, filepath, dirent.stat.size);
@@ -759,7 +768,6 @@ int vmc_export_psu(const char* path, const char* output)
 
 			r = fwrite(p, 1, dirent.stat.size, fh);
 			if (r != (int)dirent.stat.size) {
-				fclose(fh);
 				free(p);
 				i = 0;
 				break;
@@ -770,7 +778,11 @@ int vmc_export_psu(const char* path, const char* output)
 			while(--entry.length < 1023)
 				fputc(0xFF, fh);
 		}
-	} while (r);
+	}
+
+	// A directory read error is a failed export too
+	if (r < 0)
+		i = 0;
 
 	mcio_mcDclose(dd);
 	fclose(fh);
@@ -792,17 +804,22 @@ int vmc_delete_save(const char* path)
 	if (dd < 0)
 		return 0;
 
-	do {
-		r = mcio_mcDread(dd, &dirent);
-		if (r && (strcmp(dirent.name, ".")) && (strcmp(dirent.name, "..")))
+	while ((r = mcio_mcDread(dd, &dirent)) > 0) {
+		if ((strcmp(dirent.name, ".")) && (strcmp(dirent.name, "..")))
 		{
 			snprintf(filepath, sizeof(filepath), "%s/%s", path, dirent.name);
 			LOG("Deleting '%s'", filepath);
 			mcio_mcRemove(filepath);
 		}
-	} while (r);
+	}
 
 	mcio_mcDclose(dd);
+	if (r < 0)
+	{
+		LOG("Error! can't read '%s' (%d)", path, r);
+		return 0;
+	}
+
 	r = mcio_mcRmDir(path);
 
 	return (r == sceMcResSucceed);

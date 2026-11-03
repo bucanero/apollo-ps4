@@ -48,7 +48,8 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 {
 	char path[256];
 
-	_set_dest_path(path, dst, (entry->flags & SAVE_FLAG_PS4) ? PS4_SAVES_PATH_USB : PSV_SAVES_PATH_USB);
+	_set_dest_path(path, dst, (entry->flags & SAVE_FLAG_PS4) ? PS4_SAVES_PATH_USB :
+		(entry->flags & SAVE_FLAG_DC) ? DC_SAVES_PATH_USB : PSV_SAVES_PATH_USB);
 	if (mkdirs(path) != SUCCESS)
 	{
 		show_message("%s\n%s", _("Error! Export folder is not available:"), path);

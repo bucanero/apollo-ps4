@@ -78,6 +78,7 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 	char mountDir[256];
 	char keyPath[256];
 	char volumePath[256];
+	int sdimgMount = 0;
 
 	snprintf(mountDir, sizeof(mountDir), APOLLO_SANDBOX_PATH, save->dir_name);
 	if (mkdirs(mountDir) < 0)
@@ -98,6 +99,7 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 	}
 	else
 	{
+		sdimgMount = 1;
 		snprintf(keyPath, sizeof(keyPath), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
 		snprintf(volumePath, sizeof(volumePath), SAVES_PATH_HDD "%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
 	}
@@ -137,6 +139,12 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 	}
 
 	int mountErrorCode = mountSave(volumePath, keyPath, mountDir);
+	if (mountErrorCode < 0 && sdimgMount)
+	{
+		// Try again without the sdimg_ prefix (early saves seem to lack it) if applicable
+		snprintf(volumePath, sizeof(volumePath), SAVES_PATH_HDD "%s/%s", apollo_config.user_id, save->title_id, save->dir_name);
+		mountErrorCode = mountSave(volumePath, keyPath, mountDir);
+	}
 	if (mountErrorCode < 0)
 	{
 		LOG("ERROR (%X): can't mount '%s/%s'", mountErrorCode, save->title_id, save->dir_name);

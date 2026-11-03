@@ -208,39 +208,60 @@ static void SetMenu(int id)
 			break;
 
 		case MENU_PATCHES: //Cheat Selection Menu
-			if (selected_entry->flags & SAVE_FLAG_UPDATED)
+			// The patch menu's own screens (code options, hex editor, details)
+			// come back to it: keep the flag until we leave to the save list
+			if (selected_entry->flags & SAVE_FLAG_UPDATED &&
+				id != MENU_PATCH_VIEW && id != MENU_CODE_OPTIONS && id != MENU_SAVE_DETAILS && id != MENU_HEX_EDITOR)
 			{
-				// Clear the flag first: reloading the list below frees every
-				// entry, selected_entry included, and writing to it afterwards
-				// corrupts whatever the new list allocated in its place.
-				selected_entry->flags ^= SAVE_FLAG_UPDATED;
-
+				// Clear the flag before reloading: reloading the list frees
+				// every entry, selected_entry included, and writing to it
+				// afterwards corrupts whatever the new list allocated in its place.
+				// A card that fails to save keeps the flag, and its changes in
+				// memory, so leaving the save again retries.
 				switch (id)
 				{
 				case MENU_PS2VMC_SAVES:
+					selected_entry->flags ^= SAVE_FLAG_UPDATED;
 					ReloadUserSaves(&vmc2_saves);
 					break;
 
 				case MENU_PS1VMC_SAVES:
-					saveMemoryCard(vmc1_saves.path, 0, 0);
+					if (!saveMemoryCard(vmc1_saves.path, 0, 0))
+					{
+						show_message("%s\n%s", _("Error! Couldn't save changes to:"), vmc1_saves.path);
+						break;
+					}
+					selected_entry->flags ^= SAVE_FLAG_UPDATED;
 					ReloadUserSaves(&vmc1_saves);
 					break;
 
 				case MENU_DCVMC_SAVES:
-					dccard_save(vmu_saves.path);
+					if (!dccard_save(vmu_saves.path))
+					{
+						show_message("%s\n%s", _("Error! Couldn't save changes to:"), vmu_saves.path);
+						break;
+					}
+					selected_entry->flags ^= SAVE_FLAG_UPDATED;
 					ReloadUserSaves(&vmu_saves);
 					break;
 
 				case MENU_HDD_SAVES:
+					selected_entry->flags ^= SAVE_FLAG_UPDATED;
 					ReloadUserSaves(&hdd_saves);
 					break;
 
 				case MENU_USB_SAVES:
+					selected_entry->flags ^= SAVE_FLAG_UPDATED;
 					ReloadUserSaves(&usb_saves);
 					break;
 
 				case MENU_TROPHIES:
+					selected_entry->flags ^= SAVE_FLAG_UPDATED;
 					ReloadUserSaves(&trophies);
+					break;
+
+				default:
+					selected_entry->flags ^= SAVE_FLAG_UPDATED;
 					break;
 				}
 			}
@@ -723,7 +744,18 @@ static void doHexEditor(void)
 
 	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE))
 	{
-		if (show_dialog(DIALOG_TYPE_YESNO, _("Save changes to %s?"), strrchr(hex_data.filepath, '/') + 1) &&
+		if (selected_entry->flags & SAVE_FLAG_VMC)
+		{
+			// Write the changes straight to the memory card save
+			if (show_dialog(DIALOG_TYPE_YESNO, _("Save changes to %s?"), strrchr(hex_data.filepath, '/') + 1))
+			{
+				if (vmc_write_save_file(selected_entry, strrchr(hex_data.filepath, '/') + 1, hex_data.data, hex_data.size))
+					selected_entry->flags |= SAVE_FLAG_UPDATED;
+				else
+					show_message("%s\n%s", _("Error! Couldn't save changes to:"), hex_data.filepath);
+			}
+		}
+		else if (show_dialog(DIALOG_TYPE_YESNO, _("Save changes to %s?"), strrchr(hex_data.filepath, '/') + 1) &&
 			(write_buffer(hex_data.filepath, hex_data.data, hex_data.size) == SUCCESS))
 		{
 			option_value_t* optval = list_get_item(selected_centry->options[option_index].opts, menu_sel);
@@ -836,6 +868,27 @@ static void doCodeOptionsMenu(void)
 		{
 			option_value_t* optval = list_get_item(code->options[option_index].opts, menu_sel);
 
+			if (optval->value[0] == CMD_HEX_EDIT_FILE && selected_entry->flags & SAVE_FLAG_VMC)
+			{
+				// Edit the save file directly from the memory card
+				memset(&hex_data, 0, sizeof(hex_data));
+				snprintf(hex_data.filepath, sizeof(hex_data.filepath), "VMC:/%s/%s", selected_entry->dir_name, optval->name);
+				// The editor needs at least one byte to put its cursor on
+				if (!vmc_read_save_file(selected_entry, optval->name, &hex_data.data, &hex_data.size) || !hex_data.size)
+				{
+					if (hex_data.data && !hex_data.size)
+						free(hex_data.data);
+
+					show_message("%s\n%s", _("Failed to load:"), hex_data.filepath);
+					SetMenu(last_menu_id[MENU_CODE_OPTIONS]);
+					return;
+				}
+				code->activated = 0;
+
+				SetMenu(MENU_HEX_EDITOR);
+				return;
+			}
+
 			if (optval->value[0] == CMD_HEX_EDIT_FILE)
 			{
 				optval->value[1] = CMD_DECRYPT_FILE;
@@ -843,8 +896,11 @@ static void doCodeOptionsMenu(void)
 
 				memset(&hex_data, 0, sizeof(hex_data));
 				snprintf(hex_data.filepath, sizeof(hex_data.filepath), APOLLO_USER_PATH "%s_%s/%s", apollo_config.user_id, selected_entry->title_id, selected_entry->dir_name, optval->name);
-				if (read_buffer(hex_data.filepath, &hex_data.data, &hex_data.size) < 0)
+				if (read_buffer(hex_data.filepath, &hex_data.data, &hex_data.size) < 0 || !hex_data.size)
 				{
+					if (hex_data.data && !hex_data.size)
+						free(hex_data.data);
+
 					show_message("%s\n%s", _("Failed to load:"), hex_data.filepath);
 					SetMenu(last_menu_id[MENU_CODE_OPTIONS]);
 					return;

@@ -100,6 +100,10 @@ int orbis_SaveMount(const save_entry_t *save, uint32_t mount_mode, char* mount_p
 	{
 		snprintf(keyPath, sizeof(keyPath), SAVES_PATH_HDD "%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
 		snprintf(volumePath, sizeof(volumePath), SAVES_PATH_HDD "%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
+
+		// Fallback: Try again without the sdimg_ prefix (early saves seem to lack it) if applicable
+		if (file_exists(volumePath) != SUCCESS)
+			snprintf(volumePath, sizeof(volumePath), SAVES_PATH_HDD "%s/%s", apollo_config.user_id, save->title_id, save->dir_name);
 	}
 
 	if ((mount_mode & ORBIS_SAVE_DATA_MOUNT_MODE_CREATE2) && (file_exists(keyPath) != SUCCESS))

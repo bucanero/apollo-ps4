@@ -297,6 +297,9 @@ int ReadVmc1Codes(save_entry_t * save);
 int ReadVmc2Codes(save_entry_t * save);
 int ReadVmuCodes(save_entry_t * save);
 
+int vmc_read_save_file(const save_entry_t* save, const char* filename, uint8_t** data, size_t* size);
+int vmc_write_save_file(const save_entry_t* save, const char* filename, const uint8_t* data, size_t size);
+
 int http_init(void);
 void http_end(void);
 int http_download(const char* url, const char* filename, const char* local_dst, int show_progress);

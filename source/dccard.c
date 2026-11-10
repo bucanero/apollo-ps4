@@ -193,6 +193,50 @@ int dccard_delete(int idx)
 	return (vmu_delete_file(&card, idx) == VMU_OK);
 }
 
+int dccard_read_file(int idx, uint8_t** data, size_t* len)
+{
+	return (vmu_read_file(&card, idx, data, len) == VMU_OK);
+}
+
+int dccard_write_file(int idx, const uint8_t* data, size_t len)
+{
+	vmu_dirent_t ent;
+	vms_header_t vms;
+	uint8_t *old, *buf;
+	size_t old_len, off;
+	int r, fix_crc = 0;
+
+	if (vmu_dir_get(&card, idx, &ent) != 1 || vmu_read_file(&card, idx, &old, &old_len) != VMU_OK)
+		return 0;
+
+	if (old_len != len || (buf = malloc(len)) == NULL)
+	{
+		LOG("Error: can't write '%s' (%d bytes, expected %d)", ent.filename, (int) len, (int) old_len);
+		free(old);
+		return 0;
+	}
+
+	memcpy(buf, data, len);
+	off = vms_header_offset(&ent);
+
+	// Keep a valid CRC valid, unless the new data sets its own
+	if (vms_parse(old, old_len, off, &vms) == 0 && vms_calc_crc(&vms) == vms.crc &&
+		memcmp(old + off + VMS_CRC_OFFSET, buf + off + VMS_CRC_OFFSET, 2) == 0)
+		fix_crc = 1;
+	free(old);
+
+	if (fix_crc && vms_update_crc(buf, len, off) == 0)
+		LOG("Updated '%s' VMS CRC", ent.filename);
+
+	r = vmu_overwrite_file(&card, idx, buf, len);
+	free(buf);
+
+	if (r != VMU_OK)
+		LOG("Error: can't write '%s' (%s)", ent.filename, vmu_strerror(r));
+
+	return (r == VMU_OK);
+}
+
 /* Write a file to the card, replacing one with the same name. On failure the
  * card is left as it was. */
 static int add_file(vmu_dirent_t *ent, const uint8_t *data, size_t len)

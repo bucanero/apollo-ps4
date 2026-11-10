@@ -141,6 +141,18 @@ int vms_calc_crc(const vms_header_t *vms)
 	return crc;
 }
 
+int vms_update_crc(uint8_t *data, size_t len, size_t off)
+{
+	vms_header_t vms;
+	int crc;
+
+	if (vms_parse(data, len, off, &vms) < 0 || (crc = vms_calc_crc(&vms)) < 0)
+		return -1;
+
+	append_le_uint16(data + off + VMS_CRC_OFFSET, crc);
+	return 0;
+}
+
 /* 4-bit pixels, high nybble first, through a 16-entry ARGB4444 palette */
 static void decode_4bpp(const uint8_t *pal, const uint8_t *bits, int npix, uint8_t *rgba)
 {

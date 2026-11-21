@@ -4,6 +4,33 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 
 ## [Unreleased]()
 
+### Added
+
+* Apply cheat codes to saves inside Virtual Memory Cards (PS1, PS2, Dreamcast)
+  - New `Apply Changes` option on VMC saves
+  - Codes that target a different save file of the same game are disabled
+  - Dreamcast saves are matched to their patches by file name (`dctitleid.txt`)
+* Hex Edit saves inside Virtual Memory Cards (PS1, PS2, Dreamcast)
+  - Dreamcast VMS CRC is updated when it was valid before the edit
+* Dreamcast saves on the Online Database (`.VMI/.VMS`), downloaded to `DC/SAVEDATA/`
+* Online Database and FTP backups: press the touchpad to filter the list by platform (All, PS4, PS2, PS1, DC). The filter is remembered.
+* Footer help shows the touchpad on save lists
+  - The touchpad selects saves on the Trophies, USB, HDD and Virtual Memory Card lists, and filters the Online Database
+
+### Fixed
+
+* Dreamcast VMU cards on the HDD didn't open
+* Crash when listing a PS2 VMC with a save whose `icon.sys` has an invalid title line break (e.g. No One Lives Forever)
+* PS1 and Dreamcast VMC changes that fail to save are reported, and kept to retry, instead of being lost
+* PS2 VMC read errors during PSV/PSU export or save delete are reported as failures, instead of an incomplete export or a reported success
+* Title IDs using `P` as separator (e.g. `SCPSP10052`) on PS1 and PS2 VMCs
+* Hex Editor no longer opens empty files
+* Centered text with button icons, such as the footer help, was shifted to the right
+
+### Misc
+
+* Add missing translation strings (`Open`, `Filter`, `Apply Changes`, `Error! Couldn't save changes to:`)
+
 ---
 
 ## [v2.4.0](https://github.com/bucanero/apollo-ps4/releases/tag/v2.4.0) - 2026-10-17

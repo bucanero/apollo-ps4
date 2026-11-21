@@ -1193,3 +1193,19 @@ msgstr ""
 #: exec_cmd.c
 msgid "Error exporting memory card:"
 msgstr ""
+
+#: main.c
+msgid "Open"
+msgstr ""
+
+#: main.c
+msgid "Filter"
+msgstr ""
+
+#: saves.c
+msgid "Apply Changes"
+msgstr ""
+
+#: menu_main.c
+msgid "Error! Couldn't save changes to:"
+msgstr ""

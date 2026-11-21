@@ -1197,3 +1197,19 @@ msgstr "Exporter la carte mémoire au format Nexus .DCM"
 #: exec_cmd.c
 msgid "Error exporting memory card:"
 msgstr "Erreur lors de l’exportation de la carte mémoire :"
+
+#: main.c
+msgid "Open"
+msgstr "Ouvrir"
+
+#: main.c
+msgid "Filter"
+msgstr "Filtrer"
+
+#: saves.c
+msgid "Apply Changes"
+msgstr "Appliquer les Modifications"
+
+#: menu_main.c
+msgid "Error! Couldn't save changes to:"
+msgstr "Erreur ! Impossible d'enregistrer les modifications dans :"

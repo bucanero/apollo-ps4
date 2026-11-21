@@ -2319,31 +2319,68 @@ static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 	free(data);
 }
 
-list_t * ReadOnlineList(const char* urlPath)
+/*
+ * Platforms of the Online DB and FTP backup lists, in the order the touchpad
+ * cycles through them. Filter 0 shows them all, filter N only online_platforms[N-1].
+ */
+static const struct {
+	uint16_t flag;
+	const char* folder;
+	const char* name;
+} online_platforms[ONLINE_FILTER_COUNT - 1] = {
+	{ SAVE_FLAG_PS4, "PS4/", "PS4" },  // Zip folder
+	{ SAVE_FLAG_PS2, "PS2/", "PS2" },  // Zip PSV
+	{ SAVE_FLAG_PS1, "PS1/", "PS1" },  // Zip PSV
+	{ SAVE_FLAG_DC,  "DC/",  "DC"  },  // Zip VMI/VMS
+};
+
+// The platform a filter shows, or NULL for all of them
+const char * online_filter_name(int filter)
+{
+	return (filter > 0 && filter < ONLINE_FILTER_COUNT) ? online_platforms[filter - 1].name : NULL;
+}
+
+// Only the filtered platforms are downloaded
+list_t * ReadOnlineListFiltered(const char* urlPath, int filter)
 {
 	char url[256];
 	list_t *list = list_alloc();
 
-	// PS4 save-games (Zip folder)
-	snprintf(url, sizeof(url), "%s" "PS4/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_PS4, list);
+	for (int i = 0; i < ONLINE_FILTER_COUNT - 1; i++)
+	{
+		if (filter > 0 && filter != i + 1)
+			continue;
 
-	// PS2 save-games (Zip PSV)
-	snprintf(url, sizeof(url), "%s" "PS2/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_PS2, list);
-
-	// PS1 save-games (Zip PSV)
-	snprintf(url, sizeof(url), "%s" "PS1/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_PS1, list);
-
-	// DC save-games (Zip VMI/VMS)
-	snprintf(url, sizeof(url), "%s" "DC/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_DC, list);
+		snprintf(url, sizeof(url), "%s%s", urlPath, online_platforms[i].folder);
+		_ReadOnlineListEx(url, online_platforms[i].flag, list);
+	}
 
 	if (!list_count(list))
 	{
 		list_free(list);
 		return NULL;
+	}
+
+	return list;
+}
+
+list_t * ReadOnlineList(const char* urlPath)
+{
+	list_t *list;
+
+	// Settings saved before the filter existed may hold anything in its byte
+	if (apollo_config.online_filter >= ONLINE_FILTER_COUNT)
+		apollo_config.online_filter = 0;
+
+	list = ReadOnlineListFiltered(urlPath, apollo_config.online_filter);
+
+	// A platform with nothing to show (e.g. DC on an FTP backup) would lock the
+	// user out of the list, and out of the touchpad to change it: show them all
+	if (!list && apollo_config.online_filter)
+	{
+		LOG("No %s saves, showing all platforms", online_filter_name(apollo_config.online_filter));
+		apollo_config.online_filter = 0;
+		list = ReadOnlineListFiltered(urlPath, 0);
 	}
 
 	return list;
@@ -2456,6 +2493,31 @@ list_t * ReadVmc1List(const char* userPath)
 	return list;
 }
 
+/*
+ * A save's title from its icon.sys, as a new UTF-8 string. secondLineOffset is
+ * where the second line of the title starts, and a Shift-JIS separator goes
+ * there. Games don't always store a valid one (No One Lives Forever: 0x800, in
+ * a 68 byte title), so it's only used when it falls inside the title text. The
+ * title field itself isn't always NUL terminated either.
+ */
+static char* iconsys_title(const ps2_IconSys_t* icon)
+{
+	char title[sizeof(icon->title) + 3];
+	size_t len = strnlen(icon->title, sizeof(icon->title));
+	size_t nl = icon->secondLineOffset;
+
+	memcpy(title, icon->title, len);
+	title[len] = 0;
+
+	if (nl > 0 && nl < len)
+	{
+		memmove(&title[nl + 2], &title[nl], len - nl + 1);
+		memcpy(&title[nl], "\x81\x50", 2);
+	}
+
+	return sjis2utf8(title);
+}
+
 list_t * ReadVmc2List(const char* userPath)
 {
 	char filePath[256];
@@ -2560,19 +2622,12 @@ list_t * ReadVmc2List(const char* userPath)
 			if (r != sizeof(ps2_IconSys_t))
 				continue;
 
-			if (iconsys.secondLineOffset)
-			{
-				memmove(&iconsys.title[iconsys.secondLineOffset+2], &iconsys.title[iconsys.secondLineOffset], sizeof(iconsys.title) - iconsys.secondLineOffset);
-				iconsys.title[iconsys.secondLineOffset] = 0x81;
-				iconsys.title[iconsys.secondLineOffset+1] = 0x50;
-			}
-
-			char* title = sjis2utf8(iconsys.title);
+			char* title = iconsys_title(&iconsys);
 			item = _createSaveEntry(SAVE_FLAG_PS2 | SAVE_FLAG_VMC, "", title);
 			item->type = FILE_TYPE_PS2;
 			item->dir_name = strdup(dirent.name);
 			asprintf(&item->title_id, "%.10s", dirent.name+2);
-			asprintf(&item->path, "%s\n%s/\n%s", userPath, dirent.name, iconsys.copyIconName);
+			asprintf(&item->path, "%s\n%s/\n%.*s", userPath, dirent.name, (int) sizeof(iconsys.IconName), iconsys.IconName);
 			free(title);
 
 			if(strlen(item->title_id) == 10 && (item->title_id[4] == '-' || item->title_id[4] == 'P'))

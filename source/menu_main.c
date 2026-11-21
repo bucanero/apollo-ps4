@@ -31,6 +31,7 @@ int * menu_options_maxsel;
 
 int menu_id = 0;												// Menu currently in
 int menu_sel = 0;												// Index of selected item (use varies per menu)
+static int online_filter_changed = 0;							// Online DB filter changed: saved on exit
 int menu_old_sel[TOTAL_MENU_IDS] = { 0 };						// Previous menu_sel for each menu
 int last_menu_id[TOTAL_MENU_IDS] = { 0 };						// Last menu id called (for returning)
 
@@ -64,6 +65,16 @@ void initMenuOptions(void)
 	}
 }
 
+static void sortUserSaves(save_list_t* save_list)
+{
+	if (apollo_config.doSort == SORT_BY_NAME)
+		list_bubbleSort(save_list->list, &sortSaveList_Compare);
+	else if (apollo_config.doSort == SORT_BY_TITLE_ID)
+		list_bubbleSort(save_list->list, &sortSaveList_Compare_TitleID);
+	else if (apollo_config.doSort == SORT_BY_TYPE)
+		list_bubbleSort(save_list->list, &sortSaveList_Compare_Type);
+}
+
 static int ReloadUserSaves(save_list_t* save_list)
 {
 	init_loading_screen(_("Loading save games..."));
@@ -78,12 +89,7 @@ static int ReloadUserSaves(save_list_t* save_list)
 		save_list->UpdatePath(save_list->path);
 
 	save_list->list = save_list->ReadList(save_list->path);
-	if (apollo_config.doSort == SORT_BY_NAME)
-		list_bubbleSort(save_list->list, &sortSaveList_Compare);
-	else if (apollo_config.doSort == SORT_BY_TITLE_ID)
-		list_bubbleSort(save_list->list, &sortSaveList_Compare_TitleID);
-	else if (apollo_config.doSort == SORT_BY_TYPE)
-		list_bubbleSort(save_list->list, &sortSaveList_Compare_Type);
+	sortUserSaves(save_list);
 
 	stop_loading_screen();
 
@@ -188,6 +194,12 @@ static void SetMenu(int id)
 			break;
 
 		case MENU_ONLINE_DB: //Cheats Online Menu
+			if (online_filter_changed && id == MENU_MAIN_SCREEN)
+			{
+				online_filter_changed = 0;
+				save_app_settings(&apollo_config);
+			}
+
 			if (apollo_config.online_opt && id == MENU_MAIN_SCREEN)
 			{
 				UnloadGameList(online_saves.list);
@@ -501,6 +513,39 @@ static int updatePadSelection(int total)
 	return 1;
 }
 
+/*
+ * Touchpad on the Online DB (or FTP backup) list: show the next platform, in the order
+ * all -> PS4 -> PS2 -> PS1 -> DC -> all. Platforms with nothing to show are
+ * skipped, and if nothing loads at all the current list stays.
+ */
+static void cycleOnlineFilter(save_list_t* save_list)
+{
+	list_t* list = NULL;
+	uint8_t filter = apollo_config.online_filter;
+
+	init_loading_screen(_("Loading save games..."));
+	for (int i = 0; i < ONLINE_FILTER_COUNT && !list; i++)
+	{
+		filter = (filter + 1) % ONLINE_FILTER_COUNT;
+		list = ReadOnlineListFiltered(save_list->path, filter);
+	}
+	stop_loading_screen();
+
+	if (!list)
+		return;
+
+	UnloadGameList(save_list->list);
+	save_list->list = list;
+	sortUserSaves(save_list);
+	menu_sel = 0;
+
+	if (filter != apollo_config.online_filter)
+	{
+		apollo_config.online_filter = filter;
+		online_filter_changed = 1;
+	}
+}
+
 static void doSaveMenu(save_list_t * save_list)
 {
 	if (updatePadSelection(list_count(save_list->list)))
@@ -572,6 +617,10 @@ static void doSaveMenu(save_list_t * save_list)
 			SetMenu(MENU_SAVE_DETAILS);
 			return;
 		}
+	}
+	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TOUCH_PAD) && save_list->id == MENU_ONLINE_DB)
+	{
+		cycleOnlineFilter(save_list);
 	}
 	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TOUCH_PAD) &&
 		(save_list->id != MENU_ONLINE_DB && save_list->id != MENU_USER_BACKUP))

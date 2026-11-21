@@ -1193,3 +1193,19 @@ msgstr "将存储卡导出为 Nexus .DCM"
 #: exec_cmd.c
 msgid "Error exporting memory card:"
 msgstr "导出存储卡时出错："
+
+#: main.c
+msgid "Open"
+msgstr "打开"
+
+#: main.c
+msgid "Filter"
+msgstr "筛选"
+
+#: saves.c
+msgid "Apply Changes"
+msgstr "应用修改"
+
+#: menu_main.c
+msgid "Error! Couldn't save changes to:"
+msgstr "错误！无法保存修改至："

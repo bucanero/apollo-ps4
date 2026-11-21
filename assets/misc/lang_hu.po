@@ -1196,3 +1196,19 @@ msgstr "Memóriakártya exportálása Nexus .DCM formátumban"
 #: exec_cmd.c
 msgid "Error exporting memory card:"
 msgstr "Hiba a memóriakártya exportálásakor:"
+
+#: main.c
+msgid "Open"
+msgstr "Megnyitás"
+
+#: main.c
+msgid "Filter"
+msgstr "Szűrés"
+
+#: saves.c
+msgid "Apply Changes"
+msgstr "Változások alkalmazása"
+
+#: menu_main.c
+msgid "Error! Couldn't save changes to:"
+msgstr "Hiba! Nem sikerült menteni a változásokat ide:"

@@ -1196,3 +1196,19 @@ msgstr "메모리 카드를 Nexus .DCM으로 내보내기"
 #: exec_cmd.c
 msgid "Error exporting memory card:"
 msgstr "메모리 카드 내보내기 오류:"
+
+#: main.c
+msgid "Open"
+msgstr "열기"
+
+#: main.c
+msgid "Filter"
+msgstr "필터"
+
+#: saves.c
+msgid "Apply Changes"
+msgstr "변경 사항 적용"
+
+#: menu_main.c
+msgid "Error! Couldn't save changes to:"
+msgstr "오류! 변경 사항을 저장할 수 없습니다:"

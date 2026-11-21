@@ -1,4 +1,4 @@
-#define APOLLO_VERSION          "2.4.0"     //Apollo PS4 version (about menu)
+#define APOLLO_VERSION          "2.5.0"     //Apollo PS4 version (about menu)
 #define APOLLO_PLATFORM         "PS4"       //Apollo platform
 
 #define MENU_TITLE_OFF          45          //Offset of menu title text from menu mini icon
@@ -37,6 +37,7 @@ typedef struct
     uint8_t usb_dev;
     uint8_t online_opt;
     uint8_t dbglog;
+    uint8_t online_filter;      // Online DB platform (0 = all); sits in what was padding, so saved settings still load
     uint32_t user_id;
     uint64_t psid[2];
     uint64_t account_id;

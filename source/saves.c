@@ -2456,6 +2456,31 @@ list_t * ReadVmc1List(const char* userPath)
 	return list;
 }
 
+/*
+ * A save's title from its icon.sys, as a new UTF-8 string. secondLineOffset is
+ * where the second line of the title starts, and a Shift-JIS separator goes
+ * there. Games don't always store a valid one (No One Lives Forever: 0x800, in
+ * a 68 byte title), so it's only used when it falls inside the title text. The
+ * title field itself isn't always NUL terminated either.
+ */
+static char* iconsys_title(const ps2_IconSys_t* icon)
+{
+	char title[sizeof(icon->title) + 3];
+	size_t len = strnlen(icon->title, sizeof(icon->title));
+	size_t nl = icon->secondLineOffset;
+
+	memcpy(title, icon->title, len);
+	title[len] = 0;
+
+	if (nl > 0 && nl < len)
+	{
+		memmove(&title[nl + 2], &title[nl], len - nl + 1);
+		memcpy(&title[nl], "\x81\x50", 2);
+	}
+
+	return sjis2utf8(title);
+}
+
 list_t * ReadVmc2List(const char* userPath)
 {
 	char filePath[256];
@@ -2560,19 +2585,12 @@ list_t * ReadVmc2List(const char* userPath)
 			if (r != sizeof(ps2_IconSys_t))
 				continue;
 
-			if (iconsys.secondLineOffset)
-			{
-				memmove(&iconsys.title[iconsys.secondLineOffset+2], &iconsys.title[iconsys.secondLineOffset], sizeof(iconsys.title) - iconsys.secondLineOffset);
-				iconsys.title[iconsys.secondLineOffset] = 0x81;
-				iconsys.title[iconsys.secondLineOffset+1] = 0x50;
-			}
-
-			char* title = sjis2utf8(iconsys.title);
+			char* title = iconsys_title(&iconsys);
 			item = _createSaveEntry(SAVE_FLAG_PS2 | SAVE_FLAG_VMC, "", title);
 			item->type = FILE_TYPE_PS2;
 			item->dir_name = strdup(dirent.name);
 			asprintf(&item->title_id, "%.10s", dirent.name+2);
-			asprintf(&item->path, "%s\n%s/\n%s", userPath, dirent.name, iconsys.copyIconName);
+			asprintf(&item->path, "%s\n%s/\n%.*s", userPath, dirent.name, (int) sizeof(iconsys.copyIconName), iconsys.copyIconName);
 			free(title);
 
 			if(strlen(item->title_id) == 10 && (item->title_id[4] == '-' || item->title_id[4] == 'P'))

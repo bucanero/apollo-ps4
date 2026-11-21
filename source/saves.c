@@ -2590,7 +2590,7 @@ list_t * ReadVmc2List(const char* userPath)
 			item->type = FILE_TYPE_PS2;
 			item->dir_name = strdup(dirent.name);
 			asprintf(&item->title_id, "%.10s", dirent.name+2);
-			asprintf(&item->path, "%s\n%s/\n%.*s", userPath, dirent.name, (int) sizeof(iconsys.copyIconName), iconsys.copyIconName);
+			asprintf(&item->path, "%s\n%s/\n%.*s", userPath, dirent.name, (int) sizeof(iconsys.IconName), iconsys.IconName);
 			free(title);
 
 			if(strlen(item->title_id) == 10 && (item->title_id[4] == '-' || item->title_id[4] == 'P'))

@@ -514,7 +514,7 @@ static int updatePadSelection(int total)
 }
 
 /*
- * Touchpad on the Online DB list: show the next platform, in the order
+ * Touchpad on the Online DB (or FTP backup) list: show the next platform, in the order
  * all -> PS4 -> PS2 -> PS1 -> DC -> all. Platforms with nothing to show are
  * skipped, and if nothing loads at all the current list stays.
  */

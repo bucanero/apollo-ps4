@@ -13,7 +13,7 @@ All notable changes to the `apollo-ps4` project will be documented in this file.
 * Hex Edit saves inside Virtual Memory Cards (PS1, PS2, Dreamcast)
   - Dreamcast VMS CRC is updated when it was valid before the edit
 * Dreamcast saves on the Online Database (`.VMI/.VMS`), downloaded to `DC/SAVEDATA/`
-* Online Database: press the touchpad to filter the list by platform (All, PS4, PS2, PS1, DC). The filter is remembered.
+* Online Database and FTP backups: press the touchpad to filter the list by platform (All, PS4, PS2, PS1, DC). The filter is remembered.
 * Footer help shows the touchpad on save lists
   - The touchpad selects saves on the Trophies, USB, HDD and Virtual Memory Card lists, and filters the Online Database
 

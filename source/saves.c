@@ -2320,8 +2320,8 @@ static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 }
 
 /*
- * Platforms of the Online DB list, in the order the touchpad cycles through
- * them. Filter 0 shows them all, filter N only online_platforms[N-1].
+ * Platforms of the Online DB and FTP backup lists, in the order the touchpad
+ * cycles through them. Filter 0 shows them all, filter N only online_platforms[N-1].
  */
 static const struct {
 	uint16_t flag;
@@ -2374,8 +2374,8 @@ list_t * ReadOnlineList(const char* urlPath)
 
 	list = ReadOnlineListFiltered(urlPath, apollo_config.online_filter);
 
-	// A platform with nothing to show would lock the user out of the list,
-	// and out of the touchpad to change it: show them all
+	// A platform with nothing to show (e.g. DC on an FTP backup) would lock the
+	// user out of the list, and out of the touchpad to change it: show them all
 	if (!list && apollo_config.online_filter)
 	{
 		LOG("No %s saves, showing all platforms", online_filter_name(apollo_config.online_filter));

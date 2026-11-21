@@ -2319,31 +2319,68 @@ static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 	free(data);
 }
 
-list_t * ReadOnlineList(const char* urlPath)
+/*
+ * Platforms of the Online DB list, in the order the touchpad cycles through
+ * them. Filter 0 shows them all, filter N only online_platforms[N-1].
+ */
+static const struct {
+	uint16_t flag;
+	const char* folder;
+	const char* name;
+} online_platforms[ONLINE_FILTER_COUNT - 1] = {
+	{ SAVE_FLAG_PS4, "PS4/", "PS4" },  // Zip folder
+	{ SAVE_FLAG_PS2, "PS2/", "PS2" },  // Zip PSV
+	{ SAVE_FLAG_PS1, "PS1/", "PS1" },  // Zip PSV
+	{ SAVE_FLAG_DC,  "DC/",  "DC"  },  // Zip VMI/VMS
+};
+
+// The platform a filter shows, or NULL for all of them
+const char * online_filter_name(int filter)
+{
+	return (filter > 0 && filter < ONLINE_FILTER_COUNT) ? online_platforms[filter - 1].name : NULL;
+}
+
+// Only the filtered platforms are downloaded
+list_t * ReadOnlineListFiltered(const char* urlPath, int filter)
 {
 	char url[256];
 	list_t *list = list_alloc();
 
-	// PS4 save-games (Zip folder)
-	snprintf(url, sizeof(url), "%s" "PS4/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_PS4, list);
+	for (int i = 0; i < ONLINE_FILTER_COUNT - 1; i++)
+	{
+		if (filter > 0 && filter != i + 1)
+			continue;
 
-	// PS2 save-games (Zip PSV)
-	snprintf(url, sizeof(url), "%s" "PS2/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_PS2, list);
-
-	// PS1 save-games (Zip PSV)
-	snprintf(url, sizeof(url), "%s" "PS1/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_PS1, list);
-
-	// DC save-games (Zip VMI/VMS)
-	snprintf(url, sizeof(url), "%s" "DC/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_DC, list);
+		snprintf(url, sizeof(url), "%s%s", urlPath, online_platforms[i].folder);
+		_ReadOnlineListEx(url, online_platforms[i].flag, list);
+	}
 
 	if (!list_count(list))
 	{
 		list_free(list);
 		return NULL;
+	}
+
+	return list;
+}
+
+list_t * ReadOnlineList(const char* urlPath)
+{
+	list_t *list;
+
+	// Settings saved before the filter existed may hold anything in its byte
+	if (apollo_config.online_filter >= ONLINE_FILTER_COUNT)
+		apollo_config.online_filter = 0;
+
+	list = ReadOnlineListFiltered(urlPath, apollo_config.online_filter);
+
+	// A platform with nothing to show would lock the user out of the list,
+	// and out of the touchpad to change it: show them all
+	if (!list && apollo_config.online_filter)
+	{
+		LOG("No %s saves, showing all platforms", online_filter_name(apollo_config.online_filter));
+		apollo_config.online_filter = 0;
+		list = ReadOnlineListFiltered(urlPath, 0);
 	}
 
 	return list;

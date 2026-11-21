@@ -1197,3 +1197,19 @@ msgstr "Εξαγωγή κάρτας μνήμης σε Nexus .DCM"
 #: exec_cmd.c
 msgid "Error exporting memory card:"
 msgstr "Σφάλμα κατά την εξαγωγή της κάρτας μνήμης:"
+
+#: main.c
+msgid "Open"
+msgstr "Άνοιγμα"
+
+#: main.c
+msgid "Filter"
+msgstr "Φίλτρο"
+
+#: saves.c
+msgid "Apply Changes"
+msgstr "Εφαρμογή αλλαγών"
+
+#: menu_main.c
+msgid "Error! Couldn't save changes to:"
+msgstr "Σφάλμα! Αποτυχία αποθήκευσης αλλαγών σε:"

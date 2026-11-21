@@ -37,6 +37,7 @@ typedef struct
     uint8_t usb_dev;
     uint8_t online_opt;
     uint8_t dbglog;
+    uint8_t online_filter;      // Online DB platform (0 = all); sits in what was padding, so saved settings still load
     uint32_t user_id;
     uint64_t psid[2];
     uint64_t account_id;

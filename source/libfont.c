@@ -359,9 +359,13 @@ void RegisterSpecialCharacter(char value, short fy, float scale, png_texture* im
 	}
 }
 
+int skip_icon(int x, int y, char c);
+
+// Measure with the same icon callback DrawString uses: without it, button and
+// tag icons count as empty control characters and centered text drifts right
 int WidthFromStr(const char * str)
 {
-	return width_ttf_string(str, font_datas.sx, font_datas.sy);
+	return display_ttf_string(0, 0, str, 0, 0, font_datas.sx, font_datas.sy, &skip_icon);
 }
 
 int WidthFromStrMono(u8 * str)

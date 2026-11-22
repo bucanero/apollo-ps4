@@ -618,7 +618,7 @@ static void doSaveMenu(save_list_t * save_list)
 			return;
 		}
 	}
-	else if (orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TOUCH_PAD) && save_list->id == MENU_ONLINE_DB)
+	else if (save_list->id == MENU_ONLINE_DB && orbisPadGetButtonPressed(ORBIS_PAD_BUTTON_TOUCH_PAD))
 	{
 		cycleOnlineFilter(save_list);
 	}

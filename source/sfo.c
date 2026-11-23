@@ -27,14 +27,21 @@ typedef struct sfo_index_table_s {
 } sfo_index_table_t;
 
 typedef struct sfo_param_params_s {
-	u32 unk1;
+	u32 version;           // =0
 	u32 user_id;
 	u8 psid_hmac[32];
-	u32 unk3;
-	char title_id_1[0x10];
-	char title_id_2[0x10];
-	u32 unk4;
-	u8 chunk[0x3B0];
+	u32 counter_id;        //  =1  2  3
+	char title_id_1[0x10]; //   |  |  |
+	char title_id_2[0x10]; //   |  |  |
+	u32 RETAIL_counter1;   // <-/  |  |
+	u32 DEX_TOOL_counter2; // <----/  |
+	u32 DEX_TOOL_counter3; // <-------/
+	u32 fake_owner;        // =0/1
+	u32 flags;             // =4      NOT_FINALIZED=2
+	u64 archive_time1;
+	u64 archive_time2;
+	u32 corrupt_flag;      // =0/1
+	u8 chunk[908];
 } sfo_param_params_t;
 
 typedef struct sfo_context_param_s {

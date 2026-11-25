@@ -120,7 +120,16 @@ static void ani_callback(int sel)
 
 static void usb_callback(int sel)
 {
+	extern save_list_t usb_saves;
+
 	apollo_config.usb_dev = sel;
+
+	// USB Saves keeps its list: drop it, so the new source is read next time
+	if (usb_saves.list)
+	{
+		UnloadGameList(usb_saves.list);
+		usb_saves.list = NULL;
+	}
 }
 
 static void server_callback(int sel)

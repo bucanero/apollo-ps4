@@ -190,34 +190,34 @@ static const char* get_button_prompts(char* prompt)
 		case MENU_PS1VMC_SAVES:
 		case MENU_PS2VMC_SAVES:
 		case MENU_DCVMC_SAVES:
-			snprintf(prompt, 0xFF, "\x10 %s    \x13 %s    \x12 %s    \x11 %s    %c %s", _("Open"), _("Back"), _("Details"), _("Refresh"), CHAR_BTN_TOUCH, _("Select"));
+			snprintf(prompt, 0xFF, "%c %s    %c %s    %c %s    %c %s    %c %s", CHAR_BTN_X, _("Open"), CHAR_BTN_O, _("Back"), CHAR_BTN_T, _("Details"), CHAR_BTN_S, _("Refresh"), CHAR_BTN_TOUCH, _("Select"));
 			break;
 
 		case MENU_ONLINE_DB:
-			snprintf(prompt, 0xFF, "\x10 %s    \x13 %s    \x12 %s    \x11 %s    %c %s", _("Open"), _("Back"), _("Details"), _("Refresh"), CHAR_BTN_TOUCH, _("Filter"));
+			snprintf(prompt, 0xFF, "%c %s    %c %s    %c %s    %c %s    %c %s", CHAR_BTN_X, _("Open"), CHAR_BTN_O, _("Back"), CHAR_BTN_T, _("Details"), CHAR_BTN_S, _("Refresh"), CHAR_BTN_TOUCH, _("Filter"));
 			break;
 
 		case MENU_USER_BACKUP:
-			snprintf(prompt, 0xFF, "\x10 %s    \x13 %s    \x11 %s", _("Select"), _("Back"), _("Refresh"));
+			snprintf(prompt, 0xFF, "%c %s    %c %s    %c %s", CHAR_BTN_X, _("Select"), CHAR_BTN_O, _("Back"), CHAR_BTN_S, _("Refresh"));
 			break;
 
 		case MENU_SETTINGS:
 		case MENU_CODE_OPTIONS:
-			snprintf(prompt, 0xFF, "\x10 %s    \x13 %s", _("Select"), _("Back"));
+			snprintf(prompt, 0xFF, "%c %s    %c %s", CHAR_BTN_X, _("Select"), CHAR_BTN_O, _("Back"));
 			break;
 
 		case MENU_CREDITS:
 		case MENU_PATCH_VIEW:
 		case MENU_SAVE_DETAILS:
-			snprintf(prompt, 0xFF, "\x13 %s", _("Back"));
+			snprintf(prompt, 0xFF, "%c %s", CHAR_BTN_O, _("Back"));
 			break;
 
 		case MENU_PATCHES:
-			snprintf(prompt, 0xFF, "\x10 %s    \x12 %s    \x13 %s", _("Select"), _("View Code"), _("Back"));
+			snprintf(prompt, 0xFF, "%c %s    %c %s    %c %s", CHAR_BTN_X, _("Select"), CHAR_BTN_T, _("View Code"), CHAR_BTN_O, _("Back"));
 			break;
 
 		case MENU_HEX_EDITOR:
-			snprintf(prompt, 0xFF, "\x10 %s    \x11 %s    \x12 %s    \x13 %s", _("Value Up"), _("Value Down"), _("Search"), _("Exit"));
+			snprintf(prompt, 0xFF, "%c %s    %c %s    %c %s    %c %s", CHAR_BTN_X, _("Value Up"), CHAR_BTN_S, _("Value Down"), CHAR_BTN_T, _("Search"), CHAR_BTN_O, _("Exit"));
 			break;
 
 		case MENU_MAIN_SCREEN:
